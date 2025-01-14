@@ -26,6 +26,14 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(RobotEditor
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        resources.qrc
+        joint.h joint.cpp
+        robot.h robot.cpp
+        tool.h tool.cpp
+        kinematics.cpp kinematics.h
+        dynamics.cpp dynamics.h
+        visualization.cpp visualization.h
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET RobotEditor APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
