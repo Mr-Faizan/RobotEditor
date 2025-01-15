@@ -19,7 +19,7 @@ void RobotKinematics::calculateDhParams()
     // Implemention
 }
 
-void JointKinematics::calculateDhParams()
+void ToolKinematics::calculateDhParams()
 {
     // Implemention
 }

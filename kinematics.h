@@ -1,6 +1,8 @@
 #ifndef KINEMATICS_H
 #define KINEMATICS_H
 
+#include <QString>
+
 /*
 Implementation Structure.
 Kinematics can be for the Robot or for the Joints or for the Tools.
