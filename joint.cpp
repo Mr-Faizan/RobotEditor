@@ -1,10 +1,21 @@
 #include "joint.h"
 
-Joint::Joint(const std::string& name, const std::string& type, float range)
-    : name(name), type(type), range(range), dynamics(nullptr), kinematics(nullptr), visualization(nullptr)
+Joint::Joint(const QString &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient)
+    : name(name),
+      motionRangeMin(motionRangeMin),
+      motionRangeMax(motionRangeMax),
+      jointSpeedLimit(jointSpeedLimit),
+      frictionCoefficient(frictionCoefficient),
+      stiffnessCoefficient(stiffnessCoefficient),
+      dampingCoefficient(dampingCoefficient),
+
+      kinematics(nullptr),
+      visualization(nullptr)
 {
-    // Initialize dynamics, kinematics, and visualization for the joint
-    dynamics = new JointDynamics();
-    kinematics = new JointKinematics();
-    visualization = new JointVisualization();
+}
+
+Joint::~Joint()
+{
+    delete kinematics;
+    delete visualization;
 }
