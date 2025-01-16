@@ -1,16 +1,18 @@
 #ifndef JOINT_H
 #define JOINT_H
 
-#include <QString>
-#include <QVector>
+#include <string>
+#include <vector>
 #include "dynamics.h"
 #include "kinematics.h"
 #include "visualization.h"
 
+using namespace std;
+
 class Joint
 {
 private:
-    QString name;
+    string name;
     double motionRangeMin;
     double motionRangeMax;
     double jointSpeedLimit;
@@ -18,17 +20,17 @@ private:
     double stiffnessCoefficient;
     double dampingCoefficient;
 
-    QVector<JointDynamics> dynamics; // Container for multiple JointDynamics objects
+    vector<JointDynamics> dynamics; // Container for multiple JointDynamics objects
     Kinematics *kinematics;
     Visualization *visualization;
 
 public:
     Joint() = default;
-    Joint(const QString &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient);
+    Joint(const string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient);
     ~Joint();
 
     // Setters
-    void setName(const QString &name) { this->name = name; }
+    void setName(const string &name) { this->name = name; }
     void setMotionRangeMin(double min) { this->motionRangeMin = min; }
     void setMotionRangeMax(double max) { this->motionRangeMax = max; }
     void setJointSpeedLimit(double speed) { this->jointSpeedLimit = speed; }
@@ -37,7 +39,7 @@ public:
     void setDampingCoefficient(double damping) { this->dampingCoefficient = damping; }
 
     // Getters
-    QString getName() const { return name; }
+    string getName() const { return name; }
     double getMotionRangeMin() const { return motionRangeMin; }
     double getMotionRangeMax() const { return motionRangeMax; }
     double getJointSpeedLimit() const { return jointSpeedLimit; }

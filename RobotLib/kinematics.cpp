@@ -1,9 +1,13 @@
 #include "kinematics.h"
 
+#include <string>
+
+using namespace std;
+
 JointKinematics::JointKinematics()
     : modifiedDh(false) {}
 
-JointKinematics::JointKinematics(const DHParameters &dhParameters, const RotationalValues &rotationalValues, const QString &dhType, bool modifiedDh)
+JointKinematics::JointKinematics(const DHParameters &dhParameters, const RotationalValues &rotationalValues, const string &dhType, bool modifiedDh)
     : dhParameters(dhParameters),
       rotationalValues(rotationalValues),
       dhType(dhType),

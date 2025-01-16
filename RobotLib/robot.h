@@ -1,8 +1,9 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
-#include <QString>
-#include <QVector>
+#include <string>
+
+using namespace std;
 
 /*
 Implementation Structure.
@@ -21,8 +22,8 @@ class Robot
 
 private:
     int id; // Unique ID for each Robot.
-    QString name;
-    QString manufacturer;
+    string name;
+    string manufacturer;
     double payload;
     double footPrint;
     double maxReach;
@@ -34,15 +35,15 @@ public:
     Robot() = default;
 
     // Implement Constructor Overloading for easy initialization of the Robot.
-    Robot(int id, const QString &name, const QString &manufacturer, double payload, double footPrint, double maxReach, double repeatability, double weight, int dof);
+    Robot(int id, const string &name, const string &manufacturer, double payload, double footPrint, double maxReach, double repeatability, double weight, int dof);
 
     // Implement Destructor for the Robot.
     ~Robot();
 
     // Setters
     void setId(int id) { this->id = id; }
-    void setName(const QString &name) { this->name = name; }
-    void setManufacturer(const QString &manufacturer) { this->manufacturer = manufacturer; }
+    void setName(const string &name) { this->name = name; }
+    void setManufacturer(const string &manufacturer) { this->manufacturer = manufacturer; }
     void setPayload(double payload) { this->payload = payload; }
     void setFootPrint(double footPrint) { this->footPrint = footPrint; }
     void setMaxReach(double maxReach) { this->maxReach = maxReach; }
@@ -52,8 +53,8 @@ public:
 
     // Getters
     int getId() const { return id; }
-    QString getName() const { return name; }
-    QString getManufacturer() const { return manufacturer; }
+    string getName() const { return name; }
+    string getManufacturer() const { return manufacturer; }
     double getPayload() const { return payload; }
     double getFootPrint() const { return footPrint; }
     double getMaxReach() const { return maxReach; }

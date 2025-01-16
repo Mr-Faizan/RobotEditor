@@ -1,6 +1,10 @@
 #include "joint.h"
 
-Joint::Joint(const QString &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient)
+#include <string>
+
+using namespace std;
+
+Joint::Joint(const string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient)
     : name(name),
       motionRangeMin(motionRangeMin),
       motionRangeMax(motionRangeMax),

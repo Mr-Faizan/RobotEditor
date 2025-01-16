@@ -12,6 +12,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 
+# Add the RobotLib subdirectory
+add_subdirectory(RobotLib)
+
 set(TS_FILES RobotEditor_de_DE.ts)
 
 set(PROJECT_SOURCES
@@ -27,12 +30,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         resources.qrc
-        joint.h joint.cpp
-        robot.h robot.cpp
-        tool.h tool.cpp
-        kinematics.cpp kinematics.h
-        dynamics.cpp dynamics.h
-        visualization.cpp visualization.h
 
     )
 # Define target properties for Android with Qt 6 as:
@@ -57,7 +54,12 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-target_link_libraries(RobotEditor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+# Link the RobotLib library and Qt libraries
+target_link_libraries(RobotEditor PRIVATE RobotLib Qt${QT_VERSION_MAJOR}::Widgets)
+
+# Include directories
+target_include_directories(RobotEditor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/RobotLib)
+
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -83,3 +85,4 @@ install(TARGETS RobotEditor
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(RobotEditor)
 endif()
+

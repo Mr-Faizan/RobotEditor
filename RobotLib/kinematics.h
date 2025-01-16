@@ -1,7 +1,9 @@
 #ifndef KINEMATICS_H
 #define KINEMATICS_H
 
-#include <QString>
+#include <string>
+
+using namespace std;
 
 /*
 Implementation Structure.
@@ -56,25 +58,25 @@ public:
 private:
     DHParameters dhParameters;
     RotationalValues rotationalValues;
-    QString dhType;
+    string dhType;
     bool modifiedDh;
 
 public:
     JointKinematics();
-    JointKinematics(const DHParameters &dhParameters, const RotationalValues &rotationalValues, const QString &dhType, bool modifiedDh);
+    JointKinematics(const DHParameters &dhParameters, const RotationalValues &rotationalValues, const string &dhType, bool modifiedDh);
 
     void calculateDhParams() override;
 
     // Setters
     void setDhParameters(const DHParameters &dhParameters) { this->dhParameters = dhParameters; }
     void setRotationalValues(const RotationalValues &rotationalValues) { this->rotationalValues = rotationalValues; }
-    void setDhType(const QString &dhType) { this->dhType = dhType; }
+    void setDhType(const string &dhType) { this->dhType = dhType; }
     void setModifiedDh(bool modifiedDh) { this->modifiedDh = modifiedDh; }
 
     // Getters
     DHParameters getDhParameters() const { return dhParameters; }
     RotationalValues getRotationalValues() const { return rotationalValues; }
-    QString getDhType() const { return dhType; }
+    string getDhType() const { return dhType; }
     bool isModifiedDh() const { return modifiedDh; }
 };
 
