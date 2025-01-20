@@ -9,8 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools Core 3DCore 3DExtras 3DInput 3DRender Gui)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools Core 3DCore 3DExtras 3DInput 3DRender Gui)
 
 # Add the RobotLib subdirectory
 add_subdirectory(RobotLib)
@@ -55,7 +55,10 @@ else()
 endif()
 
 # Link the RobotLib library and Qt libraries
-target_link_libraries(RobotEditor PRIVATE RobotLib Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(RobotEditor PRIVATE RobotLib Qt${QT_VERSION_MAJOR}::Widgets
+Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::3DCore Qt${QT_VERSION_MAJOR}::3DExtras
+Qt${QT_VERSION_MAJOR}::3DInput Qt${QT_VERSION_MAJOR}::3DRender Qt${QT_VERSION_MAJOR}::Gui)
+
 
 # Include directories
 target_include_directories(RobotEditor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/RobotLib)
