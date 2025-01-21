@@ -3,14 +3,21 @@
 
 #include <QMainWindow>
 #include <QWidget>
+#include <QDebug>
+#include <iostream>
 
-// Qt Libraries
+// Qt JSON and File Libraries
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QFile>
+
+// QT TreeView Libraries
 #include <QTreeView>
 #include <QStandardItemModel>
+#include <QStandardItem>
+#include <QLineEdit>
+#include <QHBoxLayout>
 
 
 // 3D Libraries
@@ -20,6 +27,13 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QColor>
+
+// Adding nlohmann JSON Library directly in the code.
+#include <json.hpp>
+
+using json = nlohmann::json;
+
+
 
 using namespace std;
 
@@ -40,10 +54,16 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QStandardItemModel *model;
+
     Qt3DExtras::Qt3DWindow *view;
     Qt3DCore::QEntity *rootEntity;
 
     void addRobotDataTemplate();
+    
+    void populateModel(const QJsonObject &jsonObject, QStandardItem *parentItem);
+    void populateArray(const QJsonArray &jsonArray, QStandardItem *parentItem);
+
 
     // 3D Window Playground
     void setup3DPlayground();
