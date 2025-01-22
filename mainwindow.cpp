@@ -1,6 +1,10 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+// Counters for Joints and Dynamics
+static int jointCount = 0;
+static int jointDynamicsCount = 0;
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -8,11 +12,16 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // First we need to add the template of Robot data from the file.
+    // Configurations Panel part.
     addRobotDataTemplate();
 
+    // Testing
+    populateNewJoint();
+    populateNewJoint();
+    populateNewJointDynamics();
+    populateNewJointDynamics();
 
-    // Setup the 3D Playground
+    //3D Model Visualization part.
     setup3DPlayground();
 }
 
@@ -22,6 +31,8 @@ MainWindow::~MainWindow()
 }
 
 // Add the Robot Data Template
+// This function will read the JSON file and populate the TreeView with the data.
+// This function is part of Populating the template of Robot Data.
 void MainWindow::addRobotDataTemplate() {
 
 
@@ -55,14 +66,17 @@ void MainWindow::addRobotDataTemplate() {
     ui->treeView->resizeColumnToContents(1);
 }
 
+
+
+
 // Populating the Model for the TreeView from the JSON Object
+// This function is part of Populating the template of Robot Data.
 void MainWindow::populateTreeView(const QJsonObject &jsonObject, QStandardItem *parentItem) {
     
     if (jsonObject.isEmpty() || parentItem == nullptr) {
         qWarning("JSON Object is empty or parentItem is null in populateTreeView");
         return;
     }
-
     for (auto it = jsonObject.begin(); it != jsonObject.end(); ++it) {
         if (it.key() == "Robot") {
             robotItem = new QStandardItem("Robot");
@@ -70,35 +84,50 @@ void MainWindow::populateTreeView(const QJsonObject &jsonObject, QStandardItem *
             robotItemKeysArray = it.value().toArray();
             populateTreeViewNodes(robotItemKeysArray, robotItem);
         } else if (it.key() == "Joint") {
-            jointsItem = new QStandardItem("Joints");
+            jointCount++;
+            // This is to combine all Joint under one tab.
+            jointsCategory = new QStandardItem("Joints");
+            jointItem = new QStandardItem("Joint");
             jointItemKeysArray = it.value().toArray();
-            populateTreeViewNodes(jointItemKeysArray, jointsItem);
+            populateTreeViewNodes(jointItemKeysArray, jointItem);
         } else if (it.key() == "JointKinematics") {
             jointKinematicsItem = new QStandardItem("Joint Kinematics");
             jointKinematicsItemKeysArray = it.value().toArray();
             populateTreeViewNodes(jointKinematicsItemKeysArray, jointKinematicsItem);
         } else if (it.key() == "JointDynamics") {
-            jointDynamicsItem = new QStandardItem("Joint Dynamics");
+            jointDynamicsCount++;
+            // This is to combine all Dynamics under one tab.
+            jointDynamicsCategory = new QStandardItem("Joint Dynamics");
+            jointDynamicsItem = new QStandardItem("Payload");
             jointDynamicsItemKeysArray = it.value().toArray();
             populateTreeViewNodes(jointDynamicsItemKeysArray, jointDynamicsItem);
         }
     }
 
+    // Until now all the Items are created separately,
+    // Like we have Robot Item, Joints Item, Kinematics Item and Dynamics Item
+    // Now we need to append them to make a tree structure.
+
     if (robotItem) {
         parentItem->appendRow(robotItem);
-        if (jointsItem) {
-            robotItem->appendRow(jointsItem);
+        if(jointsCategory) {
+            robotItem->appendRow(jointsCategory);
+        }
+        if (jointItem) {
+            jointsCategory->appendRow(jointItem);
             if (jointKinematicsItem) {
-                jointsItem->appendRow(jointKinematicsItem);
+                jointItem->appendRow(jointKinematicsItem);
             }
             if (jointDynamicsItem) {
-                jointsItem->appendRow(jointDynamicsItem);
+                jointItem->appendRow(jointDynamicsCategory);
+                jointDynamicsCategory->appendRow(jointDynamicsItem);
+
             }
         }
     }
 
-        //print all pointers values
-     qDebug() << "Robot Item: " << &robotItem;
+    //print all pointers values
+    //qDebug() << "Robot Item: " << &robotItem;
     // qDebug() << "Joints Item: " << jointsItem;
     // qDebug() << "Kinematics Item: " << kinematicsItem;
     // qDebug() << "Dynamics Item: " << dynamicsItem;
@@ -106,6 +135,10 @@ void MainWindow::populateTreeView(const QJsonObject &jsonObject, QStandardItem *
 
 }
 
+
+
+// This function will populate the Sub  Nodes of the TreeView like Joints, Kinematics, Dynamics etc.
+// This function is part of Populating the template of Robot Data.
 void MainWindow::populateTreeViewNodes(const QJsonArray &jsonArray, QStandardItem *parentItem) {
     for (const QJsonValue &value : jsonArray) {
         if (value.isString()) {
@@ -131,47 +164,29 @@ void MainWindow::populateTreeViewNodes(const QJsonArray &jsonArray, QStandardIte
 }
 
 
-// Populating the Model for the TreeView from the JSON Object
-/*
-void MainWindow::populateModel(const QJsonObject &jsonObject, QStandardItem *parentItem) {
 
-    if(jsonObject.isEmpty() || parentItem == nullptr) {
-        return;
+// This function will populate the new Joint for the Robot Model.
+void MainWindow::populateNewJoint() {
+    QStandardItem *newJointItem = new QStandardItem(QString("Joint %1").arg(jointCount++));
+    populateTreeViewNodes(jointItemKeysArray, newJointItem);
+    if (robotItem) {
+        robotItem->appendRow(newJointItem);
     }
-    
-    for(auto it = jsonObject.begin(); it != jsonObject.end(); ++it) {
-        QStandardItem *labelItem = new QStandardItem(it.key());
-        QStandardItem *valueItem = new QStandardItem();
-
-        if(it.value().isObject()) {
-            // Recursion might be good idea to dig down the children Object of JSON
-            QStandardItem *childItem = new QStandardItem(it.key());
-            QList<QStandardItem*> rowItems;
-            rowItems << childItem << new QStandardItem();
-            parentItem->appendRow(rowItems);
-
-            populateModel(it.value().toObject(), childItem);
-        } else {
-
-            // Just add key value pair to the model
-            QList<QStandardItem*> rowItems;
-            rowItems << labelItem << valueItem;
-            parentItem->appendRow(rowItems);
-
-            if(it.value().isString()) {
-                valueItem->setData(it.value().toString(), Qt::DisplayRole);
-            } else if(it.value().isDouble()) {
-                valueItem->setData(it.value().toDouble(), Qt::DisplayRole);
-            } 
-        }
-    }
-
-
 }
 
-*/
+// This function will populate the new Dynamics of the Joint for the Robot Model.
+void MainWindow::populateNewJointDynamics() {
+    
+    QStandardItem *newDynamicsItem = new QStandardItem(QString("Dynamic %1").arg(jointDynamicsCount++));
+    populateTreeViewNodes(jointDynamicsItemKeysArray, newDynamicsItem);
+    if (jointItem) {
+        jointItem->appendRow(newDynamicsItem);
+    }
+}
+
 
 // Setup the Main Playground for 3D Viewer
+// This function will setup the 3D Playground for the Robot Model Visualization.
 void MainWindow::setup3DPlayground() {
 
     // First creating 3D window

@@ -58,8 +58,10 @@ private:
     // For Example if I want to add multiple Joints or Dynamics data, I can simply use these pointers.
     Qt3DCore::QEntity *rootEntity;
     QStandardItem *robotItem = nullptr;
-    QStandardItem *jointsItem = nullptr;
+    QStandardItem *jointsCategory = nullptr;
+    QStandardItem *jointItem = nullptr;
     QStandardItem *jointKinematicsItem = nullptr;
+    QStandardItem *jointDynamicsCategory = nullptr;
     QStandardItem *jointDynamicsItem = nullptr;
 
     // I am Initializing these arrays so that I can access them whenever I have to add multiple Joints or Dynamics data.
@@ -69,11 +71,15 @@ private:
     QJsonArray jointDynamicsItemKeysArray;
 
 
+    
+
+
     void addRobotDataTemplate();
     
     void populateTreeView(const QJsonObject &jsonObject, QStandardItem *parentItem);
     void populateTreeViewNodes(const QJsonArray &jsonArray, QStandardItem *parentItem);
-
+    void populateNewJoint();
+    void populateNewJointDynamics();
 
     // 3D Window Playground
     void setup3DPlayground();
