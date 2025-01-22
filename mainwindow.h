@@ -28,11 +28,6 @@
 #include <QVBoxLayout>
 #include <QColor>
 
-// Adding nlohmann JSON Library directly in the code.
-#include <json.hpp>
-
-using json = nlohmann::json;
-
 
 
 using namespace std;
