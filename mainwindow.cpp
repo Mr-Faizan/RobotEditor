@@ -39,15 +39,15 @@ void MainWindow::addRobotDataTemplate() {
     QJsonDocument templateDocument = QJsonDocument::fromJson(templateJson);
     QJsonObject templateObject = templateDocument.object();
 
-    // Now print the template object for debugging
-    qDebug() << templateObject;
+    // Print the template object for debugging
+    // qDebug() << templateObject;
 
     model = new QStandardItemModel(0, 2, this);
-    model->setHeaderData(0, Qt::Horizontal, "Label");
-    model->setHeaderData(1, Qt::Horizontal, "Value");
+    model->setHeaderData(0, Qt::Horizontal, "Robot Specifications");
+    model->setHeaderData(1, Qt::Horizontal, "User Values");
 
     QStandardItem *rootItem = model->invisibleRootItem();
-    populateModel(templateObject, rootItem);
+    populateTreeView(templateObject, rootItem);
 
     ui->treeView->setModel(model);
     ui->treeView->expandAll();
@@ -55,70 +55,58 @@ void MainWindow::addRobotDataTemplate() {
     ui->treeView->resizeColumnToContents(1);
 }
 
-/*
-void MainWindow::populateModel(const QJsonObject &jsonObject, QStandardItem *parentItem) {
-    for (auto it = jsonObject.begin(); it != jsonObject.end(); ++it) {
-        if (it.value().isArray()) {
-            QStandardItem *categoryItem = new QStandardItem(it.key());
-            parentItem->appendRow(categoryItem);
-            populateArray(it.value().toArray(), categoryItem);
-        }
+// Populating the Model for the TreeView from the JSON Object
+void MainWindow::populateTreeView(const QJsonObject &jsonObject, QStandardItem *parentItem) {
+    
+    if (jsonObject.isEmpty() || parentItem == nullptr) {
+        qWarning("JSON Object is empty or parentItem is null in populateTreeView");
+        return;
     }
-}
-*/
 
-void MainWindow::populateModel(const QJsonObject &jsonObject, QStandardItem *parentItem) {
-    
-    QStandardItem *robotItem = nullptr;
-    QStandardItem *jointsItem = nullptr;
-    QStandardItem *kinematicsItem = nullptr;
-    QStandardItem *dynamicsItem = nullptr;
-    
-    
     for (auto it = jsonObject.begin(); it != jsonObject.end(); ++it) {
         if (it.key() == "Robot") {
             robotItem = new QStandardItem("Robot");
-            
-            populateArray(it.value().toArray(), robotItem);
+            // get the array of robot data
+            robotItemKeysArray = it.value().toArray();
+            populateTreeViewNodes(robotItemKeysArray, robotItem);
         } else if (it.key() == "Joint") {
             jointsItem = new QStandardItem("Joints");
-            
-            populateArray(it.value().toArray(), jointsItem);
+            jointItemKeysArray = it.value().toArray();
+            populateTreeViewNodes(jointItemKeysArray, jointsItem);
         } else if (it.key() == "JointKinematics") {
-            kinematicsItem = new QStandardItem("JointKinematics");
-           
-            populateArray(it.value().toArray(), kinematicsItem);
+            jointKinematicsItem = new QStandardItem("Joint Kinematics");
+            jointKinematicsItemKeysArray = it.value().toArray();
+            populateTreeViewNodes(jointKinematicsItemKeysArray, jointKinematicsItem);
         } else if (it.key() == "JointDynamics") {
-            dynamicsItem = new QStandardItem("Joint Dynamics");
-            
-            populateArray(it.value().toArray(), dynamicsItem);
+            jointDynamicsItem = new QStandardItem("Joint Dynamics");
+            jointDynamicsItemKeysArray = it.value().toArray();
+            populateTreeViewNodes(jointDynamicsItemKeysArray, jointDynamicsItem);
         }
     }
-
-    //print all pointers values
-    // qDebug() << "Robot Item: " << robotItem;
-    // qDebug() << "Joints Item: " << jointsItem;
-    // qDebug() << "Kinematics Item: " << kinematicsItem;
-    // qDebug() << "Dynamics Item: " << dynamicsItem;
-
 
     if (robotItem) {
         parentItem->appendRow(robotItem);
         if (jointsItem) {
             robotItem->appendRow(jointsItem);
-            if (kinematicsItem) {
-                jointsItem->appendRow(kinematicsItem);
+            if (jointKinematicsItem) {
+                jointsItem->appendRow(jointKinematicsItem);
             }
-            if (dynamicsItem) {
-                jointsItem->appendRow(dynamicsItem);
+            if (jointDynamicsItem) {
+                jointsItem->appendRow(jointDynamicsItem);
             }
         }
     }
 
+        //print all pointers values
+     qDebug() << "Robot Item: " << &robotItem;
+    // qDebug() << "Joints Item: " << jointsItem;
+    // qDebug() << "Kinematics Item: " << kinematicsItem;
+    // qDebug() << "Dynamics Item: " << dynamicsItem;
+
 
 }
 
-void MainWindow::populateArray(const QJsonArray &jsonArray, QStandardItem *parentItem) {
+void MainWindow::populateTreeViewNodes(const QJsonArray &jsonArray, QStandardItem *parentItem) {
     for (const QJsonValue &value : jsonArray) {
         if (value.isString()) {
             QStandardItem *labelItem = new QStandardItem(value.toString());
@@ -135,7 +123,7 @@ void MainWindow::populateArray(const QJsonArray &jsonArray, QStandardItem *paren
                 rowItems << labelItem << valueItem;
                 parentItem->appendRow(rowItems);
                 if (it.value().isArray()) {
-                    populateArray(it.value().toArray(), labelItem);
+                    populateTreeViewNodes(it.value().toArray(), labelItem);
                 }
             }
         }

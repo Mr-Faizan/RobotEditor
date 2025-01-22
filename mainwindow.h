@@ -52,12 +52,27 @@ private:
     QStandardItemModel *model;
 
     Qt3DExtras::Qt3DWindow *view;
+
+
+    // I am initializing these pointers here so that I can access them in multiple functions.
+    // For Example if I want to add multiple Joints or Dynamics data, I can simply use these pointers.
     Qt3DCore::QEntity *rootEntity;
+    QStandardItem *robotItem = nullptr;
+    QStandardItem *jointsItem = nullptr;
+    QStandardItem *jointKinematicsItem = nullptr;
+    QStandardItem *jointDynamicsItem = nullptr;
+
+    // I am Initializing these arrays so that I can access them whenever I have to add multiple Joints or Dynamics data.
+    QJsonArray robotItemKeysArray;
+    QJsonArray jointItemKeysArray;
+    QJsonArray jointKinematicsItemKeysArray;
+    QJsonArray jointDynamicsItemKeysArray;
+
 
     void addRobotDataTemplate();
     
-    void populateModel(const QJsonObject &jsonObject, QStandardItem *parentItem);
-    void populateArray(const QJsonArray &jsonArray, QStandardItem *parentItem);
+    void populateTreeView(const QJsonObject &jsonObject, QStandardItem *parentItem);
+    void populateTreeViewNodes(const QJsonArray &jsonArray, QStandardItem *parentItem);
 
 
     // 3D Window Playground
