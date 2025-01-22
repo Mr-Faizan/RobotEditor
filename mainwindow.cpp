@@ -84,10 +84,9 @@ void MainWindow::populateTreeView(const QJsonObject &jsonObject, QStandardItem *
             robotItemKeysArray = it.value().toArray();
             populateTreeViewNodes(robotItemKeysArray, robotItem);
         } else if (it.key() == "Joint") {
-            jointCount++;
             // This is to combine all Joint under one tab.
             jointsCategory = new QStandardItem("Joints");
-            jointItem = new QStandardItem("Joint");
+            jointItem = new QStandardItem(QString("Joint %1").arg(++jointCount));
             jointItemKeysArray = it.value().toArray();
             populateTreeViewNodes(jointItemKeysArray, jointItem);
         } else if (it.key() == "JointKinematics") {
@@ -95,10 +94,9 @@ void MainWindow::populateTreeView(const QJsonObject &jsonObject, QStandardItem *
             jointKinematicsItemKeysArray = it.value().toArray();
             populateTreeViewNodes(jointKinematicsItemKeysArray, jointKinematicsItem);
         } else if (it.key() == "JointDynamics") {
-            jointDynamicsCount++;
             // This is to combine all Dynamics under one tab.
             jointDynamicsCategory = new QStandardItem("Joint Dynamics");
-            jointDynamicsItem = new QStandardItem("Payload");
+            jointDynamicsItem = new QStandardItem(QString("Payload %1").arg(++jointDynamicsCount));
             jointDynamicsItemKeysArray = it.value().toArray();
             populateTreeViewNodes(jointDynamicsItemKeysArray, jointDynamicsItem);
         }
@@ -167,20 +165,20 @@ void MainWindow::populateTreeViewNodes(const QJsonArray &jsonArray, QStandardIte
 
 // This function will populate the new Joint for the Robot Model.
 void MainWindow::populateNewJoint() {
-    QStandardItem *newJointItem = new QStandardItem(QString("Joint %1").arg(jointCount++));
+    QStandardItem *newJointItem = new QStandardItem(QString("Joint %1").arg(++jointCount));
     populateTreeViewNodes(jointItemKeysArray, newJointItem);
-    if (robotItem) {
-        robotItem->appendRow(newJointItem);
+    if (jointsCategory) {
+        jointsCategory->appendRow(newJointItem);
     }
 }
 
 // This function will populate the new Dynamics of the Joint for the Robot Model.
 void MainWindow::populateNewJointDynamics() {
     
-    QStandardItem *newDynamicsItem = new QStandardItem(QString("Dynamic %1").arg(jointDynamicsCount++));
+    QStandardItem *newDynamicsItem = new QStandardItem(QString("Payload %1").arg(++jointDynamicsCount));
     populateTreeViewNodes(jointDynamicsItemKeysArray, newDynamicsItem);
-    if (jointItem) {
-        jointItem->appendRow(newDynamicsItem);
+    if (jointDynamicsCategory) {
+        jointDynamicsCategory->appendRow(newDynamicsItem);
     }
 }
 
