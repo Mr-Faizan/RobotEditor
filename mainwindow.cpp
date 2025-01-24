@@ -142,6 +142,13 @@ void MainWindow::populateTreeViewNodes(const QJsonArray &jsonArray, QStandardIte
         if (value.isString()) {
             QStandardItem *labelItem = new QStandardItem(value.toString());
             QStandardItem *valueItem = new QStandardItem();
+
+            // Set labelItem as non-editable
+            labelItem->setFlags(labelItem->flags() & ~Qt::ItemIsEditable);
+
+            // Set valueItem as editable
+            valueItem->setFlags(valueItem->flags() | Qt::ItemIsEditable);
+
             QList<QStandardItem*> rowItems;
             rowItems << labelItem << valueItem;
             parentItem->appendRow(rowItems);
@@ -150,6 +157,11 @@ void MainWindow::populateTreeViewNodes(const QJsonArray &jsonArray, QStandardIte
             for (auto it = obj.begin(); it != obj.end(); ++it) {
                 QStandardItem *labelItem = new QStandardItem(it.key());
                 QStandardItem *valueItem = new QStandardItem();
+
+            // Set labelItem as non-editable
+            labelItem->setFlags(labelItem->flags() & ~Qt::ItemIsEditable);
+            // Set valueItem as editable
+            valueItem->setFlags(valueItem->flags() | Qt::ItemIsEditable);
                 QList<QStandardItem*> rowItems;
                 rowItems << labelItem << valueItem;
                 parentItem->appendRow(rowItems);
@@ -201,9 +213,11 @@ void MainWindow::setup3DPlayground() {
     QWidget *container = QWidget::createWindowContainer(view);
 
     // Now its time to show this view on frontend.
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(container);
-    ui->viewContainer->setLayout(layout);
+  //  QHBoxLayout *layout = new QHBoxLayout();
+  //  layout->addWidget(container);
+  //  ui->viewContainer->setLayout(layout);
+
+  ui->viewContainer->layout()->addWidget(container);
 }
 
 
