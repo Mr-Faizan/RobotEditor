@@ -11,6 +11,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QFile>
+#include <QIcon>
 
 // QT TreeView Libraries
 #include <QTreeView>
@@ -52,11 +53,12 @@ private:
     QStandardItemModel *model;
 
     Qt3DExtras::Qt3DWindow *view;
+    Qt3DCore::QEntity *rootEntity;
 
-
+/*
     // I am initializing these pointers here so that I can access them in multiple functions.
     // For Example if I want to add multiple Joints or Dynamics data, I can simply use these pointers.
-    Qt3DCore::QEntity *rootEntity;
+    
     QStandardItem *robotItem = nullptr;
     QStandardItem *jointsCategory = nullptr;
     QStandardItem *jointItem = nullptr;
@@ -69,7 +71,7 @@ private:
     QJsonArray jointItemKeysArray;
     QJsonArray jointKinematicsItemKeysArray;
     QJsonArray jointDynamicsItemKeysArray;
-
+*/
 
     
 

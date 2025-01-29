@@ -3,21 +3,18 @@
 #include "jsonkeys.h"
 
 // Counters for Joints and Dynamics
-static int jointCount = 0;
-static int jointDynamicsCount = 0;
-
+// static int jointCount = 0;
+// static int jointDynamicsCount = 0;
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
     // Configurations Panel part.
     addRobotDataTemplate();
 
-
-    //3D Model Visualization part.
+    // 3D Model Visualization part.
     setup3DPlayground();
 }
 
@@ -29,12 +26,13 @@ MainWindow::~MainWindow()
 // Add the Robot Data Template
 // This function will read the JSON file and populate the TreeView with the data.
 // This function is part of Populating the template of Robot Data.
-void MainWindow::addRobotDataTemplate() {
-
+void MainWindow::addRobotDataTemplate()
+{
 
     QFile file(":/Resources/Json/FaizanTest.json");
 
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
         qWarning("Template file is missing. Please add the template file.");
         return;
     }
@@ -42,37 +40,47 @@ void MainWindow::addRobotDataTemplate() {
     QByteArray templateJson = file.readAll();
     file.close();
 
-
     QJsonDocument templateDocument = QJsonDocument::fromJson(templateJson);
     QJsonObject templateObject = templateDocument.object();
 
     // Print the template object for debugging
-     // qDebug() << templateObject;
+    // qDebug() << templateObject;
 
     QStandardItemModel *model = new QStandardItemModel(0, 2, this);
     model->setHeaderData(0, Qt::Horizontal, "Robot Specifications");
     model->setHeaderData(1, Qt::Horizontal, "User Values");
 
-
+    // First Step is to populate data in the model.
     populateTreeView(model, templateObject);
 
+    // Now We have data in the model we can just present that data in the view.
     ui->treeView->setModel(model);
     ui->treeView->expandAll();
     ui->treeView->resizeColumnToContents(0);
     ui->treeView->resizeColumnToContents(1);
 }
 
+// I tired my best not to define the structue of the application in the model and to load the structure from the template file, to make it Dynamic.
+// But I am unable to do so, because JSON Object is unordered list of key value pairs and for us Order is very important.
+// So for now I am defining the Structure of the application in this function using TreeView Standard Model.
+// I don't like this approach but I also tried ten other methods :)
 
-
-void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &json) {
+void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &json)
+{
     QStandardItem *rootItem = model->invisibleRootItem();
 
+    if (!json.contains(RobotKeys::Robot) || !json[RobotKeys::Robot].isObject())
+    {
+        qWarning() << "Invalid JSON: Missing or invalid 'Robot' object";
+        return;
+    }
+
     QJsonObject robot = json[RobotKeys::Robot].toObject();
-     // qDebug() << robot;
-    QStandardItem *robotItem = new QStandardItem(RobotKeys::Robot);
+    // qDebug() << robot;
+    QStandardItem *robotItem = new QStandardItem(QIcon(":/Resources/Icons/robot2.png"), RobotKeys::Robot);
     rootItem->appendRow(robotItem);
 
-    // Load robot properties
+    // Loading robot properties
     addItem(robotItem, RobotKeys::RobotName, robot[RobotKeys::RobotName].toString());
     addItem(robotItem, RobotKeys::RobotManufacturer, robot[RobotKeys::RobotManufacturer].toString());
     addItem(robotItem, RobotKeys::RobotPayload, QString::number(robot[RobotKeys::RobotPayload].toDouble()));
@@ -82,13 +90,22 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
     addItem(robotItem, RobotKeys::RobotWeight, QString::number(robot[RobotKeys::RobotWeight].toDouble()));
     addItem(robotItem, RobotKeys::DOF, QString::number(robot[RobotKeys::DOF].toInt()));
 
-    // Load joints
+    // Loading joints
+
+    // Loading joints
+    if (!robot.contains(RobotKeys::Joints) || !robot[RobotKeys::Joints].isObject())
+    {
+        qWarning() << "Invalid JSON: Missing or invalid 'Joints' object";
+        return;
+    }
+
     QJsonObject joints = robot[RobotKeys::Joints].toObject();
     // qDebug() << joints;
     QStandardItem *jointsItem = new QStandardItem(RobotKeys::Joints);
     robotItem->appendRow(jointsItem);
 
-    foreach (const QString &jointKey, joints.keys()) {
+    foreach (const QString &jointKey, joints.keys())
+    {
         QJsonObject joint = joints[jointKey].toObject();
         QStandardItem *jointItem = new QStandardItem(JointKeys::JointName + ": " + joint[JointKeys::JointName].toString());
         jointsItem->appendRow(jointItem);
@@ -100,36 +117,50 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
         addItem(jointItem, JointKeys::StiffnessCoefficient, QString::number(joint[JointKeys::StiffnessCoefficient].toDouble()));
         addItem(jointItem, JointKeys::DampingCoefficient, QString::number(joint[JointKeys::DampingCoefficient].toDouble()));
 
-        // Load kinematics
+        // Loading kinematics
         QJsonObject kinematics = joint[JointKeys::JointKinematics].toObject();
         QStandardItem *kinematicsItem = new QStandardItem(JointKeys::JointKinematics);
         jointItem->appendRow(kinematicsItem);
 
-        QJsonObject dhParameters = kinematics[KinematicsKeys::DhParameters].toObject();
-        QStandardItem *dhParametersItem = new QStandardItem(KinematicsKeys::DhParameters);
-        kinematicsItem->appendRow(dhParametersItem);
-        addItem(dhParametersItem, DhParametersKeys::Alpha, QString::number(dhParameters[DhParametersKeys::Alpha].toDouble()));
-        addItem(dhParametersItem, DhParametersKeys::D, QString::number(dhParameters[DhParametersKeys::D].toDouble()));
-        addItem(dhParametersItem, DhParametersKeys::Theta, QString::number(dhParameters[DhParametersKeys::Theta].toDouble()));
-        addItem(dhParametersItem, DhParametersKeys::A, QString::number(dhParameters[DhParametersKeys::A].toDouble()));
-        addItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
+        if (kinematics.contains(KinematicsKeys::DhParameters) && kinematics[KinematicsKeys::DhParameters].isObject())
+        {
 
-        QJsonObject rotationalValues = kinematics[KinematicsKeys::RotationalValues].toObject();
-        QStandardItem *rotationalValuesItem = new QStandardItem(KinematicsKeys::RotationalValues);
-        kinematicsItem->appendRow(rotationalValuesItem);
-        addItem(rotationalValuesItem, RotationalValuesKeys::Ixx, QString::number(rotationalValues[RotationalValuesKeys::Ixx].toDouble()));
-        addItem(rotationalValuesItem, RotationalValuesKeys::Ixy, QString::number(rotationalValues[RotationalValuesKeys::Ixy].toDouble()));
-        addItem(rotationalValuesItem, RotationalValuesKeys::Ixz, QString::number(rotationalValues[RotationalValuesKeys::Ixz].toDouble()));
-        addItem(rotationalValuesItem, RotationalValuesKeys::Iyy, QString::number(rotationalValues[RotationalValuesKeys::Iyy].toDouble()));
-        addItem(rotationalValuesItem, RotationalValuesKeys::Iyz, QString::number(rotationalValues[RotationalValuesKeys::Iyz].toDouble()));
-        addItem(rotationalValuesItem, RotationalValuesKeys::Izz, QString::number(rotationalValues[RotationalValuesKeys::Izz].toDouble()));
+            QJsonObject dhParameters = kinematics[KinematicsKeys::DhParameters].toObject();
+            QStandardItem *dhParametersItem = new QStandardItem(KinematicsKeys::DhParameters);
+            kinematicsItem->appendRow(dhParametersItem);
+            addItem(dhParametersItem, DhParametersKeys::Alpha, QString::number(dhParameters[DhParametersKeys::Alpha].toDouble()));
+            addItem(dhParametersItem, DhParametersKeys::D, QString::number(dhParameters[DhParametersKeys::D].toDouble()));
+            addItem(dhParametersItem, DhParametersKeys::Theta, QString::number(dhParameters[DhParametersKeys::Theta].toDouble()));
+            addItem(dhParametersItem, DhParametersKeys::A, QString::number(dhParameters[DhParametersKeys::A].toDouble()));
+            addItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
+        }
 
-        // Load dynamics
+        if (kinematics.contains(KinematicsKeys::RotationalValues) && kinematics[KinematicsKeys::RotationalValues].isObject())
+        {
+            QJsonObject rotationalValues = kinematics[KinematicsKeys::RotationalValues].toObject();
+            QStandardItem *rotationalValuesItem = new QStandardItem(KinematicsKeys::RotationalValues);
+            kinematicsItem->appendRow(rotationalValuesItem);
+            addItem(rotationalValuesItem, RotationalValuesKeys::Ixx, QString::number(rotationalValues[RotationalValuesKeys::Ixx].toDouble()));
+            addItem(rotationalValuesItem, RotationalValuesKeys::Ixy, QString::number(rotationalValues[RotationalValuesKeys::Ixy].toDouble()));
+            addItem(rotationalValuesItem, RotationalValuesKeys::Ixz, QString::number(rotationalValues[RotationalValuesKeys::Ixz].toDouble()));
+            addItem(rotationalValuesItem, RotationalValuesKeys::Iyy, QString::number(rotationalValues[RotationalValuesKeys::Iyy].toDouble()));
+            addItem(rotationalValuesItem, RotationalValuesKeys::Iyz, QString::number(rotationalValues[RotationalValuesKeys::Iyz].toDouble()));
+            addItem(rotationalValuesItem, RotationalValuesKeys::Izz, QString::number(rotationalValues[RotationalValuesKeys::Izz].toDouble()));
+        }
+
+        // Loading dynamics
+
+        if (!joint.contains(JointKeys::JointDynamics) || !joint[JointKeys::JointDynamics].isObject())
+        {
+            qWarning() << "Invalid JSON: Missing or invalid 'JointDynamics' object";
+            continue;
+        }
         QJsonObject dynamics = joint[JointKeys::JointDynamics].toObject();
         QStandardItem *dynamicsItem = new QStandardItem(JointKeys::JointDynamics);
         jointItem->appendRow(dynamicsItem);
 
-        foreach (const QString &payloadKey, dynamics.keys()) {
+        foreach (const QString &payloadKey, dynamics.keys())
+        {
             QJsonObject payload = dynamics[payloadKey].toObject();
             QStandardItem *payloadItem = new QStandardItem("Payload: " + payloadKey);
             dynamicsItem->appendRow(payloadItem);
@@ -142,7 +173,12 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
             addItem(payloadItem, DynamicsKeys::BreakingTime, QString::number(payload[DynamicsKeys::BreakingTime].toDouble()));
         }
 
-        // Load visualization
+        // Loading visualization
+        if (!joint.contains(JointKeys::JointVisualization) || !joint[JointKeys::JointVisualization].isObject())
+        {
+            qWarning() << "Invalid JSON: Missing or invalid 'JointVisualization' object";
+            continue;
+        }
         QJsonObject visualization = joint[JointKeys::JointVisualization].toObject();
         QStandardItem *visualizationItem = new QStandardItem(JointKeys::JointVisualization);
         jointItem->appendRow(visualizationItem);
@@ -151,14 +187,20 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
     }
 }
 
-void MainWindow::addItem(QStandardItem *parent, const QString &key, const QString &value) {
+// Using this function to handle each row of the TreeView
+void MainWindow::addItem(QStandardItem *parent, const QString &key, const QString &value)
+{
     QStandardItem *keyItem = new QStandardItem(key);
     keyItem->setEditable(false);
     QStandardItem *valueItem = new QStandardItem(value);
     valueItem->setEditable(true);
-    parent->appendRow(QList<QStandardItem*>() << keyItem << valueItem);
+    parent->appendRow(QList<QStandardItem *>() << keyItem << valueItem);
 }
 
+// Now trickies part starts with saving JSON in such a way that I can access it later on and able to load the data in TreeView.
+// Not to make any mistake with structure, otherwise it will be surprice for you on loading data.
+
+/*
 void MainWindow::saveToJson(QStandardItemModel *model, const QString &filePath) {
     QJsonObject json;
     QJsonObject robotObject;
@@ -213,16 +255,12 @@ void MainWindow::saveToJson(QStandardItemModel *model, const QString &filePath) 
     }
 }
 
-
-
-
-
-
-
+*/
 
 // Setup the Main Playground for 3D Viewer
 // This function will setup the 3D Playground for the Robot Model Visualization.
-void MainWindow::setup3DPlayground() {
+void MainWindow::setup3DPlayground()
+{
 
     // First creating 3D window
     view = new Qt3DExtras::Qt3DWindow();
@@ -238,11 +276,9 @@ void MainWindow::setup3DPlayground() {
     QWidget *container = QWidget::createWindowContainer(view);
 
     // Now its time to show this view on frontend.
-  //  QHBoxLayout *layout = new QHBoxLayout();
-  //  layout->addWidget(container);
-  //  ui->viewContainer->setLayout(layout);
+    //  QHBoxLayout *layout = new QHBoxLayout();
+    //  layout->addWidget(container);
+    //  ui->viewContainer->setLayout(layout);
 
-  ui->viewContainer->layout()->addWidget(container);
+    ui->viewContainer->layout()->addWidget(container);
 }
-
-
