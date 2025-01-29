@@ -75,11 +75,11 @@ private:
 
 
     void addRobotDataTemplate();
-    
-    void populateTreeView(const QJsonObject &jsonObject, QStandardItem *parentItem);
-    void populateTreeViewNodes(const QJsonArray &jsonArray, QStandardItem *parentItem);
-    void populateNewJoint();
-    void populateNewJointDynamics();
+    void populateTreeView(QStandardItemModel *model, const QJsonObject &json);
+    void addItem(QStandardItem *parent, const QString &key, const QString &value);
+    void saveToJson(QStandardItemModel *model, const QString &filePath);
+
+
 
     // 3D Window Playground
     void setup3DPlayground();
