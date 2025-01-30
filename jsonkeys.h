@@ -28,7 +28,7 @@ const QString StiffnessCoefficient = "StiffnessCoefficient";
 const QString DampingCoefficient = "DampingCoefficient";
 const QString JointKinematics = "JointKinematics";
 const QString JointDynamics = "JointDynamics";
-const QString JointVisualization = "Joint Visualization";
+const QString Visualization = "Visualization";
 }
 
 namespace KinematicsKeys {

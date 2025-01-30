@@ -1,17 +1,20 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+// QT Libraries
 #include <QMainWindow>
 #include <QWidget>
 #include <QDebug>
 #include <iostream>
+#include <QIcon>
 
 // Qt JSON and File Libraries
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QFile>
-#include <QIcon>
+#include <QFileDialog>
+
 
 // QT TreeView Libraries
 #include <QTreeView>
@@ -21,7 +24,7 @@
 #include <QHBoxLayout>
 
 
-// 3D Libraries
+// QT 3D Libraries
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DExtras/qforwardrenderer.h>
@@ -47,6 +50,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+private slots:
+    void on_actionSave_triggered();
+    
 
 private:
     Ui::MainWindow *ui;
@@ -80,6 +87,8 @@ private:
     void populateTreeView(QStandardItemModel *model, const QJsonObject &json);
     void addItem(QStandardItem *parent, const QString &key, const QString &value);
     void saveToJson(QStandardItemModel *model, const QString &filePath);
+
+    QJsonObject modelToJson(QStandardItemModel *model);
 
 
 
