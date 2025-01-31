@@ -86,9 +86,9 @@ private:
     void addRobotDataTemplate();
     void populateTreeView(QStandardItemModel *model, const QJsonObject &json);
     void addItem(QStandardItem *parent, const QString &key, const QString &value);
-    void saveToJson(QStandardItemModel *model, const QString &filePath);
+    void saveToJson(const QString &filePath);
 
-    QJsonObject modelToJson(QStandardItemModel *model);
+    QJsonObject modelToJson();
 
 
 

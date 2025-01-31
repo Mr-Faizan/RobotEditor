@@ -27,15 +27,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Testing
     QString filePath = "C:/Users/fahmed/WorkFolder/Projects/testing.json";
-   // QStandardItemModel *model = static_cast<QStandardItemModel*>(ui->treeView->model());
+    // QStandardItemModel *model = static_cast<QStandardItemModel*>(ui->treeView->model());
     // saveToJson(model, filePath);
 
-        // Print the data to the terminal
-    QJsonObject json = modelToJson(model);
+    // Print the data to the terminal
+    QJsonObject json = modelToJson();
     QJsonDocument doc(json);
-    //cout << doc.toJson().toStdString() << endl;
-
-
+    // cout << doc.toJson().toStdString() << endl;
 
     // 3D Model Visualization part.
     // setup3DPlayground();
@@ -47,31 +45,19 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
 /****************** Slots Implementation ******************/
 
-void MainWindow::on_actionSave_triggered() {
+void MainWindow::on_actionSave_triggered()
+{
 
     QString filePath = QFileDialog::getSaveFileName(this, "Save JSON", "", "JSON Files (*.json)");
-    if (!filePath.isEmpty()) {
+    if (!filePath.isEmpty())
+    {
 
         qDebug() << "Saving to: " << filePath;
-        QStandardItemModel *model = static_cast<QStandardItemModel*>(ui->treeView->model());
-        saveToJson(model, filePath);
+        saveToJson(filePath);
     }
-    
 }
-
-
-
-
-
-
-
-
-
-
-
 
 // Add the Robot Data Template
 // This function will read the JSON file and populate the TreeView with the data.
@@ -98,7 +84,6 @@ void MainWindow::addRobotDataTemplate()
 
     // First Step is to populate data in the model.
     populateTreeView(model, templateObject);
-
 }
 
 // I tired my best not to define the structue of the application in the model and to load the structure from the template file, to make it Dynamic.
@@ -154,21 +139,21 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
     foreach (const QString &jointKey, joints.keys())
     {
         QJsonObject joint = joints[jointKey].toObject();
-        QStandardItem *jointItem = new QStandardItem(JointKeys::JointName + ": " + joint[JointKeys::JointName].toString());
-        jointsItem->appendRow(jointItem);
+        QStandardItem *singleJointItem = new QStandardItem(JointKeys::JointName + ": " + joint[JointKeys::JointName].toString());
+        jointsItem->appendRow(singleJointItem);
 
-        addItem(jointItem, JointKeys::MotionRangeMax, QString::number(joint[JointKeys::MotionRangeMax].toDouble()));
-        addItem(jointItem, JointKeys::MotionRangeMin, QString::number(joint[JointKeys::MotionRangeMin].toDouble()));
-        addItem(jointItem, JointKeys::JointSpeedLimit, QString::number(joint[JointKeys::JointSpeedLimit].toDouble()));
-        addItem(jointItem, JointKeys::FrictionCoefficient, QString::number(joint[JointKeys::FrictionCoefficient].toDouble()));
-        addItem(jointItem, JointKeys::StiffnessCoefficient, QString::number(joint[JointKeys::StiffnessCoefficient].toDouble()));
-        addItem(jointItem, JointKeys::DampingCoefficient, QString::number(joint[JointKeys::DampingCoefficient].toDouble()));
+        addItem(singleJointItem, JointKeys::MotionRangeMax, QString::number(joint[JointKeys::MotionRangeMax].toDouble()));
+        addItem(singleJointItem, JointKeys::MotionRangeMin, QString::number(joint[JointKeys::MotionRangeMin].toDouble()));
+        addItem(singleJointItem, JointKeys::JointSpeedLimit, QString::number(joint[JointKeys::JointSpeedLimit].toDouble()));
+        addItem(singleJointItem, JointKeys::FrictionCoefficient, QString::number(joint[JointKeys::FrictionCoefficient].toDouble()));
+        addItem(singleJointItem, JointKeys::StiffnessCoefficient, QString::number(joint[JointKeys::StiffnessCoefficient].toDouble()));
+        addItem(singleJointItem, JointKeys::DampingCoefficient, QString::number(joint[JointKeys::DampingCoefficient].toDouble()));
 
         // Loading kinematics
         QJsonObject kinematics = joint[JointKeys::JointKinematics].toObject();
         QStandardItem *kinematicsItem = new QStandardItem(JointKeys::JointKinematics);
         kinematicsItem->setFlags(kinematicsItem->flags() & ~Qt::ItemIsEditable);
-        jointItem->appendRow(kinematicsItem);
+        singleJointItem->appendRow(kinematicsItem);
 
         if (kinematics.contains(KinematicsKeys::DhParameters) && kinematics[KinematicsKeys::DhParameters].isObject())
         {
@@ -208,7 +193,7 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
         QJsonObject dynamics = joint[JointKeys::JointDynamics].toObject();
         QStandardItem *dynamicsItem = new QStandardItem(JointKeys::JointDynamics);
         dynamicsItem->setFlags(dynamicsItem->flags() & ~Qt::ItemIsEditable);
-        jointItem->appendRow(dynamicsItem);
+        singleJointItem->appendRow(dynamicsItem);
 
         foreach (const QString &payloadKey, dynamics.keys())
         {
@@ -233,7 +218,7 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
         QJsonObject visualization = joint[JointKeys::Visualization].toObject();
         QStandardItem *visualizationItem = new QStandardItem(JointKeys::Visualization);
         visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable);
-        jointItem->appendRow(visualizationItem);
+        singleJointItem->appendRow(visualizationItem);
         addItem(visualizationItem, VisualizationKeys::PathToObjFile, visualization[VisualizationKeys::PathToObjFile].toString());
         addItem(visualizationItem, VisualizationKeys::PathToMltFile, visualization[VisualizationKeys::PathToMltFile].toString());
     }
@@ -252,104 +237,272 @@ void MainWindow::addItem(QStandardItem *parent, const QString &key, const QStrin
 // Now trickies part starts with saving JSON in such a way that I can access it later on and able to load the data in TreeView.
 // Not to make any mistake with structure, otherwise it will be surprice for you on loading data.
 
-QJsonObject MainWindow::modelToJson(QStandardItemModel *model) {
+QJsonObject MainWindow::modelToJson()
+{
     QJsonObject json;
     QJsonObject robotObject;
 
+    // make sure model exists
+    if (!model)
+    {
+        qWarning() << "Model does not exist";
+        return json;
+    }
+
     QStandardItem *rootItem = model->invisibleRootItem();
-    for (int i = 0; i < rootItem->rowCount(); ++i) {
-        QStandardItem *robotItem = rootItem->child(i);
 
-        // Print everything in robotItem
-        qDebug() << "Robot Item:" << robotItem->text();
+    // rootItem must exist and have at least one child
+    if (rootItem && rootItem->rowCount() > 0)
+    {
+        for (int i = 0; i < rootItem->rowCount(); ++i)
+        {
+            QStandardItem *robotItem = rootItem->child(i);
+            QStandardItem *jointsItem;
 
-        for (int j = 0; j < robotItem->rowCount(); ++j) {
-            QStandardItem *propertyItem = robotItem->child(j, 0);
-            QStandardItem *valueItem = robotItem->child(j, 1);
-            if (propertyItem && valueItem) {
-                robotObject[propertyItem->text()] = valueItem->text();
-            }
-        }
+            // Print everything in robotItem
+            qDebug() << "Robot Item:" << robotItem->text();
 
-        QJsonObject jointsObject;
-        QStandardItem *jointsItem = robotItem->child(robotItem->rowCount() - 1);
-        for (int j = 0; j < jointsItem->rowCount(); ++j) {
-            QStandardItem *jointItem = jointsItem->child(j);
-            QJsonObject jointObject;
+            for (int j = 0; j < robotItem->rowCount(); ++j)
+            {
+                QStandardItem *propertyItem = robotItem->child(j, 0);
+                QStandardItem *valueItem = robotItem->child(j, 1);
 
-            for (int k = 0; k < jointItem->rowCount(); ++k) {
-                QStandardItem *propertyItem = jointItem->child(k, 0);
-                QStandardItem *valueItem = jointItem->child(k, 1);
-                if (propertyItem && valueItem) {
-                    jointObject[propertyItem->text()] = valueItem->text();
-                }
-            }
-
-            QJsonObject kinematicsObject;
-            // very bad appraoch , will change it after testing
-            QStandardItem *kinematicsItem = jointItem->child(jointItem->rowCount() - 3);
-            for (int k = 0; k < kinematicsItem->rowCount(); ++k) {
-                QStandardItem *propertyItem = kinematicsItem->child(k, 0);
-                QStandardItem *valueItem = kinematicsItem->child(k, 1);
-                if (propertyItem && valueItem) {
-                    kinematicsObject[propertyItem->text()] = valueItem->text();
-                }
-            }
-            jointObject[JointKeys::JointKinematics] = kinematicsObject;
-
-            QJsonObject dynamicsObject;
-            QStandardItem *dynamicsItem = jointItem->child(jointItem->rowCount() - 2);
-            for (int k = 0; k < dynamicsItem->rowCount(); ++k) {
-                QStandardItem *payloadItem = dynamicsItem->child(k);
-                QJsonObject payloadObject;
-
-                for (int l = 0; l < payloadItem->rowCount(); ++l) {
-                    QStandardItem *propertyItem = payloadItem->child(l, 0);
-                    QStandardItem *valueItem = payloadItem->child(l, 1);
-                    if (propertyItem && valueItem) {
-                        payloadObject[propertyItem->text()] = valueItem->text();
+                // property is mandatory but value is optional
+                if (propertyItem)
+                {
+                    // Two cases here , Either it just have value or ValueItem has inner structure.
+                    if (propertyItem->text() == RobotKeys::Joints)
+                    {
+                        // just take the jointsItem for further processing
+                        jointsItem = robotItem->child(j);
+                    }
+                    else
+                    {
+                        if (valueItem)
+                        {
+                            robotObject[propertyItem->text()] = valueItem->text();
+                        }
+                        else
+                        {
+                            // No value provided, set it to empty string
+                            robotObject[propertyItem->text()] = "";
+                        }
                     }
                 }
-                dynamicsObject[payloadItem->text()] = payloadObject;
             }
-            jointObject[JointKeys::JointDynamics] = dynamicsObject;
 
-            QJsonObject visualizationObject;
-            QStandardItem *visualizationItem = jointItem->child(jointItem->rowCount() - 1);
-            for (int k = 0; k < visualizationItem->rowCount(); ++k) {
-                QStandardItem *propertyItem = visualizationItem->child(k, 0);
-                QStandardItem *valueItem = visualizationItem->child(k, 1);
-                if (propertyItem && valueItem) {
-                    visualizationObject[propertyItem->text()] = valueItem->text();
+            // As we took JointsItem in above loop, now we will process it.
+            QJsonObject jointsObject;
+
+            if (jointsItem)
+            {
+                for (int j = 0; j < jointsItem->rowCount(); ++j)
+                {
+                    // Here we will process each Joint item.
+                    QStandardItem *singleJointItem = jointsItem->child(j);
+                    QJsonObject singleJointObject;
+                    // Also declare the inner objects and pointers here
+                    QStandardItem *kinematicsItem;
+                    QStandardItem *dynamicsItem;
+                    QStandardItem *visualizationItem;
+
+                    QJsonObject kinematicsObject;
+                    QJsonObject dynamicsObject;
+                    QJsonObject visualizationObject;
+
+                    // Its better to handle all the inner structure like kinematics, dynamics and visualization of singleJointItem separately.
+                    for (int k = 0; k < singleJointItem->rowCount(); ++k)
+                    {
+                        QStandardItem *propertyItem = singleJointItem->child(k, 0);
+                        QStandardItem *valueItem = singleJointItem->child(k, 1);
+
+                        if (propertyItem)
+                        {
+                            // Two cases here , Either it just have value or ValueItem has inner structure.
+                            if (propertyItem->text() == JointKeys::JointKinematics)
+                            {
+                                // Keep the KinematicsObject for further processing
+                                kinematicsItem = singleJointItem->child(k);
+                            }
+                            else if (propertyItem->text() == JointKeys::JointDynamics)
+                            {
+                                dynamicsItem = singleJointItem->child(k);
+                            }
+                            else if (propertyItem->text() == JointKeys::Visualization)
+                            {
+                                visualizationItem = singleJointItem->child(k);
+                            }
+                            else
+                            {
+                                if (valueItem)
+                                {
+                                    singleJointObject[propertyItem->text()] = valueItem->text();
+                                }
+                                else
+                                {
+                                    // No value provided, set it to empty string
+                                    singleJointObject[propertyItem->text()] = "";
+                                }
+                            }
+                        }
+                    }
+
+                    // Now we will process the KinematicsItem
+                    if (kinematicsItem)
+                    {
+                        for (int k = 0; k < kinematicsItem->rowCount(); ++k)
+                        {
+                            QStandardItem *propertyItem = kinematicsItem->child(k, 0);
+                            QStandardItem *valueItem = kinematicsItem->child(k, 1);
+
+                            QStandardItem *dhParametersItem;
+                            QStandardItem *rotationalValuesItem;
+
+                            QJsonObject dhParametersObject;
+                            QJsonObject rotationalValuesObject;
+
+                            if (propertyItem)
+                            {
+                                if (propertyItem->text() == KinematicsKeys::DhParameters)
+                                {
+                                    // Handle DhParameters here
+                                    dhParametersItem = kinematicsItem->child(k);
+
+                                    if (dhParametersItem)
+                                    {
+                                        for (int l = 0; l < dhParametersItem->rowCount(); ++l)
+                                        {
+                                            QStandardItem *propertyItem = dhParametersItem->child(l, 0);
+                                            QStandardItem *valueItem = dhParametersItem->child(l, 1);
+
+                                            if (propertyItem)
+                                            {
+                                                if (valueItem)
+                                                {
+                                                    dhParametersObject[propertyItem->text()] = valueItem->text();
+                                                }
+                                                else
+                                                {
+                                                    // No value provided, set it to empty string
+                                                    dhParametersObject[propertyItem->text()] = "";
+                                                }
+                                            }
+                                        }
+                                        kinematicsObject[KinematicsKeys::DhParameters] = dhParametersObject;
+                                    }
+                                }
+                                else if (propertyItem->text() == KinematicsKeys::RotationalValues)
+                                {
+                                    // Handle RotationalValues here
+                                    rotationalValuesItem = kinematicsItem->child(k);
+
+                                    if (rotationalValuesItem)
+                                    {
+                                        for (int l = 0; l < rotationalValuesItem->rowCount(); ++l)
+                                        {
+                                            QStandardItem *propertyItem = rotationalValuesItem->child(l, 0);
+                                            QStandardItem *valueItem = rotationalValuesItem->child(l, 1);
+
+                                            if (propertyItem)
+                                            {
+                                                if (valueItem)
+                                                {
+                                                    rotationalValuesObject[propertyItem->text()] = valueItem->text();
+                                                }
+                                                else
+                                                {
+                                                    rotationalValuesObject[propertyItem->text()] = "";
+                                                }
+                                            }
+                                        }
+                                        kinematicsObject[KinematicsKeys::RotationalValues] = rotationalValuesObject;
+                                    }
+                                }
+                                else
+                                {
+                                    if (valueItem)
+                                    {
+                                        kinematicsObject[propertyItem->text()] = valueItem->text();
+                                    }
+                                    else
+                                    {
+                                        // No value provided, set it to empty string
+                                        kinematicsObject[propertyItem->text()] = "";
+                                    }
+                                }
+                            }
+                        }
+                        singleJointObject[JointKeys::JointKinematics] = kinematicsObject;
+                    }
+
+                    QJsonObject dynamicsObject;
+                    QStandardItem *dynamicsItem = singleJointItem->child(singleJointItem->rowCount() - 2);
+                    for (int k = 0; k < dynamicsItem->rowCount(); ++k)
+                    {
+                        QStandardItem *payloadItem = dynamicsItem->child(k);
+                        QJsonObject payloadObject;
+
+                        for (int l = 0; l < payloadItem->rowCount(); ++l)
+                        {
+                            QStandardItem *propertyItem = payloadItem->child(l, 0);
+                            QStandardItem *valueItem = payloadItem->child(l, 1);
+                            if (propertyItem && valueItem)
+                            {
+                                payloadObject[propertyItem->text()] = valueItem->text();
+                            }
+                        }
+                        dynamicsObject[payloadItem->text()] = payloadObject;
+                    }
+                    singleJointObject[JointKeys::JointDynamics] = dynamicsObject;
+
+                    QJsonObject visualizationObject;
+                    QStandardItem *visualizationItem = singleJointItem->child(singleJointItem->rowCount() - 1);
+                    for (int k = 0; k < visualizationItem->rowCount(); ++k)
+                    {
+                        QStandardItem *propertyItem = visualizationItem->child(k, 0);
+                        QStandardItem *valueItem = visualizationItem->child(k, 1);
+                        if (propertyItem && valueItem)
+                        {
+                            visualizationObject[propertyItem->text()] = valueItem->text();
+                        }
+                    }
+                    singleJointObject[JointKeys::Visualization] = visualizationObject;
+
+                    jointsObject[singleJointItem->text()] = singleJointObject;
                 }
+                robotObject[RobotKeys::Joints] = jointsObject;
             }
-            jointObject[JointKeys::Visualization] = visualizationObject;
-
-            jointsObject[jointItem->text()] = jointObject;
         }
-        robotObject[RobotKeys::Joints] = jointsObject;
+        json[RobotKeys::Robot] = robotObject;
+        qDebug() << "Robot JSON" << json;
     }
-    json[RobotKeys::Robot] = robotObject;
-    QDebug() << "Robot JSON" << json;
     return json;
 }
 
+void MainWindow::saveToJson(const QString &filePath)
+{
+    QJsonObject json = modelToJson();
 
+    // Before saving to file, make sure the JSON object has valid Json data
+    if (json.isEmpty())
+    {
+        qWarning() << "Failed to convert model to JSON";
+        return;
+    }
+    // verify that the existing json has valid foramtted data.
 
-void MainWindow::saveToJson(QStandardItemModel *model, const QString &filePath) {
-    QJsonObject json = modelToJson(model);
     QJsonDocument doc(json);
     QFile file(filePath);
-    if (file.open(QIODevice::WriteOnly)) {
+    if (file.open(QIODevice::WriteOnly))
+    {
         file.write(doc.toJson());
         file.close();
     }
-    else {
+    else
+    {
         qWarning() << "Failed to open file for writing";
     }
 }
-
-
 
 // Setup the Main Playground for 3D Viewer
 // This function will setup the 3D Playground for the Robot Model Visualization.
@@ -376,4 +529,3 @@ void MainWindow::setup3DPlayground()
 
     ui->viewContainer->layout()->addWidget(container);
 }
-
