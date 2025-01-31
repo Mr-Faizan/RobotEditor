@@ -82,6 +82,7 @@ private:
 
     
 
+    void showContextMenu(const QPoint &pos);
 
     void addRobotDataTemplate();
     void populateTreeView(QStandardItemModel *model, const QJsonObject &json);

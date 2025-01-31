@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    connect(ui->treeView, &QTreeView::customContextMenuRequested, this, &MainWindow::showContextMenu);
+
     // Not define model here because it will not be accessible in other functions.
     model = new QStandardItemModel(0, 2, this);
     model->setHeaderData(0, Qt::Horizontal, "Robot Specifications");
@@ -25,19 +27,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->treeView->resizeColumnToContents(0);
     ui->treeView->resizeColumnToContents(1);
 
-    // Testing
-    QString filePath = "C:/Users/fahmed/WorkFolder/Projects/testing.json";
-    // QStandardItemModel *model = static_cast<QStandardItemModel*>(ui->treeView->model());
-    // saveToJson(model, filePath);
-
-    // Print the data to the terminal
-    QJsonObject json = modelToJson();
-    QJsonDocument doc(json);
-    // cout << doc.toJson().toStdString() << endl;
 
     // 3D Model Visualization part.
-    // setup3DPlayground();
-    // connect(ui->actionSave, &QAction::triggered, this, &MainWindow::on_actionSave_triggered);
+    setup3DPlayground();
+    
 }
 
 MainWindow::~MainWindow()
@@ -57,6 +50,33 @@ void MainWindow::on_actionSave_triggered()
         qDebug() << "Saving to: " << filePath;
         saveToJson(filePath);
     }
+}
+
+
+/****************** Custom Function Implementation ******************/
+void MainWindow::showContextMenu(const QPoint &pos)
+{
+    QModelIndex index = ui->treeView->indexAt(pos);
+    if (!index.isValid())
+        return;
+
+    QStandardItem *item = model->itemFromIndex(index);
+    if (!item)
+        return;
+
+    QMenu contextMenu(this);
+
+    if (item->text() == RobotKeys::Robot) {
+        contextMenu.addAction("Save Robot", this, SLOT(saveRobot()));
+        contextMenu.addAction("New Robot", this, SLOT(addNewRobot()));
+        contextMenu.addAction("Open from Device...", this, SLOT(createNewRobot()));
+    } else if (item->text() == RobotKeys::Joints) {
+        contextMenu.addAction("Add New Joint", this, SLOT(addNewJoint()));
+    } else if(item->text() == JointKeys::JointDynamics) {
+        contextMenu.addAction("Add New Dynamics", this, SLOT(addNewDynamics()));
+    }
+
+    contextMenu.exec(ui->treeView->viewport()->mapToGlobal(pos));
 }
 
 // Add the Robot Data Template
@@ -107,8 +127,13 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
 
     QJsonObject robot = json[RobotKeys::Robot].toObject();
     // qDebug() << robot;
-    QStandardItem *robotItem = new QStandardItem(QIcon(":/Resources/Icons/robot2.png"), RobotKeys::Robot);
+    QStandardItem *robotItem = new QStandardItem(QIcon(":/Resources/Icons/robotic-arm.png"), RobotKeys::Robot);
     robotItem->setFlags(robotItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
+    // Set the font to bold
+    QFont font = robotItem->font();
+    font.setBold(true);
+    robotItem->setFont(font);
+
     rootItem->appendRow(robotItem);
 
     // Loading robot properties
@@ -132,7 +157,7 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
 
     QJsonObject joints = robot[RobotKeys::Joints].toObject();
     // qDebug() << joints;
-    QStandardItem *jointsItem = new QStandardItem(RobotKeys::Joints);
+    QStandardItem *jointsItem = new QStandardItem(QIcon(":/Resources/Icons/robot-joint.png"),RobotKeys::Joints);
     jointsItem->setFlags(jointsItem->flags() & ~Qt::ItemIsEditable);
     robotItem->appendRow(jointsItem);
 
@@ -191,7 +216,7 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
             continue;
         }
         QJsonObject dynamics = joint[JointKeys::JointDynamics].toObject();
-        QStandardItem *dynamicsItem = new QStandardItem(JointKeys::JointDynamics);
+        QStandardItem *dynamicsItem = new QStandardItem(QIcon(":/Resources/Icons/settings.png"), JointKeys::JointDynamics);
         dynamicsItem->setFlags(dynamicsItem->flags() & ~Qt::ItemIsEditable);
         singleJointItem->appendRow(dynamicsItem);
 
