@@ -19,18 +19,10 @@ MainWindow::MainWindow(QWidget *parent)
     model->setHeaderData(1, Qt::Horizontal, "User Values");
 
     // Configurations Panel part.
-    addRobotDataTemplate();
-
-    // Now We have data in the model we can just present that data in the view.
-    ui->treeView->setModel(model);
-    ui->treeView->expandAll();
-    ui->treeView->resizeColumnToContents(0);
-    ui->treeView->resizeColumnToContents(1);
-
+    // addRobotDataTemplate();
 
     // 3D Model Visualization part.
     setup3DPlayground();
-    
 }
 
 MainWindow::~MainWindow()
@@ -39,6 +31,16 @@ MainWindow::~MainWindow()
 }
 
 /****************** Slots Implementation ******************/
+
+void MainWindow::addNewJoint()
+{
+    qDebug() << "Add New Joint action triggered";
+}
+
+void MainWindow::addNewDynamics()
+{
+    qDebug() << "Add New Dynamics action triggered";
+}
 
 void MainWindow::on_actionSave_triggered()
 {
@@ -52,6 +54,39 @@ void MainWindow::on_actionSave_triggered()
     }
 }
 
+void MainWindow::on_actionNewRobot_triggered()
+{
+    // here we have to clear the model and add the new robot data template. from the template file.
+    // model->clear();
+    addRobotDataTemplate();
+}
+
+void MainWindow::on_actionOpenFromDevice_triggered()
+{
+    // Open the JSON file from the device and populate the data in the TreeView.
+
+    QString filePath = QFileDialog::getOpenFileName(this, "Open JSON", "", "JSON Files (*.json)");
+    if (!filePath.isEmpty())
+    {
+        qDebug() << "Opening from: " << filePath;
+        QFile file(filePath);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            qWarning("Failed to open file for reading");
+            return;
+        }
+
+        QByteArray jsonData = file.readAll();
+        file.close();
+
+        QJsonDocument jsonDocument = QJsonDocument::fromJson(jsonData);
+        QJsonObject jsonObject = jsonDocument.object();
+
+        // Using one common function to load JSON data
+        loadJsonData(jsonObject);
+
+    }
+}
 
 /****************** Custom Function Implementation ******************/
 void MainWindow::showContextMenu(const QPoint &pos)
@@ -66,13 +101,18 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
     QMenu contextMenu(this);
 
-    if (item->text() == RobotKeys::Robot) {
-        contextMenu.addAction("Save Robot", this, SLOT(saveRobot()));
-        contextMenu.addAction("New Robot", this, SLOT(addNewRobot()));
-        contextMenu.addAction("Open from Device...", this, SLOT(createNewRobot()));
-    } else if (item->text() == RobotKeys::Joints) {
+    if (item->text() == RobotKeys::Robot)
+    {
+        contextMenu.addAction("Save Robot", this, SLOT(on_actionSave_triggered()));
+        contextMenu.addAction("New Robot", this, SLOT(on_actionNewRobot_triggered()));
+        contextMenu.addAction("Open from Device...", this, SLOT(on_actionOpenFromDevice_triggered()));
+    }
+    else if (item->text() == RobotKeys::Joints)
+    {
         contextMenu.addAction("Add New Joint", this, SLOT(addNewJoint()));
-    } else if(item->text() == JointKeys::JointDynamics) {
+    }
+    else if (item->text() == JointKeys::JointDynamics)
+    {
         contextMenu.addAction("Add New Dynamics", this, SLOT(addNewDynamics()));
     }
 
@@ -85,7 +125,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
 void MainWindow::addRobotDataTemplate()
 {
 
-    QFile file(":/Resources/Json/FaizanTest.json");
+    QFile file(":/Resources/Json/Template.json");
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -102,9 +142,47 @@ void MainWindow::addRobotDataTemplate()
     // Print the template object for debugging
     // qDebug() << templateObject;
 
-    // First Step is to populate data in the model.
-    populateTreeView(model, templateObject);
+    // Using one common function to load JSON data
+    loadJsonData(templateObject);
+
 }
+
+
+// This function will get the JSON Object and populate the TreeView with the data.
+void MainWindow::loadJsonData(const QJsonObject &jsonObject)
+{
+
+    if (jsonObject.isEmpty())
+    {
+        qWarning() << "JSON object is empty";
+        return;
+    }
+
+    if (!jsonObject.contains(RobotKeys::Robot) || !jsonObject[RobotKeys::Robot].isObject())
+    {
+        qWarning() << "Invalid JSON: Missing or invalid 'Robot' object";
+        return;
+    }
+
+    // Clear the model first
+    model->clear();
+
+    // Initialize the model
+    model = new QStandardItemModel(0, 2, this);
+    model->setHeaderData(0, Qt::Horizontal, "Robot Specifications");
+    model->setHeaderData(1, Qt::Horizontal, "User Values");
+
+    // Populate data in the model
+    populateTreeView(model, jsonObject);
+
+    // Present the data in the view
+    ui->treeView->setModel(model);
+    ui->treeView->expandAll();
+    ui->treeView->resizeColumnToContents(0);
+    ui->treeView->resizeColumnToContents(1);
+}
+
+
 
 // I tired my best not to define the structue of the application in the model and to load the structure from the template file, to make it Dynamic.
 // But I am unable to do so, because JSON Object is unordered list of key value pairs and for us Order is very important.
@@ -157,7 +235,7 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
 
     QJsonObject joints = robot[RobotKeys::Joints].toObject();
     // qDebug() << joints;
-    QStandardItem *jointsItem = new QStandardItem(QIcon(":/Resources/Icons/robot-joint.png"),RobotKeys::Joints);
+    QStandardItem *jointsItem = new QStandardItem(QIcon(":/Resources/Icons/robot-joint.png"), RobotKeys::Joints);
     jointsItem->setFlags(jointsItem->flags() & ~Qt::ItemIsEditable);
     robotItem->appendRow(jointsItem);
 
@@ -380,7 +458,7 @@ QJsonObject MainWindow::modelToJson()
 
                                             if (propertyItem)
                                             {
-                                                 dhParametersObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
+                                                dhParametersObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
                                             }
                                         }
                                         kinematicsObject[KinematicsKeys::DhParameters] = dhParametersObject;
@@ -448,9 +526,9 @@ QJsonObject MainWindow::modelToJson()
                             QStandardItem *propertyItem = visualizationItem->child(k, 0);
                             QStandardItem *valueItem = visualizationItem->child(k, 1);
                             if (propertyItem)
-                                {
-                                    visualizationObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
-                                }
+                            {
+                                visualizationObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
+                            }
                         }
                         singleJointObject[JointKeys::Visualization] = visualizationObject;
                     }

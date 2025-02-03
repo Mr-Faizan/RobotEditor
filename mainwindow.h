@@ -53,6 +53,12 @@ public:
 
 private slots:
     void on_actionSave_triggered();
+    void on_actionNewRobot_triggered();
+    void on_actionOpenFromDevice_triggered();
+
+    // defining the slots for the context menu.
+    void addNewJoint();
+    void addNewDynamics();
     
 
 private:
@@ -62,29 +68,11 @@ private:
     Qt3DExtras::Qt3DWindow *view;
     Qt3DCore::QEntity *rootEntity;
 
-/*
-    // I am initializing these pointers here so that I can access them in multiple functions.
-    // For Example if I want to add multiple Joints or Dynamics data, I can simply use these pointers.
-    
-    QStandardItem *robotItem = nullptr;
-    QStandardItem *jointsCategory = nullptr;
-    QStandardItem *jointItem = nullptr;
-    QStandardItem *jointKinematicsItem = nullptr;
-    QStandardItem *jointDynamicsCategory = nullptr;
-    QStandardItem *jointDynamicsItem = nullptr;
 
-    // I am Initializing these arrays so that I can access them whenever I have to add multiple Joints or Dynamics data.
-    QJsonArray robotItemKeysArray;
-    QJsonArray jointItemKeysArray;
-    QJsonArray jointKinematicsItemKeysArray;
-    QJsonArray jointDynamicsItemKeysArray;
-*/
-
-    
-
+    // Custom Functions
     void showContextMenu(const QPoint &pos);
-
     void addRobotDataTemplate();
+    void loadJsonData(const QJsonObject &jsonObject);
     void populateTreeView(QStandardItemModel *model, const QJsonObject &json);
     void addItem(QStandardItem *parent, const QString &key, const QString &value);
     void saveToJson(const QString &filePath);
