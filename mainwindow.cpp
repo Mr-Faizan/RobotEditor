@@ -17,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
     model = new QStandardItemModel(0, 2, this);
     model->setHeaderData(0, Qt::Horizontal, "Robot Specifications");
     model->setHeaderData(1, Qt::Horizontal, "User Values");
+    ui->treeView->setModel(model);
+
 
     // Configurations Panel part.
     // addRobotDataTemplate();
@@ -165,18 +167,18 @@ void MainWindow::loadJsonData(const QJsonObject &jsonObject)
     }
 
     // Clear the model first
-    model->clear();
+    //model->clear();
 
     // Initialize the model
-    model = new QStandardItemModel(0, 2, this);
-    model->setHeaderData(0, Qt::Horizontal, "Robot Specifications");
-    model->setHeaderData(1, Qt::Horizontal, "User Values");
+    //model = new QStandardItemModel(0, 2, this);
+    //model->setHeaderData(0, Qt::Horizontal, "Robot Specifications");
+    //model->setHeaderData(1, Qt::Horizontal, "User Values");
 
     // Populate data in the model
     populateTreeView(model, jsonObject);
 
     // Present the data in the view
-    ui->treeView->setModel(model);
+    //ui->treeView->setModel(model);
     ui->treeView->expandAll();
     ui->treeView->resizeColumnToContents(0);
     ui->treeView->resizeColumnToContents(1);
