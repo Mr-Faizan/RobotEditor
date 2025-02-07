@@ -26,11 +26,31 @@
 
 // QT 3D Libraries
 #include <Qt3DCore/QEntity>
+#include <Qt3DCore/QTransform>
+
+
+
+#include <Qt3DRender/QCamera>
+#include <Qt3DRender/QMesh>
+#include <Qt3DRender/QPointLight>
+#include <Qt3DRender/QDirectionalLight>
+
+#include <Qt3DExtras/QOrbitCameraController>
+#include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DExtras/qforwardrenderer.h>
+#include <Qt3DExtras/qorbitcameracontroller.h>
+
+
+
+
+
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QColor>
+#include <QTimer>
+#include <QSlider>
+#include <QPushButton>
 
 
 
@@ -67,6 +87,10 @@ private:
 
     Qt3DExtras::Qt3DWindow *view;
     Qt3DCore::QEntity *rootEntity;
+    Qt3DRender::QCamera *camera;
+    QTimer *rotationTimer;      // Timer for rotation
+    float rotationAngle = 0.0f;        // Current rotation angle
+    bool rotating = true;      // Flag to indicate if rotation is enabled
 
 
     // Custom Functions
@@ -83,6 +107,9 @@ private:
 
     // 3D Window Playground
     void setup3DPlayground();
+    void loadObjFiles(const QString& directoryPath, Qt3DCore::QEntity* rootEntity);
+    bool parseMtlFile(const QString& mtlFilePath, QColor& ambient, QColor& diffuse, QColor& specular, float& shininess, float& transparency, int& illumModel);
+    void updateRotation();
     
 };
 #endif // MAINWINDOW_H

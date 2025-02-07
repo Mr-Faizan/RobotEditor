@@ -12,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     connect(ui->treeView, &QTreeView::customContextMenuRequested, this, &MainWindow::showContextMenu);
+    rotationTimer = new QTimer(this);
+    connect(rotationTimer, &QTimer::timeout, this, &MainWindow::updateRotation);
 
     // Not define model here because it will not be accessible in other functions.
     model = new QStandardItemModel(0, 2, this);
@@ -582,16 +584,245 @@ void MainWindow::setup3DPlayground()
     // Set the background color
     view->defaultFrameGraph()->setClearColor(QColor(Qt::darkCyan));
 
+    // Set up the camera
+    camera = view->camera();
+    camera->lens()->setPerspectiveProjection(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
+    camera->setPosition(QVector3D(0.159012, -504.859, -10.8127));
+    camera->setViewCenter(QVector3D(0, 0, 0));
+
+    // For camera control
+    Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
+    //camController->setLinearSpeed(50.0f);
+    //camController->setLookSpeed(180.0f);
+    camController->setCamera(camera);
+
+    // Set up the scene
+
+    Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
+    Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
+    light->setColor("white");
+    light->setIntensity(1.0f);
+    lightEntity->addComponent(light);
+    Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
+    lightTransform->setTranslation(QVector3D(0.159012, -504.859, -10.8127)); // Position light at the same height as the camera
+    lightEntity->addComponent(lightTransform);
+
+    // Create a directional light
+    Qt3DCore::QEntity *directionalLightEntity = new Qt3DCore::QEntity(rootEntity);
+    Qt3DRender::QDirectionalLight *directionalLight = new Qt3DRender::QDirectionalLight(directionalLightEntity);
+    directionalLight->setColor("white");
+    directionalLight->setIntensity(1.0f);
+    // directionalLight->setWorldDirection(QVector3D(0, 0, -1));
+    directionalLightEntity->addComponent(directionalLight);
+
+    Qt3DCore::QTransform *directionalLightTransform = new Qt3DCore::QTransform(directionalLightEntity);
+    directionalLightTransform->setRotation(QQuaternion::fromEulerAngles(45, 45, 0)); // Will adjust as needed
+    directionalLightEntity->addComponent(directionalLightTransform);
+
+
+    // Load the Mesh files from the Resources
+    QString resourcesDir = ":/Resources/Models/Robot2";
+    loadObjFiles(resourcesDir, rootEntity);
+
     // Set the root Entity
     view->setRootEntity(rootEntity);
 
     // Create a window container for view
-    QWidget *container = QWidget::createWindowContainer(view);
+    QWidget *container = QWidget::createWindowContainer(view, this);
 
     // Now its time to show this view on frontend.
-    //  QHBoxLayout *layout = new QHBoxLayout();
+    // QHBoxLayout *layout = new QHBoxLayout();
     //  layout->addWidget(container);
     //  ui->viewContainer->setLayout(layout);
 
     ui->viewContainer->layout()->addWidget(container);
+
 }
+
+// Load the Mesh files from the Resources
+void MainWindow::loadObjFiles(const QString& directoryPath, Qt3DCore::QEntity* rootEntity) {
+    
+    // Load JSON file containing transformation data
+    
+    QFile jsonFile(":/Resources/Json/dhParameters.json"); // Load JSON file here
+    if (!jsonFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open JSON file.";
+    }
+
+    QByteArray jsonData = jsonFile.readAll();
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
+    QJsonObject jsonObject = doc.object();
+    qDebug() << "JSON file loaded successfully with keys:" << jsonObject.keys(); // Debugging JSON keys
+    
+    
+    // Create a QDir object for the specified directory
+    QDir dir(directoryPath);
+    if (!dir.exists()) {
+        qWarning() << "Directory does not exist: " << directoryPath;
+        return;
+    }
+
+    // Set up the filter to find OBJ files
+    dir.setNameFilters(QStringList() << "*.obj");
+    dir.setFilter(QDir::Files);
+
+    // Get the list of OBJ files
+    QFileInfoList fileList = dir.entryInfoList();
+
+    // Iterate through the list of OBJ files
+    for (const QFileInfo &fileInfo : fileList) {
+        const QString& filePath = fileInfo.absoluteFilePath();
+        QString geometryName = fileInfo.baseName(); // Get the base name without the file extension
+
+
+        // Create an entity to hold the 3D model
+        Qt3DCore::QEntity *entity = new Qt3DCore::QEntity(rootEntity);
+
+        // Load the OBJ file
+        Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
+        mesh->setSource(QUrl::fromLocalFile(filePath));  // Ensure this loads the .obj file with .mtl references
+
+
+
+        // Apply transformations (translation, rotation)
+        Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
+
+
+        // Check if the JSON object contains transformation data for this geometry
+
+        if (!jsonObject.isEmpty() && jsonObject.contains(geometryName)) {
+
+            QJsonObject geomData = jsonObject.value(geometryName).toObject();
+
+            // Extract translation and rotation values
+
+            float Tx = geomData.value("Tx").toDouble();
+
+            float Tz = geomData.value("Tz").toDouble();
+
+            float Rx = geomData.value("Rx").toDouble();
+
+            float Rz = geomData.value("Rz").toDouble();
+
+            // Set the translation and rotation values
+
+            //transform->setTranslation(QVector3D(Tx, 0.0f, Tz));
+
+            transform->setRotationX(Rx);
+
+            transform->setRotationZ(Rz);
+
+        } else {
+
+            // Default transformations if no data in JSON
+
+            transform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
+
+            transform->setRotationX(0.0f);
+
+            transform->setRotationZ(0.0f);
+
+        }
+
+        transform->setScale(0.1f);  // Example scale
+
+        // Create a material to hold the properties from the MTL file
+        Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial();
+
+        // Check for the existence of the corresponding MTL file
+        QString mtlFilePath = QFileInfo(filePath).absolutePath() + "/" + geometryName + ".obj.mtl";
+        QFile mtlFile(mtlFilePath);
+        if (mtlFile.exists()) {
+            // Load the MTL file
+            QColor ambientColor, diffuseColor, specularColor;
+            float shininess = 0.0f, transparency = 0.0f;
+            int illumModel = 2; // Default illumination model to Phong
+
+            if (parseMtlFile(mtlFilePath, ambientColor, diffuseColor, specularColor, shininess, transparency, illumModel)) {
+                material->setAmbient(ambientColor);
+                material->setDiffuse(diffuseColor);
+                material->setSpecular(specularColor);
+                material->setShininess(shininess);
+
+                // Handle transparency by adjusting the alpha channel
+                QColor diffuseWithAlpha = diffuseColor;
+                diffuseWithAlpha.setAlphaF(1.0f - transparency);  // Adjust alpha based on transparency
+                material->setDiffuse(diffuseWithAlpha);
+
+            } else {
+                // Set a default material if parsing fails
+                material->setAmbient(QColor::fromRgbF(0.2, 0.2, 0.2));
+                material->setDiffuse(QColor::fromRgbF(0.498039, 0.498039, 0.498039));
+                material->setSpecular(QColor::fromRgbF(1.0, 1.0, 1.0));
+                material->setShininess(0.0);
+            }
+        } else {
+            // Set a default material if MTL file does not exist
+            material->setAmbient(QColor::fromRgbF(0.2, 0.2, 0.2));
+            material->setDiffuse(QColor::fromRgbF(0.498039, 0.498039, 0.498039));
+            material->setSpecular(QColor::fromRgbF(1.0, 1.0, 1.0));
+            material->setShininess(0.0);
+        }
+
+        // Add the components (mesh, transformation, material) to the entity
+        entity->addComponent(mesh);
+        entity->addComponent(transform);
+        entity->addComponent(material);
+    }
+}
+
+
+// Sample function to parse the MTL file and return colors
+bool MainWindow::parseMtlFile(const QString& mtlFilePath, QColor& ambient, QColor& diffuse, QColor& specular, float& shininess, float& transparency, int& illumModel) {
+    QFile mtlFile(mtlFilePath);
+    if (!mtlFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open MTL file:" << mtlFilePath;
+        return false;
+    }
+
+    QTextStream in(&mtlFile);
+    QString line;
+
+    while (in.readLineInto(&line)) {
+        QStringList tokens = line.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+        if (tokens.isEmpty()) continue;
+
+        if (tokens[0] == "Ka") { // Ambient color
+            ambient = QColor::fromRgbF(tokens[1].toFloat(), tokens[2].toFloat(), tokens[3].toFloat());
+        } else if (tokens[0] == "Kd") { // Diffuse color
+            diffuse = QColor::fromRgbF(tokens[1].toFloat(), tokens[2].toFloat(), tokens[3].toFloat());
+        } else if (tokens[0] == "Ks") { // Specular color
+            specular = QColor::fromRgbF(tokens[1].toFloat(), tokens[2].toFloat(), tokens[3].toFloat());
+        } else if (tokens[0] == "Ns") { // Shininess
+            shininess = tokens[1].toFloat();
+        } else if (tokens[0] == "Tr") { // Transparency
+            transparency = tokens[1].toFloat();
+        } else if (tokens[0] == "illum") { // Illumination model
+            illumModel = tokens[1].toInt();
+        }
+    }
+
+    return true; // Successfully parsed the MTL file
+}
+
+// Update the rotation and translation of the 3D model
+void MainWindow::updateRotation() {
+    rotationAngle += 1.0f;
+    float translationAmount = 0.01f;
+    for (const auto &child : rootEntity->children()) {
+        auto entity = qobject_cast<Qt3DCore::QEntity*>(child);
+        if (entity) {
+            auto transform = entity->findChild<Qt3DCore::QTransform*>();
+            if (transform) {
+                // Rotate around the Z-axis for vertical rotation
+                QQuaternion rotation = QQuaternion::fromEulerAngles(0.0f, 0.0f, rotationAngle);
+                transform->setRotation(rotation);
+                // Translate along the X-axis
+                QVector3D currentTranslation = transform->translation();
+                QVector3D newTranslation = currentTranslation + QVector3D(translationAmount, 0.0f, 0.0f); // Move along X
+                transform->setTranslation(newTranslation);
+            }
+        }
+    }
+}
+
