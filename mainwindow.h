@@ -75,6 +75,8 @@ private slots:
     void on_actionSave_triggered();
     void on_actionNewRobot_triggered();
     void on_actionOpenFromDevice_triggered();
+    void on_actionResetModel_triggered();
+    void on_actionRotateModel_triggered();
 
     // defining the slots for the context menu.
     void addNewJoint();
@@ -90,8 +92,8 @@ private:
     Qt3DRender::QCamera *camera;
     QTimer *rotationTimer;      // Timer for rotation
     float rotationAngle = 0.0f;        // Current rotation angle
-    bool rotating = true;      // Flag to indicate if rotation is enabled
-
+    bool rotating = false;      // Flag to indicate if rotation is enabled
+    bool show3dModel = true; 
 
     // Custom Functions
     void showContextMenu(const QPoint &pos);
@@ -107,6 +109,8 @@ private:
 
     // 3D Window Playground
     void setup3DPlayground();
+    void load3DModel();
+    void remove3DModel();
     void loadObjFiles(const QString& directoryPath, Qt3DCore::QEntity* rootEntity);
     bool parseMtlFile(const QString& mtlFilePath, QColor& ambient, QColor& diffuse, QColor& specular, float& shininess, float& transparency, int& illumModel);
     void updateRotation();
