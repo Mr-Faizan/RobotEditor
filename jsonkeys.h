@@ -8,32 +8,32 @@ namespace RobotKeys {
 const QString Robot = "Robot";
 const QString RobotName = "Robot Name";
 const QString RobotManufacturer = "Robot Manufacturer";
-const QString RobotPayload = "Robot Payload";
-const QString RobotFootprint = "Robot Footprint";
-const QString RobotMaxReach = "Robot MaxReach";
-const QString RobotRepeatability = "Robot Repeatability";
-const QString RobotWeight = "Robot Weight";
-const QString DOF = "DOF";
+const QString RobotPayload = "Robot Payload (Kg)";
+const QString RobotFootprint = "Robot Footprint Ø (mm)";
+const QString RobotMaxReach = "Robot Maximum Reach (mm)";
+const QString RobotRepeatability = "Robot Repeatability (mm)";
+const QString RobotWeight = "Robot Weight (Kg)";
+const QString DOF = "Robot DOF";
 const QString Joints = "Joints";
 const QString Visualization = "Visualization";
 }
 
 namespace JointKeys {
 const QString JointName = "Joint Name";
-const QString MotionRangeMax = "MotionRangeMax";
-const QString MotionRangeMin = "MotionRangeMin";
-const QString JointSpeedLimit = "JointSpeedLimit";
-const QString FrictionCoefficient = "FrictionCoefficient";
-const QString StiffnessCoefficient = "StiffnessCoefficient";
-const QString DampingCoefficient = "DampingCoefficient";
-const QString JointKinematics = "JointKinematics";
-const QString JointDynamics = "JointDynamics";
-const QString Visualization = "Visualization";
+const QString MotionRangeMax = "Maximum Joint Limit (deg)";
+const QString MotionRangeMin = "Minimum Joint Limit (deg)";
+const QString JointSpeedLimit = "Joint Speed Limit (deg/s)";
+const QString FrictionCoefficient = "Friction Coefficient (N.m)";
+const QString StiffnessCoefficient = "Stiffness Coefficient (N/m)";
+const QString DampingCoefficient = "Damping Coefficient (Ns/m)";
+const QString JointKinematics = "Joint Kinematics";
+const QString JointDynamics = "Joint Dynamics";
+const QString Visualization = "Joint Visualization";
 }
 
 namespace KinematicsKeys {
-const QString DhParameters = "DhParameters";
-const QString RotationalValues = "RotationalValues";
+const QString DhParameters = "DH Parameters";
+const QString RotationalValues = "Rotational Values";
 }
 
 namespace DhParametersKeys {
@@ -45,12 +45,12 @@ const QString DHType = "DH Type";
 }
 
 namespace RotationalValuesKeys {
-const QString Ixx = "Ixx (kg.m)";
-const QString Ixy = "Ixy (kg.m)";
-const QString Ixz = "Ixz (kg.m)";
-const QString Iyy = "Iyy (kg.m)";
-const QString Iyz = "Iyz (kg.m)";
-const QString Izz = "Izz (kg.m)";
+const QString Ixx = "Ixx (kg·m²)";
+const QString Ixy = "Ixy (kg.m²)";
+const QString Ixz = "Ixz (kg.m²)";
+const QString Iyy = "Iyy (kg.m²)";
+const QString Iyz = "Iyz (kg.m²)";
+const QString Izz = "Izz (kg.m²)";
 }
 
 namespace DynamicsKeys {
@@ -58,13 +58,13 @@ const QString TestPayload = "Test Payload (kg)";
 const QString PayloadPercentage = "Payload Percentage";
 const QString RepeatabilityPercentage = "Repeatability Percentage";
 const QString SpeedPercentage = "Speed Percentage";
-const QString BreakingDistance = "Breaking Distance";
-const QString BreakingTime = "Breaking Time";
+const QString BreakingDistance = "Breaking Distance (m)";
+const QString BreakingTime = "Breaking Time (s)";
 }
 
 namespace VisualizationKeys {
-const QString PathToObjFile = "path to obj file";
-const QString PathToMltFile = "path to mlt file";
+const QString PathToObjFile = "Path to OBJ File";
+const QString PathToMltFile = "Path to MTL File";
 }
 
 #endif // JSONKEYS_H

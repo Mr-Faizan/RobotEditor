@@ -93,7 +93,7 @@ private:
     QTimer *rotationTimer;      // Timer for rotation
     float rotationAngle = 0.0f;        // Current rotation angle
     bool rotating = false;      // Flag to indicate if rotation is enabled
-    bool show3dModel = true; 
+    bool show3dModel = false; 
 
     // Custom Functions
     void showContextMenu(const QPoint &pos);
