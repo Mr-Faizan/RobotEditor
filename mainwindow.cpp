@@ -45,7 +45,40 @@ void MainWindow::addNewJoint()
 
 void MainWindow::addNewDynamics()
 {
-    qDebug() << "Add New Dynamics action triggered";
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
+    {
+        qWarning() << "No Joint Dynamics selected.";
+        return;
+    }
+
+    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem)
+    {
+        qWarning() << "Invalid item selected.";
+        return;
+    }
+
+    // Check the selected item is a Joint Dynamics item
+    if (currentItem->text() != JointKeys::JointDynamics)
+    {
+        qWarning() << "Selected item is not a Joint Dynamics.";
+        return;
+    }
+
+    // Create a new payload
+    QString payloadKey = "Payload " + QString::number(currentItem->rowCount() + 1);
+    QStandardItem *payloadItem = new QStandardItem(payloadKey);
+    currentItem->appendRow(payloadItem);
+
+    addItem(payloadItem, DynamicsKeys::TestPayload, "0");
+    addItem(payloadItem, DynamicsKeys::PayloadPercentage, "0");
+    addItem(payloadItem, DynamicsKeys::RepeatabilityPercentage, "0");
+    addItem(payloadItem, DynamicsKeys::SpeedPercentage, "0");
+    addItem(payloadItem, DynamicsKeys::BreakingDistance, "0");
+    addItem(payloadItem, DynamicsKeys::BreakingTime, "0");
+
+    ui->treeView->expand(currentIndex);
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -353,7 +386,7 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
         foreach (const QString &payloadKey, dynamics.keys())
         {
             QJsonObject payload = dynamics[payloadKey].toObject();
-            QStandardItem *payloadItem = new QStandardItem("Payload: " + payloadKey);
+            QStandardItem *payloadItem = new QStandardItem(payloadKey);
             dynamicsItem->appendRow(payloadItem);
 
             addItem(payloadItem, DynamicsKeys::TestPayload, QString::number(payload[DynamicsKeys::TestPayload].toDouble()));
