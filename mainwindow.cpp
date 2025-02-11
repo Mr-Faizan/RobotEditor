@@ -378,7 +378,8 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
         addItem(visualizationItem, VisualizationKeys::PathToMltFile, visualization[VisualizationKeys::PathToMltFile].toString());
 
         // Add button to add OBJ and MTL files
-        addButtonItem(visualizationItem, "Add Files");
+        // Not working so commented
+        // addButtonItem(visualizationItem, "Add Files");
     }
 }
 
