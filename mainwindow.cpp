@@ -320,6 +320,7 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
             addItem(dhParametersItem, DhParametersKeys::D, QString::number(dhParameters[DhParametersKeys::D].toDouble()));
             addItem(dhParametersItem, DhParametersKeys::Theta, QString::number(dhParameters[DhParametersKeys::Theta].toDouble()));
             addItem(dhParametersItem, DhParametersKeys::A, QString::number(dhParameters[DhParametersKeys::A].toDouble()));
+            //addComboBoxItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
             addItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
         }
 
@@ -375,6 +376,9 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
         singleJointItem->appendRow(visualizationItem);
         addItem(visualizationItem, VisualizationKeys::PathToObjFile, visualization[VisualizationKeys::PathToObjFile].toString());
         addItem(visualizationItem, VisualizationKeys::PathToMltFile, visualization[VisualizationKeys::PathToMltFile].toString());
+
+        // Add button to add OBJ and MTL files
+        addButtonItem(visualizationItem, "Add Files");
     }
 }
 
@@ -387,6 +391,76 @@ void MainWindow::addItem(QStandardItem *parent, const QString &key, const QStrin
     valueItem->setEditable(true);
     parent->appendRow(QList<QStandardItem *>() << keyItem << valueItem);
 }
+
+// This function is used to add the ComboBox Item in the TreeView.
+void MainWindow::addComboBoxItem(QStandardItem *parent, const QString &key, const QString &value)
+{
+    QStandardItem *keyItem = new QStandardItem(key);
+    keyItem->setEditable(false);
+
+    // First Creating a QComboBox with the two options
+    QComboBox *comboBox = new QComboBox();
+    comboBox->addItem("Classic DH");
+    comboBox->addItem("Modified DH");
+
+    // Want to set default value to "Classic DH"
+    int index = comboBox->findText(value);
+    if (index != -1)
+    {
+        comboBox->setCurrentIndex(index);
+    }
+    else
+    {
+        comboBox->setCurrentIndex(0); // Default to "Classic DH"
+    }
+
+    // Now Create a QStandardItem to hold the QComboBox
+    QStandardItem *comboBoxItem = new QStandardItem();
+    comboBoxItem->setEditable(false);
+
+    parent->appendRow(QList<QStandardItem *>() << keyItem << comboBoxItem);
+
+    // Add the QComboBox to the tree view
+    //ui->treeView->setIndexWidget(model->indexFromItem(comboBoxItem), comboBox);
+
+    // Facing issue with loading the ComboBox in the TreeView, so for now i am not calling this function.
+    QModelIndex indexFromItem = parent->model()->indexFromItem(comboBoxItem);
+    qDebug() << "Adding QComboBox to index:" << indexFromItem;
+    ui->treeView->setIndexWidget(indexFromItem, comboBox);
+
+}
+
+void MainWindow::addButtonItem(QStandardItem *parent, const QString &buttonText)
+{
+    QStandardItem *buttonItem = new QStandardItem(buttonText);
+    buttonItem->setEditable(false);
+
+    parent->appendRow(buttonItem);
+
+    QPushButton *button = new QPushButton(buttonText);
+    QModelIndex index = parent->model()->indexFromItem(buttonItem);
+    ui->treeView->setIndexWidget(index, button);
+
+    connect(button, &QPushButton::clicked, this, &MainWindow::onAddFilesButtonClicked);
+}
+
+void MainWindow::onAddFilesButtonClicked()
+{
+    QString objFilePath = QFileDialog::getOpenFileName(this, "Select OBJ File", "", "OBJ Files (*.obj)");
+    if (!objFilePath.isEmpty())
+    {
+        QString mtlFilePath = QFileDialog::getOpenFileName(this, "Select MTL File", "", "MTL Files (*.mtl)");
+        if (!mtlFilePath.isEmpty())
+        {
+            // Handle the selected OBJ and MTL file paths
+            qDebug() << "Selected OBJ File:" << objFilePath;
+            qDebug() << "Selected MTL File:" << mtlFilePath;
+
+            // Update the model with the selected file paths
+        }
+    }
+}
+
 
 // Now trickies part starts with saving JSON in such a way that I can access it later on and able to load the data in TreeView.
 // Not to make any mistake with structure, otherwise it will be surprice for you on loading data.

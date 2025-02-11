@@ -44,13 +44,12 @@
 
 
 
-
-#include <QWidget>
 #include <QVBoxLayout>
 #include <QColor>
 #include <QTimer>
 #include <QSlider>
 #include <QPushButton>
+#include <QComboBox>
 
 
 
@@ -101,6 +100,9 @@ private:
     void loadJsonData(const QJsonObject &jsonObject);
     void populateTreeView(QStandardItemModel *model, const QJsonObject &json);
     void addItem(QStandardItem *parent, const QString &key, const QString &value);
+    void addComboBoxItem(QStandardItem *parent, const QString &key, const QString &value);
+    void addButtonItem(QStandardItem *parent, const QString &buttonText);
+    void onAddFilesButtonClicked();
     void saveToJson(const QString &filePath);
 
     QJsonObject modelToJson();
