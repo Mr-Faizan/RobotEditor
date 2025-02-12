@@ -38,6 +38,7 @@ MainWindow::~MainWindow()
 
 /****************** Slots Implementation ******************/
 
+
 void MainWindow::addNewJoint()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -496,6 +497,8 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
     }
 }
 
+
+
 // Using this function to handle each row of the TreeView
 void MainWindow::addItem(QStandardItem *parent, const QString &key, const QString &value)
 {
@@ -620,7 +623,32 @@ QJsonObject MainWindow::modelToJson()
                     }
                     else
                     {
-                        robotObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
+                         // Convert value to string correctly
+                         if (valueItem)
+                         {
+                             bool ok;
+                             double doubleValue = valueItem->text().toDouble(&ok);
+                             if (ok)
+                             {
+                                 robotObject[propertyItem->text()] = doubleValue;
+                             }
+                             else
+                             {
+                                 int intValue = valueItem->text().toInt(&ok);
+                                 if (ok)
+                                 {
+                                     robotObject[propertyItem->text()] = intValue;
+                                 }
+                                 else
+                                 {
+                                     robotObject[propertyItem->text()] = valueItem->text();
+                                 }
+                             }
+                         }
+                         else
+                         {
+                             robotObject[propertyItem->text()] = "";
+                         }
                     }
                 }
             }
@@ -668,7 +696,32 @@ QJsonObject MainWindow::modelToJson()
                             }
                             else
                             {
-                                singleJointObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
+                                // Convert value to string correctly
+                                if (valueItem)
+                                {
+                                    bool ok;
+                                    double doubleValue = valueItem->text().toDouble(&ok);
+                                    if (ok)
+                                    {
+                                        singleJointObject[propertyItem->text()] = doubleValue;
+                                    }
+                                    else
+                                    {
+                                        int intValue = valueItem->text().toInt(&ok);
+                                        if (ok)
+                                        {
+                                            singleJointObject[propertyItem->text()] = intValue;
+                                        }
+                                        else
+                                        {
+                                            singleJointObject[propertyItem->text()] = valueItem->text();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    singleJointObject[propertyItem->text()] = "";
+                                }
                             }
                         }
                     }
@@ -697,7 +750,32 @@ QJsonObject MainWindow::modelToJson()
 
                                             if (propertyItem)
                                             {
-                                                dhParametersObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
+                                                 // Convert value to string correctly
+                                                 if (valueItem)
+                                                 {
+                                                     bool ok;
+                                                     double doubleValue = valueItem->text().toDouble(&ok);
+                                                     if (ok)
+                                                     {
+                                                         dhParametersObject[propertyItem->text()] = doubleValue;
+                                                     }
+                                                     else
+                                                     {
+                                                         int intValue = valueItem->text().toInt(&ok);
+                                                         if (ok)
+                                                         {
+                                                             dhParametersObject[propertyItem->text()] = intValue;
+                                                         }
+                                                         else
+                                                         {
+                                                             dhParametersObject[propertyItem->text()] = valueItem->text();
+                                                         }
+                                                     }
+                                                 }
+                                                 else
+                                                 {
+                                                     dhParametersObject[propertyItem->text()] = "";
+                                                 }
                                             }
                                         }
                                         kinematicsObject[KinematicsKeys::DhParameters] = dhParametersObject;
@@ -718,7 +796,32 @@ QJsonObject MainWindow::modelToJson()
 
                                             if (propertyItem)
                                             {
-                                                rotationalValuesObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
+                                                // Convert value to string correctly
+                                                if (valueItem)
+                                                {
+                                                    bool ok;
+                                                    double doubleValue = valueItem->text().toDouble(&ok);
+                                                    if (ok)
+                                                    {
+                                                        rotationalValuesObject[propertyItem->text()] = doubleValue;
+                                                    }
+                                                    else
+                                                    {
+                                                        int intValue = valueItem->text().toInt(&ok);
+                                                        if (ok)
+                                                        {
+                                                            rotationalValuesObject[propertyItem->text()] = intValue;
+                                                        }
+                                                        else
+                                                        {
+                                                            rotationalValuesObject[propertyItem->text()] = valueItem->text();
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    rotationalValuesObject[propertyItem->text()] = "";
+                                                }
                                             }
                                         }
                                         kinematicsObject[KinematicsKeys::RotationalValues] = rotationalValuesObject;
@@ -726,7 +829,32 @@ QJsonObject MainWindow::modelToJson()
                                 }
                                 else
                                 {
-                                    kinematicsObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
+                                    // Convert value to string correctly
+                                    if (valueItem)
+                                    {
+                                        bool ok;
+                                        double doubleValue = valueItem->text().toDouble(&ok);
+                                        if (ok)
+                                        {
+                                            kinematicsObject[propertyItem->text()] = doubleValue;
+                                        }
+                                        else
+                                        {
+                                            int intValue = valueItem->text().toInt(&ok);
+                                            if (ok)
+                                            {
+                                                kinematicsObject[propertyItem->text()] = intValue;
+                                            }
+                                            else
+                                            {
+                                                kinematicsObject[propertyItem->text()] = valueItem->text();
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        kinematicsObject[propertyItem->text()] = "";
+                                    }
                                 }
                             }
                         }
@@ -749,7 +877,32 @@ QJsonObject MainWindow::modelToJson()
 
                                 if (propertyItem)
                                 {
-                                    payloadObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
+                                    // Convert value to string correctly
+                                    if (valueItem)
+                                    {
+                                        bool ok;
+                                        double doubleValue = valueItem->text().toDouble(&ok);
+                                        if (ok)
+                                        {
+                                            payloadObject[propertyItem->text()] = doubleValue;
+                                        }
+                                        else
+                                        {
+                                            int intValue = valueItem->text().toInt(&ok);
+                                            if (ok)
+                                            {
+                                                payloadObject[propertyItem->text()] = intValue;
+                                            }
+                                            else
+                                            {
+                                                payloadObject[propertyItem->text()] = valueItem->text();
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        payloadObject[propertyItem->text()] = "";
+                                    }
                                 }
                             }
                             dynamicsObject[payloadItem->text()] = payloadObject;
