@@ -40,7 +40,87 @@ MainWindow::~MainWindow()
 
 void MainWindow::addNewJoint()
 {
-    qDebug() << "Add New Joint action triggered";
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
+    {
+        qWarning() << "No Joints item selected.";
+        return;
+    }
+
+    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem)
+    {
+        qWarning() << "Invalid item selected.";
+        return;
+    }
+
+    // Ensure the selected item is the Joints item
+    if (currentItem->text() != RobotKeys::Joints)
+    {
+        qWarning() << "Selected item is not the Joints item.";
+        return;
+    }
+
+    // Create a new joint
+    QString jointKey = "Joint " + QString::number(currentItem->rowCount() + 1);
+    QStandardItem *singleJointItem = new QStandardItem(JointKeys::JointName + ": " + jointKey);
+    currentItem->appendRow(singleJointItem);
+
+    addItem(singleJointItem, JointKeys::MotionRangeMax, "0.0");
+    addItem(singleJointItem, JointKeys::MotionRangeMin, "0.0");
+    addItem(singleJointItem, JointKeys::JointSpeedLimit, "0.0");
+    addItem(singleJointItem, JointKeys::FrictionCoefficient, "0.0");
+    addItem(singleJointItem, JointKeys::StiffnessCoefficient, "0.0");
+    addItem(singleJointItem, JointKeys::DampingCoefficient, "0.0");
+
+    // Create Joint Kinematics
+    QStandardItem *kinematicsItem = new QStandardItem(JointKeys::JointKinematics);
+    kinematicsItem->setFlags(kinematicsItem->flags() & ~Qt::ItemIsEditable);
+    singleJointItem->appendRow(kinematicsItem);
+
+    QStandardItem *dhParametersItem = new QStandardItem(KinematicsKeys::DhParameters);
+    dhParametersItem->setFlags(dhParametersItem->flags() & ~Qt::ItemIsEditable);
+    kinematicsItem->appendRow(dhParametersItem);
+    addItem(dhParametersItem, DhParametersKeys::Alpha, "0.0");
+    addItem(dhParametersItem, DhParametersKeys::D, "0.0");
+    addItem(dhParametersItem, DhParametersKeys::Theta, "0.0");
+    addItem(dhParametersItem, DhParametersKeys::A, "0.0");
+    addItem(dhParametersItem, DhParametersKeys::DHType, "Classic DH");
+
+    QStandardItem *rotationalValuesItem = new QStandardItem(KinematicsKeys::RotationalValues);
+    rotationalValuesItem->setFlags(rotationalValuesItem->flags() & ~Qt::ItemIsEditable);
+    kinematicsItem->appendRow(rotationalValuesItem);
+    addItem(rotationalValuesItem, RotationalValuesKeys::Ixx, "0.0");
+    addItem(rotationalValuesItem, RotationalValuesKeys::Ixy, "0.0");
+    addItem(rotationalValuesItem, RotationalValuesKeys::Ixz, "0.0");
+    addItem(rotationalValuesItem, RotationalValuesKeys::Iyy, "0.0");
+    addItem(rotationalValuesItem, RotationalValuesKeys::Iyz, "0.0");
+    addItem(rotationalValuesItem, RotationalValuesKeys::Izz, "0.0");
+
+    // Create Joint Dynamics
+    QStandardItem *dynamicsItem = new QStandardItem(QIcon(":/Resources/Icons/settings.png"), JointKeys::JointDynamics);
+    dynamicsItem->setFlags(dynamicsItem->flags() & ~Qt::ItemIsEditable);
+    singleJointItem->appendRow(dynamicsItem);
+
+    QString payloadKey = "Payload 1";
+    QStandardItem *payloadItem = new QStandardItem(payloadKey);
+    dynamicsItem->appendRow(payloadItem);
+
+    addItem(payloadItem, DynamicsKeys::TestPayload, "0.0");
+    addItem(payloadItem, DynamicsKeys::PayloadPercentage, "0.0");
+    addItem(payloadItem, DynamicsKeys::RepeatabilityPercentage, "0.0");
+    addItem(payloadItem, DynamicsKeys::SpeedPercentage, "0.0");
+    addItem(payloadItem, DynamicsKeys::BreakingDistance, "0.0");
+    addItem(payloadItem, DynamicsKeys::BreakingTime, "0.0");
+
+    // Create Visualization
+    QStandardItem *visualizationItem = new QStandardItem(JointKeys::Visualization);
+    visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable);
+    singleJointItem->appendRow(visualizationItem);
+    addItem(visualizationItem, VisualizationKeys::PathToObjFile, "");
+    addItem(visualizationItem, VisualizationKeys::PathToMltFile, "");
+
+    ui->treeView->expand(currentIndex);
 }
 
 void MainWindow::addNewDynamics()
