@@ -99,6 +99,7 @@ private:
     void loadTemplate();
     void showContextMenu(const QPoint &pos);
     void populateTreeView(const QJsonObject &json);
+    void addJoint(QStandardItem *jointsItem, const QString &jointKey, const QJsonObject &joint);
     void addDynamicsPayload(QStandardItem *dynamicsItem, const QString &payloadKey, const QJsonObject &payload);
     void addItem(QStandardItem *parent, const QString &key, const QString &value);
     void addComboBoxItem(QStandardItem *parent, const QString &key, const QString &value);
@@ -107,6 +108,7 @@ private:
     void saveToJson(const QString &filePath);
 
     QJsonObject modelToJson();
+    QString convertValueToString(QStandardItem *item);
 
 
 

@@ -2,7 +2,6 @@
 #include "./ui_mainwindow.h"
 #include "jsonkeys.h"
 
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       rotationAngle(0.0f),
@@ -35,7 +34,6 @@ MainWindow::~MainWindow()
 
 /****************** Slots Implementation ******************/
 
-
 void MainWindow::addNewJoint()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -60,63 +58,11 @@ void MainWindow::addNewJoint()
     }
 
     // Create a new joint
-    QString jointKey = "Joint " + QString::number(currentItem->rowCount() + 1);
-    QStandardItem *singleJointItem = new QStandardItem(JointKeys::JointName + ": " + jointKey);
-    currentItem->appendRow(singleJointItem);
+    //QString jointKey = JointKeys::Joint + " " + QString::number(currentItem->rowCount() + 1);
+    QString jointKey = JointKeys::Joint;
+    QJsonObject joint = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[jointKey].toObject();
 
-    addItem(singleJointItem, JointKeys::MotionRangeMax, "0.0");
-    addItem(singleJointItem, JointKeys::MotionRangeMin, "0.0");
-    addItem(singleJointItem, JointKeys::JointSpeedLimit, "0.0");
-    addItem(singleJointItem, JointKeys::FrictionCoefficient, "0.0");
-    addItem(singleJointItem, JointKeys::StiffnessCoefficient, "0.0");
-    addItem(singleJointItem, JointKeys::DampingCoefficient, "0.0");
-
-    // Create Joint Kinematics
-    QStandardItem *kinematicsItem = new QStandardItem(JointKeys::JointKinematics);
-    kinematicsItem->setFlags(kinematicsItem->flags() & ~Qt::ItemIsEditable);
-    singleJointItem->appendRow(kinematicsItem);
-
-    QStandardItem *dhParametersItem = new QStandardItem(KinematicsKeys::DhParameters);
-    dhParametersItem->setFlags(dhParametersItem->flags() & ~Qt::ItemIsEditable);
-    kinematicsItem->appendRow(dhParametersItem);
-    addItem(dhParametersItem, DhParametersKeys::Alpha, "0.0");
-    addItem(dhParametersItem, DhParametersKeys::D, "0.0");
-    addItem(dhParametersItem, DhParametersKeys::Theta, "0.0");
-    addItem(dhParametersItem, DhParametersKeys::A, "0.0");
-    addItem(dhParametersItem, DhParametersKeys::DHType, "Classic DH");
-
-    QStandardItem *rotationalValuesItem = new QStandardItem(KinematicsKeys::RotationalValues);
-    rotationalValuesItem->setFlags(rotationalValuesItem->flags() & ~Qt::ItemIsEditable);
-    kinematicsItem->appendRow(rotationalValuesItem);
-    addItem(rotationalValuesItem, RotationalValuesKeys::Ixx, "0.0");
-    addItem(rotationalValuesItem, RotationalValuesKeys::Ixy, "0.0");
-    addItem(rotationalValuesItem, RotationalValuesKeys::Ixz, "0.0");
-    addItem(rotationalValuesItem, RotationalValuesKeys::Iyy, "0.0");
-    addItem(rotationalValuesItem, RotationalValuesKeys::Iyz, "0.0");
-    addItem(rotationalValuesItem, RotationalValuesKeys::Izz, "0.0");
-
-    // Create Joint Dynamics
-    QStandardItem *dynamicsItem = new QStandardItem(QIcon(":/Resources/Icons/settings.png"), JointKeys::JointDynamics);
-    dynamicsItem->setFlags(dynamicsItem->flags() & ~Qt::ItemIsEditable);
-    singleJointItem->appendRow(dynamicsItem);
-
-    QString payloadKey = "Payload 1";
-    QStandardItem *payloadItem = new QStandardItem(payloadKey);
-    dynamicsItem->appendRow(payloadItem);
-
-    addItem(payloadItem, DynamicsKeys::TestPayload, "0.0");
-    addItem(payloadItem, DynamicsKeys::PayloadPercentage, "0.0");
-    addItem(payloadItem, DynamicsKeys::RepeatabilityPercentage, "0.0");
-    addItem(payloadItem, DynamicsKeys::SpeedPercentage, "0.0");
-    addItem(payloadItem, DynamicsKeys::BreakingDistance, "0.0");
-    addItem(payloadItem, DynamicsKeys::BreakingTime, "0.0");
-
-    // Create Visualization
-    QStandardItem *visualizationItem = new QStandardItem(JointKeys::Visualization);
-    visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable);
-    singleJointItem->appendRow(visualizationItem);
-    addItem(visualizationItem, VisualizationKeys::PathToObjFile, "");
-    addItem(visualizationItem, VisualizationKeys::PathToMltFile, "");
+    addJoint(currentItem, jointKey, joint);
 
     ui->treeView->expand(currentIndex);
 }
@@ -145,16 +91,11 @@ void MainWindow::addNewDynamics()
     }
 
     // Create a new payload
-    QString payloadKey = "Payload " + QString::number(currentItem->rowCount() + 1);
-    QStandardItem *payloadItem = new QStandardItem(payloadKey);
-    currentItem->appendRow(payloadItem);
+    QString payloadKey = DynamicsKeys::Payload + " " + QString::number(currentItem->rowCount() + 1);
+    QJsonObject payload = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[JointKeys::JointDynamics].toObject()[payloadKey].toObject();
 
-    addItem(payloadItem, DynamicsKeys::TestPayload, "0");
-    addItem(payloadItem, DynamicsKeys::PayloadPercentage, "0");
-    addItem(payloadItem, DynamicsKeys::RepeatabilityPercentage, "0");
-    addItem(payloadItem, DynamicsKeys::SpeedPercentage, "0");
-    addItem(payloadItem, DynamicsKeys::BreakingDistance, "0");
-    addItem(payloadItem, DynamicsKeys::BreakingTime, "0");
+    // Create generic function.
+    addDynamicsPayload(currentItem, payloadKey, payload);
 
     ui->treeView->expand(currentIndex);
 }
@@ -177,7 +118,7 @@ void MainWindow::on_actionNewRobot_triggered()
     {
         // Populate data in the model
         populateTreeView(templateObject);
-    }   
+    }
 }
 
 void MainWindow::on_actionOpenFromDevice_triggered()
@@ -213,13 +154,12 @@ void MainWindow::on_actionOpenFromDevice_triggered()
             qWarning() << "Given JSON object is empty";
             return;
         }
-    
+
         if (!jsonObject.contains(RobotKeys::Robot) || !jsonObject[RobotKeys::Robot].isObject())
         {
             qWarning() << "Invalid JSON: Missing or invalid 'Robot' object";
             return;
         }
-
 
         // Populate data in the model
         populateTreeView(jsonObject);
@@ -388,58 +328,70 @@ void MainWindow::populateTreeView(const QJsonObject &json)
     foreach (const QString &jointKey, joints.keys())
     {
         QJsonObject joint = joints[jointKey].toObject();
-        QStandardItem *singleJointItem = new QStandardItem(JointKeys::JointName + ": " + joint[JointKeys::JointName].toString());
-        jointsItem->appendRow(singleJointItem);
+        addJoint(jointsItem, jointKey, joint);
+    }
 
-        addItem(singleJointItem, JointKeys::MotionRangeMax, QString::number(joint[JointKeys::MotionRangeMax].toDouble()));
-        addItem(singleJointItem, JointKeys::MotionRangeMin, QString::number(joint[JointKeys::MotionRangeMin].toDouble()));
-        addItem(singleJointItem, JointKeys::JointSpeedLimit, QString::number(joint[JointKeys::JointSpeedLimit].toDouble()));
-        addItem(singleJointItem, JointKeys::FrictionCoefficient, QString::number(joint[JointKeys::FrictionCoefficient].toDouble()));
-        addItem(singleJointItem, JointKeys::StiffnessCoefficient, QString::number(joint[JointKeys::StiffnessCoefficient].toDouble()));
-        addItem(singleJointItem, JointKeys::DampingCoefficient, QString::number(joint[JointKeys::DampingCoefficient].toDouble()));
+    // Present the data in the view
+    ui->treeView->setModel(model);
+    ui->treeView->expandAll();
+    ui->treeView->resizeColumnToContents(0);
+    ui->treeView->resizeColumnToContents(1);
+}
 
-        // Loading kinematics
-        QJsonObject kinematics = joint[JointKeys::JointKinematics].toObject();
-        QStandardItem *kinematicsItem = new QStandardItem(JointKeys::JointKinematics);
-        kinematicsItem->setFlags(kinematicsItem->flags() & ~Qt::ItemIsEditable);
-        singleJointItem->appendRow(kinematicsItem);
+// This function will add the joint in the TreeView.
+void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, const QJsonObject &joint)
+{
 
-        if (kinematics.contains(KinematicsKeys::DhParameters) && kinematics[KinematicsKeys::DhParameters].isObject())
-        {
+    QStandardItem *singleJointItem = new QStandardItem(JointKeys::JointName + ": " + joint[JointKeys::JointName].toString());
+    jointsItem->appendRow(singleJointItem);
 
-            QJsonObject dhParameters = kinematics[KinematicsKeys::DhParameters].toObject();
-            QStandardItem *dhParametersItem = new QStandardItem(KinematicsKeys::DhParameters);
-            dhParametersItem->setFlags(dhParametersItem->flags() & ~Qt::ItemIsEditable);
-            kinematicsItem->appendRow(dhParametersItem);
-            addItem(dhParametersItem, DhParametersKeys::Alpha, QString::number(dhParameters[DhParametersKeys::Alpha].toDouble()));
-            addItem(dhParametersItem, DhParametersKeys::D, QString::number(dhParameters[DhParametersKeys::D].toDouble()));
-            addItem(dhParametersItem, DhParametersKeys::Theta, QString::number(dhParameters[DhParametersKeys::Theta].toDouble()));
-            addItem(dhParametersItem, DhParametersKeys::A, QString::number(dhParameters[DhParametersKeys::A].toDouble()));
-            //addComboBoxItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
-            addItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
-        }
+    addItem(singleJointItem, JointKeys::MotionRangeMax, QString::number(joint[JointKeys::MotionRangeMax].toDouble()));
+    addItem(singleJointItem, JointKeys::MotionRangeMin, QString::number(joint[JointKeys::MotionRangeMin].toDouble()));
+    addItem(singleJointItem, JointKeys::JointSpeedLimit, QString::number(joint[JointKeys::JointSpeedLimit].toDouble()));
+    addItem(singleJointItem, JointKeys::FrictionCoefficient, QString::number(joint[JointKeys::FrictionCoefficient].toDouble()));
+    addItem(singleJointItem, JointKeys::StiffnessCoefficient, QString::number(joint[JointKeys::StiffnessCoefficient].toDouble()));
+    addItem(singleJointItem, JointKeys::DampingCoefficient, QString::number(joint[JointKeys::DampingCoefficient].toDouble()));
 
-        if (kinematics.contains(KinematicsKeys::RotationalValues) && kinematics[KinematicsKeys::RotationalValues].isObject())
-        {
-            QJsonObject rotationalValues = kinematics[KinematicsKeys::RotationalValues].toObject();
-            QStandardItem *rotationalValuesItem = new QStandardItem(KinematicsKeys::RotationalValues);
-            rotationalValuesItem->setFlags(rotationalValuesItem->flags() & ~Qt::ItemIsEditable);
-            kinematicsItem->appendRow(rotationalValuesItem);
-            addItem(rotationalValuesItem, RotationalValuesKeys::Ixx, QString::number(rotationalValues[RotationalValuesKeys::Ixx].toDouble()));
-            addItem(rotationalValuesItem, RotationalValuesKeys::Ixy, QString::number(rotationalValues[RotationalValuesKeys::Ixy].toDouble()));
-            addItem(rotationalValuesItem, RotationalValuesKeys::Ixz, QString::number(rotationalValues[RotationalValuesKeys::Ixz].toDouble()));
-            addItem(rotationalValuesItem, RotationalValuesKeys::Iyy, QString::number(rotationalValues[RotationalValuesKeys::Iyy].toDouble()));
-            addItem(rotationalValuesItem, RotationalValuesKeys::Iyz, QString::number(rotationalValues[RotationalValuesKeys::Iyz].toDouble()));
-            addItem(rotationalValuesItem, RotationalValuesKeys::Izz, QString::number(rotationalValues[RotationalValuesKeys::Izz].toDouble()));
-        }
+    // Loading kinematics
+    QJsonObject kinematics = joint[JointKeys::JointKinematics].toObject();
+    QStandardItem *kinematicsItem = new QStandardItem(JointKeys::JointKinematics);
+    kinematicsItem->setFlags(kinematicsItem->flags() & ~Qt::ItemIsEditable);
+    singleJointItem->appendRow(kinematicsItem);
 
-        // Loading dynamics
+    if (kinematics.contains(KinematicsKeys::DhParameters) && kinematics[KinematicsKeys::DhParameters].isObject())
+    {
 
-        if (!joint.contains(JointKeys::JointDynamics) || !joint[JointKeys::JointDynamics].isObject())
-        {
-            qWarning() << "Invalid JSON: Missing or invalid 'JointDynamics' object";
-            continue;
-        }
+        QJsonObject dhParameters = kinematics[KinematicsKeys::DhParameters].toObject();
+        QStandardItem *dhParametersItem = new QStandardItem(KinematicsKeys::DhParameters);
+        dhParametersItem->setFlags(dhParametersItem->flags() & ~Qt::ItemIsEditable);
+        kinematicsItem->appendRow(dhParametersItem);
+        addItem(dhParametersItem, DhParametersKeys::Alpha, QString::number(dhParameters[DhParametersKeys::Alpha].toDouble()));
+        addItem(dhParametersItem, DhParametersKeys::D, QString::number(dhParameters[DhParametersKeys::D].toDouble()));
+        addItem(dhParametersItem, DhParametersKeys::Theta, QString::number(dhParameters[DhParametersKeys::Theta].toDouble()));
+        addItem(dhParametersItem, DhParametersKeys::A, QString::number(dhParameters[DhParametersKeys::A].toDouble()));
+        // addComboBoxItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
+        addItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
+    }
+
+    if (kinematics.contains(KinematicsKeys::RotationalValues) && kinematics[KinematicsKeys::RotationalValues].isObject())
+    {
+        QJsonObject rotationalValues = kinematics[KinematicsKeys::RotationalValues].toObject();
+        QStandardItem *rotationalValuesItem = new QStandardItem(KinematicsKeys::RotationalValues);
+        rotationalValuesItem->setFlags(rotationalValuesItem->flags() & ~Qt::ItemIsEditable);
+        kinematicsItem->appendRow(rotationalValuesItem);
+        addItem(rotationalValuesItem, RotationalValuesKeys::Ixx, QString::number(rotationalValues[RotationalValuesKeys::Ixx].toDouble()));
+        addItem(rotationalValuesItem, RotationalValuesKeys::Ixy, QString::number(rotationalValues[RotationalValuesKeys::Ixy].toDouble()));
+        addItem(rotationalValuesItem, RotationalValuesKeys::Ixz, QString::number(rotationalValues[RotationalValuesKeys::Ixz].toDouble()));
+        addItem(rotationalValuesItem, RotationalValuesKeys::Iyy, QString::number(rotationalValues[RotationalValuesKeys::Iyy].toDouble()));
+        addItem(rotationalValuesItem, RotationalValuesKeys::Iyz, QString::number(rotationalValues[RotationalValuesKeys::Iyz].toDouble()));
+        addItem(rotationalValuesItem, RotationalValuesKeys::Izz, QString::number(rotationalValues[RotationalValuesKeys::Izz].toDouble()));
+    }
+
+    // Loading dynamics
+
+    if (joint.contains(JointKeys::JointDynamics) && joint[JointKeys::JointDynamics].isObject())
+    {
+
         QJsonObject dynamics = joint[JointKeys::JointDynamics].toObject();
         QStandardItem *dynamicsItem = new QStandardItem(QIcon(":/Resources/Icons/settings.png"), JointKeys::JointDynamics);
         dynamicsItem->setFlags(dynamicsItem->flags() & ~Qt::ItemIsEditable);
@@ -448,40 +400,24 @@ void MainWindow::populateTreeView(const QJsonObject &json)
         foreach (const QString &payloadKey, dynamics.keys())
         {
             QJsonObject payload = dynamics[payloadKey].toObject();
-            QStandardItem *payloadItem = new QStandardItem(payloadKey);
-            dynamicsItem->appendRow(payloadItem);
-
-            addItem(payloadItem, DynamicsKeys::TestPayload, QString::number(payload[DynamicsKeys::TestPayload].toDouble()));
-            addItem(payloadItem, DynamicsKeys::PayloadPercentage, QString::number(payload[DynamicsKeys::PayloadPercentage].toDouble()));
-            addItem(payloadItem, DynamicsKeys::RepeatabilityPercentage, QString::number(payload[DynamicsKeys::RepeatabilityPercentage].toDouble()));
-            addItem(payloadItem, DynamicsKeys::SpeedPercentage, QString::number(payload[DynamicsKeys::SpeedPercentage].toDouble()));
-            addItem(payloadItem, DynamicsKeys::BreakingDistance, QString::number(payload[DynamicsKeys::BreakingDistance].toDouble()));
-            addItem(payloadItem, DynamicsKeys::BreakingTime, QString::number(payload[DynamicsKeys::BreakingTime].toDouble()));
+            // Create generic function.
+            addDynamicsPayload(dynamicsItem, payloadKey, payload);
         }
+    }
 
-        // Loading visualization
-        if (!joint.contains(JointKeys::Visualization) || !joint[JointKeys::Visualization].isObject())
-        {
-            qWarning() << "Invalid JSON: Missing or invalid 'Visualization' object";
-            continue;
-        }
+    // Loading visualization
+    if (joint.contains(JointKeys::Visualization) && joint[JointKeys::Visualization].isObject())
+    {
         QJsonObject visualization = joint[JointKeys::Visualization].toObject();
         QStandardItem *visualizationItem = new QStandardItem(JointKeys::Visualization);
         visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable);
         singleJointItem->appendRow(visualizationItem);
         addItem(visualizationItem, VisualizationKeys::PathToObjFile, visualization[VisualizationKeys::PathToObjFile].toString());
         addItem(visualizationItem, VisualizationKeys::PathToMltFile, visualization[VisualizationKeys::PathToMltFile].toString());
-
-        // Add button to add OBJ and MTL files
-        // Not working so commented
-        // addButtonItem(visualizationItem, "Add Files");
     }
-
-        // Present the data in the view
-        ui->treeView->setModel(model);
-        ui->treeView->expandAll();
-        ui->treeView->resizeColumnToContents(0);
-        ui->treeView->resizeColumnToContents(1);
+    // Add button to add OBJ and MTL files
+    // Not working so commented
+    // addButtonItem(visualizationItem, "Add Files");
 }
 
 // This function will add the Payload in the TreeView.
@@ -497,8 +433,6 @@ void MainWindow::addDynamicsPayload(QStandardItem *dynamicsItem, const QString &
     addItem(payloadItem, DynamicsKeys::BreakingDistance, QString::number(payload[DynamicsKeys::BreakingDistance].toDouble()));
     addItem(payloadItem, DynamicsKeys::BreakingTime, QString::number(payload[DynamicsKeys::BreakingTime].toDouble()));
 }
-
-
 
 // Using this function to handle each row of the TreeView
 void MainWindow::addItem(QStandardItem *parent, const QString &key, const QString &value)
@@ -539,13 +473,12 @@ void MainWindow::addComboBoxItem(QStandardItem *parent, const QString &key, cons
     parent->appendRow(QList<QStandardItem *>() << keyItem << comboBoxItem);
 
     // Add the QComboBox to the tree view
-    //ui->treeView->setIndexWidget(model->indexFromItem(comboBoxItem), comboBox);
+    // ui->treeView->setIndexWidget(model->indexFromItem(comboBoxItem), comboBox);
 
     // Facing issue with loading the ComboBox in the TreeView, so for now i am not calling this function.
     QModelIndex indexFromItem = parent->model()->indexFromItem(comboBoxItem);
     qDebug() << "Adding QComboBox to index:" << indexFromItem;
     ui->treeView->setIndexWidget(indexFromItem, comboBox);
-
 }
 
 void MainWindow::addButtonItem(QStandardItem *parent, const QString &buttonText)
@@ -579,7 +512,6 @@ void MainWindow::onAddFilesButtonClicked()
     }
 }
 
-
 // Now trickies part starts with saving JSON in such a way that I can access it later on and able to load the data in TreeView.
 // Not to make any mistake with structure, otherwise it will be surprice for you on loading data.
 
@@ -611,7 +543,6 @@ QJsonObject MainWindow::modelToJson()
             for (int j = 0; j < robotItem->rowCount(); ++j)
             {
                 QStandardItem *propertyItem = robotItem->child(j, 0);
-                QStandardItem *valueItem = robotItem->child(j, 1);
 
                 // property is mandatory but value is optional
                 if (propertyItem)
@@ -624,32 +555,8 @@ QJsonObject MainWindow::modelToJson()
                     }
                     else
                     {
-                         // Convert value to string correctly
-                         if (valueItem)
-                         {
-                             bool ok;
-                             double doubleValue = valueItem->text().toDouble(&ok);
-                             if (ok)
-                             {
-                                 robotObject[propertyItem->text()] = doubleValue;
-                             }
-                             else
-                             {
-                                 int intValue = valueItem->text().toInt(&ok);
-                                 if (ok)
-                                 {
-                                     robotObject[propertyItem->text()] = intValue;
-                                 }
-                                 else
-                                 {
-                                     robotObject[propertyItem->text()] = valueItem->text();
-                                 }
-                             }
-                         }
-                         else
-                         {
-                             robotObject[propertyItem->text()] = "";
-                         }
+                        QStandardItem *valueItem = robotItem->child(j, 1);
+                        robotObject[propertyItem->text()] = convertValueToString(valueItem);
                     }
                 }
             }
@@ -697,32 +604,7 @@ QJsonObject MainWindow::modelToJson()
                             }
                             else
                             {
-                                // Convert value to string correctly
-                                if (valueItem)
-                                {
-                                    bool ok;
-                                    double doubleValue = valueItem->text().toDouble(&ok);
-                                    if (ok)
-                                    {
-                                        singleJointObject[propertyItem->text()] = doubleValue;
-                                    }
-                                    else
-                                    {
-                                        int intValue = valueItem->text().toInt(&ok);
-                                        if (ok)
-                                        {
-                                            singleJointObject[propertyItem->text()] = intValue;
-                                        }
-                                        else
-                                        {
-                                            singleJointObject[propertyItem->text()] = valueItem->text();
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    singleJointObject[propertyItem->text()] = "";
-                                }
+                                singleJointObject[propertyItem->text()] = convertValueToString(valueItem); 
                             }
                         }
                     }
@@ -751,32 +633,8 @@ QJsonObject MainWindow::modelToJson()
 
                                             if (propertyItem)
                                             {
-                                                 // Convert value to string correctly
-                                                 if (valueItem)
-                                                 {
-                                                     bool ok;
-                                                     double doubleValue = valueItem->text().toDouble(&ok);
-                                                     if (ok)
-                                                     {
-                                                         dhParametersObject[propertyItem->text()] = doubleValue;
-                                                     }
-                                                     else
-                                                     {
-                                                         int intValue = valueItem->text().toInt(&ok);
-                                                         if (ok)
-                                                         {
-                                                             dhParametersObject[propertyItem->text()] = intValue;
-                                                         }
-                                                         else
-                                                         {
-                                                             dhParametersObject[propertyItem->text()] = valueItem->text();
-                                                         }
-                                                     }
-                                                 }
-                                                 else
-                                                 {
-                                                     dhParametersObject[propertyItem->text()] = "";
-                                                 }
+                                                // Call the generic function to convert the item to JSON
+                                                dhParametersObject[propertyItem->text()] = convertValueToString(valueItem);
                                             }
                                         }
                                         kinematicsObject[KinematicsKeys::DhParameters] = dhParametersObject;
@@ -797,32 +655,8 @@ QJsonObject MainWindow::modelToJson()
 
                                             if (propertyItem)
                                             {
-                                                // Convert value to string correctly
-                                                if (valueItem)
-                                                {
-                                                    bool ok;
-                                                    double doubleValue = valueItem->text().toDouble(&ok);
-                                                    if (ok)
-                                                    {
-                                                        rotationalValuesObject[propertyItem->text()] = doubleValue;
-                                                    }
-                                                    else
-                                                    {
-                                                        int intValue = valueItem->text().toInt(&ok);
-                                                        if (ok)
-                                                        {
-                                                            rotationalValuesObject[propertyItem->text()] = intValue;
-                                                        }
-                                                        else
-                                                        {
-                                                            rotationalValuesObject[propertyItem->text()] = valueItem->text();
-                                                        }
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    rotationalValuesObject[propertyItem->text()] = "";
-                                                }
+                                                // Call the generic function to convert the item to JSON
+                                                rotationalValuesObject[propertyItem->text()] = convertValueToString(valueItem);
                                             }
                                         }
                                         kinematicsObject[KinematicsKeys::RotationalValues] = rotationalValuesObject;
@@ -830,32 +664,7 @@ QJsonObject MainWindow::modelToJson()
                                 }
                                 else
                                 {
-                                    // Convert value to string correctly
-                                    if (valueItem)
-                                    {
-                                        bool ok;
-                                        double doubleValue = valueItem->text().toDouble(&ok);
-                                        if (ok)
-                                        {
-                                            kinematicsObject[propertyItem->text()] = doubleValue;
-                                        }
-                                        else
-                                        {
-                                            int intValue = valueItem->text().toInt(&ok);
-                                            if (ok)
-                                            {
-                                                kinematicsObject[propertyItem->text()] = intValue;
-                                            }
-                                            else
-                                            {
-                                                kinematicsObject[propertyItem->text()] = valueItem->text();
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        kinematicsObject[propertyItem->text()] = "";
-                                    }
+                                    kinematicsObject[propertyItem->text()] = convertValueToString(valueItem);
                                 }
                             }
                         }
@@ -878,32 +687,8 @@ QJsonObject MainWindow::modelToJson()
 
                                 if (propertyItem)
                                 {
-                                    // Convert value to string correctly
-                                    if (valueItem)
-                                    {
-                                        bool ok;
-                                        double doubleValue = valueItem->text().toDouble(&ok);
-                                        if (ok)
-                                        {
-                                            payloadObject[propertyItem->text()] = doubleValue;
-                                        }
-                                        else
-                                        {
-                                            int intValue = valueItem->text().toInt(&ok);
-                                            if (ok)
-                                            {
-                                                payloadObject[propertyItem->text()] = intValue;
-                                            }
-                                            else
-                                            {
-                                                payloadObject[propertyItem->text()] = valueItem->text();
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        payloadObject[propertyItem->text()] = "";
-                                    }
+                                    // Call the generic function to convert the item to JSON
+                                    payloadObject[propertyItem->text()] = convertValueToString(valueItem);
                                 }
                             }
                             dynamicsObject[payloadItem->text()] = payloadObject;
@@ -934,6 +719,40 @@ QJsonObject MainWindow::modelToJson()
         // qDebug() << "Robot JSON" << json;
     }
     return json;
+}
+
+
+QString MainWindow::convertValueToString(QStandardItem *valueItem)
+{
+    QString value;
+
+    if (valueItem)
+    {
+        bool ok;
+        double doubleValue = valueItem->text().toDouble(&ok);
+        if (ok)
+        {
+            value = QString::number(doubleValue);
+        }
+        else
+        {
+            int intValue = valueItem->text().toInt(&ok);
+            if (ok)
+            {
+                value = QString::number(intValue);
+            }
+            else
+            {
+                value = valueItem->text();
+            }
+        }
+    }
+    else
+    {
+        value = "";
+    }
+
+    return value;
 }
 
 void MainWindow::saveToJson(const QString &filePath)

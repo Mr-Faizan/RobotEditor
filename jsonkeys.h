@@ -19,6 +19,7 @@ const QString Visualization = "Visualization";
 }
 
 namespace JointKeys {
+const QString Joint = "Joint 1";
 const QString JointName = "Joint Name";
 const QString MotionRangeMax = "Maximum Joint Limit (deg)";
 const QString MotionRangeMin = "Minimum Joint Limit (deg)";
@@ -54,6 +55,7 @@ const QString Izz = "Izz (kg.m²)";
 }
 
 namespace DynamicsKeys {
+const QString Payload = "Payload";
 const QString TestPayload = "Test Payload (kg)";
 const QString PayloadPercentage = "Payload Percentage";
 const QString RepeatabilityPercentage = "Repeatability Percentage";
