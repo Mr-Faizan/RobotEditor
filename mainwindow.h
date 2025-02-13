@@ -84,7 +84,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QStandardItemModel *model;
+    QStandardItemModel *model; // Model to store the data
+    QJsonObject templateObject; // Template object to store the template data.
 
     Qt3DExtras::Qt3DWindow *view;
     Qt3DCore::QEntity *rootEntity;
@@ -95,10 +96,10 @@ private:
     bool show3dModel = false; 
 
     // Custom Functions
+    void loadTemplate();
     void showContextMenu(const QPoint &pos);
-    void addRobotDataTemplate();
-    void loadJsonData(const QJsonObject &jsonObject);
-    void populateTreeView(QStandardItemModel *model, const QJsonObject &json);
+    void populateTreeView(const QJsonObject &json);
+    void addDynamicsPayload(QStandardItem *dynamicsItem, const QString &payloadKey, const QJsonObject &payload);
     void addItem(QStandardItem *parent, const QString &key, const QString &value);
     void addComboBoxItem(QStandardItem *parent, const QString &key, const QString &value);
     void addButtonItem(QStandardItem *parent, const QString &buttonText);

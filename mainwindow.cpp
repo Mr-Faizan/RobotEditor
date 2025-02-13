@@ -2,9 +2,6 @@
 #include "./ui_mainwindow.h"
 #include "jsonkeys.h"
 
-// Counters for Joints and Dynamics
-// static int jointCount = 0;
-// static int jointDynamicsCount = 0;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -18,14 +15,14 @@ MainWindow::MainWindow(QWidget *parent)
     rotationTimer = new QTimer(this);
     connect(rotationTimer, &QTimer::timeout, this, &MainWindow::updateRotation);
 
+    // Load the JSON template
+    loadTemplate();
+
     // Not define model here because it will not be accessible in other functions.
     model = new QStandardItemModel(0, 2, this);
     model->setHeaderData(0, Qt::Horizontal, "Robot Specifications");
     model->setHeaderData(1, Qt::Horizontal, "User Values");
     ui->treeView->setModel(model);
-
-    // Configurations Panel part.
-    // addRobotDataTemplate();
 
     // 3D Model Visualization part.
     setup3DPlayground();
@@ -176,11 +173,11 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionNewRobot_triggered()
 {
-    // here we have to clear the model and add the new robot data template. from the template file.
-    // model->clear();
-    addRobotDataTemplate();
-    // Remove the 3D Model
-    remove3DModel();
+    if (!templateObject.isEmpty())
+    {
+        // Populate data in the model
+        populateTreeView(templateObject);
+    }   
 }
 
 void MainWindow::on_actionOpenFromDevice_triggered()
@@ -211,8 +208,21 @@ void MainWindow::on_actionOpenFromDevice_triggered()
         QJsonDocument jsonDocument = QJsonDocument::fromJson(jsonData);
         QJsonObject jsonObject = jsonDocument.object();
 
-        // Using one common function to load JSON data
-        loadJsonData(jsonObject);
+        if (jsonObject.isEmpty())
+        {
+            qWarning() << "Given JSON object is empty";
+            return;
+        }
+    
+        if (!jsonObject.contains(RobotKeys::Robot) || !jsonObject[RobotKeys::Robot].isObject())
+        {
+            qWarning() << "Invalid JSON: Missing or invalid 'Robot' object";
+            return;
+        }
+
+
+        // Populate data in the model
+        populateTreeView(jsonObject);
 
         if (show3dModel)
         {
@@ -288,10 +298,9 @@ void MainWindow::showContextMenu(const QPoint &pos)
     contextMenu.exec(ui->treeView->viewport()->mapToGlobal(pos));
 }
 
-// Add the Robot Data Template
-// This function will read the JSON file and populate the TreeView with the data.
-// This function is part of Populating the template of Robot Data.
-void MainWindow::addRobotDataTemplate()
+// Creating a generic function that will load the Template data as an object and we will use this object throughout the application.
+// Setting Global Template Object
+void MainWindow::loadTemplate()
 {
 
     QFile file(":/Resources/Json/Template.json");
@@ -306,47 +315,19 @@ void MainWindow::addRobotDataTemplate()
     file.close();
 
     QJsonDocument templateDocument = QJsonDocument::fromJson(templateJson);
-    QJsonObject templateObject = templateDocument.object();
+    templateObject = templateDocument.object();
 
-    // Print the template object for debugging
-    // qDebug() << templateObject;
-
-    // Using one common function to load JSON data
-    loadJsonData(templateObject);
-}
-
-// This function will get the JSON Object and populate the TreeView with the data.
-void MainWindow::loadJsonData(const QJsonObject &jsonObject)
-{
-
-    if (jsonObject.isEmpty())
+    if (templateObject.isEmpty())
     {
-        qWarning() << "JSON object is empty";
+        qWarning() << "JSON Template object is empty";
         return;
     }
 
-    if (!jsonObject.contains(RobotKeys::Robot) || !jsonObject[RobotKeys::Robot].isObject())
+    if (!templateObject.contains(RobotKeys::Robot) || !templateObject[RobotKeys::Robot].isObject())
     {
-        qWarning() << "Invalid JSON: Missing or invalid 'Robot' object";
+        qWarning() << "Invalid JSON: Missing or invalid 'Robot' Template object";
         return;
     }
-
-    // Clear the model first
-    model->clear();
-
-    // Initialize the model
-    model = new QStandardItemModel(0, 2, this);
-    model->setHeaderData(0, Qt::Horizontal, "Robot Specifications");
-    model->setHeaderData(1, Qt::Horizontal, "User Values");
-
-    // Populate data in the model
-    populateTreeView(model, jsonObject);
-
-    // Present the data in the view
-    ui->treeView->setModel(model);
-    ui->treeView->expandAll();
-    ui->treeView->resizeColumnToContents(0);
-    ui->treeView->resizeColumnToContents(1);
 }
 
 // I tired my best not to define the structue of the application in the model and to load the structure from the template file, to make it Dynamic.
@@ -354,7 +335,7 @@ void MainWindow::loadJsonData(const QJsonObject &jsonObject)
 // So for now I am defining the Structure of the application in this function using TreeView Standard Model.
 // I don't like this approach but I also tried ten other methods :)
 
-void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &json)
+void MainWindow::populateTreeView(const QJsonObject &json)
 {
 
     // print json
@@ -495,6 +476,26 @@ void MainWindow::populateTreeView(QStandardItemModel *model, const QJsonObject &
         // Not working so commented
         // addButtonItem(visualizationItem, "Add Files");
     }
+
+        // Present the data in the view
+        ui->treeView->setModel(model);
+        ui->treeView->expandAll();
+        ui->treeView->resizeColumnToContents(0);
+        ui->treeView->resizeColumnToContents(1);
+}
+
+// This function will add the Payload in the TreeView.
+void MainWindow::addDynamicsPayload(QStandardItem *dynamicsItem, const QString &payloadKey, const QJsonObject &payload)
+{
+    QStandardItem *payloadItem = new QStandardItem(payloadKey);
+    dynamicsItem->appendRow(payloadItem);
+
+    addItem(payloadItem, DynamicsKeys::TestPayload, QString::number(payload[DynamicsKeys::TestPayload].toDouble()));
+    addItem(payloadItem, DynamicsKeys::PayloadPercentage, QString::number(payload[DynamicsKeys::PayloadPercentage].toDouble()));
+    addItem(payloadItem, DynamicsKeys::RepeatabilityPercentage, QString::number(payload[DynamicsKeys::RepeatabilityPercentage].toDouble()));
+    addItem(payloadItem, DynamicsKeys::SpeedPercentage, QString::number(payload[DynamicsKeys::SpeedPercentage].toDouble()));
+    addItem(payloadItem, DynamicsKeys::BreakingDistance, QString::number(payload[DynamicsKeys::BreakingDistance].toDouble()));
+    addItem(payloadItem, DynamicsKeys::BreakingTime, QString::number(payload[DynamicsKeys::BreakingTime].toDouble()));
 }
 
 
