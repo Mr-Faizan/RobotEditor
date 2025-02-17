@@ -1,16 +1,20 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+// QT Libraries
 #include <QMainWindow>
 #include <QWidget>
 #include <QDebug>
 #include <iostream>
+#include <QIcon>
 
 // Qt JSON and File Libraries
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QFile>
+#include <QFileDialog>
+
 
 // QT TreeView Libraries
 #include <QTreeView>
@@ -20,13 +24,32 @@
 #include <QHBoxLayout>
 
 
-// 3D Libraries
+// QT 3D Libraries
 #include <Qt3DCore/QEntity>
+#include <Qt3DCore/QTransform>
+
+
+
+#include <Qt3DRender/QCamera>
+#include <Qt3DRender/QMesh>
+#include <Qt3DRender/QPointLight>
+#include <Qt3DRender/QDirectionalLight>
+
+#include <Qt3DExtras/QOrbitCameraController>
+#include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DExtras/qforwardrenderer.h>
-#include <QWidget>
+#include <Qt3DExtras/qorbitcameracontroller.h>
+
+
+
+
 #include <QVBoxLayout>
 #include <QColor>
+#include <QTimer>
+#include <QSlider>
+#include <QPushButton>
+#include <QComboBox>
 
 
 
@@ -47,42 +70,55 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_actionSave_triggered();
+    void on_actionNewRobot_triggered();
+    void on_actionOpenFromDevice_triggered();
+    void on_actionResetModel_triggered();
+    void on_actionRotateModel_triggered();
+
+    // defining the slots for the context menu.
+    void addNewJoint();
+    void addNewDynamics();
+    
+
 private:
     Ui::MainWindow *ui;
-    QStandardItemModel *model;
+    QStandardItemModel *model; // Model to store the data
+    QJsonObject templateObject; // Template object to store the template data.
 
     Qt3DExtras::Qt3DWindow *view;
-
-
-    // I am initializing these pointers here so that I can access them in multiple functions.
-    // For Example if I want to add multiple Joints or Dynamics data, I can simply use these pointers.
     Qt3DCore::QEntity *rootEntity;
-    QStandardItem *robotItem = nullptr;
-    QStandardItem *jointsCategory = nullptr;
-    QStandardItem *jointItem = nullptr;
-    QStandardItem *jointKinematicsItem = nullptr;
-    QStandardItem *jointDynamicsCategory = nullptr;
-    QStandardItem *jointDynamicsItem = nullptr;
+    Qt3DRender::QCamera *camera;
+    QTimer *rotationTimer;      // Timer for rotation
+    float rotationAngle = 0.0f;        // Current rotation angle
+    bool rotating = false;      // Flag to indicate if rotation is enabled
+    bool show3dModel = false; 
 
-    // I am Initializing these arrays so that I can access them whenever I have to add multiple Joints or Dynamics data.
-    QJsonArray robotItemKeysArray;
-    QJsonArray jointItemKeysArray;
-    QJsonArray jointKinematicsItemKeysArray;
-    QJsonArray jointDynamicsItemKeysArray;
+    // Custom Functions
+    void loadTemplate();
+    void showContextMenu(const QPoint &pos);
+    void populateTreeView(const QJsonObject &json);
+    void addJoint(QStandardItem *jointsItem, const QString &jointKey, const QJsonObject &joint);
+    void addDynamicsPayload(QStandardItem *dynamicsItem, const QString &payloadKey, const QJsonObject &payload);
+    void addItem(QStandardItem *parent, const QString &key, const QString &value);
+    void addComboBoxItem(QStandardItem *parent, const QString &key, const QString &value);
+    void addButtonItem(QStandardItem *parent, const QString &buttonText);
+    void onAddFilesButtonClicked();
+    void saveToJson(const QString &filePath);
+
+    QJsonObject modelToJson();
+    QString convertValueToString(QStandardItem *item);
 
 
-    
-
-
-    void addRobotDataTemplate();
-    
-    void populateTreeView(const QJsonObject &jsonObject, QStandardItem *parentItem);
-    void populateTreeViewNodes(const QJsonArray &jsonArray, QStandardItem *parentItem);
-    void populateNewJoint();
-    void populateNewJointDynamics();
 
     // 3D Window Playground
     void setup3DPlayground();
+    void load3DModel();
+    void remove3DModel();
+    void loadObjFiles(const QString& directoryPath, Qt3DCore::QEntity* rootEntity);
+    bool parseMtlFile(const QString& mtlFilePath, QColor& ambient, QColor& diffuse, QColor& specular, float& shininess, float& transparency, int& illumModel);
+    void updateRotation();
     
 };
 #endif // MAINWINDOW_H
