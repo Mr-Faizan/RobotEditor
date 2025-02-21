@@ -207,6 +207,33 @@ void MainWindow::on_actionRotateModel_triggered()
     }
 }
 
+void MainWindow::on_actionJointVisualization_triggered()
+{
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
+    {
+        qWarning() << "No item selected.";
+        return;
+    }
+
+    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem)
+    {
+        qWarning() << "Invalid item selected.";
+        return;
+    }
+
+    QString filePath = QFileDialog::getOpenFileName(this, "Select OBJ File", "", "OBJ Files (*.obj)");
+    if (!filePath.isEmpty())
+    {
+        QStandardItem *filePathItem = model->itemFromIndex(currentItem->index().sibling(currentItem->row(), 1));
+        if (filePathItem)
+        {
+            filePathItem->setText(filePath);
+        }
+    }
+}
+
 /****************** Custom Function Implementation ******************/
 void MainWindow::showContextMenu(const QPoint &pos)
 {
@@ -233,6 +260,10 @@ void MainWindow::showContextMenu(const QPoint &pos)
     else if (item->text() == JointKeys::JointDynamics)
     {
         contextMenu.addAction("Add New Dynamics", this, SLOT(addNewDynamics()));
+    }
+    else if (item->text() == JointKeys::Visualization)
+    {
+        contextMenu.addAction("Select OBJ File", this, SLOT(on_actionJointVisualization_triggered()));
     }
 
     contextMenu.exec(ui->treeView->viewport()->mapToGlobal(pos));
@@ -405,19 +436,17 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
         }
     }
 
-    // Loading visualization
-    if (joint.contains(JointKeys::Visualization) && joint[JointKeys::Visualization].isObject())
+
+        // Loading visualization
+    if (joint.contains(JointKeys::Visualization) && joint[JointKeys::Visualization].isString())
     {
-        QJsonObject visualization = joint[JointKeys::Visualization].toObject();
-        QStandardItem *visualizationItem = new QStandardItem(JointKeys::Visualization);
-        visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable);
-        singleJointItem->appendRow(visualizationItem);
-        addItem(visualizationItem, VisualizationKeys::PathToObjFile, visualization[VisualizationKeys::PathToObjFile].toString());
-        addItem(visualizationItem, VisualizationKeys::PathToMltFile, visualization[VisualizationKeys::PathToMltFile].toString());
+        QString visualizationPath = joint[JointKeys::Visualization].toString();
+        QStandardItem *visualizationItem = new QStandardItem(QIcon(":/Resources/Icons/robot-dynamics.png"), JointKeys::Visualization);
+        visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
+        QStandardItem *visualizationPathItem = new QStandardItem(visualizationPath);
+        singleJointItem->appendRow(QList<QStandardItem *>() << visualizationItem << visualizationPathItem);
     }
-    // Add button to add OBJ and MTL files
-    // Not working so commented
-    // addButtonItem(visualizationItem, "Add Files");
+
 }
 
 // This function will add the Payload in the TreeView.
@@ -574,11 +603,9 @@ QJsonObject MainWindow::modelToJson()
                     // Also declare the inner objects and pointers here
                     QStandardItem *kinematicsItem = nullptr;
                     QStandardItem *dynamicsItem = nullptr;
-                    QStandardItem *visualizationItem = nullptr;
 
                     QJsonObject kinematicsObject;
                     QJsonObject dynamicsObject;
-                    QJsonObject visualizationObject;
 
                     // Its better to handle all the inner structure like kinematics, dynamics and visualization of singleJointItem separately.
                     for (int k = 0; k < singleJointItem->rowCount(); ++k)
@@ -597,10 +624,6 @@ QJsonObject MainWindow::modelToJson()
                             else if (propertyItem->text() == JointKeys::JointDynamics)
                             {
                                 dynamicsItem = singleJointItem->child(k);
-                            }
-                            else if (propertyItem->text() == JointKeys::Visualization)
-                            {
-                                visualizationItem = singleJointItem->child(k);
                             }
                             else
                             {
@@ -696,20 +719,6 @@ QJsonObject MainWindow::modelToJson()
                         singleJointObject[JointKeys::JointDynamics] = dynamicsObject;
                     }
 
-                    // Now we will process the VisualizationItem
-                    if (visualizationItem)
-                    {
-                        for (int k = 0; k < visualizationItem->rowCount(); ++k)
-                        {
-                            QStandardItem *propertyItem = visualizationItem->child(k, 0);
-                            QStandardItem *valueItem = visualizationItem->child(k, 1);
-                            if (propertyItem)
-                            {
-                                visualizationObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
-                            }
-                        }
-                        singleJointObject[JointKeys::Visualization] = visualizationObject;
-                    }
                     jointsObject[singleJointItem->text()] = singleJointObject;
                 }
                 robotObject[RobotKeys::Joints] = jointsObject;

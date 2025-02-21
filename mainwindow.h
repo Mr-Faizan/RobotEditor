@@ -76,6 +76,7 @@ private slots:
     void on_actionOpenFromDevice_triggered();
     void on_actionResetModel_triggered();
     void on_actionRotateModel_triggered();
+    void on_actionJointVisualization_triggered();
 
     // defining the slots for the context menu.
     void addNewJoint();
