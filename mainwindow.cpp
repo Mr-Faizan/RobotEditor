@@ -534,9 +534,12 @@ void MainWindow::populateTreeView(const QJsonObject &json)
 void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, const QJsonObject &joint)
 {
 
-    QStandardItem *singleJointItem = new QStandardItem(JointKeys::JointName + ": " + joint[JointKeys::JointName].toString());
+    int jointNumber = jointsItem->rowCount() + 1;
+    QStandardItem *singleJointItem = new QStandardItem(QString("Joint %1").arg(jointNumber));
+    singleJointItem->setFlags(singleJointItem->flags() & ~Qt::ItemIsEditable);
     jointsItem->appendRow(singleJointItem);
 
+    addItem(singleJointItem, JointKeys::JointName, joint[JointKeys::JointName].toString());
     addItem(singleJointItem, JointKeys::MotionRangeMax, QString::number(joint[JointKeys::MotionRangeMax].toDouble()));
     addItem(singleJointItem, JointKeys::MotionRangeMin, QString::number(joint[JointKeys::MotionRangeMin].toDouble()));
     addItem(singleJointItem, JointKeys::JointSpeedLimit, QString::number(joint[JointKeys::JointSpeedLimit].toDouble()));
@@ -614,6 +617,7 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
 void MainWindow::addDynamicsPayload(QStandardItem *dynamicsItem, const QString &payloadKey, const QJsonObject &payload)
 {
     QStandardItem *payloadItem = new QStandardItem(payloadKey);
+    payloadItem->setFlags(payloadItem->flags() & ~Qt::ItemIsEditable);
     dynamicsItem->appendRow(payloadItem);
 
     addItem(payloadItem, DynamicsKeys::TestPayload, QString::number(payload[DynamicsKeys::TestPayload].toDouble()));
