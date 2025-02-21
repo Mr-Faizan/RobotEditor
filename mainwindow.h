@@ -72,6 +72,8 @@ public:
 
 private slots:
     void on_actionSave_triggered();
+    void on_actionSaveAll_triggered();
+    void on_actionDeleteAll_triggered();
     void on_actionNewRobot_triggered();
     void on_actionOpenFromDevice_triggered();
     void on_actionResetModel_triggered();
@@ -81,6 +83,10 @@ private slots:
     // defining the slots for the context menu.
     void addNewJoint();
     void addNewDynamics();
+
+    void deleteCurrentRobot();
+    void deleteCurrentJoint();
+    void deleteCurrentPayload();
     
 
 private:
@@ -106,9 +112,9 @@ private:
     void addComboBoxItem(QStandardItem *parent, const QString &key, const QString &value);
     void addButtonItem(QStandardItem *parent, const QString &buttonText);
     void onAddFilesButtonClicked();
-    void saveToJson(const QString &filePath);
+    void saveToJson(const QString &filePath, QStandardItem *currentItem);
 
-    QJsonObject modelToJson();
+    QJsonObject modelToJson(QStandardItem *robotItem);
     QString convertValueToString(QStandardItem *item);
 
 
