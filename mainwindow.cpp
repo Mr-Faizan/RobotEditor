@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 3D Model Visualization part.
     setup3DPlayground();
+    // Set the root Entity
+    view->setRootEntity(rootEntity);
 }
 
 MainWindow::~MainWindow()
@@ -222,7 +224,7 @@ void MainWindow::on_actionOpenFromDevice_triggered()
         else
         {
             // Remove the 3D Model
-            remove3DModel();
+            // remove3DModel();
         }
     }
 }
@@ -257,7 +259,6 @@ void MainWindow::on_actionRotateModel_triggered()
     }
 }
 
-
 void MainWindow::on_actionJointVisualization_triggered()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -274,14 +275,22 @@ void MainWindow::on_actionJointVisualization_triggered()
         return;
     }
 
+
     QString filePath = QFileDialog::getOpenFileName(this, "Select OBJ File", "", "OBJ Files (*.obj)");
     if (!filePath.isEmpty())
     {
+        // First Delete the current OBJ file if it exists
+        deleteCurrentObjFile(currentItem);
+        
         QStandardItem *filePathItem = model->itemFromIndex(currentItem->index().sibling(currentItem->row(), 1));
         if (filePathItem)
         {
             filePathItem->setText(filePath);
         }
+
+        // Call the loadSingleObjFile function with the selected file path
+        QJsonObject jsonObject;
+        loadSingleObjFile(filePath, jsonObject, rootEntity);
     }
 }
 
@@ -343,7 +352,7 @@ void MainWindow::deleteCurrentJoint()
         return;
     }
 
-    //if (!currentItem->text().startsWith(JointKeys::Joint))
+    // if (!currentItem->text().startsWith(JointKeys::Joint))
     if (currentItem->text() != RobotKeys::Joints)
     {
         qWarning() << "Selected item is not a Joint item.";
@@ -354,6 +363,27 @@ void MainWindow::deleteCurrentJoint()
     int lastRow = currentItem->rowCount() - 1;
     if (lastRow >= 0)
     {
+        // First delete the OBJ file from the 3D scene
+        QStandardItem *jointItem = currentItem->child(lastRow);
+
+        // Access the JointVisualization item directly by its name
+        QStandardItem *visualizationItem = nullptr;
+        for (int i = 0; i < jointItem->rowCount(); ++i)
+        {
+            QStandardItem *childItem = jointItem->child(i, 0);
+            if (childItem && childItem->text() == JointKeys::Visualization)
+            {
+                visualizationItem = childItem;
+                break;
+            }
+        }
+
+        if (visualizationItem)
+        {
+            // Pass the JointVisualization item to deleteCurrentObjFile
+            deleteCurrentObjFile(visualizationItem);
+        }
+
         currentItem->removeRow(lastRow);
         qDebug() << "Deleted last child of joint: " << currentItem->text();
     }
@@ -376,13 +406,13 @@ void MainWindow::deleteCurrentPayload()
     }
 
     // Ensure the selected item is a Payload item
-    //if (!currentItem->text().startsWith(DynamicsKeys::Payload))
+    // if (!currentItem->text().startsWith(DynamicsKeys::Payload))
     if (currentItem->text() != JointKeys::JointDynamics)
     {
         qWarning() << "Selected item is not a Payload item.";
         return;
     }
-        // Get the last child of the selected joint
+    // Get the last child of the selected joint
     int lastRow = currentItem->rowCount() - 1;
     if (lastRow >= 0)
     {
@@ -391,8 +421,30 @@ void MainWindow::deleteCurrentPayload()
     }
 }
 
+// This function will delete the current OBJ file from the 3D scene
+void MainWindow::deleteCurrentObjFile(QStandardItem *currentItem)
+{
+    if (currentItem)
+    {
+        QStandardItem *filePathItem = model->itemFromIndex(currentItem->index().sibling(currentItem->row(), 1));
+        if (filePathItem)
+        {
+            QString filePath = filePathItem->text();
+            if (!filePath.isEmpty())
+            {
+                // Remove the entity from the 3D scene
+                if (entityMap.contains(filePath))
+                {
+                    Qt3DCore::QEntity *entity = entityMap[filePath];
+                    delete entity; // This removes the entity from the scene
+                    entityMap.remove(filePath);
+                    qDebug() << "Removed entity for OBJ file:" << filePath;
+                }
 
-
+            }
+        }
+    }
+}
 
 /****************** Custom Function Implementation ******************/
 void MainWindow::showContextMenu(const QPoint &pos)
@@ -442,7 +494,7 @@ void MainWindow::loadTemplate()
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qWarning("Template file is missing. Please add the template file.");
-        templateObject = QJsonObject();  // Initialize an empty JSON object to avoid application crashing.
+        templateObject = QJsonObject(); // Initialize an empty JSON object to avoid application crashing.
         return;
     }
 
@@ -600,8 +652,7 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
         }
     }
 
-
-        // Loading visualization
+    // Loading visualization
     if (joint.contains(JointKeys::Visualization) && joint[JointKeys::Visualization].isString())
     {
         QString visualizationPath = joint[JointKeys::Visualization].toString();
@@ -609,8 +660,14 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
         visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
         QStandardItem *visualizationPathItem = new QStandardItem(visualizationPath);
         singleJointItem->appendRow(QList<QStandardItem *>() << visualizationItem << visualizationPathItem);
-    }
 
+        if (!visualizationPath.isEmpty())
+        {
+            // Call the loadSingleObjFile function with the selected file path
+            QJsonObject jsonObject;
+            loadSingleObjFile(visualizationPath, jsonObject, rootEntity);
+        }
+    }
 }
 
 // This function will add the Payload in the TreeView.
@@ -775,8 +832,8 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
                         }
                         else
                         {
-                            singleJointObject[propertyItem->text()] = convertValueToString(valueItem); 
-                        }                        
+                            singleJointObject[propertyItem->text()] = convertValueToString(valueItem);
+                        }
                     }
                 }
 
@@ -874,7 +931,6 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
     }
 
     // print json data in proper format.
-
 
     qDebug() << "JSON Data : " << json;
 
@@ -1054,105 +1110,101 @@ void MainWindow::loadObjFiles(const QString &directoryPath, Qt3DCore::QEntity *r
     for (const QFileInfo &fileInfo : fileList)
     {
         const QString &filePath = fileInfo.absoluteFilePath();
-        QString geometryName = fileInfo.baseName(); // Get the base name without the file extension
+        loadSingleObjFile(filePath, jsonObject, rootEntity);
+    }
+}
 
-        // Create an entity to hold the 3D model
-        Qt3DCore::QEntity *entity = new Qt3DCore::QEntity(rootEntity);
+// This function will load the single OBJ file and add it to the Scene.
+void MainWindow::loadSingleObjFile(const QString &filePath, const QJsonObject &jsonObject, Qt3DCore::QEntity *rootEntity)
+{
+    QString geometryName = QFileInfo(filePath).baseName(); // Get the base name without the file extension
 
-        // Load the OBJ file
-        Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
-        mesh->setSource(QUrl::fromLocalFile(filePath)); // Ensure this loads the .obj file with .mtl references
+    // Create an entity to hold the 3D model
+    Qt3DCore::QEntity *entity = new Qt3DCore::QEntity(rootEntity);
 
-        // Apply transformations (translation, rotation)
-        Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
+    // Load the OBJ file
+    Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
+    mesh->setSource(QUrl::fromLocalFile(filePath)); // Ensure this loads the .obj file with .mtl references
 
-        // Check if the JSON object contains transformation data for this geometry
+    // Apply transformations (translation, rotation)
+    Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
 
-        if (!jsonObject.isEmpty() && jsonObject.contains(geometryName))
+    // Check if the JSON object contains transformation data for this geometry
+    if (!jsonObject.isEmpty() && jsonObject.contains(geometryName))
+    {
+        QJsonObject geomData = jsonObject.value(geometryName).toObject();
+
+        // Extract translation and rotation values
+        float Tx = geomData.value("Tx").toDouble();
+        float Tz = geomData.value("Tz").toDouble();
+        float Rx = geomData.value("Rx").toDouble();
+        float Rz = geomData.value("Rz").toDouble();
+
+        // Set the translation and rotation values
+        // transform->setTranslation(QVector3D(Tx, 0.0f, Tz));
+        transform->setRotationX(Rx);
+        transform->setRotationZ(Rz);
+    }
+    else
+    {
+        // Default transformations if no data in JSON
+        transform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
+        transform->setRotationX(0.0f);
+        transform->setRotationZ(0.0f);
+    }
+
+    transform->setScale(0.1f); // Example scale
+
+    // Create a material to hold the properties from the MTL file
+    Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial();
+
+    // Check for the existence of the corresponding MTL file
+    QString mtlFilePath = QFileInfo(filePath).absolutePath() + "/" + geometryName + ".obj.mtl";
+    QFile mtlFile(mtlFilePath);
+    if (mtlFile.exists())
+    {
+        // Load the MTL file
+        QColor ambientColor, diffuseColor, specularColor;
+        float shininess = 0.0f, transparency = 0.0f;
+        int illumModel = 2; // Default illumination model to Phong
+
+        if (parseMtlFile(mtlFilePath, ambientColor, diffuseColor, specularColor, shininess, transparency, illumModel))
         {
+            material->setAmbient(ambientColor);
+            material->setDiffuse(diffuseColor);
+            material->setSpecular(specularColor);
+            material->setShininess(shininess);
 
-            QJsonObject geomData = jsonObject.value(geometryName).toObject();
-
-            // Extract translation and rotation values
-
-            float Tx = geomData.value("Tx").toDouble();
-
-            float Tz = geomData.value("Tz").toDouble();
-
-            float Rx = geomData.value("Rx").toDouble();
-
-            float Rz = geomData.value("Rz").toDouble();
-
-            // Set the translation and rotation values
-
-            // transform->setTranslation(QVector3D(Tx, 0.0f, Tz));
-
-            transform->setRotationX(Rx);
-
-            transform->setRotationZ(Rz);
+            // Handle transparency by adjusting the alpha channel
+            QColor diffuseWithAlpha = diffuseColor;
+            diffuseWithAlpha.setAlphaF(1.0f - transparency); // Adjust alpha based on transparency
+            material->setDiffuse(diffuseWithAlpha);
         }
         else
         {
-
-            // Default transformations if no data in JSON
-
-            transform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
-
-            transform->setRotationX(0.0f);
-
-            transform->setRotationZ(0.0f);
-        }
-
-        transform->setScale(0.1f); // Example scale
-
-        // Create a material to hold the properties from the MTL file
-        Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial();
-
-        // Check for the existence of the corresponding MTL file
-        QString mtlFilePath = QFileInfo(filePath).absolutePath() + "/" + geometryName + ".obj.mtl";
-        QFile mtlFile(mtlFilePath);
-        if (mtlFile.exists())
-        {
-            // Load the MTL file
-            QColor ambientColor, diffuseColor, specularColor;
-            float shininess = 0.0f, transparency = 0.0f;
-            int illumModel = 2; // Default illumination model to Phong
-
-            if (parseMtlFile(mtlFilePath, ambientColor, diffuseColor, specularColor, shininess, transparency, illumModel))
-            {
-                material->setAmbient(ambientColor);
-                material->setDiffuse(diffuseColor);
-                material->setSpecular(specularColor);
-                material->setShininess(shininess);
-
-                // Handle transparency by adjusting the alpha channel
-                QColor diffuseWithAlpha = diffuseColor;
-                diffuseWithAlpha.setAlphaF(1.0f - transparency); // Adjust alpha based on transparency
-                material->setDiffuse(diffuseWithAlpha);
-            }
-            else
-            {
-                // Set a default material if parsing fails
-                material->setAmbient(QColor::fromRgbF(0.2, 0.2, 0.2));
-                material->setDiffuse(QColor::fromRgbF(0.498039, 0.498039, 0.498039));
-                material->setSpecular(QColor::fromRgbF(1.0, 1.0, 1.0));
-                material->setShininess(0.0);
-            }
-        }
-        else
-        {
-            // Set a default material if MTL file does not exist
+            // Set a default material if parsing fails
             material->setAmbient(QColor::fromRgbF(0.2, 0.2, 0.2));
             material->setDiffuse(QColor::fromRgbF(0.498039, 0.498039, 0.498039));
             material->setSpecular(QColor::fromRgbF(1.0, 1.0, 1.0));
             material->setShininess(0.0);
         }
-
-        // Add the components (mesh, transformation, material) to the entity
-        entity->addComponent(mesh);
-        entity->addComponent(transform);
-        entity->addComponent(material);
     }
+    else
+    {
+        // Set a default material if MTL file does not exist
+        material->setAmbient(QColor::fromRgbF(0.2, 0.2, 0.2));
+        material->setDiffuse(QColor::fromRgbF(0.498039, 0.498039, 0.498039));
+        material->setSpecular(QColor::fromRgbF(1.0, 1.0, 1.0));
+        material->setShininess(0.0);
+    }
+
+    // Add the components (mesh, transformation, material) to the entity
+    entity->addComponent(mesh);
+    entity->addComponent(transform);
+    entity->addComponent(material);
+
+    // Store the entity in the map so that we can delete them later.
+    entityMap[filePath] = entity;
 }
 
 // Sample function to parse the MTL file and return colors

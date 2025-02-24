@@ -98,6 +98,8 @@ private:
     Qt3DCore::QEntity *rootEntity;
     Qt3DRender::QCamera *camera;
     QTimer *rotationTimer;      // Timer for rotation
+    QMap<QString, Qt3DCore::QEntity*> entityMap; // Map to store the entities for each OBJ file
+
     float rotationAngle = 0.0f;        // Current rotation angle
     bool rotating = false;      // Flag to indicate if rotation is enabled
     bool show3dModel = false; 
@@ -124,6 +126,8 @@ private:
     void load3DModel();
     void remove3DModel();
     void loadObjFiles(const QString& directoryPath, Qt3DCore::QEntity* rootEntity);
+    void loadSingleObjFile(const QString &filePath, const QJsonObject &jsonObject, Qt3DCore::QEntity *rootEntity);
+    void deleteCurrentObjFile(QStandardItem *currentItem);
     bool parseMtlFile(const QString& mtlFilePath, QColor& ambient, QColor& diffuse, QColor& specular, float& shininess, float& transparency, int& illumModel);
     void updateRotation();
     
