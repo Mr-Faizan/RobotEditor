@@ -541,7 +541,10 @@ void MainWindow::populateTreeView(const QJsonObject &json)
     font.setBold(true);
     robotItem->setFont(font);
 
-    rootItem->appendRow(robotItem);
+    // Create a non-editable item for the second column
+    QStandardItem *nonEditableItem = new QStandardItem();
+    nonEditableItem->setFlags(nonEditableItem->flags() & ~Qt::ItemIsEditable);
+    rootItem->appendRow(QList<QStandardItem *>() << robotItem << nonEditableItem);
 
     // Loading robot properties
     addItem(robotItem, RobotKeys::RobotName, robot[RobotKeys::RobotName].toString());
@@ -566,7 +569,11 @@ void MainWindow::populateTreeView(const QJsonObject &json)
     // qDebug() << joints;
     QStandardItem *jointsItem = new QStandardItem(QIcon(":/Resources/Icons/robot-joint.png"), RobotKeys::Joints);
     jointsItem->setFlags(jointsItem->flags() & ~Qt::ItemIsEditable);
-    robotItem->appendRow(jointsItem);
+
+    // Create a new non-editable item for the second column of the Joints item
+    QStandardItem *jointsNonEditableItem = new QStandardItem();
+    jointsNonEditableItem->setFlags(jointsNonEditableItem->flags() & ~Qt::ItemIsEditable);
+    robotItem->appendRow(QList<QStandardItem *>() << jointsItem << jointsNonEditableItem);
 
     foreach (const QString &jointKey, joints.keys())
     {
@@ -603,7 +610,12 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
     QJsonObject kinematics = joint[JointKeys::JointKinematics].toObject();
     QStandardItem *kinematicsItem = new QStandardItem(JointKeys::JointKinematics);
     kinematicsItem->setFlags(kinematicsItem->flags() & ~Qt::ItemIsEditable);
-    singleJointItem->appendRow(kinematicsItem);
+       
+    // Create a non-editable item for the second column
+    QStandardItem *kinematicsNonEditableItem = new QStandardItem();
+    kinematicsNonEditableItem->setFlags(kinematicsNonEditableItem->flags() & ~Qt::ItemIsEditable);
+    singleJointItem->appendRow(QList<QStandardItem *>() << kinematicsItem << kinematicsNonEditableItem);
+
 
     if (kinematics.contains(KinematicsKeys::DhParameters) && kinematics[KinematicsKeys::DhParameters].isObject())
     {
@@ -642,7 +654,11 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
         QJsonObject dynamics = joint[JointKeys::JointDynamics].toObject();
         QStandardItem *dynamicsItem = new QStandardItem(QIcon(":/Resources/Icons/settings.png"), JointKeys::JointDynamics);
         dynamicsItem->setFlags(dynamicsItem->flags() & ~Qt::ItemIsEditable);
-        singleJointItem->appendRow(dynamicsItem);
+        
+        // Create a new non-editable item for the second column of the Joints item
+        QStandardItem *dynamicsNonEditableItem = new QStandardItem();
+        dynamicsNonEditableItem->setFlags(dynamicsNonEditableItem->flags() & ~Qt::ItemIsEditable);
+        singleJointItem->appendRow(QList<QStandardItem *>() << dynamicsItem << dynamicsNonEditableItem);
 
         foreach (const QString &payloadKey, dynamics.keys())
         {
@@ -659,6 +675,7 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
         QStandardItem *visualizationItem = new QStandardItem(QIcon(":/Resources/Icons/robot-dynamics.png"), JointKeys::Visualization);
         visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
         QStandardItem *visualizationPathItem = new QStandardItem(visualizationPath);
+        visualizationPathItem->setFlags(visualizationPathItem->flags() & ~Qt::ItemIsEditable);
         singleJointItem->appendRow(QList<QStandardItem *>() << visualizationItem << visualizationPathItem);
 
         if (!visualizationPath.isEmpty())
