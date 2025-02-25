@@ -110,14 +110,13 @@ private:
     void populateTreeView(const QJsonObject &json);
     void addJoint(QStandardItem *jointsItem, const QString &jointKey, const QJsonObject &joint);
     void addDynamicsPayload(QStandardItem *dynamicsItem, const QString &payloadKey, const QJsonObject &payload);
-    void addItem(QStandardItem *parent, const QString &key, const QString &value);
+    void addItem(QStandardItem *parent, const QString &key, const QVariant &value);
     void addComboBoxItem(QStandardItem *parent, const QString &key, const QString &value);
     void addButtonItem(QStandardItem *parent, const QString &buttonText);
     void onAddFilesButtonClicked();
     void saveToJson(const QString &filePath, QStandardItem *currentItem);
 
     QJsonObject modelToJson(QStandardItem *robotItem);
-    QString convertValueToString(QStandardItem *item);
 
 
 
