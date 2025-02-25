@@ -46,7 +46,7 @@ const QString DHType = "DH Type";
 }
 
 namespace RotationalValuesKeys {
-const QString Ixx = "Ixx (kg·m²)";
+const QString Ixx = "Ixx (kg.m²)";
 const QString Ixy = "Ixy (kg.m²)";
 const QString Ixz = "Ixz (kg.m²)";
 const QString Iyy = "Iyy (kg.m²)";

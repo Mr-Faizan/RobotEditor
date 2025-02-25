@@ -102,6 +102,49 @@ void MainWindow::addNewDynamics()
     ui->treeView->expand(currentIndex);
 }
 
+// We need to mark one Robot as Active, so that we can only load the 3D Model of the Active Robot.
+void MainWindow::on_actionActiveRobot_triggered()
+{
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
+    {
+        qWarning() << "No item selected.";
+        return;
+    }
+
+    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem)
+    {
+        qWarning() << "Invalid item selected.";
+        return;
+    }
+
+    // Ensure the selected item is a Robot item
+    if (currentItem->text() != RobotKeys::Robot)
+    {
+        qWarning() << "Selected item is not a Robot item.";
+        return;
+    }
+
+    // Reset the font of the previously active robot to normal and collapse its tree view
+    if (activeRobotItem && model->indexFromItem(activeRobotItem).isValid())
+    {
+        QFont font = activeRobotItem->font();
+        font.setBold(false);
+        activeRobotItem->setFont(font);
+        ui->treeView->collapse(model->indexFromItem(activeRobotItem));
+    }
+
+    // Set the font of the selected robot to bold and expand its tree view
+    QFont font = currentItem->font();
+    font.setBold(true);
+    currentItem->setFont(font);
+    ui->treeView->expand(currentIndex);
+
+    // Update the active robot item
+    activeRobotItem = currentItem;
+}
+
 void MainWindow::on_actionSave_triggered()
 {
 
@@ -304,6 +347,9 @@ void MainWindow::on_actionDeleteAll_triggered()
         return;
     }
 
+    // Reset the active robot item
+    activeRobotItem = nullptr;
+
     // Remove all rows from the root item
     rootItem->removeRows(0, rootItem->rowCount());
     qDebug() << "Deleted all robots.";
@@ -329,6 +375,11 @@ void MainWindow::deleteCurrentRobot()
     {
         qWarning() << "Selected item is not the Robot item.";
         return;
+    }
+
+    if (currentItem == activeRobotItem)
+    {
+        activeRobotItem = nullptr;
     }
 
     // Remove the selected robot item
@@ -461,6 +512,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
     if (item->text() == RobotKeys::Robot)
     {
+        contextMenu.addAction("Set as Active Robot", this, SLOT(on_actionActiveRobot_triggered()));
         contextMenu.addAction("Save Robot", this, SLOT(on_actionSave_triggered()));
         contextMenu.addAction("New Robot", this, SLOT(on_actionNewRobot_triggered()));
         contextMenu.addAction("Open from Device...", this, SLOT(on_actionOpenFromDevice_triggered()));
@@ -536,10 +588,13 @@ void MainWindow::populateTreeView(const QJsonObject &json)
     // qDebug() << robot;
     QStandardItem *robotItem = new QStandardItem(QIcon(":/Resources/Icons/robotic-arm.png"), RobotKeys::Robot);
     robotItem->setFlags(robotItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
-    // Set the font to bold
-    QFont font = robotItem->font();
-    font.setBold(true);
-    robotItem->setFont(font);
+    
+    if (!activeRobotItem)
+    {
+        QFont font = robotItem->font();
+        font.setBold(true); // Set the font to bold for the first robot
+        robotItem->setFont(font);
+    }
 
     // Create a non-editable item for the second column
     QStandardItem *nonEditableItem = new QStandardItem();
@@ -583,8 +638,13 @@ void MainWindow::populateTreeView(const QJsonObject &json)
 
     // Present the data in the view
     ui->treeView->setModel(model);
-    // expand the current item
-    ui->treeView->expandAll();
+   
+    // Set the first robot as the active robot
+    if (!activeRobotItem)
+    {
+        activeRobotItem = robotItem;
+        ui->treeView->expandAll();
+    }
     ui->treeView->resizeColumnToContents(0);
     ui->treeView->resizeColumnToContents(1);
 }

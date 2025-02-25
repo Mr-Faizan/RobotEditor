@@ -71,6 +71,7 @@ public:
     ~MainWindow();
 
 private slots:
+    void on_actionActiveRobot_triggered();
     void on_actionSave_triggered();
     void on_actionSaveAll_triggered();
     void on_actionDeleteAll_triggered();
@@ -79,6 +80,7 @@ private slots:
     void on_actionResetModel_triggered();
     void on_actionRotateModel_triggered();
     void on_actionJointVisualization_triggered();
+    
 
     // defining the slots for the context menu.
     void addNewJoint();
@@ -93,7 +95,8 @@ private:
     Ui::MainWindow *ui;
     QStandardItemModel *model; // Model to store the data
     QJsonObject templateObject; // Template object to store the template data.
-
+    QStandardItem *activeRobotItem = nullptr;
+    
     Qt3DExtras::Qt3DWindow *view;
     Qt3DCore::QEntity *rootEntity;
     Qt3DRender::QCamera *camera;
