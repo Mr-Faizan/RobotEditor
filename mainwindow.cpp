@@ -688,8 +688,8 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
         addItem(dhParametersItem, DhParametersKeys::D, dhParameters[DhParametersKeys::D].toString());
         addItem(dhParametersItem, DhParametersKeys::Theta, dhParameters[DhParametersKeys::Theta].toString());
         addItem(dhParametersItem, DhParametersKeys::A, dhParameters[DhParametersKeys::A].toString());
-        // addComboBoxItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
-        addItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
+        addComboBoxItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
+        //addItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
     }
 
     if (kinematics.contains(KinematicsKeys::RotationalValues) && kinematics[KinematicsKeys::RotationalValues].isObject())
@@ -940,8 +940,21 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
 
                                         if (propertyItem)
                                         {
+                                            //Need to pick DH Type from ComboBox
+                                            if (propertyItem->text() == DhParametersKeys::DHType)
+                                            {
+                                                QModelIndex index = model->indexFromItem(valueItem);
+                                                QComboBox *comboBox = qobject_cast<QComboBox *>(ui->treeView->indexWidget(index));
+                                                if (comboBox)
+                                                {
+                                                    dhParametersObject[propertyItem->text()] = comboBox->currentText();
+                                                }
+                                            }
+                                            else
+                                            {
                                             // Call the generic function to convert the item to JSON
                                             dhParametersObject[propertyItem->text()] = valueItem ? QJsonValue::fromVariant(valueItem->data(Qt::DisplayRole)) : QJsonValue("");
+                                            }
                                         }
                                     }
                                     kinematicsObject[KinematicsKeys::DhParameters] = dhParametersObject;
