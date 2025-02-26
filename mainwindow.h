@@ -130,6 +130,9 @@ private:
     void deleteCurrentObjFile(QStandardItem *currentItem);
     bool parseMtlFile(const QString& mtlFilePath, QColor& ambient, QColor& diffuse, QColor& specular, float& shininess, float& transparency, int& illumModel);
     void updateRotation();
+    bool isCurrentRobotActive();
+    QStandardItem* getParentRobotItem(QStandardItem *item);
+    QStringList collectVisualizationPaths(QStandardItem *robotItem);
     
 };
 #endif // MAINWINDOW_H
