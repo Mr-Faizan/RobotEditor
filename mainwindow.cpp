@@ -36,72 +36,6 @@ MainWindow::~MainWindow()
 
 /****************** Slots Implementation ******************/
 
-void MainWindow::addNewJoint()
-{
-    QModelIndex currentIndex = ui->treeView->currentIndex();
-    if (!currentIndex.isValid())
-    {
-        qWarning() << "No Joints item selected.";
-        return;
-    }
-
-    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
-    if (!currentItem)
-    {
-        qWarning() << "Invalid item selected.";
-        return;
-    }
-
-    // Ensure the selected item is the Joints item
-    if (currentItem->text() != RobotKeys::Joints)
-    {
-        qWarning() << "Selected item is not the Joints item.";
-        return;
-    }
-
-    // Create a new joint
-    // QString jointKey = JointKeys::Joint + " " + QString::number(currentItem->rowCount() + 1);
-    QString jointKey = JointKeys::Joint;
-    QJsonObject joint = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[jointKey].toObject();
-
-    addJoint(currentItem, jointKey, joint);
-
-    ui->treeView->expand(currentIndex);
-}
-
-void MainWindow::addNewDynamics()
-{
-    QModelIndex currentIndex = ui->treeView->currentIndex();
-    if (!currentIndex.isValid())
-    {
-        qWarning() << "No Joint Dynamics selected.";
-        return;
-    }
-
-    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
-    if (!currentItem)
-    {
-        qWarning() << "Invalid item selected.";
-        return;
-    }
-
-    // Check the selected item is a Joint Dynamics item
-    if (currentItem->text() != JointKeys::JointDynamics)
-    {
-        qWarning() << "Selected item is not a Joint Dynamics.";
-        return;
-    }
-
-    // Create a new payload
-    QString payloadKey = DynamicsKeys::Payload + " " + QString::number(currentItem->rowCount() + 1);
-    QJsonObject payload = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[JointKeys::JointDynamics].toObject()[payloadKey].toObject();
-
-    // Create generic function.
-    addDynamicsPayload(currentItem, payloadKey, payload);
-
-    ui->treeView->expand(currentIndex);
-}
-
 // We need to mark one Robot as Active, so that we can only load the 3D Model of the Active Robot.
 void MainWindow::on_actionActiveRobot_triggered()
 {
@@ -355,12 +289,14 @@ void MainWindow::on_actionDeleteAll_triggered()
     qDebug() << "Deleted all robots.";
 }
 
-void MainWindow::deleteCurrentRobot()
+/****************** Add Section ******************/
+
+void MainWindow::addNewJoint()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
     if (!currentIndex.isValid())
     {
-        qWarning() << "No item selected.";
+        qWarning() << "No Joints item selected.";
         return;
     }
 
@@ -371,81 +307,29 @@ void MainWindow::deleteCurrentRobot()
         return;
     }
 
-    if (currentItem->text() != RobotKeys::Robot)
-    {
-        qWarning() << "Selected item is not the Robot item.";
-        return;
-    }
-
-    if (currentItem == activeRobotItem)
-    {
-        activeRobotItem = nullptr;
-    }
-
-    // Remove the selected robot item
-    model->removeRow(currentItem->row(), currentItem->parent() ? currentItem->parent()->index() : QModelIndex());
-    qDebug() << "Deleted robot: " << currentItem->text();
-}
-
-void MainWindow::deleteCurrentJoint()
-{
-    QModelIndex currentIndex = ui->treeView->currentIndex();
-    if (!currentIndex.isValid())
-    {
-        qWarning() << "No item selected.";
-        return;
-    }
-
-    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
-    if (!currentItem)
-    {
-        qWarning() << "Invalid item selected.";
-        return;
-    }
-
-    // if (!currentItem->text().startsWith(JointKeys::Joint))
+    // Ensure the selected item is the Joints item
     if (currentItem->text() != RobotKeys::Joints)
     {
-        qWarning() << "Selected item is not a Joint item.";
+        qWarning() << "Selected item is not the Joints item.";
         return;
     }
 
-    // Get the last child of the selected joint
-    int lastRow = currentItem->rowCount() - 1;
-    if (lastRow >= 0)
-    {
-        // First delete the OBJ file from the 3D scene
-        QStandardItem *jointItem = currentItem->child(lastRow);
+    // Create a new joint
+    // QString jointKey = JointKeys::Joint + " " + QString::number(currentItem->rowCount() + 1);
+    QString jointKey = JointKeys::Joint;
+    QJsonObject joint = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[jointKey].toObject();
 
-        // Access the JointVisualization item directly by its name
-        QStandardItem *visualizationItem = nullptr;
-        for (int i = 0; i < jointItem->rowCount(); ++i)
-        {
-            QStandardItem *childItem = jointItem->child(i, 0);
-            if (childItem && childItem->text() == JointKeys::Visualization)
-            {
-                visualizationItem = childItem;
-                break;
-            }
-        }
+    addJoint(currentItem, jointKey, joint);
 
-        if (visualizationItem)
-        {
-            // Pass the JointVisualization item to deleteCurrentObjFile
-            deleteCurrentObjFile(visualizationItem);
-        }
-
-        currentItem->removeRow(lastRow);
-        qDebug() << "Deleted last child of joint: " << currentItem->text();
-    }
+    ui->treeView->expand(currentIndex);
 }
 
-void MainWindow::deleteCurrentPayload()
+void MainWindow::addNewDynamics()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
     if (!currentIndex.isValid())
     {
-        qWarning() << "No item selected.";
+        qWarning() << "No Joint Dynamics selected.";
         return;
     }
 
@@ -456,198 +340,23 @@ void MainWindow::deleteCurrentPayload()
         return;
     }
 
-    // Ensure the selected item is a Payload item
-    // if (!currentItem->text().startsWith(DynamicsKeys::Payload))
+    // Check the selected item is a Joint Dynamics item
     if (currentItem->text() != JointKeys::JointDynamics)
     {
-        qWarning() << "Selected item is not a Payload item.";
+        qWarning() << "Selected item is not a Joint Dynamics.";
         return;
     }
-    // Get the last child of the selected joint
-    int lastRow = currentItem->rowCount() - 1;
-    if (lastRow >= 0)
-    {
-        currentItem->removeRow(lastRow);
-        qDebug() << "Deleted last child of joint: " << currentItem->text();
-    }
+
+    // Create a new payload
+    QString payloadKey = DynamicsKeys::Payload + " " + QString::number(currentItem->rowCount() + 1);
+    QJsonObject payload = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[JointKeys::JointDynamics].toObject()[payloadKey].toObject();
+
+    // Create generic function.
+    addDynamicsPayload(currentItem, payloadKey, payload);
+
+    ui->treeView->expand(currentIndex);
 }
 
-// This function will delete the current OBJ file from the 3D scene
-void MainWindow::deleteCurrentObjFile(QStandardItem *currentItem)
-{
-    if (currentItem)
-    {
-        QStandardItem *filePathItem = model->itemFromIndex(currentItem->index().sibling(currentItem->row(), 1));
-        if (filePathItem)
-        {
-            QString filePath = filePathItem->text();
-            if (!filePath.isEmpty())
-            {
-                // Remove the entity from the 3D scene
-                if (entityMap.contains(filePath))
-                {
-                    Qt3DCore::QEntity *entity = entityMap[filePath];
-                    delete entity; // This removes the entity from the scene
-                    entityMap.remove(filePath);
-                    qDebug() << "Removed entity for OBJ file:" << filePath;
-                }
-
-            }
-        }
-    }
-}
-
-/****************** Custom Function Implementation ******************/
-void MainWindow::showContextMenu(const QPoint &pos)
-{
-    QModelIndex index = ui->treeView->indexAt(pos);
-    if (!index.isValid())
-        return;
-
-    QStandardItem *item = model->itemFromIndex(index);
-    if (!item)
-        return;
-
-    QMenu contextMenu(this);
-
-    if (item->text() == RobotKeys::Robot)
-    {
-        contextMenu.addAction("Set as Active Robot", this, SLOT(on_actionActiveRobot_triggered()));
-        contextMenu.addAction("Save Robot", this, SLOT(on_actionSave_triggered()));
-        contextMenu.addAction("New Robot", this, SLOT(on_actionNewRobot_triggered()));
-        contextMenu.addAction("Open from Device...", this, SLOT(on_actionOpenFromDevice_triggered()));
-        contextMenu.addAction("Delete Robot", this, SLOT(deleteCurrentRobot()));
-    }
-    else if (item->text() == RobotKeys::Joints)
-    {
-        contextMenu.addAction("Add New Joint", this, SLOT(addNewJoint()));
-        contextMenu.addAction("Delete Last Joint", this, SLOT(deleteCurrentJoint()));
-    }
-    else if (item->text() == JointKeys::JointDynamics)
-    {
-        contextMenu.addAction("Add New Dynamics", this, SLOT(addNewDynamics()));
-        contextMenu.addAction("Delete Last Dynamics", this, SLOT(deleteCurrentPayload()));
-    }
-    else if (item->text() == JointKeys::Visualization)
-    {
-        contextMenu.addAction("Select OBJ File", this, SLOT(on_actionJointVisualization_triggered()));
-    }
-
-    contextMenu.exec(ui->treeView->viewport()->mapToGlobal(pos));
-}
-
-// Creating a generic function that will load the Template data as an object and we will use this object throughout the application.
-// Setting Global Template Object
-void MainWindow::loadTemplate()
-{
-
-    QFile file(":/Resources/Json/Template.json");
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qWarning("Template file is missing. Please add the template file.");
-        templateObject = QJsonObject(); // Initialize an empty JSON object to avoid application crashing.
-        return;
-    }
-
-    QByteArray templateJson = file.readAll();
-    file.close();
-
-    QJsonDocument templateDocument = QJsonDocument::fromJson(templateJson);
-    templateObject = templateDocument.object();
-
-    if (templateObject.isEmpty())
-    {
-        qWarning() << "JSON Template object is empty";
-        return;
-    }
-
-    if (!templateObject.contains(RobotKeys::Robot) || !templateObject[RobotKeys::Robot].isObject())
-    {
-        qWarning() << "Invalid JSON: Missing or invalid 'Robot' Template object";
-        return;
-    }
-}
-
-// I tired my best not to define the structue of the application in the model and to load the structure from the template file, to make it Dynamic.
-// But I am unable to do so, because JSON Object is unordered list of key value pairs and for us Order is very important.
-// So for now I am defining the Structure of the application in this function using TreeView Standard Model.
-// I don't like this approach but I also tried ten other methods :)
-
-void MainWindow::populateTreeView(const QJsonObject &json)
-{
-
-    if (!json.contains(RobotKeys::Robot) || !json[RobotKeys::Robot].isObject())
-    {
-        qWarning() << "Invalid JSON: Missing or invalid 'Robot' object";
-        return;
-    }
-
-    QStandardItem *rootItem = model->invisibleRootItem();
-    QJsonObject robot = json[RobotKeys::Robot].toObject();
-    // qDebug() << robot;
-    QStandardItem *robotItem = new QStandardItem(QIcon(":/Resources/Icons/robotic-arm.png"), RobotKeys::Robot);
-    robotItem->setFlags(robotItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
-    
-    if (!activeRobotItem)
-    {
-        QFont font = robotItem->font();
-        font.setBold(true); // Set the font to bold for the first robot
-        robotItem->setFont(font);
-    }
-
-    // Create a non-editable item for the second column
-    QStandardItem *nonEditableItem = new QStandardItem();
-    nonEditableItem->setFlags(nonEditableItem->flags() & ~Qt::ItemIsEditable);
-    rootItem->appendRow(QList<QStandardItem *>() << robotItem << nonEditableItem);
-
-    // Loading robot properties
-    addItem(robotItem, RobotKeys::RobotName, robot[RobotKeys::RobotName].toString());
-    addItem(robotItem, RobotKeys::RobotManufacturer, robot[RobotKeys::RobotManufacturer].toString());
-    addItem(robotItem, RobotKeys::RobotPayload, robot[RobotKeys::RobotPayload].toString());
-    addItem(robotItem, RobotKeys::RobotFootprint, robot[RobotKeys::RobotFootprint].toString());
-    addItem(robotItem, RobotKeys::RobotMaxReach, robot[RobotKeys::RobotMaxReach].toString());
-    addItem(robotItem, RobotKeys::RobotRepeatability, robot[RobotKeys::RobotRepeatability].toString());
-    addItem(robotItem, RobotKeys::RobotWeight, robot[RobotKeys::RobotWeight].toString());
-    addItem(robotItem, RobotKeys::DOF, robot[RobotKeys::DOF].toString());
-
-    // Loading joints
-
-    // Loading joints
-    if (!robot.contains(RobotKeys::Joints) || !robot[RobotKeys::Joints].isObject())
-    {
-        qWarning() << "Invalid JSON: Missing or invalid 'Joints' object";
-        return;
-    }
-
-    QJsonObject joints = robot[RobotKeys::Joints].toObject();
-    // qDebug() << joints;
-    QStandardItem *jointsItem = new QStandardItem(QIcon(":/Resources/Icons/robot-joint.png"), RobotKeys::Joints);
-    jointsItem->setFlags(jointsItem->flags() & ~Qt::ItemIsEditable);
-
-    // Create a new non-editable item for the second column of the Joints item
-    QStandardItem *jointsNonEditableItem = new QStandardItem();
-    jointsNonEditableItem->setFlags(jointsNonEditableItem->flags() & ~Qt::ItemIsEditable);
-    robotItem->appendRow(QList<QStandardItem *>() << jointsItem << jointsNonEditableItem);
-
-    foreach (const QString &jointKey, joints.keys())
-    {
-        QJsonObject joint = joints[jointKey].toObject();
-        addJoint(jointsItem, jointKey, joint);
-    }
-
-    // Present the data in the view
-    ui->treeView->setModel(model);
-   
-    // Set the first robot as the active robot
-    if (!activeRobotItem)
-    {
-        activeRobotItem = robotItem;
-        ui->treeView->expandAll();
-    }
-    ui->treeView->resizeColumnToContents(0);
-    ui->treeView->resizeColumnToContents(1);
-}
 
 // This function will add the joint in the TreeView.
 void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, const QJsonObject &joint)
@@ -811,36 +520,305 @@ void MainWindow::addComboBoxItem(QStandardItem *parent, const QString &key, cons
     ui->treeView->setIndexWidget(indexFromItem, comboBox);
 }
 
-void MainWindow::addButtonItem(QStandardItem *parent, const QString &buttonText)
+
+/****************** Delete Section ******************/
+
+void MainWindow::deleteCurrentRobot()
 {
-    QStandardItem *buttonItem = new QStandardItem(buttonText);
-    buttonItem->setEditable(false);
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
+    {
+        qWarning() << "No item selected.";
+        return;
+    }
 
-    parent->appendRow(buttonItem);
+    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem)
+    {
+        qWarning() << "Invalid item selected.";
+        return;
+    }
 
-    QPushButton *button = new QPushButton(buttonText);
-    QModelIndex index = parent->model()->indexFromItem(buttonItem);
-    ui->treeView->setIndexWidget(index, button);
+    if (currentItem->text() != RobotKeys::Robot)
+    {
+        qWarning() << "Selected item is not the Robot item.";
+        return;
+    }
 
-    connect(button, &QPushButton::clicked, this, &MainWindow::onAddFilesButtonClicked);
+    if (currentItem == activeRobotItem)
+    {
+        activeRobotItem = nullptr;
+    }
+
+    // Remove the selected robot item
+    model->removeRow(currentItem->row(), currentItem->parent() ? currentItem->parent()->index() : QModelIndex());
+    qDebug() << "Deleted robot: " << currentItem->text();
 }
 
-void MainWindow::onAddFilesButtonClicked()
+void MainWindow::deleteCurrentJoint()
 {
-    QString objFilePath = QFileDialog::getOpenFileName(this, "Select OBJ File", "", "OBJ Files (*.obj)");
-    if (!objFilePath.isEmpty())
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
     {
-        QString mtlFilePath = QFileDialog::getOpenFileName(this, "Select MTL File", "", "MTL Files (*.mtl)");
-        if (!mtlFilePath.isEmpty())
-        {
-            // Handle the selected OBJ and MTL file paths
-            qDebug() << "Selected OBJ File:" << objFilePath;
-            qDebug() << "Selected MTL File:" << mtlFilePath;
+        qWarning() << "No item selected.";
+        return;
+    }
 
-            // Update the model with the selected file paths
+    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem)
+    {
+        qWarning() << "Invalid item selected.";
+        return;
+    }
+
+    // if (!currentItem->text().startsWith(JointKeys::Joint))
+    if (currentItem->text() != RobotKeys::Joints)
+    {
+        qWarning() << "Selected item is not a Joint item.";
+        return;
+    }
+
+    // Get the last child of the selected joint
+    int lastRow = currentItem->rowCount() - 1;
+    if (lastRow >= 0)
+    {
+        // First delete the OBJ file from the 3D scene
+        QStandardItem *jointItem = currentItem->child(lastRow);
+
+        // Access the JointVisualization item directly by its name
+        QStandardItem *visualizationItem = nullptr;
+        for (int i = 0; i < jointItem->rowCount(); ++i)
+        {
+            QStandardItem *childItem = jointItem->child(i, 0);
+            if (childItem && childItem->text() == JointKeys::Visualization)
+            {
+                visualizationItem = childItem;
+                break;
+            }
+        }
+
+        if (visualizationItem)
+        {
+            // Pass the JointVisualization item to deleteCurrentObjFile
+            deleteCurrentObjFile(visualizationItem);
+        }
+
+        currentItem->removeRow(lastRow);
+        qDebug() << "Deleted last child of joint: " << currentItem->text();
+    }
+}
+
+void MainWindow::deleteCurrentPayload()
+{
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
+    {
+        qWarning() << "No item selected.";
+        return;
+    }
+
+    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem)
+    {
+        qWarning() << "Invalid item selected.";
+        return;
+    }
+
+    // Ensure the selected item is a Payload item
+    // if (!currentItem->text().startsWith(DynamicsKeys::Payload))
+    if (currentItem->text() != JointKeys::JointDynamics)
+    {
+        qWarning() << "Selected item is not a Payload item.";
+        return;
+    }
+    // Get the last child of the selected joint
+    int lastRow = currentItem->rowCount() - 1;
+    if (lastRow >= 0)
+    {
+        currentItem->removeRow(lastRow);
+        qDebug() << "Deleted last child of joint: " << currentItem->text();
+    }
+}
+
+// This function will delete the current OBJ file from the 3D scene
+void MainWindow::deleteCurrentObjFile(QStandardItem *currentItem)
+{
+    if (currentItem)
+    {
+        QStandardItem *filePathItem = model->itemFromIndex(currentItem->index().sibling(currentItem->row(), 1));
+        if (filePathItem)
+        {
+            QString filePath = filePathItem->text();
+            if (!filePath.isEmpty())
+            {
+                // Remove the entity from the 3D scene
+                if (entityMap.contains(filePath))
+                {
+                    Qt3DCore::QEntity *entity = entityMap[filePath];
+                    delete entity; // This removes the entity from the scene
+                    entityMap.remove(filePath);
+                    qDebug() << "Removed entity for OBJ file:" << filePath;
+                }
+
+            }
         }
     }
 }
+
+/****************** Show / Load Section ******************/
+
+void MainWindow::showContextMenu(const QPoint &pos)
+{
+    QModelIndex index = ui->treeView->indexAt(pos);
+    if (!index.isValid())
+        return;
+
+    QStandardItem *item = model->itemFromIndex(index);
+    if (!item)
+        return;
+
+    QMenu contextMenu(this);
+
+    if (item->text() == RobotKeys::Robot)
+    {
+        contextMenu.addAction("Set as Active Robot", this, SLOT(on_actionActiveRobot_triggered()));
+        contextMenu.addAction("Save Robot", this, SLOT(on_actionSave_triggered()));
+        contextMenu.addAction("New Robot", this, SLOT(on_actionNewRobot_triggered()));
+        contextMenu.addAction("Open from Device...", this, SLOT(on_actionOpenFromDevice_triggered()));
+        contextMenu.addAction("Delete Robot", this, SLOT(deleteCurrentRobot()));
+    }
+    else if (item->text() == RobotKeys::Joints)
+    {
+        contextMenu.addAction("Add New Joint", this, SLOT(addNewJoint()));
+        contextMenu.addAction("Delete Last Joint", this, SLOT(deleteCurrentJoint()));
+    }
+    else if (item->text() == JointKeys::JointDynamics)
+    {
+        contextMenu.addAction("Add New Dynamics", this, SLOT(addNewDynamics()));
+        contextMenu.addAction("Delete Last Dynamics", this, SLOT(deleteCurrentPayload()));
+    }
+    else if (item->text() == JointKeys::Visualization)
+    {
+        contextMenu.addAction("Select OBJ File", this, SLOT(on_actionJointVisualization_triggered()));
+    }
+
+    contextMenu.exec(ui->treeView->viewport()->mapToGlobal(pos));
+}
+
+// Creating a generic function that will load the Template data as an object and we will use this object throughout the application.
+// Setting Global Template Object
+void MainWindow::loadTemplate()
+{
+
+    QFile file(":/Resources/Json/Template.json");
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qWarning("Template file is missing. Please add the template file.");
+        templateObject = QJsonObject(); // Initialize an empty JSON object to avoid application crashing.
+        return;
+    }
+
+    QByteArray templateJson = file.readAll();
+    file.close();
+
+    QJsonDocument templateDocument = QJsonDocument::fromJson(templateJson);
+    templateObject = templateDocument.object();
+
+    if (templateObject.isEmpty())
+    {
+        qWarning() << "JSON Template object is empty";
+        return;
+    }
+
+    if (!templateObject.contains(RobotKeys::Robot) || !templateObject[RobotKeys::Robot].isObject())
+    {
+        qWarning() << "Invalid JSON: Missing or invalid 'Robot' Template object";
+        return;
+    }
+}
+
+// I tired my best not to define the structue of the application in the model and to load the structure from the template file, to make it Dynamic.
+// But I am unable to do so, because JSON Object is unordered list of key value pairs and for us Order is very important.
+// So for now I am defining the Structure of the application in this function using TreeView Standard Model.
+// I don't like this approach but I also tried ten other methods :)
+
+void MainWindow::populateTreeView(const QJsonObject &json)
+{
+
+    if (!json.contains(RobotKeys::Robot) || !json[RobotKeys::Robot].isObject())
+    {
+        qWarning() << "Invalid JSON: Missing or invalid 'Robot' object";
+        return;
+    }
+
+    QStandardItem *rootItem = model->invisibleRootItem();
+    QJsonObject robot = json[RobotKeys::Robot].toObject();
+    // qDebug() << robot;
+    QStandardItem *robotItem = new QStandardItem(QIcon(":/Resources/Icons/robotic-arm.png"), RobotKeys::Robot);
+    robotItem->setFlags(robotItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
+    
+    if (!activeRobotItem)
+    {
+        QFont font = robotItem->font();
+        font.setBold(true); // Set the font to bold for the first robot
+        robotItem->setFont(font);
+    }
+
+    // Create a non-editable item for the second column
+    QStandardItem *nonEditableItem = new QStandardItem();
+    nonEditableItem->setFlags(nonEditableItem->flags() & ~Qt::ItemIsEditable);
+    rootItem->appendRow(QList<QStandardItem *>() << robotItem << nonEditableItem);
+
+    // Loading robot properties
+    addItem(robotItem, RobotKeys::RobotName, robot[RobotKeys::RobotName].toString());
+    addItem(robotItem, RobotKeys::RobotManufacturer, robot[RobotKeys::RobotManufacturer].toString());
+    addItem(robotItem, RobotKeys::RobotPayload, robot[RobotKeys::RobotPayload].toString());
+    addItem(robotItem, RobotKeys::RobotFootprint, robot[RobotKeys::RobotFootprint].toString());
+    addItem(robotItem, RobotKeys::RobotMaxReach, robot[RobotKeys::RobotMaxReach].toString());
+    addItem(robotItem, RobotKeys::RobotRepeatability, robot[RobotKeys::RobotRepeatability].toString());
+    addItem(robotItem, RobotKeys::RobotWeight, robot[RobotKeys::RobotWeight].toString());
+    addItem(robotItem, RobotKeys::DOF, robot[RobotKeys::DOF].toString());
+
+    // Loading joints
+
+    // Loading joints
+    if (!robot.contains(RobotKeys::Joints) || !robot[RobotKeys::Joints].isObject())
+    {
+        qWarning() << "Invalid JSON: Missing or invalid 'Joints' object";
+        return;
+    }
+
+    QJsonObject joints = robot[RobotKeys::Joints].toObject();
+    // qDebug() << joints;
+    QStandardItem *jointsItem = new QStandardItem(QIcon(":/Resources/Icons/robot-joint.png"), RobotKeys::Joints);
+    jointsItem->setFlags(jointsItem->flags() & ~Qt::ItemIsEditable);
+
+    // Create a new non-editable item for the second column of the Joints item
+    QStandardItem *jointsNonEditableItem = new QStandardItem();
+    jointsNonEditableItem->setFlags(jointsNonEditableItem->flags() & ~Qt::ItemIsEditable);
+    robotItem->appendRow(QList<QStandardItem *>() << jointsItem << jointsNonEditableItem);
+
+    foreach (const QString &jointKey, joints.keys())
+    {
+        QJsonObject joint = joints[jointKey].toObject();
+        addJoint(jointsItem, jointKey, joint);
+    }
+
+    // Present the data in the view
+    ui->treeView->setModel(model);
+   
+    // Set the first robot as the active robot
+    if (!activeRobotItem)
+    {
+        activeRobotItem = robotItem;
+        ui->treeView->expandAll();
+    }
+    ui->treeView->resizeColumnToContents(0);
+    ui->treeView->resizeColumnToContents(1);
+}
+
+/****************** JSON Related Function Implementation ******************/
 
 // Now trickies part starts with saving JSON in such a way that I can access it later on and able to load the data in TreeView.
 // Not to make any mistake with structure, otherwise it will be surprice for you on loading data.
@@ -1060,6 +1038,8 @@ void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
         }
     }
 }
+
+/****************** 3D Related Function Implementation ******************/
 
 // Setup the Main Playground for 3D Viewer
 // This function will setup the 3D Playground for the Robot Model Visualization.
