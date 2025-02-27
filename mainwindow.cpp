@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 3D Model Visualization part.
     setup3DPlayground();
+    // Set the root Entity
+    view->setRootEntity(rootEntity);
 }
 
 MainWindow::~MainWindow()
@@ -34,12 +36,13 @@ MainWindow::~MainWindow()
 
 /****************** Slots Implementation ******************/
 
-void MainWindow::addNewJoint()
+// We need to mark one Robot as Active, so that we can only load the 3D Model of the Active Robot.
+void MainWindow::on_actionActiveRobot_triggered()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
     if (!currentIndex.isValid())
     {
-        qWarning() << "No Joints item selected.";
+        qWarning() << "No item selected.";
         return;
     }
 
@@ -50,54 +53,33 @@ void MainWindow::addNewJoint()
         return;
     }
 
-    // Ensure the selected item is the Joints item
-    if (currentItem->text() != RobotKeys::Joints)
+    // Ensure the selected item is a Robot item
+    if (currentItem->text() != RobotKeys::Robot)
     {
-        qWarning() << "Selected item is not the Joints item.";
+        qWarning() << "Selected item is not a Robot item.";
         return;
     }
 
-    // Create a new joint
-    // QString jointKey = JointKeys::Joint + " " + QString::number(currentItem->rowCount() + 1);
-    QString jointKey = JointKeys::Joint;
-    QJsonObject joint = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[jointKey].toObject();
+    // Reset the font of the previously active robot to normal and collapse its tree view
+    if (activeRobotItem && model->indexFromItem(activeRobotItem).isValid())
+    {
+        QFont font = activeRobotItem->font();
+        font.setBold(false);
+        activeRobotItem->setFont(font);
+        ui->treeView->collapse(model->indexFromItem(activeRobotItem));
+    }
 
-    addJoint(currentItem, jointKey, joint);
-
+    // Set the font of the selected robot to bold and expand its tree view
+    QFont font = currentItem->font();
+    font.setBold(true);
+    currentItem->setFont(font);
     ui->treeView->expand(currentIndex);
-}
 
-void MainWindow::addNewDynamics()
-{
-    QModelIndex currentIndex = ui->treeView->currentIndex();
-    if (!currentIndex.isValid())
-    {
-        qWarning() << "No Joint Dynamics selected.";
-        return;
-    }
+    // Update the active robot item
+    activeRobotItem = currentItem;
 
-    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
-    if (!currentItem)
-    {
-        qWarning() << "Invalid item selected.";
-        return;
-    }
-
-    // Check the selected item is a Joint Dynamics item
-    if (currentItem->text() != JointKeys::JointDynamics)
-    {
-        qWarning() << "Selected item is not a Joint Dynamics.";
-        return;
-    }
-
-    // Create a new payload
-    QString payloadKey = DynamicsKeys::Payload + " " + QString::number(currentItem->rowCount() + 1);
-    QJsonObject payload = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[JointKeys::JointDynamics].toObject()[payloadKey].toObject();
-
-    // Create generic function.
-    addDynamicsPayload(currentItem, payloadKey, payload);
-
-    ui->treeView->expand(currentIndex);
+    // Load Model of this Robot
+    load3DModel();
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -217,12 +199,12 @@ void MainWindow::on_actionOpenFromDevice_triggered()
         if (show3dModel)
         {
             // Load the 3D Model
-            load3DModel();
+            //  load3DModel();
         }
         else
         {
             // Remove the 3D Model
-            remove3DModel();
+            // remove3DModel();
         }
     }
 }
@@ -257,7 +239,45 @@ void MainWindow::on_actionRotateModel_triggered()
     }
 }
 
+void MainWindow::on_actionJointVisualization_triggered()
+{
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
+    {
+        qWarning() << "No item selected.";
+        return;
+    }
 
+    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem)
+    {
+        qWarning() << "Invalid item selected.";
+        return;
+    }
+
+    QString filePath = QFileDialog::getOpenFileName(this, "Select OBJ File", "", "OBJ Files (*.obj)");
+    if (!filePath.isEmpty())
+    {
+
+        // Get the parent robot item
+        QStandardItem *parentRobotItem = getParentRobotItem(currentItem);
+        if (parentRobotItem && parentRobotItem == activeRobotItem)
+        {
+            // First Delete the current OBJ file if it exists
+            deleteCurrentObjFile(currentItem);
+
+            // Call the loadSingleObjFile function with the selected file path
+            QJsonObject jsonObject;
+            loadSingleObjFile(filePath, jsonObject, rootEntity);
+        }
+
+        QStandardItem *filePathItem = model->itemFromIndex(currentItem->index().sibling(currentItem->row(), 1));
+        if (filePathItem)
+        {
+            filePathItem->setText(filePath);
+        }
+    }
+}
 
 void MainWindow::on_actionDeleteAll_triggered()
 {
@@ -269,10 +289,244 @@ void MainWindow::on_actionDeleteAll_triggered()
         return;
     }
 
+    // Reset the active robot item
+    activeRobotItem = nullptr;
+
     // Remove all rows from the root item
     rootItem->removeRows(0, rootItem->rowCount());
     qDebug() << "Deleted all robots.";
 }
+
+/****************** Add Section ******************/
+
+void MainWindow::addNewJoint()
+{
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
+    {
+        qWarning() << "No Joints item selected.";
+        return;
+    }
+
+    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem)
+    {
+        qWarning() << "Invalid item selected.";
+        return;
+    }
+
+    // Ensure the selected item is the Joints item
+    if (currentItem->text() != RobotKeys::Joints)
+    {
+        qWarning() << "Selected item is not the Joints item.";
+        return;
+    }
+
+    // Create a new joint
+    // QString jointKey = JointKeys::Joint + " " + QString::number(currentItem->rowCount() + 1);
+    QString jointKey = JointKeys::Joint;
+    QJsonObject joint = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[jointKey].toObject();
+
+    addJoint(currentItem, jointKey, joint);
+
+    ui->treeView->expand(currentIndex);
+}
+
+void MainWindow::addNewDynamics()
+{
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
+    {
+        qWarning() << "No Joint Dynamics selected.";
+        return;
+    }
+
+    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem)
+    {
+        qWarning() << "Invalid item selected.";
+        return;
+    }
+
+    // Check the selected item is a Joint Dynamics item
+    if (currentItem->text() != JointKeys::JointDynamics)
+    {
+        qWarning() << "Selected item is not a Joint Dynamics.";
+        return;
+    }
+
+    // Create a new payload
+    QString payloadKey = DynamicsKeys::Payload + " " + QString::number(currentItem->rowCount() + 1);
+    QJsonObject payload = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[JointKeys::JointDynamics].toObject()[payloadKey].toObject();
+
+    // Create generic function.
+    addDynamicsPayload(currentItem, payloadKey, payload);
+
+    ui->treeView->expand(currentIndex);
+}
+
+// This function will add the joint in the TreeView.
+void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, const QJsonObject &joint)
+{
+
+    int jointNumber = jointsItem->rowCount() + 1;
+    QStandardItem *singleJointItem = new QStandardItem(QString("Joint %1").arg(jointNumber));
+    singleJointItem->setFlags(singleJointItem->flags() & ~Qt::ItemIsEditable);
+    jointsItem->appendRow(singleJointItem);
+
+    addItem(singleJointItem, JointKeys::JointName, joint[JointKeys::JointName].toString());
+    addItem(singleJointItem, JointKeys::MotionRangeMax, joint[JointKeys::MotionRangeMax].toString());
+    addItem(singleJointItem, JointKeys::MotionRangeMin, joint[JointKeys::MotionRangeMin].toString());
+    addItem(singleJointItem, JointKeys::JointSpeedLimit, joint[JointKeys::JointSpeedLimit].toString());
+    addItem(singleJointItem, JointKeys::FrictionCoefficient, joint[JointKeys::FrictionCoefficient].toString());
+    addItem(singleJointItem, JointKeys::StiffnessCoefficient, joint[JointKeys::StiffnessCoefficient].toString());
+    addItem(singleJointItem, JointKeys::DampingCoefficient, joint[JointKeys::DampingCoefficient].toString());
+
+    // Loading kinematics
+    QJsonObject kinematics = joint[JointKeys::JointKinematics].toObject();
+    QStandardItem *kinematicsItem = new QStandardItem(JointKeys::JointKinematics);
+    kinematicsItem->setFlags(kinematicsItem->flags() & ~Qt::ItemIsEditable);
+
+    // Create a non-editable item for the second column
+    QStandardItem *kinematicsNonEditableItem = new QStandardItem();
+    kinematicsNonEditableItem->setFlags(kinematicsNonEditableItem->flags() & ~Qt::ItemIsEditable);
+    singleJointItem->appendRow(QList<QStandardItem *>() << kinematicsItem << kinematicsNonEditableItem);
+
+    if (kinematics.contains(KinematicsKeys::DhParameters) && kinematics[KinematicsKeys::DhParameters].isObject())
+    {
+
+        QJsonObject dhParameters = kinematics[KinematicsKeys::DhParameters].toObject();
+        QStandardItem *dhParametersItem = new QStandardItem(KinematicsKeys::DhParameters);
+        dhParametersItem->setFlags(dhParametersItem->flags() & ~Qt::ItemIsEditable);
+        kinematicsItem->appendRow(dhParametersItem);
+        addItem(dhParametersItem, DhParametersKeys::Alpha, dhParameters[DhParametersKeys::Alpha].toString());
+        addItem(dhParametersItem, DhParametersKeys::D, dhParameters[DhParametersKeys::D].toString());
+        addItem(dhParametersItem, DhParametersKeys::Theta, dhParameters[DhParametersKeys::Theta].toString());
+        addItem(dhParametersItem, DhParametersKeys::A, dhParameters[DhParametersKeys::A].toString());
+        addComboBoxItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
+        // addItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
+    }
+
+    if (kinematics.contains(KinematicsKeys::RotationalValues) && kinematics[KinematicsKeys::RotationalValues].isObject())
+    {
+        QJsonObject rotationalValues = kinematics[KinematicsKeys::RotationalValues].toObject();
+        QStandardItem *rotationalValuesItem = new QStandardItem(KinematicsKeys::RotationalValues);
+        rotationalValuesItem->setFlags(rotationalValuesItem->flags() & ~Qt::ItemIsEditable);
+        kinematicsItem->appendRow(rotationalValuesItem);
+        addItem(rotationalValuesItem, RotationalValuesKeys::Ixx, rotationalValues[RotationalValuesKeys::Ixx].toString());
+        addItem(rotationalValuesItem, RotationalValuesKeys::Ixy, rotationalValues[RotationalValuesKeys::Ixy].toString());
+        addItem(rotationalValuesItem, RotationalValuesKeys::Ixz, rotationalValues[RotationalValuesKeys::Ixz].toString());
+        addItem(rotationalValuesItem, RotationalValuesKeys::Iyy, rotationalValues[RotationalValuesKeys::Iyy].toString());
+        addItem(rotationalValuesItem, RotationalValuesKeys::Iyz, rotationalValues[RotationalValuesKeys::Iyz].toString());
+        addItem(rotationalValuesItem, RotationalValuesKeys::Izz, rotationalValues[RotationalValuesKeys::Izz].toString());
+    }
+
+    // Loading dynamics
+
+    if (joint.contains(JointKeys::JointDynamics) && joint[JointKeys::JointDynamics].isObject())
+    {
+
+        QJsonObject dynamics = joint[JointKeys::JointDynamics].toObject();
+        QStandardItem *dynamicsItem = new QStandardItem(QIcon(":/Resources/Icons/settings.png"), JointKeys::JointDynamics);
+        dynamicsItem->setFlags(dynamicsItem->flags() & ~Qt::ItemIsEditable);
+
+        // Create a new non-editable item for the second column of the Joints item
+        QStandardItem *dynamicsNonEditableItem = new QStandardItem();
+        dynamicsNonEditableItem->setFlags(dynamicsNonEditableItem->flags() & ~Qt::ItemIsEditable);
+        singleJointItem->appendRow(QList<QStandardItem *>() << dynamicsItem << dynamicsNonEditableItem);
+
+        foreach (const QString &payloadKey, dynamics.keys())
+        {
+            QJsonObject payload = dynamics[payloadKey].toObject();
+            // Create generic function.
+            addDynamicsPayload(dynamicsItem, payloadKey, payload);
+        }
+    }
+
+    // Loading visualization
+    if (joint.contains(JointKeys::Visualization) && joint[JointKeys::Visualization].isString())
+    {
+        QString visualizationPath = joint[JointKeys::Visualization].toString();
+        QStandardItem *visualizationItem = new QStandardItem(QIcon(":/Resources/Icons/robot-dynamics.png"), JointKeys::Visualization);
+        visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
+        QStandardItem *visualizationPathItem = new QStandardItem(visualizationPath);
+        visualizationPathItem->setFlags(visualizationPathItem->flags() & ~Qt::ItemIsEditable);
+        singleJointItem->appendRow(QList<QStandardItem *>() << visualizationItem << visualizationPathItem);
+
+        if (!visualizationPath.isEmpty())
+        {
+            // Call the loadSingleObjFile function with the selected file path
+            QJsonObject jsonObject;
+            loadSingleObjFile(visualizationPath, jsonObject, rootEntity);
+        }
+    }
+}
+
+// This function will add the Payload in the TreeView.
+void MainWindow::addDynamicsPayload(QStandardItem *dynamicsItem, const QString &payloadKey, const QJsonObject &payload)
+{
+    QStandardItem *payloadItem = new QStandardItem(payloadKey);
+    payloadItem->setFlags(payloadItem->flags() & ~Qt::ItemIsEditable);
+    dynamicsItem->appendRow(payloadItem);
+
+    addItem(payloadItem, DynamicsKeys::TestPayload, payload[DynamicsKeys::TestPayload].toString());
+    addItem(payloadItem, DynamicsKeys::PayloadPercentage, payload[DynamicsKeys::PayloadPercentage].toString());
+    addItem(payloadItem, DynamicsKeys::RepeatabilityPercentage, payload[DynamicsKeys::RepeatabilityPercentage].toString());
+    addItem(payloadItem, DynamicsKeys::SpeedPercentage, payload[DynamicsKeys::SpeedPercentage].toString());
+    addItem(payloadItem, DynamicsKeys::BreakingDistance, payload[DynamicsKeys::BreakingDistance].toString());
+    addItem(payloadItem, DynamicsKeys::BreakingTime, payload[DynamicsKeys::BreakingTime].toString());
+}
+
+// Using this function to handle each row of the TreeView
+void MainWindow::addItem(QStandardItem *parent, const QString &key, const QVariant &value)
+{
+    QStandardItem *keyItem = new QStandardItem(key);
+    keyItem->setEditable(false);
+    QStandardItem *valueItem = new QStandardItem();
+    valueItem->setEditable(true);
+    valueItem->setData(value, Qt::DisplayRole);
+
+    parent->appendRow(QList<QStandardItem *>() << keyItem << valueItem);
+}
+
+// This function is used to add the ComboBox Item in the TreeView.
+void MainWindow::addComboBoxItem(QStandardItem *parent, const QString &key, const QString &value)
+{
+    QStandardItem *keyItem = new QStandardItem(key);
+    keyItem->setEditable(false);
+
+    // First Creating a QComboBox with the two options
+    QComboBox *comboBox = new QComboBox();
+    comboBox->addItem("Classic DH");
+    comboBox->addItem("Modified DH");
+
+    // Want to set default value to "Classic DH"
+    int index = comboBox->findText(value);
+    if (index != -1)
+    {
+        comboBox->setCurrentIndex(index);
+    }
+    else
+    {
+        comboBox->setCurrentIndex(0); // Default to "Classic DH"
+    }
+
+    // Now Create a QStandardItem to hold the QComboBox
+    QStandardItem *comboBoxItem = new QStandardItem();
+    comboBoxItem->setEditable(false);
+
+    parent->appendRow(QList<QStandardItem *>() << keyItem << comboBoxItem);
+
+    // Add the QComboBox to the tree view
+    // ui->treeView->setIndexWidget(model->indexFromItem(comboBoxItem), comboBox);
+
+    // Facing issue with loading the ComboBox in the TreeView, so for now i am not calling this function.
+    QModelIndex indexFromItem = parent->model()->indexFromItem(comboBoxItem);
+    qDebug() << "Adding QComboBox to index:" << indexFromItem;
+    ui->treeView->setIndexWidget(indexFromItem, comboBox);
+}
+
+/****************** Delete Section ******************/
 
 void MainWindow::deleteCurrentRobot()
 {
@@ -296,6 +550,11 @@ void MainWindow::deleteCurrentRobot()
         return;
     }
 
+    if (currentItem == activeRobotItem)
+    {
+        activeRobotItem = nullptr;
+    }
+
     // Remove the selected robot item
     model->removeRow(currentItem->row(), currentItem->parent() ? currentItem->parent()->index() : QModelIndex());
     qDebug() << "Deleted robot: " << currentItem->text();
@@ -317,7 +576,7 @@ void MainWindow::deleteCurrentJoint()
         return;
     }
 
-    //if (!currentItem->text().startsWith(JointKeys::Joint))
+    // if (!currentItem->text().startsWith(JointKeys::Joint))
     if (currentItem->text() != RobotKeys::Joints)
     {
         qWarning() << "Selected item is not a Joint item.";
@@ -328,6 +587,27 @@ void MainWindow::deleteCurrentJoint()
     int lastRow = currentItem->rowCount() - 1;
     if (lastRow >= 0)
     {
+        // First delete the OBJ file from the 3D scene
+        QStandardItem *jointItem = currentItem->child(lastRow);
+
+        // Access the JointVisualization item directly by its name
+        QStandardItem *visualizationItem = nullptr;
+        for (int i = 0; i < jointItem->rowCount(); ++i)
+        {
+            QStandardItem *childItem = jointItem->child(i, 0);
+            if (childItem && childItem->text() == JointKeys::Visualization)
+            {
+                visualizationItem = childItem;
+                break;
+            }
+        }
+
+        if (visualizationItem)
+        {
+            // Pass the JointVisualization item to deleteCurrentObjFile
+            deleteCurrentObjFile(visualizationItem);
+        }
+
         currentItem->removeRow(lastRow);
         qDebug() << "Deleted last child of joint: " << currentItem->text();
     }
@@ -350,13 +630,13 @@ void MainWindow::deleteCurrentPayload()
     }
 
     // Ensure the selected item is a Payload item
-    //if (!currentItem->text().startsWith(DynamicsKeys::Payload))
+    // if (!currentItem->text().startsWith(DynamicsKeys::Payload))
     if (currentItem->text() != JointKeys::JointDynamics)
     {
         qWarning() << "Selected item is not a Payload item.";
         return;
     }
-        // Get the last child of the selected joint
+    // Get the last child of the selected joint
     int lastRow = currentItem->rowCount() - 1;
     if (lastRow >= 0)
     {
@@ -365,9 +645,32 @@ void MainWindow::deleteCurrentPayload()
     }
 }
 
+// This function will delete the current OBJ file from the 3D scene
+void MainWindow::deleteCurrentObjFile(QStandardItem *currentItem)
+{
+    if (currentItem)
+    {
+        QStandardItem *filePathItem = model->itemFromIndex(currentItem->index().sibling(currentItem->row(), 1));
+        if (filePathItem)
+        {
+            QString filePath = filePathItem->text();
+            if (!filePath.isEmpty())
+            {
+                // Remove the entity from the 3D scene
+                if (entityMap.contains(filePath))
+                {
+                    Qt3DCore::QEntity *entity = entityMap[filePath];
+                    delete entity; // This removes the entity from the scene
+                    entityMap.remove(filePath);
+                    qDebug() << "Removed entity for OBJ file:" << filePath;
+                }
+            }
+        }
+    }
+}
 
+/****************** Show / Load Section ******************/
 
-/****************** Custom Function Implementation ******************/
 void MainWindow::showContextMenu(const QPoint &pos)
 {
     QModelIndex index = ui->treeView->indexAt(pos);
@@ -382,6 +685,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
     if (item->text() == RobotKeys::Robot)
     {
+        contextMenu.addAction("Set as Active Robot", this, SLOT(on_actionActiveRobot_triggered()));
         contextMenu.addAction("Save Robot", this, SLOT(on_actionSave_triggered()));
         contextMenu.addAction("New Robot", this, SLOT(on_actionNewRobot_triggered()));
         contextMenu.addAction("Open from Device...", this, SLOT(on_actionOpenFromDevice_triggered()));
@@ -397,6 +701,10 @@ void MainWindow::showContextMenu(const QPoint &pos)
         contextMenu.addAction("Add New Dynamics", this, SLOT(addNewDynamics()));
         contextMenu.addAction("Delete Last Dynamics", this, SLOT(deleteCurrentPayload()));
     }
+    else if (item->text() == JointKeys::Visualization)
+    {
+        contextMenu.addAction("Select OBJ File", this, SLOT(on_actionJointVisualization_triggered()));
+    }
 
     contextMenu.exec(ui->treeView->viewport()->mapToGlobal(pos));
 }
@@ -411,7 +719,7 @@ void MainWindow::loadTemplate()
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qWarning("Template file is missing. Please add the template file.");
-        templateObject = QJsonObject();  // Initialize an empty JSON object to avoid application crashing.
+        templateObject = QJsonObject(); // Initialize an empty JSON object to avoid application crashing.
         return;
     }
 
@@ -453,22 +761,28 @@ void MainWindow::populateTreeView(const QJsonObject &json)
     // qDebug() << robot;
     QStandardItem *robotItem = new QStandardItem(QIcon(":/Resources/Icons/robotic-arm.png"), RobotKeys::Robot);
     robotItem->setFlags(robotItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
-    // Set the font to bold
-    QFont font = robotItem->font();
-    font.setBold(true);
-    robotItem->setFont(font);
 
-    rootItem->appendRow(robotItem);
+    if (!activeRobotItem)
+    {
+        QFont font = robotItem->font();
+        font.setBold(true); // Set the font to bold for the first robot
+        robotItem->setFont(font);
+    }
+
+    // Create a non-editable item for the second column
+    QStandardItem *nonEditableItem = new QStandardItem();
+    nonEditableItem->setFlags(nonEditableItem->flags() & ~Qt::ItemIsEditable);
+    rootItem->appendRow(QList<QStandardItem *>() << robotItem << nonEditableItem);
 
     // Loading robot properties
     addItem(robotItem, RobotKeys::RobotName, robot[RobotKeys::RobotName].toString());
     addItem(robotItem, RobotKeys::RobotManufacturer, robot[RobotKeys::RobotManufacturer].toString());
-    addItem(robotItem, RobotKeys::RobotPayload, QString::number(robot[RobotKeys::RobotPayload].toDouble()));
-    addItem(robotItem, RobotKeys::RobotFootprint, QString::number(robot[RobotKeys::RobotFootprint].toDouble()));
-    addItem(robotItem, RobotKeys::RobotMaxReach, QString::number(robot[RobotKeys::RobotMaxReach].toDouble()));
-    addItem(robotItem, RobotKeys::RobotRepeatability, QString::number(robot[RobotKeys::RobotRepeatability].toDouble()));
-    addItem(robotItem, RobotKeys::RobotWeight, QString::number(robot[RobotKeys::RobotWeight].toDouble()));
-    addItem(robotItem, RobotKeys::DOF, QString::number(robot[RobotKeys::DOF].toInt()));
+    addItem(robotItem, RobotKeys::RobotPayload, robot[RobotKeys::RobotPayload].toString());
+    addItem(robotItem, RobotKeys::RobotFootprint, robot[RobotKeys::RobotFootprint].toString());
+    addItem(robotItem, RobotKeys::RobotMaxReach, robot[RobotKeys::RobotMaxReach].toString());
+    addItem(robotItem, RobotKeys::RobotRepeatability, robot[RobotKeys::RobotRepeatability].toString());
+    addItem(robotItem, RobotKeys::RobotWeight, robot[RobotKeys::RobotWeight].toString());
+    addItem(robotItem, RobotKeys::DOF, robot[RobotKeys::DOF].toString());
 
     // Loading joints
 
@@ -483,7 +797,11 @@ void MainWindow::populateTreeView(const QJsonObject &json)
     // qDebug() << joints;
     QStandardItem *jointsItem = new QStandardItem(QIcon(":/Resources/Icons/robot-joint.png"), RobotKeys::Joints);
     jointsItem->setFlags(jointsItem->flags() & ~Qt::ItemIsEditable);
-    robotItem->appendRow(jointsItem);
+
+    // Create a new non-editable item for the second column of the Joints item
+    QStandardItem *jointsNonEditableItem = new QStandardItem();
+    jointsNonEditableItem->setFlags(jointsNonEditableItem->flags() & ~Qt::ItemIsEditable);
+    robotItem->appendRow(QList<QStandardItem *>() << jointsItem << jointsNonEditableItem);
 
     foreach (const QString &jointKey, joints.keys())
     {
@@ -493,185 +811,18 @@ void MainWindow::populateTreeView(const QJsonObject &json)
 
     // Present the data in the view
     ui->treeView->setModel(model);
-    // expand the current item
-    ui->treeView->expandAll();
+
+    // Set the first robot as the active robot
+    if (!activeRobotItem)
+    {
+        activeRobotItem = robotItem;
+        ui->treeView->expandAll();
+    }
     ui->treeView->resizeColumnToContents(0);
     ui->treeView->resizeColumnToContents(1);
 }
 
-// This function will add the joint in the TreeView.
-void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, const QJsonObject &joint)
-{
-
-    QStandardItem *singleJointItem = new QStandardItem(JointKeys::JointName + ": " + joint[JointKeys::JointName].toString());
-    jointsItem->appendRow(singleJointItem);
-
-    addItem(singleJointItem, JointKeys::MotionRangeMax, QString::number(joint[JointKeys::MotionRangeMax].toDouble()));
-    addItem(singleJointItem, JointKeys::MotionRangeMin, QString::number(joint[JointKeys::MotionRangeMin].toDouble()));
-    addItem(singleJointItem, JointKeys::JointSpeedLimit, QString::number(joint[JointKeys::JointSpeedLimit].toDouble()));
-    addItem(singleJointItem, JointKeys::FrictionCoefficient, QString::number(joint[JointKeys::FrictionCoefficient].toDouble()));
-    addItem(singleJointItem, JointKeys::StiffnessCoefficient, QString::number(joint[JointKeys::StiffnessCoefficient].toDouble()));
-    addItem(singleJointItem, JointKeys::DampingCoefficient, QString::number(joint[JointKeys::DampingCoefficient].toDouble()));
-
-    // Loading kinematics
-    QJsonObject kinematics = joint[JointKeys::JointKinematics].toObject();
-    QStandardItem *kinematicsItem = new QStandardItem(JointKeys::JointKinematics);
-    kinematicsItem->setFlags(kinematicsItem->flags() & ~Qt::ItemIsEditable);
-    singleJointItem->appendRow(kinematicsItem);
-
-    if (kinematics.contains(KinematicsKeys::DhParameters) && kinematics[KinematicsKeys::DhParameters].isObject())
-    {
-
-        QJsonObject dhParameters = kinematics[KinematicsKeys::DhParameters].toObject();
-        QStandardItem *dhParametersItem = new QStandardItem(KinematicsKeys::DhParameters);
-        dhParametersItem->setFlags(dhParametersItem->flags() & ~Qt::ItemIsEditable);
-        kinematicsItem->appendRow(dhParametersItem);
-        addItem(dhParametersItem, DhParametersKeys::Alpha, QString::number(dhParameters[DhParametersKeys::Alpha].toDouble()));
-        addItem(dhParametersItem, DhParametersKeys::D, QString::number(dhParameters[DhParametersKeys::D].toDouble()));
-        addItem(dhParametersItem, DhParametersKeys::Theta, QString::number(dhParameters[DhParametersKeys::Theta].toDouble()));
-        addItem(dhParametersItem, DhParametersKeys::A, QString::number(dhParameters[DhParametersKeys::A].toDouble()));
-        // addComboBoxItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
-        addItem(dhParametersItem, DhParametersKeys::DHType, dhParameters[DhParametersKeys::DHType].toString());
-    }
-
-    if (kinematics.contains(KinematicsKeys::RotationalValues) && kinematics[KinematicsKeys::RotationalValues].isObject())
-    {
-        QJsonObject rotationalValues = kinematics[KinematicsKeys::RotationalValues].toObject();
-        QStandardItem *rotationalValuesItem = new QStandardItem(KinematicsKeys::RotationalValues);
-        rotationalValuesItem->setFlags(rotationalValuesItem->flags() & ~Qt::ItemIsEditable);
-        kinematicsItem->appendRow(rotationalValuesItem);
-        addItem(rotationalValuesItem, RotationalValuesKeys::Ixx, QString::number(rotationalValues[RotationalValuesKeys::Ixx].toDouble()));
-        addItem(rotationalValuesItem, RotationalValuesKeys::Ixy, QString::number(rotationalValues[RotationalValuesKeys::Ixy].toDouble()));
-        addItem(rotationalValuesItem, RotationalValuesKeys::Ixz, QString::number(rotationalValues[RotationalValuesKeys::Ixz].toDouble()));
-        addItem(rotationalValuesItem, RotationalValuesKeys::Iyy, QString::number(rotationalValues[RotationalValuesKeys::Iyy].toDouble()));
-        addItem(rotationalValuesItem, RotationalValuesKeys::Iyz, QString::number(rotationalValues[RotationalValuesKeys::Iyz].toDouble()));
-        addItem(rotationalValuesItem, RotationalValuesKeys::Izz, QString::number(rotationalValues[RotationalValuesKeys::Izz].toDouble()));
-    }
-
-    // Loading dynamics
-
-    if (joint.contains(JointKeys::JointDynamics) && joint[JointKeys::JointDynamics].isObject())
-    {
-
-        QJsonObject dynamics = joint[JointKeys::JointDynamics].toObject();
-        QStandardItem *dynamicsItem = new QStandardItem(QIcon(":/Resources/Icons/settings.png"), JointKeys::JointDynamics);
-        dynamicsItem->setFlags(dynamicsItem->flags() & ~Qt::ItemIsEditable);
-        singleJointItem->appendRow(dynamicsItem);
-
-        foreach (const QString &payloadKey, dynamics.keys())
-        {
-            QJsonObject payload = dynamics[payloadKey].toObject();
-            // Create generic function.
-            addDynamicsPayload(dynamicsItem, payloadKey, payload);
-        }
-    }
-
-    // Loading visualization
-    if (joint.contains(JointKeys::Visualization) && joint[JointKeys::Visualization].isObject())
-    {
-        QJsonObject visualization = joint[JointKeys::Visualization].toObject();
-        QStandardItem *visualizationItem = new QStandardItem(JointKeys::Visualization);
-        visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable);
-        singleJointItem->appendRow(visualizationItem);
-        addItem(visualizationItem, VisualizationKeys::PathToObjFile, visualization[VisualizationKeys::PathToObjFile].toString());
-        addItem(visualizationItem, VisualizationKeys::PathToMltFile, visualization[VisualizationKeys::PathToMltFile].toString());
-    }
-    // Add button to add OBJ and MTL files
-    // Not working so commented
-    // addButtonItem(visualizationItem, "Add Files");
-}
-
-// This function will add the Payload in the TreeView.
-void MainWindow::addDynamicsPayload(QStandardItem *dynamicsItem, const QString &payloadKey, const QJsonObject &payload)
-{
-    QStandardItem *payloadItem = new QStandardItem(payloadKey);
-    dynamicsItem->appendRow(payloadItem);
-
-    addItem(payloadItem, DynamicsKeys::TestPayload, QString::number(payload[DynamicsKeys::TestPayload].toDouble()));
-    addItem(payloadItem, DynamicsKeys::PayloadPercentage, QString::number(payload[DynamicsKeys::PayloadPercentage].toDouble()));
-    addItem(payloadItem, DynamicsKeys::RepeatabilityPercentage, QString::number(payload[DynamicsKeys::RepeatabilityPercentage].toDouble()));
-    addItem(payloadItem, DynamicsKeys::SpeedPercentage, QString::number(payload[DynamicsKeys::SpeedPercentage].toDouble()));
-    addItem(payloadItem, DynamicsKeys::BreakingDistance, QString::number(payload[DynamicsKeys::BreakingDistance].toDouble()));
-    addItem(payloadItem, DynamicsKeys::BreakingTime, QString::number(payload[DynamicsKeys::BreakingTime].toDouble()));
-}
-
-// Using this function to handle each row of the TreeView
-void MainWindow::addItem(QStandardItem *parent, const QString &key, const QString &value)
-{
-    QStandardItem *keyItem = new QStandardItem(key);
-    keyItem->setEditable(false);
-    QStandardItem *valueItem = new QStandardItem(value);
-    valueItem->setEditable(true);
-    parent->appendRow(QList<QStandardItem *>() << keyItem << valueItem);
-}
-
-// This function is used to add the ComboBox Item in the TreeView.
-void MainWindow::addComboBoxItem(QStandardItem *parent, const QString &key, const QString &value)
-{
-    QStandardItem *keyItem = new QStandardItem(key);
-    keyItem->setEditable(false);
-
-    // First Creating a QComboBox with the two options
-    QComboBox *comboBox = new QComboBox();
-    comboBox->addItem("Classic DH");
-    comboBox->addItem("Modified DH");
-
-    // Want to set default value to "Classic DH"
-    int index = comboBox->findText(value);
-    if (index != -1)
-    {
-        comboBox->setCurrentIndex(index);
-    }
-    else
-    {
-        comboBox->setCurrentIndex(0); // Default to "Classic DH"
-    }
-
-    // Now Create a QStandardItem to hold the QComboBox
-    QStandardItem *comboBoxItem = new QStandardItem();
-    comboBoxItem->setEditable(false);
-
-    parent->appendRow(QList<QStandardItem *>() << keyItem << comboBoxItem);
-
-    // Add the QComboBox to the tree view
-    // ui->treeView->setIndexWidget(model->indexFromItem(comboBoxItem), comboBox);
-
-    // Facing issue with loading the ComboBox in the TreeView, so for now i am not calling this function.
-    QModelIndex indexFromItem = parent->model()->indexFromItem(comboBoxItem);
-    qDebug() << "Adding QComboBox to index:" << indexFromItem;
-    ui->treeView->setIndexWidget(indexFromItem, comboBox);
-}
-
-void MainWindow::addButtonItem(QStandardItem *parent, const QString &buttonText)
-{
-    QStandardItem *buttonItem = new QStandardItem(buttonText);
-    buttonItem->setEditable(false);
-
-    parent->appendRow(buttonItem);
-
-    QPushButton *button = new QPushButton(buttonText);
-    QModelIndex index = parent->model()->indexFromItem(buttonItem);
-    ui->treeView->setIndexWidget(index, button);
-
-    connect(button, &QPushButton::clicked, this, &MainWindow::onAddFilesButtonClicked);
-}
-
-void MainWindow::onAddFilesButtonClicked()
-{
-    QString objFilePath = QFileDialog::getOpenFileName(this, "Select OBJ File", "", "OBJ Files (*.obj)");
-    if (!objFilePath.isEmpty())
-    {
-        QString mtlFilePath = QFileDialog::getOpenFileName(this, "Select MTL File", "", "MTL Files (*.mtl)");
-        if (!mtlFilePath.isEmpty())
-        {
-            // Handle the selected OBJ and MTL file paths
-            qDebug() << "Selected OBJ File:" << objFilePath;
-            qDebug() << "Selected MTL File:" << mtlFilePath;
-
-            // Update the model with the selected file paths
-        }
-    }
-}
+/****************** JSON Related Function Implementation ******************/
 
 // Now trickies part starts with saving JSON in such a way that I can access it later on and able to load the data in TreeView.
 // Not to make any mistake with structure, otherwise it will be surprice for you on loading data.
@@ -700,7 +851,7 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
                 else
                 {
                     QStandardItem *valueItem = robotItem->child(j, 1);
-                    robotObject[propertyItem->text()] = convertValueToString(valueItem);
+                    robotObject[propertyItem->text()] = valueItem ? QJsonValue::fromVariant(valueItem->data(Qt::DisplayRole)) : QJsonValue("");
                 }
             }
         }
@@ -718,11 +869,9 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
                 // Also declare the inner objects and pointers here
                 QStandardItem *kinematicsItem = nullptr;
                 QStandardItem *dynamicsItem = nullptr;
-                QStandardItem *visualizationItem = nullptr;
 
                 QJsonObject kinematicsObject;
                 QJsonObject dynamicsObject;
-                QJsonObject visualizationObject;
 
                 // Its better to handle all the inner structure like kinematics, dynamics and visualization of singleJointItem separately.
                 for (int k = 0; k < singleJointItem->rowCount(); ++k)
@@ -742,13 +891,9 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
                         {
                             dynamicsItem = singleJointItem->child(k);
                         }
-                        else if (propertyItem->text() == JointKeys::Visualization)
-                        {
-                            visualizationItem = singleJointItem->child(k);
-                        }
                         else
                         {
-                            singleJointObject[propertyItem->text()] = convertValueToString(valueItem);
+                            singleJointObject[propertyItem->text()] = valueItem ? QJsonValue::fromVariant(valueItem->data(Qt::DisplayRole)) : QJsonValue("");
                         }
                     }
                 }
@@ -777,8 +922,21 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
 
                                         if (propertyItem)
                                         {
-                                            // Call the generic function to convert the item to JSON
-                                            dhParametersObject[propertyItem->text()] = convertValueToString(valueItem);
+                                            // Need to pick DH Type from ComboBox
+                                            if (propertyItem->text() == DhParametersKeys::DHType)
+                                            {
+                                                QModelIndex index = model->indexFromItem(valueItem);
+                                                QComboBox *comboBox = qobject_cast<QComboBox *>(ui->treeView->indexWidget(index));
+                                                if (comboBox)
+                                                {
+                                                    dhParametersObject[propertyItem->text()] = comboBox->currentText();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                // Call the generic function to convert the item to JSON
+                                                dhParametersObject[propertyItem->text()] = valueItem ? QJsonValue::fromVariant(valueItem->data(Qt::DisplayRole)) : QJsonValue("");
+                                            }
                                         }
                                     }
                                     kinematicsObject[KinematicsKeys::DhParameters] = dhParametersObject;
@@ -800,7 +958,7 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
                                         if (propertyItem)
                                         {
                                             // Call the generic function to convert the item to JSON
-                                            rotationalValuesObject[propertyItem->text()] = convertValueToString(valueItem);
+                                            rotationalValuesObject[propertyItem->text()] = valueItem ? QJsonValue::fromVariant(valueItem->data(Qt::DisplayRole)) : QJsonValue("");
                                         }
                                     }
                                     kinematicsObject[KinematicsKeys::RotationalValues] = rotationalValuesObject;
@@ -808,7 +966,7 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
                             }
                             else
                             {
-                                kinematicsObject[propertyItem->text()] = convertValueToString(valueItem);
+                                kinematicsObject[propertyItem->text()] = valueItem ? QJsonValue::fromVariant(valueItem->data(Qt::DisplayRole)) : QJsonValue("");
                             }
                         }
                     }
@@ -832,27 +990,12 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
                             if (propertyItem)
                             {
                                 // Call the generic function to convert the item to JSON
-                                payloadObject[propertyItem->text()] = convertValueToString(valueItem);
+                                payloadObject[propertyItem->text()] = valueItem ? QJsonValue::fromVariant(valueItem->data(Qt::DisplayRole)) : QJsonValue("");
                             }
                         }
                         dynamicsObject[payloadItem->text()] = payloadObject;
                     }
                     singleJointObject[JointKeys::JointDynamics] = dynamicsObject;
-                }
-
-                // Now we will process the VisualizationItem
-                if (visualizationItem)
-                {
-                    for (int k = 0; k < visualizationItem->rowCount(); ++k)
-                    {
-                        QStandardItem *propertyItem = visualizationItem->child(k, 0);
-                        QStandardItem *valueItem = visualizationItem->child(k, 1);
-                        if (propertyItem)
-                        {
-                            visualizationObject[propertyItem->text()] = valueItem ? valueItem->text() : "";
-                        }
-                    }
-                    singleJointObject[JointKeys::Visualization] = visualizationObject;
                 }
                 jointsObject[singleJointItem->text()] = singleJointObject;
             }
@@ -863,43 +1006,9 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
 
     // print json data in proper format.
 
-
     qDebug() << "JSON Data : " << json;
 
     return json;
-}
-
-QString MainWindow::convertValueToString(QStandardItem *valueItem)
-{
-    QString value;
-
-    if (valueItem)
-    {
-        bool ok;
-        double doubleValue = valueItem->text().toDouble(&ok);
-        if (ok)
-        {
-            value = QString::number(doubleValue);
-        }
-        else
-        {
-            int intValue = valueItem->text().toInt(&ok);
-            if (ok)
-            {
-                value = QString::number(intValue);
-            }
-            else
-            {
-                value = valueItem->text();
-            }
-        }
-    }
-    else
-    {
-        value = "";
-    }
-
-    return value;
 }
 
 void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
@@ -933,6 +1042,8 @@ void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
         }
     }
 }
+
+/****************** 3D Related Function Implementation ******************/
 
 // Setup the Main Playground for 3D Viewer
 // This function will setup the 3D Playground for the Robot Model Visualization.
@@ -990,9 +1101,24 @@ void MainWindow::setup3DPlayground()
 // This function will load the 3D Model from the Resources and add it to the Scene.
 void MainWindow::load3DModel()
 {
-    // Load the Mesh files from the Resources
-    QString resourcesDir = ":/Resources/Models/Robot2";
-    loadObjFiles(resourcesDir, rootEntity);
+    if (!activeRobotItem)
+    {
+        qWarning() << "No active robot item to load 3D model.";
+        return;
+    }
+
+    // Get the file paths from joint visualizations
+    QStringList filePaths = collectVisualizationPaths(activeRobotItem);
+
+    // Remove the existing 3D model
+    remove3DModel();
+
+    // Load the collected OBJ files
+    for (const QString &filePath : filePaths)
+    {
+        QJsonObject jsonObject;
+        loadSingleObjFile(filePath, jsonObject, rootEntity);
+    }
 
     // Set the root Entity
     view->setRootEntity(rootEntity);
@@ -1003,7 +1129,11 @@ void MainWindow::load3DModel()
 void MainWindow::remove3DModel()
 {
     // Remove the root entity
-    view->setRootEntity(nullptr);
+    for (auto entity : rootEntity->children())
+    {
+        delete entity;
+    }
+    entityMap.clear();
 }
 
 // Load the Mesh files from the Resources
@@ -1042,105 +1172,101 @@ void MainWindow::loadObjFiles(const QString &directoryPath, Qt3DCore::QEntity *r
     for (const QFileInfo &fileInfo : fileList)
     {
         const QString &filePath = fileInfo.absoluteFilePath();
-        QString geometryName = fileInfo.baseName(); // Get the base name without the file extension
+        loadSingleObjFile(filePath, jsonObject, rootEntity);
+    }
+}
 
-        // Create an entity to hold the 3D model
-        Qt3DCore::QEntity *entity = new Qt3DCore::QEntity(rootEntity);
+// This function will load the single OBJ file and add it to the Scene.
+void MainWindow::loadSingleObjFile(const QString &filePath, const QJsonObject &jsonObject, Qt3DCore::QEntity *rootEntity)
+{
+    QString geometryName = QFileInfo(filePath).baseName(); // Get the base name without the file extension
 
-        // Load the OBJ file
-        Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
-        mesh->setSource(QUrl::fromLocalFile(filePath)); // Ensure this loads the .obj file with .mtl references
+    // Create an entity to hold the 3D model
+    Qt3DCore::QEntity *entity = new Qt3DCore::QEntity(rootEntity);
 
-        // Apply transformations (translation, rotation)
-        Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
+    // Load the OBJ file
+    Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
+    mesh->setSource(QUrl::fromLocalFile(filePath)); // Ensure this loads the .obj file with .mtl references
 
-        // Check if the JSON object contains transformation data for this geometry
+    // Apply transformations (translation, rotation)
+    Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
 
-        if (!jsonObject.isEmpty() && jsonObject.contains(geometryName))
+    // Check if the JSON object contains transformation data for this geometry
+    if (!jsonObject.isEmpty() && jsonObject.contains(geometryName))
+    {
+        QJsonObject geomData = jsonObject.value(geometryName).toObject();
+
+        // Extract translation and rotation values
+        float Tx = geomData.value("Tx").toDouble();
+        float Tz = geomData.value("Tz").toDouble();
+        float Rx = geomData.value("Rx").toDouble();
+        float Rz = geomData.value("Rz").toDouble();
+
+        // Set the translation and rotation values
+        // transform->setTranslation(QVector3D(Tx, 0.0f, Tz));
+        transform->setRotationX(Rx);
+        transform->setRotationZ(Rz);
+    }
+    else
+    {
+        // Default transformations if no data in JSON
+        transform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
+        transform->setRotationX(0.0f);
+        transform->setRotationZ(0.0f);
+    }
+
+    transform->setScale(0.1f); // Example scale
+
+    // Create a material to hold the properties from the MTL file
+    Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial();
+
+    // Check for the existence of the corresponding MTL file
+    QString mtlFilePath = QFileInfo(filePath).absolutePath() + "/" + geometryName + ".obj.mtl";
+    QFile mtlFile(mtlFilePath);
+    if (mtlFile.exists())
+    {
+        // Load the MTL file
+        QColor ambientColor, diffuseColor, specularColor;
+        float shininess = 0.0f, transparency = 0.0f;
+        int illumModel = 2; // Default illumination model to Phong
+
+        if (parseMtlFile(mtlFilePath, ambientColor, diffuseColor, specularColor, shininess, transparency, illumModel))
         {
+            material->setAmbient(ambientColor);
+            material->setDiffuse(diffuseColor);
+            material->setSpecular(specularColor);
+            material->setShininess(shininess);
 
-            QJsonObject geomData = jsonObject.value(geometryName).toObject();
-
-            // Extract translation and rotation values
-
-            float Tx = geomData.value("Tx").toDouble();
-
-            float Tz = geomData.value("Tz").toDouble();
-
-            float Rx = geomData.value("Rx").toDouble();
-
-            float Rz = geomData.value("Rz").toDouble();
-
-            // Set the translation and rotation values
-
-            // transform->setTranslation(QVector3D(Tx, 0.0f, Tz));
-
-            transform->setRotationX(Rx);
-
-            transform->setRotationZ(Rz);
+            // Handle transparency by adjusting the alpha channel
+            QColor diffuseWithAlpha = diffuseColor;
+            diffuseWithAlpha.setAlphaF(1.0f - transparency); // Adjust alpha based on transparency
+            material->setDiffuse(diffuseWithAlpha);
         }
         else
         {
-
-            // Default transformations if no data in JSON
-
-            transform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
-
-            transform->setRotationX(0.0f);
-
-            transform->setRotationZ(0.0f);
-        }
-
-        transform->setScale(0.1f); // Example scale
-
-        // Create a material to hold the properties from the MTL file
-        Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial();
-
-        // Check for the existence of the corresponding MTL file
-        QString mtlFilePath = QFileInfo(filePath).absolutePath() + "/" + geometryName + ".obj.mtl";
-        QFile mtlFile(mtlFilePath);
-        if (mtlFile.exists())
-        {
-            // Load the MTL file
-            QColor ambientColor, diffuseColor, specularColor;
-            float shininess = 0.0f, transparency = 0.0f;
-            int illumModel = 2; // Default illumination model to Phong
-
-            if (parseMtlFile(mtlFilePath, ambientColor, diffuseColor, specularColor, shininess, transparency, illumModel))
-            {
-                material->setAmbient(ambientColor);
-                material->setDiffuse(diffuseColor);
-                material->setSpecular(specularColor);
-                material->setShininess(shininess);
-
-                // Handle transparency by adjusting the alpha channel
-                QColor diffuseWithAlpha = diffuseColor;
-                diffuseWithAlpha.setAlphaF(1.0f - transparency); // Adjust alpha based on transparency
-                material->setDiffuse(diffuseWithAlpha);
-            }
-            else
-            {
-                // Set a default material if parsing fails
-                material->setAmbient(QColor::fromRgbF(0.2, 0.2, 0.2));
-                material->setDiffuse(QColor::fromRgbF(0.498039, 0.498039, 0.498039));
-                material->setSpecular(QColor::fromRgbF(1.0, 1.0, 1.0));
-                material->setShininess(0.0);
-            }
-        }
-        else
-        {
-            // Set a default material if MTL file does not exist
+            // Set a default material if parsing fails
             material->setAmbient(QColor::fromRgbF(0.2, 0.2, 0.2));
             material->setDiffuse(QColor::fromRgbF(0.498039, 0.498039, 0.498039));
             material->setSpecular(QColor::fromRgbF(1.0, 1.0, 1.0));
             material->setShininess(0.0);
         }
-
-        // Add the components (mesh, transformation, material) to the entity
-        entity->addComponent(mesh);
-        entity->addComponent(transform);
-        entity->addComponent(material);
     }
+    else
+    {
+        // Set a default material if MTL file does not exist
+        material->setAmbient(QColor::fromRgbF(0.2, 0.2, 0.2));
+        material->setDiffuse(QColor::fromRgbF(0.498039, 0.498039, 0.498039));
+        material->setSpecular(QColor::fromRgbF(1.0, 1.0, 1.0));
+        material->setShininess(0.0);
+    }
+
+    // Add the components (mesh, transformation, material) to the entity
+    entity->addComponent(mesh);
+    entity->addComponent(transform);
+    entity->addComponent(material);
+
+    // Store the entity in the map so that we can delete them later.
+    entityMap[filePath] = entity;
 }
 
 // Sample function to parse the MTL file and return colors
@@ -1214,4 +1340,80 @@ void MainWindow::updateRotation()
             }
         }
     }
+}
+
+/****************** Utility Function Implementation ******************/
+
+// This function will check if the current robot is active or not.
+bool MainWindow::isCurrentRobotActive()
+{
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
+    {
+        return false;
+    }
+
+    QStandardItem *currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem)
+    {
+        return false;
+    }
+
+    // Check if the current item is the active robot item
+    return currentItem == activeRobotItem;
+}
+
+// This function will return the parent Robot item of the selected item.
+QStandardItem *MainWindow::getParentRobotItem(QStandardItem *item)
+{
+    while (item)
+    {
+        if (item->text() == RobotKeys::Robot)
+        {
+            return item;
+        }
+        item = item->parent();
+    }
+    return nullptr;
+}
+
+// This function will return the path of the visualization files for the selected robot.
+QStringList MainWindow::collectVisualizationPaths(QStandardItem *robotItem)
+{
+    QStringList filePaths;
+
+    if (!robotItem)
+    {
+        return filePaths;
+    }
+
+    for (int i = 0; i < robotItem->rowCount(); ++i)
+    {
+        QStandardItem *jointsItem = robotItem->child(i);
+        if (jointsItem && jointsItem->text() == RobotKeys::Joints)
+        {
+            for (int j = 0; j < jointsItem->rowCount(); ++j)
+            {
+                QStandardItem *singleJointItem = jointsItem->child(j);
+                for (int k = 0; k < singleJointItem->rowCount(); ++k)
+                {
+                    QStandardItem *visualizationItem = singleJointItem->child(k, 0);
+                    if (visualizationItem && visualizationItem->text() == JointKeys::Visualization)
+                    {
+                        QStandardItem *filePathItem = singleJointItem->child(k, 1);
+                        if (filePathItem)
+                        {
+                            QString filePath = filePathItem->text();
+                            if (!filePath.isEmpty())
+                            {
+                                filePaths.append(filePath);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return filePaths;
 }
