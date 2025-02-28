@@ -1,10 +1,8 @@
 #include "joint.h"
 
-#include <string>
-
 using namespace std;
 
-Joint::Joint(const string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient)
+Joint::Joint(const string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient, const string &visualization)
     : name(name),
       motionRangeMin(motionRangeMin),
       motionRangeMax(motionRangeMax),
@@ -12,14 +10,10 @@ Joint::Joint(const string &name, double motionRangeMin, double motionRangeMax, d
       frictionCoefficient(frictionCoefficient),
       stiffnessCoefficient(stiffnessCoefficient),
       dampingCoefficient(dampingCoefficient),
-
-      kinematics(nullptr),
-      visualization(nullptr)
+      visualization(visualization)
 {
 }
 
 Joint::~Joint()
 {
-    delete kinematics;
-    delete visualization;
 }

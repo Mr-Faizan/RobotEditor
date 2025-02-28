@@ -2,6 +2,8 @@
 #define ROBOT_H
 
 #include <string>
+#include <vector>
+#include "joint.h"
 
 using namespace std;
 
@@ -21,7 +23,6 @@ class Robot
 {
 
 private:
-    int id; // Unique ID for each Robot.
     string name;
     string manufacturer;
     double payload;
@@ -30,6 +31,7 @@ private:
     double repeatability;
     double weight;
     int dof;
+    std::vector<Joint> joints;
 
 public:
     Robot() = default;
@@ -41,7 +43,6 @@ public:
     ~Robot();
 
     // Setters
-    void setId(int id) { this->id = id; }
     void setName(const string &name) { this->name = name; }
     void setManufacturer(const string &manufacturer) { this->manufacturer = manufacturer; }
     void setPayload(double payload) { this->payload = payload; }
@@ -50,9 +51,9 @@ public:
     void setRepeatability(double repeatability) { this->repeatability = repeatability; }
     void setWeight(double weight) { this->weight = weight; }
     void setDof(int dof) { this->dof = dof; }
+    void addJoint(const Joint &joint) { joints.push_back(joint);}
 
     // Getters
-    int getId() const { return id; }
     string getName() const { return name; }
     string getManufacturer() const { return manufacturer; }
     double getPayload() const { return payload; }
@@ -61,6 +62,7 @@ public:
     double getRepeatability() const { return repeatability; }
     double getWeight() const { return weight; }
     int getDof() const { return dof; }
+    const std::vector<Joint>& getJoints() const { return joints; }
 };
 
 #endif // ROBOT_H

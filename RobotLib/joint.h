@@ -5,7 +5,6 @@
 #include <vector>
 #include "dynamics.h"
 #include "kinematics.h"
-#include "visualization.h"
 
 using namespace std;
 
@@ -19,10 +18,9 @@ private:
     double frictionCoefficient;
     double stiffnessCoefficient;
     double dampingCoefficient;
-
+    string visualization;
+    JointKinematics kinematics;
     vector<JointDynamics> dynamics; // Container for multiple JointDynamics objects
-    Kinematics *kinematics;
-    Visualization *visualization;
 
 public:
     Joint() = default;
@@ -37,6 +35,9 @@ public:
     void setFrictionCoefficient(double friction) { this->frictionCoefficient = friction; }
     void setStiffnessCoefficient(double stiffness) { this->stiffnessCoefficient = stiffness; }
     void setDampingCoefficient(double damping) { this->dampingCoefficient = damping; }
+    void setVisualization(const string &visualization) { this->visualization = visualization; }
+    void setKinematics(const JointKinematics &kinematics) { this->kinematics = kinematics; }
+    void setDynamics(const JointDynamics &dynamics) { this->dynamics.push_back(dynamics); }
 
     // Getters
     string getName() const { return name; }
@@ -46,6 +47,9 @@ public:
     double getFrictionCoefficient() const { return frictionCoefficient; }
     double getStiffnessCoefficient() const { return stiffnessCoefficient; }
     double getDampingCoefficient() const { return dampingCoefficient; }
+    string getVisualization() const { return visualization; }
+    JointKinematics getKinematics() const { return kinematics; }
+    vector<JointDynamics> getDynamics() const { return dynamics; }
 };
 
 #endif // JOINT_H
