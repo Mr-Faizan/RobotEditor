@@ -27,6 +27,8 @@ add_library(RobotLib SHARED
   dynamics.h
   visualization.cpp
   visualization.h
+  robotlib_test.h robotlib_test.cpp
+  main.cpp
 )
 
 target_link_libraries(RobotLib PRIVATE Qt${QT_VERSION_MAJOR}::Core)

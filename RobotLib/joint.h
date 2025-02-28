@@ -3,8 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "dynamics.h"
-#include "kinematics.h"
+#include <dynamics.h>
+#include <kinematics.h>
 
 using namespace std;
 
@@ -24,7 +24,8 @@ private:
 
 public:
     Joint() = default;
-    Joint(const string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient);
+    Joint(const string &name) : name(name), motionRangeMin(0), motionRangeMax(0), jointSpeedLimit(0), frictionCoefficient(0), stiffnessCoefficient(0), dampingCoefficient(0) {}
+    Joint(const string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient, const string &visualization);
     ~Joint();
 
     // Setters

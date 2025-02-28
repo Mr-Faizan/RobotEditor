@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "joint.h"
+#include <joint.h>
 
 using namespace std;
 
@@ -36,8 +36,10 @@ private:
 public:
     Robot() = default;
 
+    Robot(const std::string &name);
+
     // Implement Constructor Overloading for easy initialization of the Robot.
-    Robot(int id, const string &name, const string &manufacturer, double payload, double footPrint, double maxReach, double repeatability, double weight, int dof);
+    Robot(const string &name, const string &manufacturer, double payload, double footPrint, double maxReach, double repeatability, double weight, int dof);
 
     // Implement Destructor for the Robot.
     ~Robot();

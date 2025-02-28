@@ -36,9 +36,29 @@ public:
         double d;
         double theta;
         double a;
+        string dhType;
+        bool modifiedDh;
 
-        DHParameters()
-            : alpha(0.0), d(0.0), theta(0.0), a(0.0) {}
+        DHParameters() = default;
+
+        DHParameters(double alpha, double d, double theta, double a, const string &dhType, bool modifiedDh)
+            : alpha(alpha), d(d), theta(theta), a(a), dhType(dhType), modifiedDh(modifiedDh) {}
+
+        // Getters
+        double getAlpha() const { return alpha; }
+        double getD() const { return d; }
+        double getTheta() const { return theta; }
+        double getA() const { return a; }
+        string getDhType() const { return dhType; }
+        bool isModifiedDh() const { return modifiedDh; }
+
+        // Setters
+        void setAlpha(double alpha) { this->alpha = alpha; }
+        void setD(double d) { this->d = d; }
+        void setTheta(double theta) { this->theta = theta; }
+        void setA(double a) { this->a = a; }
+        void setDhType(const string &dhType) { this->dhType = dhType; }
+        void setModifiedDh(bool modifiedDh) { this->modifiedDh = modifiedDh; }
     };
 
     // Rotational Values Structure
@@ -51,8 +71,26 @@ public:
         double iyz;
         double izz;
 
-        RotationalValues()
-            : ixx(0.0), ixy(0.0), ixz(0.0), iyy(0.0), iyz(0.0), izz(0.0) {}
+        RotationalValues() = default;
+
+        RotationalValues(double ixx, double ixy, double ixz, double iyy, double iyz, double izz)
+            : ixx(ixx), ixy(ixy), ixz(ixz), iyy(iyy), iyz(iyz), izz(izz) {}
+
+        // Getters
+        double getIxx() const { return ixx; }
+        double getIxy() const { return ixy; }
+        double getIxz() const { return ixz; }
+        double getIyy() const { return iyy; }
+        double getIyz() const { return iyz; }
+        double getIzz() const { return izz; }
+
+        // Setters
+        void setIxx(double ixx) { this->ixx = ixx; }
+        void setIxy(double ixy) { this->ixy = ixy; }
+        void setIxz(double ixz) { this->ixz = ixz; }
+        void setIyy(double iyy) { this->iyy = iyy; }
+        void setIyz(double iyz) { this->iyz = iyz; }
+        void setIzz(double izz) { this->izz = izz; }
     };
 
 private:

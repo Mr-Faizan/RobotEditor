@@ -1,6 +1,5 @@
 #include "robotlib.h"
 
-using json = nlohmann::json;
 
 RobotLib::RobotLib() {}
 
@@ -44,41 +43,53 @@ bool RobotLib::loadFromJson(const std::string &filePath) {
         Robot robot(robotJson["name"]);
         robot.setManufacturer(robotJson["manufacturer"]);
         robot.setPayload(robotJson["payload"]);
-        robot.setFootprint(robotJson["footprint"]);
+        robot.setFootPrint(robotJson["footprint"]);
         robot.setMaxReach(robotJson["maxReach"]);
         robot.setRepeatability(robotJson["repeatability"]);
         robot.setWeight(robotJson["weight"]);
-        robot.setDOF(robotJson["dof"]);
+        robot.setDof(robotJson["dof"]);
 
         for (const auto &jointJson : robotJson["joints"]) {
             Joint joint(jointJson["name"]);
             joint.setMotionRangeMax(jointJson["motionRangeMax"]);
             joint.setMotionRangeMin(jointJson["motionRangeMin"]);
-            joint.setSpeedLimit(jointJson["speedLimit"]);
+            joint.setJointSpeedLimit(jointJson["speedLimit"]);
             joint.setFrictionCoefficient(jointJson["frictionCoefficient"]);
             joint.setStiffnessCoefficient(jointJson["stiffnessCoefficient"]);
             joint.setDampingCoefficient(jointJson["dampingCoefficient"]);
+            joint.setVisualization(jointJson["visualization"]);
 
-            Kinematics kinematics;
-            kinematics.setAlpha(jointJson["kinematics"]["alpha"]);
-            kinematics.setD(jointJson["kinematics"]["d"]);
-            kinematics.setTheta(jointJson["kinematics"]["theta"]);
-            kinematics.setA(jointJson["kinematics"]["a"]);
-            kinematics.setDHType(jointJson["kinematics"]["dhType"]);
+            JointKinematics kinematics;
+            JointKinematics::DHParameters dhParameters;
+            dhParameters.setAlpha(jointJson["kinematics"]["dhParameters"]["alpha"]);
+            dhParameters.setD(jointJson["kinematics"]["dhParameters"]["d"]);
+            dhParameters.setTheta(jointJson["kinematics"]["dhParameters"]["theta"]);
+            dhParameters.setA(jointJson["kinematics"]["dhParameters"]["a"]);
+            kinematics.setDhParameters(dhParameters);
+
+            JointKinematics::RotationalValues rotationalValues;
+            rotationalValues.setIxx(jointJson["kinematics"]["rotationalValues"]["ixx"]);
+            rotationalValues.setIxy(jointJson["kinematics"]["rotationalValues"]["ixy"]);
+            rotationalValues.setIxz(jointJson["kinematics"]["rotationalValues"]["ixz"]);
+            rotationalValues.setIyy(jointJson["kinematics"]["rotationalValues"]["iyy"]);
+            rotationalValues.setIyz(jointJson["kinematics"]["rotationalValues"]["iyz"]);
+            rotationalValues.setIzz(jointJson["kinematics"]["rotationalValues"]["izz"]);
+            kinematics.setRotationalValues(rotationalValues);
+
+            kinematics.setDhType(jointJson["kinematics"]["dhType"]);
+            kinematics.setModifiedDh(jointJson["kinematics"]["modifiedDh"]);
             joint.setKinematics(kinematics);
 
-            Dynamics dynamics;
+            JointDynamics dynamics;
             dynamics.setTestPayload(jointJson["dynamics"]["testPayload"]);
             dynamics.setPayloadPercentage(jointJson["dynamics"]["payloadPercentage"]);
-            dynamics.setRepeatabilityPercentage(jointJson["dynamics"]["repeatabilityPercentage"]);
+            dynamics.setReachabilityPercentage(jointJson["dynamics"]["reachabilityPercentage"]);
             dynamics.setSpeedPercentage(jointJson["dynamics"]["speedPercentage"]);
             dynamics.setBreakingDistance(jointJson["dynamics"]["breakingDistance"]);
             dynamics.setBreakingTime(jointJson["dynamics"]["breakingTime"]);
             joint.setDynamics(dynamics);
 
-            Visualization visualization;
-            visualization.setFilePath(jointJson["visualization"]["filePath"]);
-            joint.setVisualization(visualization);
+
 
             robot.addJoint(joint);
         }
@@ -101,36 +112,46 @@ bool RobotLib::saveToJson(const std::string &filePath) const {
         robotJson["name"] = robot.getName();
         robotJson["manufacturer"] = robot.getManufacturer();
         robotJson["payload"] = robot.getPayload();
-        robotJson["footprint"] = robot.getFootprint();
+        robotJson["footprint"] = robot.getFootPrint();
         robotJson["maxReach"] = robot.getMaxReach();
         robotJson["repeatability"] = robot.getRepeatability();
         robotJson["weight"] = robot.getWeight();
-        robotJson["dof"] = robot.getDOF();
+        robotJson["dof"] = robot.getDof();
 
         for (const auto &joint : robot.getJoints()) {
             json jointJson;
             jointJson["name"] = joint.getName();
             jointJson["motionRangeMax"] = joint.getMotionRangeMax();
             jointJson["motionRangeMin"] = joint.getMotionRangeMin();
-            jointJson["speedLimit"] = joint.getSpeedLimit();
+            jointJson["speedLimit"] = joint.getJointSpeedLimit();
             jointJson["frictionCoefficient"] = joint.getFrictionCoefficient();
             jointJson["stiffnessCoefficient"] = joint.getStiffnessCoefficient();
             jointJson["dampingCoefficient"] = joint.getDampingCoefficient();
 
-            jointJson["kinematics"]["alpha"] = joint.getKinematics().getAlpha();
-            jointJson["kinematics"]["d"] = joint.getKinematics().getD();
-            jointJson["kinematics"]["theta"] = joint.getKinematics().getTheta();
-            jointJson["kinematics"]["a"] = joint.getKinematics().getA();
-            jointJson["kinematics"]["dhType"] = joint.getKinematics().getDHType();
+            jointJson["kinematics"]["dhParameters"]["alpha"] = joint.getKinematics().getDhParameters().getAlpha();
+            jointJson["kinematics"]["dhParameters"]["d"] = joint.getKinematics().getDhParameters().getD();
+            jointJson["kinematics"]["dhParameters"]["theta"] = joint.getKinematics().getDhParameters().getTheta();
+            jointJson["kinematics"]["dhParameters"]["a"] = joint.getKinematics().getDhParameters().getA();
+            jointJson["kinematics"]["dhParameters"]["dhType"] = joint.getKinematics().getDhParameters().getDhType();
+            jointJson["kinematics"]["dhParameters"]["modifiedDh"] = joint.getKinematics().getDhParameters().isModifiedDh();
 
-            jointJson["dynamics"]["testPayload"] = joint.getDynamics().getTestPayload();
-            jointJson["dynamics"]["payloadPercentage"] = joint.getDynamics().getPayloadPercentage();
-            jointJson["dynamics"]["repeatabilityPercentage"] = joint.getDynamics().getRepeatabilityPercentage();
-            jointJson["dynamics"]["speedPercentage"] = joint.getDynamics().getSpeedPercentage();
-            jointJson["dynamics"]["breakingDistance"] = joint.getDynamics().getBreakingDistance();
-            jointJson["dynamics"]["breakingTime"] = joint.getDynamics().getBreakingTime();
+            jointJson["kinematics"]["rotationalValues"]["ixx"] = joint.getKinematics().getRotationalValues().getIxx();
+            jointJson["kinematics"]["rotationalValues"]["ixy"] = joint.getKinematics().getRotationalValues().getIxy();
+            jointJson["kinematics"]["rotationalValues"]["ixz"] = joint.getKinematics().getRotationalValues().getIxz();
+            jointJson["kinematics"]["rotationalValues"]["iyy"] = joint.getKinematics().getRotationalValues().getIyy();
+            jointJson["kinematics"]["rotationalValues"]["iyz"] = joint.getKinematics().getRotationalValues().getIyz();
+            jointJson["kinematics"]["rotationalValues"]["izz"] = joint.getKinematics().getRotationalValues().getIzz();
 
-            jointJson["visualization"]["filePath"] = joint.getVisualization().getFilePath();
+            for (const auto &dynamics : joint.getDynamics()) {
+                json dynamicsJson;
+                dynamicsJson["testPayload"] = dynamics.getTestPayload();
+                dynamicsJson["payloadPercentage"] = dynamics.getPayloadPercentage();
+                dynamicsJson["repeatabilityPercentage"] = dynamics.getReachabilityPercentage();
+                dynamicsJson["speedPercentage"] = dynamics.getSpeedPercentage();
+                dynamicsJson["breakingDistance"] = dynamics.getBreakingDistance();
+                dynamicsJson["breakingTime"] = dynamics.getBreakingTime();
+                jointJson["dynamics"].push_back(dynamicsJson);
+            }
 
             robotJson["joints"].push_back(jointJson);
         }
