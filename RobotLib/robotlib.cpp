@@ -1,6 +1,5 @@
 #include "robotlib.h"
 
-
 RobotLib::RobotLib() {}
 
 void RobotLib::addRobot(const Robot &robot) {

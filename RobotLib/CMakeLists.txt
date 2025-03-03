@@ -19,18 +19,23 @@ add_library(RobotLib SHARED
   robot.h
   joint.cpp
   joint.h
-  tool.cpp
-  tool.h
   kinematics.cpp
   kinematics.h
   dynamics.cpp
   dynamics.h
-  visualization.cpp
-  visualization.h
   robotlib_test.h robotlib_test.cpp
   main.cpp
 )
 
+
+
 target_link_libraries(RobotLib PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 target_include_directories(RobotLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(RobotLib PRIVATE ROBOTLIB_LIBRARY)
+
+
+# Add the executable
+add_executable(RobotLibTest main.cpp robotlib_test.cpp)
+
+# Link the RobotLib library to the executable
+target_link_libraries(RobotLibTest PRIVATE RobotLib)

@@ -1,11 +1,12 @@
 #ifndef ROBOTLIB_H
 #define ROBOTLIB_H
 
-#include "RobotLib_global.h"
 #include <vector>
-#include <robot.h>
 #include <fstream>
-#include <nlohmann/json.hpp>
+
+#include "RobotLib_global.h"
+#include "robot.h"
+#include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
 

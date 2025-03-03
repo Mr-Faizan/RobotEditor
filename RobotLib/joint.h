@@ -3,8 +3,8 @@
 
 #include <string>
 #include <vector>
-#include <dynamics.h>
-#include <kinematics.h>
+#include "dynamics.h"
+#include "kinematics.h"
 
 using namespace std;
 

@@ -2,6 +2,7 @@
 #define ROBOTLIB_TEST_H
 
 #include "robotlib.h"
+#include "robot.h"
 #include <iostream>
 
 class RobotLibTest {
