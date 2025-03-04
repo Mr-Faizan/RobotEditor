@@ -33,9 +33,17 @@ void RobotLibTest::testRemoveRobot() {
     }
 }
 
+
 void RobotLibTest::testGetRobot() {
     RobotLib lib;
     Robot robot("TestRobot");
+    robot.setManufacturer("TestManufacturer");
+    robot.setPayload(10.5);
+    robot.setFootPrint(1.2);
+    robot.setMaxReach(2.5);
+    robot.setRepeatability(0.01);
+    robot.setWeight(50.0);
+    robot.setDof(6);
     lib.addRobot(robot);
 
     Robot *retrievedRobot = lib.getRobot("TestRobot");
@@ -43,6 +51,18 @@ void RobotLibTest::testGetRobot() {
         std::cout << "testGetRobot passed." << std::endl;
     } else {
         std::cout << "testGetRobot failed." << std::endl;
+    }
+
+    // Print robot data
+    if (retrievedRobot) {
+        std::cout << "Robot Name: " << retrievedRobot->getName() << std::endl;
+        std::cout << "Manufacturer: " << retrievedRobot->getManufacturer() << std::endl;
+        std::cout << "Payload: " << retrievedRobot->getPayload() << std::endl;
+        std::cout << "Footprint: " << retrievedRobot->getFootPrint() << std::endl;
+        std::cout << "Max Reach: " << retrievedRobot->getMaxReach() << std::endl;
+        std::cout << "Repeatability: " << retrievedRobot->getRepeatability() << std::endl;
+        std::cout << "Weight: " << retrievedRobot->getWeight() << std::endl;
+        std::cout << "DOF: " << retrievedRobot->getDof() << std::endl;
     }
 }
 

@@ -35,7 +35,7 @@ target_compile_definitions(RobotLib PRIVATE ROBOTLIB_LIBRARY)
 
 
 # Add the executable
-add_executable(RobotLibTest main.cpp robotlib_test.cpp)
+add_executable(RobotLibTest main.cpp robot.cpp joint.cpp kinematics.cpp dynamics.cpp robotlib_test.cpp)
 
 # Link the RobotLib library to the executable
 target_link_libraries(RobotLibTest PRIVATE RobotLib)
