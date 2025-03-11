@@ -17,6 +17,16 @@ MainWindow::MainWindow(QWidget *parent)
     // Load the JSON template
     loadTemplate();
 
+    if (!robotLib.loadFromJson("C:/Users/fahmed/WorkFolder/Projects/RobotEditor/Resources/Json/FaizanTest.json"))
+        {
+            qWarning("Failed to load robot data from JSON file");
+            return;
+        }
+
+    // Print the robotLib object to see the data.
+    robotLib.printData();
+
+
     // Not define model here because it will not be accessible in other functions.
     model = new QStandardItemModel(0, 2, this);
     model->setHeaderData(0, Qt::Horizontal, "Robot Specifications");
@@ -162,24 +172,20 @@ void MainWindow::on_actionOpenFromDevice_triggered()
     {
         qDebug() << "Opening from: " << filePath;
 
-        QFileInfo fileInfo(filePath);
-        if (fileInfo.fileName() == "FaizanTest.json")
+        
+        if (!robotLib.loadFromJson(filePath.toStdString()))
         {
-            show3dModel = true;
-        }
-
-        QFile file(filePath);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            qWarning("Failed to open file for reading");
+            qWarning("Failed to load robot data from JSON file");
             return;
         }
 
-        QByteArray jsonData = file.readAll();
-        file.close();
+        /*
+        // Print the robotLib object to see the data.
+        robotLib.printData();
 
-        QJsonDocument jsonDocument = QJsonDocument::fromJson(jsonData);
-        QJsonObject jsonObject = jsonDocument.object();
+
+
+        QJsonObject jsonObject;
 
         if (jsonObject.isEmpty())
         {
@@ -195,17 +201,8 @@ void MainWindow::on_actionOpenFromDevice_triggered()
 
         // Populate data in the model
         populateTreeView(jsonObject);
+        */
 
-        if (show3dModel)
-        {
-            // Load the 3D Model
-            //  load3DModel();
-        }
-        else
-        {
-            // Remove the 3D Model
-            // remove3DModel();
-        }
     }
 }
 

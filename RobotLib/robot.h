@@ -48,7 +48,7 @@ public:
     void setName(const string &name) { this->name = name; }
     void setManufacturer(const string &manufacturer) { this->manufacturer = manufacturer; }
     void setPayload(double payload) { this->payload = payload; }
-    void setFootPrint(double footPrint) { this->footPrint = footPrint; }
+    void setFootprint(double footPrint) { this->footPrint = footPrint; }
     void setMaxReach(double maxReach) { this->maxReach = maxReach; }
     void setRepeatability(double repeatability) { this->repeatability = repeatability; }
     void setWeight(double weight) { this->weight = weight; }
@@ -59,7 +59,7 @@ public:
     string getName() const { return name; }
     string getManufacturer() const { return manufacturer; }
     double getPayload() const { return payload; }
-    double getFootPrint() const { return footPrint; }
+    double getFootprint() const { return footPrint; }
     double getMaxReach() const { return maxReach; }
     double getRepeatability() const { return repeatability; }
     double getWeight() const { return weight; }

@@ -51,6 +51,9 @@
 #include <QPushButton>
 #include <QComboBox>
 
+// RobotLib Libraries
+#include "robotlib.h"
+
 
 
 using namespace std;
@@ -104,8 +107,10 @@ private:
     QMap<QString, Qt3DCore::QEntity*> entityMap; // Map to store the entities for each OBJ file
 
     float rotationAngle = 0.0f;        // Current rotation angle
-    bool rotating = false;      // Flag to indicate if rotation is enabled
-    bool show3dModel = false; 
+    bool rotating = false;      // Flag to indicate if rotation is enabled 
+
+    // RobotLib Object
+    RobotLib robotLib;
 
     // Custom Functions
     void loadTemplate();

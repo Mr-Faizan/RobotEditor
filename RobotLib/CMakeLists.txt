@@ -25,6 +25,7 @@ add_library(RobotLib SHARED
   dynamics.h
   robotlib_test.h robotlib_test.cpp
   main.cpp
+  jsonkeys2.h
 )
 
 

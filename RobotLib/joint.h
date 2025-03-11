@@ -38,7 +38,7 @@ public:
     void setDampingCoefficient(double damping) { this->dampingCoefficient = damping; }
     void setVisualization(const string &visualization) { this->visualization = visualization; }
     void setKinematics(const JointKinematics &kinematics) { this->kinematics = kinematics; }
-    void setDynamics(const JointDynamics &dynamics) { this->dynamics.push_back(dynamics); }
+    void addDynamics(const JointDynamics &dynamics) { this->dynamics.push_back(dynamics); }
 
     // Getters
     string getName() const { return name; }
