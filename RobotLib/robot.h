@@ -23,6 +23,8 @@ class Robot
 {
 
 private:
+    static int lastAssignedId;
+    int id;
     string name;
     string manufacturer;
     double payload;
@@ -34,9 +36,9 @@ private:
     std::vector<Joint> joints;
 
 public:
-    Robot() = default;
+    Robot() : id(++lastAssignedId) {};
 
-    Robot(const std::string &name);
+    Robot(const std::string &name) {};
 
     // Implement Constructor Overloading for easy initialization of the Robot.
     Robot(const string &name, const string &manufacturer, double payload, double footPrint, double maxReach, double repeatability, double weight, int dof);
@@ -53,9 +55,10 @@ public:
     void setRepeatability(double repeatability) { this->repeatability = repeatability; }
     void setWeight(double weight) { this->weight = weight; }
     void setDof(int dof) { this->dof = dof; }
-    void addJoint(const Joint &joint) { joints.push_back(joint);}
+    void addJoint(const Joint &joint) { joints.push_back(joint); }
 
     // Getters
+    int getId() const { return id; }
     string getName() const { return name; }
     string getManufacturer() const { return manufacturer; }
     double getPayload() const { return payload; }
@@ -64,7 +67,7 @@ public:
     double getRepeatability() const { return repeatability; }
     double getWeight() const { return weight; }
     int getDof() const { return dof; }
-    const std::vector<Joint>& getJoints() const { return joints; }
+    const std::vector<Joint> &getJoints() const { return joints; }
 };
 
 #endif // ROBOT_H

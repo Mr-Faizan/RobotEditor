@@ -130,7 +130,7 @@ bool RobotLib::loadFromJson(const std::string &filePath)
                     kinematics.setDhType(dhParams[DhParametersKeys2::DHType]);
                 //if (dhParams.contains(DhParametersKeys2::ModifiedDh) && dhParams[DhParametersKeys2::ModifiedDh].is_boolean())
                 //    kinematics.setModifiedDh(dhParams[DhParametersKeys2::ModifiedDh]);
-                
+
                 kinematics.setDhParameters(dhParameters);
 
                 JointKinematics::RotationalValues rotationalValues;
@@ -184,7 +184,7 @@ bool RobotLib::loadFromJson(const std::string &filePath)
 }
 
 //
-bool RobotLib::saveToJson(const std::string &filePath) const
+bool RobotLib::saveToJson(const std::string &filePath, int robotId) const
 {
     std::ofstream file(filePath);
     if (!file.is_open())
@@ -193,59 +193,77 @@ bool RobotLib::saveToJson(const std::string &filePath) const
     }
 
     json j;
-    for (const auto &robot : robots)
-    {
-        json robotJson;
-        robotJson["name"] = robot.getName();
-        robotJson["manufacturer"] = robot.getManufacturer();
-        robotJson["payload"] = robot.getPayload();
-        robotJson["footprint"] = robot.getFootprint();
-        robotJson["maxReach"] = robot.getMaxReach();
-        robotJson["repeatability"] = robot.getRepeatability();
-        robotJson["weight"] = robot.getWeight();
-        robotJson["dof"] = robot.getDof();
 
+    auto it = std::find_if(robots.begin(), robots.end(), [robotId](const Robot &robot) {
+        return robot.getId() == robotId;
+    });
+
+    if (it != robots.end())
+    {
+        const auto &robot = robots.front(); // Save only the first robot
+
+        json robotJson;
+        robotJson[RobotKeys2::RobotName] = robot.getName();
+        robotJson[RobotKeys2::RobotManufacturer] = robot.getManufacturer();
+        robotJson[RobotKeys2::RobotPayload] = robot.getPayload();
+        robotJson[RobotKeys2::RobotFootprint] = robot.getFootprint();
+        robotJson[RobotKeys2::RobotMaxReach] = robot.getMaxReach();
+        robotJson[RobotKeys2::RobotRepeatability] = robot.getRepeatability();
+        robotJson[RobotKeys2::RobotWeight] = robot.getWeight();
+        robotJson[RobotKeys2::DOF] = robot.getDof();
+
+        json jointsJson;
         for (const auto &joint : robot.getJoints())
         {
             json jointJson;
-            jointJson["name"] = joint.getName();
-            jointJson["motionRangeMax"] = joint.getMotionRangeMax();
-            jointJson["motionRangeMin"] = joint.getMotionRangeMin();
-            jointJson["speedLimit"] = joint.getJointSpeedLimit();
-            jointJson["frictionCoefficient"] = joint.getFrictionCoefficient();
-            jointJson["stiffnessCoefficient"] = joint.getStiffnessCoefficient();
-            jointJson["dampingCoefficient"] = joint.getDampingCoefficient();
+            jointJson[JointKeys2::JointName] = joint.getName();
+            jointJson[JointKeys2::MotionRangeMax] = joint.getMotionRangeMax();
+            jointJson[JointKeys2::MotionRangeMin] = joint.getMotionRangeMin();
+            jointJson[JointKeys2::JointSpeedLimit] = joint.getJointSpeedLimit();
+            jointJson[JointKeys2::FrictionCoefficient] = joint.getFrictionCoefficient();
+            jointJson[JointKeys2::StiffnessCoefficient] = joint.getStiffnessCoefficient();
+            jointJson[JointKeys2::DampingCoefficient] = joint.getDampingCoefficient();
+            jointJson[JointKeys2::Visualization] = joint.getVisualization();
 
-            jointJson["kinematics"]["dhParameters"]["alpha"] = joint.getKinematics().getDhParameters().getAlpha();
-            jointJson["kinematics"]["dhParameters"]["d"] = joint.getKinematics().getDhParameters().getD();
-            jointJson["kinematics"]["dhParameters"]["theta"] = joint.getKinematics().getDhParameters().getTheta();
-            jointJson["kinematics"]["dhParameters"]["a"] = joint.getKinematics().getDhParameters().getA();
-            jointJson["kinematics"]["dhParameters"]["dhType"] = joint.getKinematics().getDhParameters().getDhType();
-            jointJson["kinematics"]["dhParameters"]["modifiedDh"] = joint.getKinematics().getDhParameters().isModifiedDh();
+            json kinematicsJson;
+            json dhParamsJson;
+            dhParamsJson[DhParametersKeys2::Alpha] = joint.getKinematics().getDhParameters().getAlpha();
+            dhParamsJson[DhParametersKeys2::D] = joint.getKinematics().getDhParameters().getD();
+            dhParamsJson[DhParametersKeys2::Theta] = joint.getKinematics().getDhParameters().getTheta();
+            dhParamsJson[DhParametersKeys2::A] = joint.getKinematics().getDhParameters().getA();
+            dhParamsJson[DhParametersKeys2::DHType] = joint.getKinematics().getDhParameters().getDhType();
+            kinematicsJson[KinematicsKeys2::DhParameters] = dhParamsJson;
 
-            jointJson["kinematics"]["rotationalValues"]["ixx"] = joint.getKinematics().getRotationalValues().getIxx();
-            jointJson["kinematics"]["rotationalValues"]["ixy"] = joint.getKinematics().getRotationalValues().getIxy();
-            jointJson["kinematics"]["rotationalValues"]["ixz"] = joint.getKinematics().getRotationalValues().getIxz();
-            jointJson["kinematics"]["rotationalValues"]["iyy"] = joint.getKinematics().getRotationalValues().getIyy();
-            jointJson["kinematics"]["rotationalValues"]["iyz"] = joint.getKinematics().getRotationalValues().getIyz();
-            jointJson["kinematics"]["rotationalValues"]["izz"] = joint.getKinematics().getRotationalValues().getIzz();
+            json rotValuesJson;
+            rotValuesJson[RotationalValuesKeys2::Ixx] = joint.getKinematics().getRotationalValues().getIxx();
+            rotValuesJson[RotationalValuesKeys2::Ixy] = joint.getKinematics().getRotationalValues().getIxy();
+            rotValuesJson[RotationalValuesKeys2::Ixz] = joint.getKinematics().getRotationalValues().getIxz();
+            rotValuesJson[RotationalValuesKeys2::Iyy] = joint.getKinematics().getRotationalValues().getIyy();
+            rotValuesJson[RotationalValuesKeys2::Iyz] = joint.getKinematics().getRotationalValues().getIyz();
+            rotValuesJson[RotationalValuesKeys2::Izz] = joint.getKinematics().getRotationalValues().getIzz();
+            kinematicsJson[KinematicsKeys2::RotationalValues] = rotValuesJson;
 
+            jointJson[JointKeys2::JointKinematics] = kinematicsJson;
+
+            json dynamicsJson;
             for (const auto &dynamics : joint.getDynamics())
             {
-                json dynamicsJson;
-                dynamicsJson["testPayload"] = dynamics.getTestPayload();
-                dynamicsJson["payloadPercentage"] = dynamics.getPayloadPercentage();
-                dynamicsJson["repeatabilityPercentage"] = dynamics.getReachabilityPercentage();
-                dynamicsJson["speedPercentage"] = dynamics.getSpeedPercentage();
-                dynamicsJson["breakingDistance"] = dynamics.getBreakingDistance();
-                dynamicsJson["breakingTime"] = dynamics.getBreakingTime();
-                jointJson["dynamics"].push_back(dynamicsJson);
+                json singleDynamicsJson;
+                singleDynamicsJson[DynamicsKeys2::TestPayload] = dynamics.getTestPayload();
+                singleDynamicsJson[DynamicsKeys2::PayloadPercentage] = dynamics.getPayloadPercentage();
+                singleDynamicsJson[DynamicsKeys2::RepeatabilityPercentage] = dynamics.getReachabilityPercentage();
+                singleDynamicsJson[DynamicsKeys2::SpeedPercentage] = dynamics.getSpeedPercentage();
+                singleDynamicsJson[DynamicsKeys2::BreakingDistance] = dynamics.getBreakingDistance();
+                singleDynamicsJson[DynamicsKeys2::BreakingTime] = dynamics.getBreakingTime();
+                dynamicsJson.push_back(singleDynamicsJson);
             }
 
-            robotJson["joints"].push_back(jointJson);
+            jointJson[JointKeys2::JointDynamics] = dynamicsJson;
+            jointsJson[joint.getName()] = jointJson;
         }
 
-        j["robots"].push_back(robotJson);
+        robotJson[RobotKeys2::Joints] = jointsJson;
+        j[RobotKeys2::Robot] = robotJson;
     }
 
     file << j.dump(4);

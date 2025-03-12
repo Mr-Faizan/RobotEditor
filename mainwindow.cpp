@@ -26,6 +26,12 @@ MainWindow::MainWindow(QWidget *parent)
     // Print the robotLib object to see the data.
     robotLib.printData();
 
+    // Save the loaded data to a new JSON file
+    if (!robotLib.saveToJson("C:/Users/fahmed/WorkFolder/Projects/SavedRobotData.json"))
+    {
+        qWarning("Failed to save robot data to JSON file");
+    }
+
 
     // Not define model here because it will not be accessible in other functions.
     model = new QStandardItemModel(0, 2, this);
