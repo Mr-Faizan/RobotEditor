@@ -36,15 +36,15 @@ private:
     std::vector<Joint> joints;
 
 public:
-    Robot() : id(++lastAssignedId) {};
+    Robot();
 
-    Robot(const std::string &name) {};
+    Robot(const std::string &name);
 
     // Implement Constructor Overloading for easy initialization of the Robot.
     Robot(const string &name, const string &manufacturer, double payload, double footPrint, double maxReach, double repeatability, double weight, int dof);
 
     // Implement Destructor for the Robot.
-    ~Robot();
+    ~Robot(){};
 
     // Setters
     void setName(const string &name) { this->name = name; }

@@ -115,9 +115,12 @@ private:
     // Custom Functions
     void loadTemplate();
     void showContextMenu(const QPoint &pos);
-    void populateTreeView(const QJsonObject &json);
-    void addJoint(QStandardItem *jointsItem, const QString &jointKey, const QJsonObject &joint);
-    void addDynamicsPayload(QStandardItem *dynamicsItem, const QString &payloadKey, const QJsonObject &payload);
+    // void populateTreeView(const QJsonObject &json);
+    void populateTreeView(const Robot &robot);
+    // void addJoint(QStandardItem *jointsItem, const QJsonObject &joint);
+    void addJoint(QStandardItem *jointsItem, const Joint &joint);
+    void addDynamicsPayload(QStandardItem *dynamicsItem, const JointDynamics &dynamics);
+    // void addDynamicsPayload(QStandardItem *dynamicsItem, const QString &payloadKey, const QJsonObject &payload);
     void addItem(QStandardItem *parent, const QString &key, const QVariant &value);
     void addComboBoxItem(QStandardItem *parent, const QString &key, const QString &value);
     void saveToJson(const QString &filePath, QStandardItem *currentItem);

@@ -17,8 +17,9 @@ And Also can override the functionalities according to their requirements.
 class Dynamics
 {
 public:
-    virtual ~Dynamics() = default;
+
     virtual void calculateDynamics() = 0;
+    virtual ~Dynamics() = default; 
 };
 
 // This class will responsible for calculating the Dynamics of the Joint.
@@ -33,10 +34,26 @@ private:
     double breakingTime;
 
 public:
-    JointDynamics() = default;
-    JointDynamics(double testPayload, double payloadPercentage, double reachabilityPercentage, double speedPercentage, double breakingDistance, double breakingTime);
+    JointDynamics()
+        : testPayload(0),
+          payloadPercentage(0),
+          reachabilityPercentage(0),
+          speedPercentage(0),
+          breakingDistance(0),
+          breakingTime(0) {}
 
-    void calculateDynamics() override;
+    JointDynamics(double testPayload, double payloadPercentage, double reachabilityPercentage, double speedPercentage, double breakingDistance, double breakingTime)
+        : testPayload(testPayload),
+          payloadPercentage(payloadPercentage),
+          reachabilityPercentage(reachabilityPercentage),
+          speedPercentage(speedPercentage),
+          breakingDistance(breakingDistance),
+          breakingTime(breakingTime) {}
+
+    void calculateDynamics() override
+    {
+        // Implementation of dynamics calculation
+    }
 
     // Setters
     void setTestPayload(double testPayload) { this->testPayload = testPayload; }
@@ -59,14 +76,20 @@ public:
 class RobotDynamics : public Dynamics
 {
 public:
-    void calculateDynamics() override;
+    void calculateDynamics() override
+    {
+        // Implementation
+    }
 };
 
 // This class will responsible for calculating the Dynamics of the Tool.
 class ToolDynamics : public Dynamics
 {
 public:
-    void calculateDynamics() override;
+    void calculateDynamics() override
+    {
+        // Implementation
+    }
 };
 
 #endif

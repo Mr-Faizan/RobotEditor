@@ -1,24 +1,38 @@
 #include "robotlib.h"
 
-RobotLib::RobotLib() {}
+RobotLib::RobotLib()
+{
+
+}
 
 RobotLib::~RobotLib() {}
 
+// Creating a new Robot here because i want to only expose this class to the outside world.
+Robot RobotLib::createRobot()
+{
+    Robot robot;
+    robotCollection.push_back(robot);
+    return robot;
+}
+
+
 void RobotLib::addRobot(const Robot &robot)
 {
-    robots.push_back(robot);
+    robotCollection.push_back(robot);
 }
 
 void RobotLib::removeRobot(const std::string &name)
 {
-    robots.erase(std::remove_if(robots.begin(), robots.end(), [&](const Robot &robot)
+    robotCollection.erase(std::remove_if(robotCollection.begin(), robotCollection.end(), [&](const Robot &robot)
                                 { return robot.getName() == name; }),
-                 robots.end());
+                 robotCollection.end());
 }
+
+
 
 Robot *RobotLib::getRobot(const std::string &name)
 {
-    for (auto &robot : robots)
+    for (auto &robot : robotCollection)
     {
         if (robot.getName() == name)
         {
@@ -28,9 +42,25 @@ Robot *RobotLib::getRobot(const std::string &name)
     return nullptr;
 }
 
+const Robot *RobotLib::getRobotById(int robotId) const
+{
+    auto it = std::find_if(robotCollection.begin(), robotCollection.end(), [robotId](const Robot &robot) {
+        return robot.getId() == robotId;
+    });
+
+    if (it != robotCollection.end())
+    {
+        return &(*it);
+    }
+
+    return nullptr;
+}
+
+
+
 const std::vector<Robot> &RobotLib::getRobots() const
 {
-    return robots;
+    return robotCollection;
 }
 
 // Load data from JSON file
@@ -38,7 +68,7 @@ const std::vector<Robot> &RobotLib::getRobots() const
 // 1. Verify that the file we pick is correct file to read from.
 // 2. Verify data type before saving to JSON to avoid runtime errors.
 
-bool RobotLib::loadFromJson(const std::string &filePath)
+bool RobotLib::loadFromJson(const std::string &filePath, Robot &robot)
 {
     std::ifstream file(filePath);
     if (!file.is_open())
@@ -67,7 +97,6 @@ bool RobotLib::loadFromJson(const std::string &filePath)
 
     // Load robots from JSON
     const auto &robotJson = jsonData[RobotKeys2::Robot];
-    Robot robot;
     if (robotJson.contains(RobotKeys2::RobotName) && robotJson[RobotKeys2::RobotName].is_string())
         robot.setName(robotJson[RobotKeys2::RobotName]);
     if (robotJson.contains(RobotKeys2::RobotManufacturer) && robotJson[RobotKeys2::RobotManufacturer].is_string())
@@ -194,13 +223,13 @@ bool RobotLib::saveToJson(const std::string &filePath, int robotId) const
 
     json j;
 
-    auto it = std::find_if(robots.begin(), robots.end(), [robotId](const Robot &robot) {
+    auto it = std::find_if(robotCollection.begin(), robotCollection.end(), [robotId](const Robot &robot) {
         return robot.getId() == robotId;
     });
 
-    if (it != robots.end())
+    if (it != robotCollection.end())
     {
-        const auto &robot = robots.front(); // Save only the first robot
+        const auto &robot = robotCollection.front(); // Save only the first robot
 
         json robotJson;
         robotJson[RobotKeys2::RobotName] = robot.getName();
@@ -272,7 +301,7 @@ bool RobotLib::saveToJson(const std::string &filePath, int robotId) const
 
 void RobotLib::printData() const
 {
-    for (const auto &robot : robots)
+    for (const auto &robot : robotCollection)
     {
         cout << "Robot Name: " << robot.getName() << endl;
         cout << "Manufacturer: " << robot.getManufacturer() << endl;

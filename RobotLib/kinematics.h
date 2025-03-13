@@ -21,7 +21,6 @@ And Also can override the functionalities according to their requirements.
 class Kinematics
 {
 public:
-    virtual ~Kinematics() = default;
     virtual void calculateDhParams() = 0;
 };
 
@@ -39,7 +38,15 @@ public:
         string dhType;
         bool modifiedDh;
 
-        DHParameters() = default;
+        DHParameters()
+        {
+            alpha = 0;
+            d = 0;
+            theta = 0;
+            a = 0;
+            dhType = "";
+            modifiedDh = false;
+        }
 
         DHParameters(double alpha, double d, double theta, double a, const string &dhType, bool modifiedDh)
             : alpha(alpha), d(d), theta(theta), a(a), dhType(dhType), modifiedDh(modifiedDh) {}
@@ -71,7 +78,15 @@ public:
         double iyz;
         double izz;
 
-        RotationalValues() = default;
+        RotationalValues()
+        {
+            ixx = 0;
+            ixy = 0;
+            ixz = 0;
+            iyy = 0;
+            iyz = 0;
+            izz = 0;
+        }
 
         RotationalValues(double ixx, double ixy, double ixz, double iyy, double iyz, double izz)
             : ixx(ixx), ixy(ixy), ixz(ixz), iyy(iyy), iyz(iyz), izz(izz) {}
@@ -100,10 +115,24 @@ private:
     bool modifiedDh;
 
 public:
-    JointKinematics();
-    JointKinematics(const DHParameters &dhParameters, const RotationalValues &rotationalValues, const string &dhType, bool modifiedDh);
+    JointKinematics()
+    {
+        dhParameters = DHParameters();
+        rotationalValues = RotationalValues();
+        dhType = "";
+        modifiedDh = false;
+    }
 
-    void calculateDhParams() override;
+    JointKinematics(const DHParameters &dhParameters, const RotationalValues &rotationalValues, const string &dhType, bool modifiedDh)
+        : dhParameters(dhParameters),
+          rotationalValues(rotationalValues),
+          dhType(dhType),
+          modifiedDh(modifiedDh) {}
+
+    void calculateDhParams() override
+    {
+        // Implementation
+    }
 
     // Setters
     void setDhParameters(const DHParameters &dhParameters) { this->dhParameters = dhParameters; }
@@ -122,7 +151,10 @@ public:
 class RobotKinematics : public Kinematics
 {
 public:
-    void calculateDhParams() override;
+    void calculateDhParams() override
+    {
+        // Implementation
+    }
 };
 
 // This class will responsible for calculating the Kinematics of the Tool.
@@ -130,7 +162,10 @@ class ToolKinematics : public Kinematics
 {
 
 public:
-    void calculateDhParams() override;
+    void calculateDhParams() override
+    {
+        // Implementation
+    }
 };
 
 #endif

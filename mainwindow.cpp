@@ -15,8 +15,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(rotationTimer, &QTimer::timeout, this, &MainWindow::updateRotation);
 
     // Load the JSON template
-    loadTemplate();
-
+    // loadTemplate();
+/*
     if (!robotLib.loadFromJson("C:/Users/fahmed/WorkFolder/Projects/RobotEditor/Resources/Json/FaizanTest.json"))
         {
             qWarning("Failed to load robot data from JSON file");
@@ -27,11 +27,11 @@ MainWindow::MainWindow(QWidget *parent)
     robotLib.printData();
 
     // Save the loaded data to a new JSON file
-    if (!robotLib.saveToJson("C:/Users/fahmed/WorkFolder/Projects/SavedRobotData.json"))
+    if (!robotLib.saveToJson("C:/Users/fahmed/WorkFolder/Projects/SavedRobotData.json", 0))
     {
         qWarning("Failed to save robot data to JSON file");
     }
-
+*/
 
     // Not define model here because it will not be accessible in other functions.
     model = new QStandardItemModel(0, 2, this);
@@ -162,11 +162,19 @@ void MainWindow::on_actionSaveAll_triggered()
 
 void MainWindow::on_actionNewRobot_triggered()
 {
+    // Create new Robot.
+    Robot newRobot = robotLib.createRobot();
+    populateTreeView(newRobot);
+
+/*
+
     if (!templateObject.isEmpty())
     {
         // Populate data in the model
         populateTreeView(templateObject);
     }
+
+*/
 }
 
 void MainWindow::on_actionOpenFromDevice_triggered()
@@ -178,12 +186,17 @@ void MainWindow::on_actionOpenFromDevice_triggered()
     {
         qDebug() << "Opening from: " << filePath;
 
-        
-        if (!robotLib.loadFromJson(filePath.toStdString()))
+        // Create new Robot.
+        Robot newRobot = robotLib.createRobot();
+
+        if (!robotLib.loadFromJson(filePath.toStdString(), newRobot))
         {
             qWarning("Failed to load robot data from JSON file");
             return;
         }
+
+        // Populate data in the model
+        populateTreeView(newRobot);
 
         /*
         // Print the robotLib object to see the data.
@@ -330,7 +343,7 @@ void MainWindow::addNewJoint()
     QString jointKey = JointKeys::Joint;
     QJsonObject joint = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[jointKey].toObject();
 
-    addJoint(currentItem, jointKey, joint);
+    // addJoint(currentItem, jointKey, joint);
 
     ui->treeView->expand(currentIndex);
 }
@@ -363,12 +376,13 @@ void MainWindow::addNewDynamics()
     QJsonObject payload = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[JointKeys::JointDynamics].toObject()[payloadKey].toObject();
 
     // Create generic function.
-    addDynamicsPayload(currentItem, payloadKey, payload);
+    //addDynamicsPayload(currentItem, payloadKey, payload);
 
     ui->treeView->expand(currentIndex);
 }
 
 // This function will add the joint in the TreeView.
+/*
 void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, const QJsonObject &joint)
 {
 
@@ -464,8 +478,102 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
         }
     }
 }
+*/
+
+void MainWindow::addJoint(QStandardItem *jointsItem, const Joint &joint)
+{
+    int jointNumber = jointsItem->rowCount() + 1;
+    QStandardItem *singleJointItem = new QStandardItem(QString("Joint %1").arg(jointNumber));
+    singleJointItem->setFlags(singleJointItem->flags() & ~Qt::ItemIsEditable);
+    jointsItem->appendRow(singleJointItem);
+
+    addItem(singleJointItem, JointKeys::JointName, QString::fromStdString(joint.getName()));
+    addItem(singleJointItem, JointKeys::MotionRangeMax, QString::number(joint.getMotionRangeMax()));
+    addItem(singleJointItem, JointKeys::MotionRangeMin, QString::number(joint.getMotionRangeMin()));
+    addItem(singleJointItem, JointKeys::JointSpeedLimit, QString::number(joint.getJointSpeedLimit()));
+    addItem(singleJointItem, JointKeys::FrictionCoefficient, QString::number(joint.getFrictionCoefficient()));
+    addItem(singleJointItem, JointKeys::StiffnessCoefficient, QString::number(joint.getStiffnessCoefficient()));
+    addItem(singleJointItem, JointKeys::DampingCoefficient, QString::number(joint.getDampingCoefficient()));
+
+    // Loading kinematics
+    const auto &kinematics = joint.getKinematics();
+    QStandardItem *kinematicsItem = new QStandardItem(JointKeys::JointKinematics);
+    kinematicsItem->setFlags(kinematicsItem->flags() & ~Qt::ItemIsEditable);
+
+    // Create a non-editable item for the second column
+    QStandardItem *kinematicsNonEditableItem = new QStandardItem();
+    kinematicsNonEditableItem->setFlags(kinematicsNonEditableItem->flags() & ~Qt::ItemIsEditable);
+    singleJointItem->appendRow(QList<QStandardItem *>() << kinematicsItem << kinematicsNonEditableItem);
+
+    const auto &dhParameters = kinematics.getDhParameters();
+    QStandardItem *dhParametersItem = new QStandardItem(KinematicsKeys::DhParameters);
+    dhParametersItem->setFlags(dhParametersItem->flags() & ~Qt::ItemIsEditable);
+    kinematicsItem->appendRow(dhParametersItem);
+    addItem(dhParametersItem, DhParametersKeys::Alpha, QString::number(dhParameters.getAlpha()));
+    addItem(dhParametersItem, DhParametersKeys::D, QString::number(dhParameters.getD()));
+    addItem(dhParametersItem, DhParametersKeys::Theta, QString::number(dhParameters.getTheta()));
+    addItem(dhParametersItem, DhParametersKeys::A, QString::number(dhParameters.getA()));
+    addComboBoxItem(dhParametersItem, DhParametersKeys::DHType, QString::fromStdString(kinematics.getDhType()));
+
+    const auto &rotationalValues = kinematics.getRotationalValues();
+    QStandardItem *rotationalValuesItem = new QStandardItem(KinematicsKeys::RotationalValues);
+    rotationalValuesItem->setFlags(rotationalValuesItem->flags() & ~Qt::ItemIsEditable);
+    kinematicsItem->appendRow(rotationalValuesItem);
+    addItem(rotationalValuesItem, RotationalValuesKeys::Ixx, QString::number(rotationalValues.getIxx()));
+    addItem(rotationalValuesItem, RotationalValuesKeys::Ixy, QString::number(rotationalValues.getIxy()));
+    addItem(rotationalValuesItem, RotationalValuesKeys::Ixz, QString::number(rotationalValues.getIxz()));
+    addItem(rotationalValuesItem, RotationalValuesKeys::Iyy, QString::number(rotationalValues.getIyy()));
+    addItem(rotationalValuesItem, RotationalValuesKeys::Iyz, QString::number(rotationalValues.getIyz()));
+    addItem(rotationalValuesItem, RotationalValuesKeys::Izz, QString::number(rotationalValues.getIzz()));
+
+    // Loading dynamics
+    QStandardItem *dynamicsItem = new QStandardItem(QIcon(":/Resources/Icons/settings.png"), JointKeys::JointDynamics);
+    dynamicsItem->setFlags(dynamicsItem->flags() & ~Qt::ItemIsEditable);
+
+    // Create a new non-editable item for the second column of the Joints item
+    QStandardItem *dynamicsNonEditableItem = new QStandardItem();
+    dynamicsNonEditableItem->setFlags(dynamicsNonEditableItem->flags() & ~Qt::ItemIsEditable);
+    singleJointItem->appendRow(QList<QStandardItem *>() << dynamicsItem << dynamicsNonEditableItem);
+
+    for (const auto &dynamics : joint.getDynamics())
+    {
+        addDynamicsPayload(dynamicsItem, dynamics);
+    }
+
+    // Loading visualization
+    QStandardItem *visualizationItem = new QStandardItem(QIcon(":/Resources/Icons/robot-dynamics.png"), JointKeys::Visualization);
+    visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
+    QStandardItem *visualizationPathItem = new QStandardItem(QString::fromStdString(joint.getVisualization()));
+    visualizationPathItem->setFlags(visualizationPathItem->flags() & ~Qt::ItemIsEditable);
+    singleJointItem->appendRow(QList<QStandardItem *>() << visualizationItem << visualizationPathItem);
+
+    if (!joint.getVisualization().empty())
+    {
+        // Call the loadSingleObjFile function with the selected file path
+        QJsonObject jsonObject;
+        loadSingleObjFile(QString::fromStdString(joint.getVisualization()), jsonObject, rootEntity);
+    }
+}
+
 
 // This function will add the Payload in the TreeView.
+void MainWindow::addDynamicsPayload(QStandardItem *dynamicsItem, const JointDynamics &dynamics)
+{
+    QStandardItem *payloadItem = new QStandardItem(QString("Payload %1").arg(dynamicsItem->rowCount() + 1));
+    payloadItem->setFlags(payloadItem->flags() & ~Qt::ItemIsEditable);
+    dynamicsItem->appendRow(payloadItem);
+
+    addItem(payloadItem, DynamicsKeys::TestPayload, QString::number(dynamics.getTestPayload()));
+    addItem(payloadItem, DynamicsKeys::PayloadPercentage, QString::number(dynamics.getPayloadPercentage()));
+    addItem(payloadItem, DynamicsKeys::RepeatabilityPercentage, QString::number(dynamics.getReachabilityPercentage()));
+    addItem(payloadItem, DynamicsKeys::SpeedPercentage, QString::number(dynamics.getSpeedPercentage()));
+    addItem(payloadItem, DynamicsKeys::BreakingDistance, QString::number(dynamics.getBreakingDistance()));
+    addItem(payloadItem, DynamicsKeys::BreakingTime, QString::number(dynamics.getBreakingTime()));
+}
+
+
+// This function will add the Payload in the TreeView.
+/*
 void MainWindow::addDynamicsPayload(QStandardItem *dynamicsItem, const QString &payloadKey, const QJsonObject &payload)
 {
     QStandardItem *payloadItem = new QStandardItem(payloadKey);
@@ -479,6 +587,7 @@ void MainWindow::addDynamicsPayload(QStandardItem *dynamicsItem, const QString &
     addItem(payloadItem, DynamicsKeys::BreakingDistance, payload[DynamicsKeys::BreakingDistance].toString());
     addItem(payloadItem, DynamicsKeys::BreakingTime, payload[DynamicsKeys::BreakingTime].toString());
 }
+*/
 
 // Using this function to handle each row of the TreeView
 void MainWindow::addItem(QStandardItem *parent, const QString &key, const QVariant &value)
@@ -749,7 +858,7 @@ void MainWindow::loadTemplate()
 // But I am unable to do so, because JSON Object is unordered list of key value pairs and for us Order is very important.
 // So for now I am defining the Structure of the application in this function using TreeView Standard Model.
 // I don't like this approach but I also tried ten other methods :)
-
+/*
 void MainWindow::populateTreeView(const QJsonObject &json)
 {
 
@@ -824,6 +933,68 @@ void MainWindow::populateTreeView(const QJsonObject &json)
     ui->treeView->resizeColumnToContents(0);
     ui->treeView->resizeColumnToContents(1);
 }
+
+*/
+
+void MainWindow::populateTreeView(const Robot &robot)
+{
+
+    QStandardItem *rootItem = model->invisibleRootItem();
+
+    QStandardItem *robotItem = new QStandardItem(QIcon(":/Resources/Icons/robotic-arm.png"), QString::fromStdString(robot.getName()));
+    robotItem->setFlags(robotItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
+
+    if (!activeRobotItem)
+    {
+        QFont font = robotItem->font();
+        font.setBold(true); // Set the font to bold for the first robot
+        robotItem->setFont(font);
+    }
+
+    // Create a non-editable item for the second column
+    QStandardItem *nonEditableItem = new QStandardItem();
+    nonEditableItem->setFlags(nonEditableItem->flags() & ~Qt::ItemIsEditable);
+    rootItem->appendRow(QList<QStandardItem *>() << robotItem << nonEditableItem);
+
+    // Loading robot properties
+    addItem(robotItem, RobotKeys::RobotName, QString::fromStdString(robot.getName()));
+    addItem(robotItem, RobotKeys::RobotManufacturer, QString::fromStdString(robot.getManufacturer()));
+    addItem(robotItem, RobotKeys::RobotPayload, QString::number(robot.getPayload()));
+    addItem(robotItem, RobotKeys::RobotFootprint, QString::number(robot.getFootprint()));
+    addItem(robotItem, RobotKeys::RobotMaxReach, QString::number(robot.getMaxReach()));
+    addItem(robotItem, RobotKeys::RobotRepeatability, QString::number(robot.getRepeatability()));
+    addItem(robotItem, RobotKeys::RobotWeight, QString::number(robot.getWeight()));
+    addItem(robotItem, RobotKeys::DOF, QString::number(robot.getDof()));
+
+    // Loading joints
+    QStandardItem *jointsItem = new QStandardItem(QIcon(":/Resources/Icons/robot-joint.png"), RobotKeys::Joints);
+    jointsItem->setFlags(jointsItem->flags() & ~Qt::ItemIsEditable);
+
+    // Create a new non-editable item for the second column of the Joints item
+    QStandardItem *jointsNonEditableItem = new QStandardItem();
+    jointsNonEditableItem->setFlags(jointsNonEditableItem->flags() & ~Qt::ItemIsEditable);
+    robotItem->appendRow(QList<QStandardItem *>() << jointsItem << jointsNonEditableItem);
+
+    // Get the joints from the robot and pass them to the addJoint function
+    const std::vector<Joint> &joints = robot.getJoints();
+    for (const auto &joint : joints)
+    {
+        addJoint(jointsItem, joint);
+    }
+  
+
+    // Set the first robot as the active robot
+    if (!activeRobotItem)
+    {
+        activeRobotItem = robotItem;
+        ui->treeView->expandAll();
+    }
+
+    ui->treeView->resizeColumnToContents(0);
+    ui->treeView->resizeColumnToContents(1);
+}
+
+
 
 /****************** JSON Related Function Implementation ******************/
 

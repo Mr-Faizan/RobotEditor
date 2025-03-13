@@ -68,7 +68,8 @@ void RobotLibTest::testGetRobot() {
 
 void RobotLibTest::testLoadFromJson() {
     RobotLib lib;
-    bool success = lib.loadFromJson("test_robot.json");
+    Robot newRobot = lib.createRobot();
+    bool success = lib.loadFromJson("test_robot.json", newRobot);
 
     if (success && !lib.getRobots().empty() && lib.getRobots()[0].getName() == "TestRobot") {
         std::cout << "testLoadFromJson passed." << std::endl;
@@ -82,7 +83,7 @@ void RobotLibTest::testSaveToJson() {
     Robot robot("TestRobot");
     lib.addRobot(robot);
 
-    bool success = lib.saveToJson("test_robot_output.json");
+    bool success = lib.saveToJson("test_robot_output.json", 0);
 
     if (success) {
         std::cout << "testSaveToJson passed." << std::endl;

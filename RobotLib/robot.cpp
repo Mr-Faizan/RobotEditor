@@ -5,9 +5,23 @@ using namespace std;
 // Initialize the static member variable
 int Robot::lastAssignedId = 1000;
 
+Robot::Robot()
+    : id(++lastAssignedId),
+      name(""),
+      manufacturer(""),
+      payload(0),
+      footPrint(0),
+      maxReach(0),
+      repeatability(0),
+      weight(0),
+      dof(0)
+{
+}
+
 Robot::Robot(const std::string &name)
     : id(++lastAssignedId),
       name(name),
+      manufacturer(""),
       payload(0),
       footPrint(0),
       maxReach(0),
@@ -30,6 +44,3 @@ Robot::Robot(const string &name, const string &manufacturer, double payload, dou
 {
 }
 
-Robot::~Robot()
-{
-}

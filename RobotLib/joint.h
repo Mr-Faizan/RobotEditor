@@ -23,10 +23,10 @@ private:
     vector<JointDynamics> dynamics; // Container for multiple JointDynamics objects
 
 public:
-    Joint() = default;
+    Joint();
     Joint(const string &name) : name(name), motionRangeMin(0), motionRangeMax(0), jointSpeedLimit(0), frictionCoefficient(0), stiffnessCoefficient(0), dampingCoefficient(0), visualization("") {}
     Joint(const string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient, const string &visualization);
-    ~Joint();
+    ~Joint() = default;
 
     // Setters
     void setName(const string &name) { this->name = name; }
