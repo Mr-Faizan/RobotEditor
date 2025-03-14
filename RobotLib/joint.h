@@ -23,8 +23,19 @@ private:
     vector<JointDynamics> dynamics; // Container for multiple JointDynamics objects
 
 public:
-    Joint();
-    Joint(const string &name) : name(name), motionRangeMin(0), motionRangeMax(0), jointSpeedLimit(0), frictionCoefficient(0), stiffnessCoefficient(0), dampingCoefficient(0), visualization("") {}
+    Joint()
+        : name(""), motionRangeMin(0), motionRangeMax(0), jointSpeedLimit(0), frictionCoefficient(0), stiffnessCoefficient(0), dampingCoefficient(0), visualization("")
+    {
+        // Add a default JointDynamics object
+        dynamics.push_back(JointDynamics());
+    }
+    Joint(const string &name) 
+    : name(name), motionRangeMin(0), motionRangeMax(0), jointSpeedLimit(0), frictionCoefficient(0), stiffnessCoefficient(0), dampingCoefficient(0), visualization("") 
+    {
+        // Add a default JointDynamics object
+        dynamics.push_back(JointDynamics());
+    }
+    
     Joint(const string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient, const string &visualization);
     ~Joint() = default;
 

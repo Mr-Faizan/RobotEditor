@@ -16,9 +16,11 @@ Robot::Robot()
       weight(0),
       dof(0)
 {
+      // Add a default joint
+      joints.push_back(Joint());
 }
 
-Robot::Robot(const std::string &name)
+Robot::Robot(const string &name)
     : id(++lastAssignedId),
       name(name),
       manufacturer(""),
@@ -29,7 +31,10 @@ Robot::Robot(const std::string &name)
       weight(0),
       dof(0)
 {
+      // Add a default joint
+      joints.push_back(Joint());
 }
+
 
 Robot::Robot(const string &name, const string &manufacturer, double payload, double footPrint, double maxReach, double repeatability, double weight, int dof)
     : id(++lastAssignedId),
@@ -42,5 +47,7 @@ Robot::Robot(const string &name, const string &manufacturer, double payload, dou
       weight(weight),
       dof(dof)
 {
+      // Add a default joint
+      joints.push_back(Joint());
 }
 

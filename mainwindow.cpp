@@ -339,11 +339,8 @@ void MainWindow::addNewJoint()
     }
 
     // Create a new joint
-    // QString jointKey = JointKeys::Joint + " " + QString::number(currentItem->rowCount() + 1);
-    QString jointKey = JointKeys::Joint;
-    QJsonObject joint = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[jointKey].toObject();
-
-    // addJoint(currentItem, jointKey, joint);
+    Joint newJoint;
+    addJoint(currentItem, newJoint);
 
     ui->treeView->expand(currentIndex);
 }
@@ -371,13 +368,9 @@ void MainWindow::addNewDynamics()
         return;
     }
 
-    // Create a new payload
-    QString payloadKey = DynamicsKeys::Payload + " " + QString::number(currentItem->rowCount() + 1);
-    QJsonObject payload = templateObject[RobotKeys::Robot].toObject()[RobotKeys::Joints].toObject()[JointKeys::JointDynamics].toObject()[payloadKey].toObject();
-
-    // Create generic function.
-    //addDynamicsPayload(currentItem, payloadKey, payload);
-
+    // Create a new dynamics
+    JointDynamics newDynamics;
+    addDynamicsPayload(currentItem, newDynamics);
     ui->treeView->expand(currentIndex);
 }
 
@@ -823,6 +816,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
 // Creating a generic function that will load the Template data as an object and we will use this object throughout the application.
 // Setting Global Template Object
+/*
 void MainWindow::loadTemplate()
 {
 
@@ -853,6 +847,7 @@ void MainWindow::loadTemplate()
         return;
     }
 }
+    */
 
 // I tired my best not to define the structue of the application in the model and to load the structure from the template file, to make it Dynamic.
 // But I am unable to do so, because JSON Object is unordered list of key value pairs and for us Order is very important.
@@ -941,8 +936,11 @@ void MainWindow::populateTreeView(const Robot &robot)
 
     QStandardItem *rootItem = model->invisibleRootItem();
 
-    QStandardItem *robotItem = new QStandardItem(QIcon(":/Resources/Icons/robotic-arm.png"), QString::fromStdString(robot.getName()));
+    QStandardItem *robotItem = new QStandardItem(QIcon(":/Resources/Icons/robotic-arm.png"), RobotKeys::Robot);
     robotItem->setFlags(robotItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
+
+    // Store the robot ID in the item
+    robotItem->setData(robot.getId(), Qt::UserRole + 1);
 
     if (!activeRobotItem)
     {
