@@ -30,19 +30,31 @@ void RobotLib::removeRobot(const std::string &name)
 
 
 
-Robot *RobotLib::getRobot(const std::string &name)
+Robot& RobotLib::getRobot(const std::string &name)
 {
     for (auto &robot : robotCollection)
     {
         if (robot.getName() == name)
         {
-            return &robot;
+            return robot;
         }
     }
-    return nullptr;
+    throw std::runtime_error("Robot not found");
 }
 
-const Robot *RobotLib::getRobotById(int robotId) const
+Robot& RobotLib::getRobotById(int robotId)
+{
+    for (auto &robot : robotCollection)
+    {
+        if (robot.getId() == robotId)
+        {
+            return robot;
+        }
+    }
+    throw std::runtime_error("Robot not found");
+}
+
+const Robot *RobotLib::getRobotById2(int robotId) const
 {
     auto it = std::find_if(robotCollection.begin(), robotCollection.end(), [robotId](const Robot &robot) {
         return robot.getId() == robotId;
@@ -57,18 +69,46 @@ const Robot *RobotLib::getRobotById(int robotId) const
 }
 
 
-
 const std::vector<Robot> &RobotLib::getRobots() const
 {
     return robotCollection;
 }
 
-// Load data from JSON file
-// Things to Do in this function:
-// 1. Verify that the file we pick is correct file to read from.
-// 2. Verify data type before saving to JSON to avoid runtime errors.
+// Function responsible for updating and saving the robot data
+bool RobotLib::updateAndSaveRobotData(const std::string &filePath, const json &json, int robotId)
+{
+    try
+    {
+        // Get the robot by ID
+        Robot &robot = getRobotById(robotId);
 
-bool RobotLib::loadFromJson(const std::string &filePath, Robot &robot)
+        // Update the robot data from JSON
+        if (!loadFromJson(json, robot))
+        {
+            std::cerr << "Failed to update robot data from JSON." << std::endl;
+            return false;
+        }
+
+        // Save the updated robot data to the file
+        if (!saveToJson(filePath, robot))
+        {
+            std::cerr << "Failed to save robot data to file." << std::endl;
+            return false;
+        }
+
+        return true;
+    }
+    catch (const std::runtime_error &e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return false;
+    } 
+}
+
+
+
+// Load data from JSON file
+bool RobotLib::loadFromFile(const std::string &filePath, Robot &robot)
 {
     std::ifstream file(filePath);
     if (!file.is_open())
@@ -85,6 +125,25 @@ bool RobotLib::loadFromJson(const std::string &filePath, Robot &robot)
     catch (const json::parse_error &e)
     {
         std::cerr << "Error: Failed to parse JSON file: " << e.what() << std::endl;
+        return false;
+    }
+
+    // Now Pass this JSON data to loadFromJson 
+
+    return loadFromJson(jsonData, robot);
+}
+
+// Load data from JSON file
+// Things to Do in this function:
+// 1. Verify that the file we pick is correct file to read from.
+// 2. Verify data type before saving to JSON to avoid runtime errors.
+
+bool RobotLib::loadFromJson(const json jsonData, Robot &robot)
+{
+    // Check if the JSON data is an object and jsonData is valid json
+    if (!jsonData.is_object())
+    {
+        std::cerr << "Error: Invalid JSON data." << std::endl;
         return false;
     }
 
@@ -120,8 +179,11 @@ bool RobotLib::loadFromJson(const std::string &filePath, Robot &robot)
 
         for (const auto &jointJson : robotJson[RobotKeys2::Joints].items())
         {
+            const std::string jointKey = jointJson.key();
             const auto &jointData = jointJson.value();
             Joint joint;
+            joint.setJointNumber(jointKey);
+
             if (jointData.contains(JointKeys2::JointName) && jointData[JointKeys2::JointName].is_string())
                 joint.setName(jointData[JointKeys2::JointName]);
             if (jointData.contains(JointKeys2::MotionRangeMax) && jointData[JointKeys2::MotionRangeMax].is_number())
@@ -186,8 +248,11 @@ bool RobotLib::loadFromJson(const std::string &filePath, Robot &robot)
             {
                 for (const auto &dynamicsJson : jointData[JointKeys2::JointDynamics].items())
                 {
+                    const std::string payloadKey = dynamicsJson.key();
                     const auto &dynamicsData = dynamicsJson.value();
                     JointDynamics dynamics;
+                    dynamics.setPayloadNumber(payloadKey);
+
                     if (dynamicsData.contains(DynamicsKeys2::TestPayload) && dynamicsData[DynamicsKeys2::TestPayload].is_number())
                         dynamics.setTestPayload(dynamicsData[DynamicsKeys2::TestPayload]);
                     if (dynamicsData.contains(DynamicsKeys2::PayloadPercentage) && dynamicsData[DynamicsKeys2::PayloadPercentage].is_number())
@@ -207,13 +272,11 @@ bool RobotLib::loadFromJson(const std::string &filePath, Robot &robot)
         }
     }
 
-    addRobot(robot);
-
     return true;
 }
 
 //
-bool RobotLib::saveToJson(const std::string &filePath, int robotId) const
+bool RobotLib::saveToJson(const std::string &filePath, Robot &robot) const
 {
     std::ofstream file(filePath);
     if (!file.is_open())
@@ -223,14 +286,11 @@ bool RobotLib::saveToJson(const std::string &filePath, int robotId) const
 
     json j;
 
-    auto it = std::find_if(robotCollection.begin(), robotCollection.end(), [robotId](const Robot &robot) {
-        return robot.getId() == robotId;
-    });
 
-    if (it != robotCollection.end())
+    // if robot exit and not empty then save the data to the file.
+
+    if (robot.getId() != 0)
     {
-        const auto &robot = robotCollection.front(); // Save only the first robot
-
         json robotJson;
         robotJson[RobotKeys2::RobotName] = robot.getName();
         robotJson[RobotKeys2::RobotManufacturer] = robot.getManufacturer();
@@ -284,11 +344,12 @@ bool RobotLib::saveToJson(const std::string &filePath, int robotId) const
                 singleDynamicsJson[DynamicsKeys2::SpeedPercentage] = dynamics.getSpeedPercentage();
                 singleDynamicsJson[DynamicsKeys2::BreakingDistance] = dynamics.getBreakingDistance();
                 singleDynamicsJson[DynamicsKeys2::BreakingTime] = dynamics.getBreakingTime();
-                dynamicsJson.push_back(singleDynamicsJson);
+                
+                dynamicsJson[dynamics.getPayloadNumber()] = singleDynamicsJson;
             }
 
             jointJson[JointKeys2::JointDynamics] = dynamicsJson;
-            jointsJson[joint.getName()] = jointJson;
+            jointsJson[joint.getJointNumber()] = jointJson;
         }
 
         robotJson[RobotKeys2::Joints] = jointsJson;

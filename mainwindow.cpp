@@ -189,7 +189,7 @@ void MainWindow::on_actionOpenFromDevice_triggered()
         // Create new Robot.
         Robot newRobot = robotLib.createRobot();
 
-        if (!robotLib.loadFromJson(filePath.toStdString(), newRobot))
+        if (!robotLib.loadFromFile(filePath.toStdString(), newRobot))
         {
             qWarning("Failed to load robot data from JSON file");
             return;
@@ -1191,15 +1191,36 @@ void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
     if (!filePath.isEmpty() && currentItem)
     {
         // Get the current Robot JSON
-        QJsonObject json = modelToJson(currentItem);
+        QJsonObject qJson = modelToJson(currentItem);
 
         // Before saving to file, make sure the JSON object has valid Json data
-        if (json.isEmpty())
+        if (qJson.isEmpty())
         {
             qWarning() << "Failed to convert model to JSON";
             return;
         }
         // verify that the existing json has valid foramtted data.
+
+         
+         int robotId = currentItem->data(Qt::UserRole + 1).toInt();
+
+         // Convert QString to std::string
+        std::string stdFilePath = filePath.toStdString();
+
+        // Convert QJsonObject to nlohmann::json
+        nlohmann::json json = nlohmann::json::parse(QString(QJsonDocument(qJson).toJson(QJsonDocument::Compact)).toStdString());
+         
+         // Pass the JSON data to RobotLib to update the robot values
+         if (!robotLib.updateAndSaveRobotData(stdFilePath, json, robotId))
+         {
+             qWarning() << "Failed to update robot data in RobotLib";
+
+             robotLib.printData();
+
+             return;
+         }
+
+        /*
 
         QJsonDocument doc(json);
         QFile file(filePath);
@@ -1212,6 +1233,8 @@ void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
         {
             qWarning() << "Failed to open file for writing";
         }
+            
+        */
     }
 }
 

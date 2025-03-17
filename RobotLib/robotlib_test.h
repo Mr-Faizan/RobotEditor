@@ -13,8 +13,10 @@ private:
     void testAddRobot();
     void testRemoveRobot();
     void testGetRobot();
+    void testGetRobotById();
     void testLoadFromJson();
     void testSaveToJson();
+    void testUpdateAndSaveRobotData();
 };
 
 #endif // ROBOTLIB_TEST_H

@@ -47,6 +47,8 @@ public:
     ~Robot(){};
 
     // Setters
+    // Do not set ID as it is auto-generated. This function is for testing purposes.
+    void setId(int id) { this->id = id; }
     void setName(const string &name) { this->name = name; }
     void setManufacturer(const string &manufacturer) { this->manufacturer = manufacturer; }
     void setPayload(double payload) { this->payload = payload; }
