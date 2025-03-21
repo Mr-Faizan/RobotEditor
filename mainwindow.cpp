@@ -163,7 +163,7 @@ void MainWindow::on_actionSaveAll_triggered()
 void MainWindow::on_actionNewRobot_triggered()
 {
     // Create new Robot.
-    Robot newRobot = robotLib.createRobot();
+    Robot newRobot = robotLib.initializeNewRobot();
     populateTreeView(newRobot);
 
 /*
@@ -186,17 +186,20 @@ void MainWindow::on_actionOpenFromDevice_triggered()
     {
         qDebug() << "Opening from: " << filePath;
 
-        // Create new Robot.
-        Robot newRobot = robotLib.createRobot();
 
-        if (!robotLib.loadFromFile(filePath.toStdString(), newRobot))
+        try
         {
-            qWarning("Failed to load robot data from JSON file");
+            // Load the robot from the file
+            Robot robot = robotLib.loadFromFile(filePath.toStdString());
+
+            // Populate data in the model
+            populateTreeView(robot);
+        }
+        catch (const std::runtime_error &e)
+        {
+            qWarning() << "Failed to load robot data from JSON file: " << e.what();
             return;
         }
-
-        // Populate data in the model
-        populateTreeView(newRobot);
 
         /*
         // Print the robotLib object to see the data.
@@ -338,8 +341,12 @@ void MainWindow::addNewJoint()
         return;
     }
 
-    // Create a new joint
-    Joint newJoint;
+    //int robotId = currentItem->data(Qt::UserRole + 1).toInt();
+    //Robot &robot = robotLib.getRobotById(robotId);
+    //Joint newJoint = robot.addJoint();
+    // call createJoint function from robotlib
+    Joint newJoint = robotLib.createJoint();
+
     addJoint(currentItem, newJoint);
 
     ui->treeView->expand(currentIndex);
@@ -369,7 +376,8 @@ void MainWindow::addNewDynamics()
     }
 
     // Create a new dynamics
-    JointDynamics newDynamics;
+    JointDynamics newDynamics = robotLib.createDynamics();
+    //JointDynamics newDynamics;
     addDynamicsPayload(currentItem, newDynamics);
     ui->treeView->expand(currentIndex);
 }
@@ -475,6 +483,9 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
 
 void MainWindow::addJoint(QStandardItem *jointsItem, const Joint &joint)
 {
+
+    //QStandardItem *singleJointItem = new QStandardItem(QString::fromStdString(joint.getJointNumber()));
+
     int jointNumber = jointsItem->rowCount() + 1;
     QStandardItem *singleJointItem = new QStandardItem(QString("Joint %1").arg(jointNumber));
     singleJointItem->setFlags(singleJointItem->flags() & ~Qt::ItemIsEditable);
@@ -528,9 +539,20 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const Joint &joint)
     dynamicsNonEditableItem->setFlags(dynamicsNonEditableItem->flags() & ~Qt::ItemIsEditable);
     singleJointItem->appendRow(QList<QStandardItem *>() << dynamicsItem << dynamicsNonEditableItem);
 
-    for (const auto &dynamics : joint.getDynamics())
+
+     // Check if joint has dynamics
+    if (joint.getDynamics().empty())
     {
-        addDynamicsPayload(dynamicsItem, dynamics);
+        // Create a new dynamics if there are no existing dynamics
+        JointDynamics newDynamics = robotLib.createDynamics();
+        addDynamicsPayload(dynamicsItem, newDynamics);
+    }
+    else
+    {
+        for (const auto &dynamics : joint.getDynamics())
+        {
+            addDynamicsPayload(dynamicsItem, dynamics);
+        }
     }
 
     // Loading visualization
@@ -552,7 +574,10 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const Joint &joint)
 // This function will add the Payload in the TreeView.
 void MainWindow::addDynamicsPayload(QStandardItem *dynamicsItem, const JointDynamics &dynamics)
 {
-    QStandardItem *payloadItem = new QStandardItem(QString("Payload %1").arg(dynamicsItem->rowCount() + 1));
+    //QStandardItem *payloadItem = new QStandardItem(QString::fromStdString(dynamics.getPayloadNumber()));
+
+    int payloadNumber = dynamicsItem->rowCount() + 1;
+    QStandardItem *payloadItem = new QStandardItem(QString("Payload %1").arg(payloadNumber));
     payloadItem->setFlags(payloadItem->flags() & ~Qt::ItemIsEditable);
     dynamicsItem->appendRow(payloadItem);
 
@@ -967,6 +992,8 @@ void MainWindow::populateTreeView(const Robot &robot)
     // Loading joints
     QStandardItem *jointsItem = new QStandardItem(QIcon(":/Resources/Icons/robot-joint.png"), RobotKeys::Joints);
     jointsItem->setFlags(jointsItem->flags() & ~Qt::ItemIsEditable);
+    // setting Robot ID to the Joints Item
+    jointsItem->setData(robot.getId(), Qt::UserRole + 1);
 
     // Create a new non-editable item for the second column of the Joints item
     QStandardItem *jointsNonEditableItem = new QStandardItem();

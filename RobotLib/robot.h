@@ -2,6 +2,7 @@
 #define ROBOT_H
 
 #include <string>
+#include <stdexcept> 
 #include <vector>
 #include "joint.h"
 
@@ -34,6 +35,7 @@ private:
     double weight;
     int dof;
     std::vector<Joint> joints;
+    int jointCounter;
 
 public:
     Robot();
@@ -57,7 +59,7 @@ public:
     void setRepeatability(double repeatability) { this->repeatability = repeatability; }
     void setWeight(double weight) { this->weight = weight; }
     void setDof(int dof) { this->dof = dof; }
-    void addJoint(const Joint &joint) { joints.push_back(joint); }
+    
 
     // Getters
     int getId() const { return id; }
@@ -70,6 +72,11 @@ public:
     double getWeight() const { return weight; }
     int getDof() const { return dof; }
     const std::vector<Joint> &getJoints() const { return joints; }
+
+    // General Functions
+    void addJoint(const Joint &joint);
+    Joint& createAndAddJoint();
+    Joint& getJointByJointNumber(const std::string &jointNumber);
 };
 
 #endif // ROBOT_H

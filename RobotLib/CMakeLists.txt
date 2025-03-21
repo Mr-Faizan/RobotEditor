@@ -13,16 +13,16 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
 add_library(RobotLib SHARED
   RobotLib_global.h
-  robotlib.cpp
   robotlib.h
-  robot.cpp
+  robotlib.cpp
   robot.h
-  joint.cpp
+  robot.cpp
   joint.h
-  kinematics.cpp
+  joint.cpp
   kinematics.h
-  dynamics.cpp
+  kinematics.cpp
   dynamics.h
+  dynamics.cpp
   robotlib_test.h robotlib_test.cpp
   main.cpp
   jsonkeys2.h

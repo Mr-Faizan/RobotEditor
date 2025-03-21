@@ -108,11 +108,21 @@ void RobotLibTest::testLoadFromJson() {
     })";
     nlohmann::json jsonData = nlohmann::json::parse(jsonString);
 
-    bool success = lib.loadFromJson(jsonData, newRobot);
+    Robot robot = lib.loadFromJson(jsonData);
 
-    if (success && !lib.getRobots().empty() && lib.getRobots()[0].getName() == "TestRobot") {
+    if (robot.getName() == "TestRobot" &&
+        robot.getManufacturer() == "TestManufacturer" &&
+        robot.getPayload() == 10.5 &&
+        robot.getFootprint() == 1.2 &&
+        robot.getMaxReach() == 2.5 &&
+        robot.getRepeatability() == 0.01 &&
+        robot.getWeight() == 50.0 &&
+        robot.getDof() == 6)
+    {
         std::cout << "testLoadFromJson passed." << std::endl;
-    } else {
+    }
+    else
+    {
         std::cout << "testLoadFromJson failed." << std::endl;
     }
 }

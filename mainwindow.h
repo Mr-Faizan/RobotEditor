@@ -113,7 +113,7 @@ private:
     RobotLib robotLib;
 
     // Custom Functions
-    void loadTemplate();
+    // void loadTemplate();
     void showContextMenu(const QPoint &pos);
     // void populateTreeView(const QJsonObject &json);
     void populateTreeView(const Robot &robot);

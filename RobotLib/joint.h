@@ -2,15 +2,18 @@
 #define JOINT_H
 
 #include <string>
+#include <stdexcept> 
 #include <vector>
 #include "dynamics.h"
 #include "kinematics.h"
+#include "jsonkeys2.h"
 
 using namespace std;
 
 class Joint
 {
 private:
+
     std::string jointNumber;
     string name;
     double motionRangeMin;
@@ -22,22 +25,13 @@ private:
     string visualization;
     JointKinematics kinematics;
     vector<JointDynamics> dynamics; // Container for multiple JointDynamics objects
-
+    int payloadCounter;
 public:
-    Joint()
-        : jointNumber(""), name(""), motionRangeMin(0), motionRangeMax(0), jointSpeedLimit(0), frictionCoefficient(0), stiffnessCoefficient(0), dampingCoefficient(0), visualization("")
-    {
-        // Add a default JointDynamics object
-        dynamics.push_back(JointDynamics());
-    }
-    Joint(const string &name) 
-        : jointNumber(""), name(name), motionRangeMin(0), motionRangeMax(0), jointSpeedLimit(0), frictionCoefficient(0), stiffnessCoefficient(0), dampingCoefficient(0), visualization("") 
-    {
-        // Add a default JointDynamics object
-        dynamics.push_back(JointDynamics());
-    }
-    
-    Joint(const string &jointNumber, const string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient, const string &visualization);
+
+    Joint();
+    Joint(string &name);
+
+    Joint(string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient, const string &visualization);
     ~Joint() = default;
 
     // Setters
@@ -51,7 +45,6 @@ public:
     void setDampingCoefficient(double damping) { this->dampingCoefficient = damping; }
     void setVisualization(const string &visualization) { this->visualization = visualization; }
     void setKinematics(const JointKinematics &kinematics) { this->kinematics = kinematics; }
-    void addDynamics(const JointDynamics &dynamics) { this->dynamics.push_back(dynamics); }
 
     // Getters
     string getJointNumber() const { return jointNumber; }
@@ -65,6 +58,13 @@ public:
     string getVisualization() const { return visualization; }
     JointKinematics getKinematics() const { return kinematics; }
     vector<JointDynamics> getDynamics() const { return dynamics; }
+
+    // General Functions
+    void addDynamics(JointDynamics &dynamics);
+
+    JointDynamics& createAndAddDynamics();
+    JointDynamics& setDynamics(JointDynamics &payload);
+    JointDynamics& getDynamicsByPayloadNumber(const string &payloadNumber);
 };
 
 #endif // JOINT_H

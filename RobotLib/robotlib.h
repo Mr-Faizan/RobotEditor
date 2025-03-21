@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <stdexcept> 
 #include <vector>
 #include <fstream>
 
@@ -24,7 +25,11 @@ public:
     RobotLib();
     ~RobotLib();
     // Robot management
+    Robot initializeNewRobot();
     Robot createRobot();
+    Joint createJoint();
+    JointDynamics createDynamics();
+
     void addRobot(const Robot &robot);
     void removeRobot(const string &name);
     Robot& getRobot(const string &name);
@@ -33,10 +38,12 @@ public:
     const Robot *getRobotById2(int robotId) const;
 
     bool updateAndSaveRobotData(const std::string &filePath, const json &json, int robotId);
-    bool loadFromFile(const string &filePath, Robot &robot);
+    Robot loadFromFile(const string &filePath);
     // Load and save data
-    bool loadFromJson(const json jsonData, Robot &robot);
+    Robot loadFromJson(const json jsonData);
     bool saveToJson(const std::string &filePath, Robot &robot) const;
+
+
 
     // Print data
     void printData() const;
