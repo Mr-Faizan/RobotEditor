@@ -174,7 +174,7 @@ void RobotLibTest::testUpdateAndSaveRobotData() {
     })";
     nlohmann::json jsonData = nlohmann::json::parse(jsonString);
 
-    bool success = lib.updateAndSaveRobotData("updated_robot_output.json", jsonData, 1);
+    bool success = lib.updateAndSaveRobotData("updated_robot_output.json", jsonData);
 
     if (success) {
         std::cout << "testUpdateAndSaveRobotData passed." << std::endl;

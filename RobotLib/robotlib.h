@@ -37,8 +37,9 @@ public:
     Robot& getRobotById(int robotId);
     const Robot *getRobotById2(int robotId) const;
 
-    bool updateAndSaveRobotData(const std::string &filePath, const json &json, int robotId);
+    bool updateAndSaveRobotData(const std::string &filePath, const json &json);
     Robot loadFromFile(const string &filePath);
+    double getNumberFromJson(const json &value);
     // Load and save data
     Robot loadFromJson(const json jsonData);
     bool saveToJson(const std::string &filePath, Robot &robot) const;

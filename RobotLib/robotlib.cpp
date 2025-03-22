@@ -8,7 +8,7 @@ RobotLib::~RobotLib() {}
 
 Robot RobotLib::initializeNewRobot()
 {
-    Robot newRobot = createRobot();
+    Robot newRobot;
     Joint& newJoint = newRobot.createAndAddJoint();
     JointDynamics& newDynamics = newJoint.createAndAddDynamics();
     return newRobot;
@@ -91,7 +91,7 @@ const std::vector<Robot> &RobotLib::getRobots() const
 }
 
 // Function responsible for updating and saving the robot data
-bool RobotLib::updateAndSaveRobotData(const std::string &filePath, const json &json, int robotId)
+bool RobotLib::updateAndSaveRobotData(const std::string &filePath, const json &json)
 {
     try
     {
@@ -148,7 +148,7 @@ Robot RobotLib::loadFromFile(const std::string &filePath)
 // Things to Do in this function:
 // 1. Verify that the file we pick is correct file to read from.
 // 2. Verify data type before saving to JSON to avoid runtime errors.
-
+/*
 Robot RobotLib::loadFromJson(const json jsonData)
 {
     // Check if the JSON data is an object and jsonData is valid json
@@ -311,6 +311,182 @@ Robot RobotLib::loadFromJson(const json jsonData)
 
     return robot;
 }
+*/
+
+double RobotLib::getNumberFromJson(const json &value)
+{
+    if (value.is_number())
+    {
+        return value.get<double>();
+    }
+    else if (value.is_string())
+    {
+        return std::stod(value.get<std::string>());
+    }
+    else
+    {
+        throw std::runtime_error("Invalid value type for number conversion");
+    }
+}
+
+Robot RobotLib::loadFromJson(const json jsonData)
+{
+    // Check if the JSON data is an object and jsonData is valid json
+    if (!jsonData.is_object())
+    {
+        std::cerr << "Error: Invalid JSON data." << std::endl;
+        throw std::runtime_error("Invalid JSON data.");
+    }
+
+    // Check if the main Robot section exists
+    if (!jsonData.contains(RobotKeys2::Robot) || !jsonData[RobotKeys2::Robot].is_object())
+    {
+        std::cerr << "Error: Missing or invalid Robot section in JSON." << std::endl;
+        throw std::runtime_error("Missing or invalid Robot section in JSON.");
+    }
+
+    // Create a new Robot object
+    Robot robot;
+    // add robot to the collection
+    addRobot(robot);
+
+    // Load robots from JSON
+    const auto &robotJson = jsonData[RobotKeys2::Robot];
+    if (robotJson.contains(RobotKeys2::RobotName) && robotJson[RobotKeys2::RobotName].is_string())
+        robot.setName(robotJson[RobotKeys2::RobotName]);
+    if (robotJson.contains(RobotKeys2::RobotManufacturer) && robotJson[RobotKeys2::RobotManufacturer].is_string())
+        robot.setManufacturer(robotJson[RobotKeys2::RobotManufacturer]);
+    if (robotJson.contains(RobotKeys2::RobotPayload))
+        robot.setPayload(getNumberFromJson(robotJson[RobotKeys2::RobotPayload]));
+    if (robotJson.contains(RobotKeys2::RobotFootprint))
+        robot.setFootprint(getNumberFromJson(robotJson[RobotKeys2::RobotFootprint]));
+    if (robotJson.contains(RobotKeys2::RobotMaxReach))
+        robot.setMaxReach(getNumberFromJson(robotJson[RobotKeys2::RobotMaxReach]));
+    if (robotJson.contains(RobotKeys2::RobotRepeatability))
+        robot.setRepeatability(getNumberFromJson(robotJson[RobotKeys2::RobotRepeatability]));
+    if (robotJson.contains(RobotKeys2::RobotWeight))
+        robot.setWeight(getNumberFromJson(robotJson[RobotKeys2::RobotWeight]));
+    if (robotJson.contains(RobotKeys2::DOF))
+        robot.setDof(static_cast<int>(getNumberFromJson(robotJson[RobotKeys2::DOF])));
+
+    // Check if the joint section exists
+    if (robotJson.contains(RobotKeys2::Joints) && robotJson[RobotKeys2::Joints].is_object())
+    {
+        for (const auto &jointJson : robotJson[RobotKeys2::Joints].items())
+        {
+            const std::string jointKey = jointJson.key();
+            const auto &jointData = jointJson.value();
+
+            try
+            {
+                Joint &joint = robot.createAndAddJoint();
+
+                // jointkey has value then set the joint number
+                if (!jointKey.empty())
+                {
+                    joint.setJointNumber(jointKey);
+                }
+
+                if (jointData.contains(JointKeys2::JointName) && jointData[JointKeys2::JointName].is_string())
+                    joint.setName(jointData[JointKeys2::JointName]);
+                if (jointData.contains(JointKeys2::MotionRangeMax))
+                    joint.setMotionRangeMax(getNumberFromJson(jointData[JointKeys2::MotionRangeMax]));
+                if (jointData.contains(JointKeys2::MotionRangeMin))
+                    joint.setMotionRangeMin(getNumberFromJson(jointData[JointKeys2::MotionRangeMin]));
+                if (jointData.contains(JointKeys2::JointSpeedLimit))
+                    joint.setJointSpeedLimit(getNumberFromJson(jointData[JointKeys2::JointSpeedLimit]));
+                if (jointData.contains(JointKeys2::FrictionCoefficient))
+                    joint.setFrictionCoefficient(getNumberFromJson(jointData[JointKeys2::FrictionCoefficient]));
+                if (jointData.contains(JointKeys2::StiffnessCoefficient))
+                    joint.setStiffnessCoefficient(getNumberFromJson(jointData[JointKeys2::StiffnessCoefficient]));
+                if (jointData.contains(JointKeys2::DampingCoefficient))
+                    joint.setDampingCoefficient(getNumberFromJson(jointData[JointKeys2::DampingCoefficient]));
+                if (jointData.contains(JointKeys2::Visualization) && jointData[JointKeys2::Visualization].is_string())
+                    joint.setVisualization(jointData[JointKeys2::Visualization]);
+
+                JointKinematics kinematics;
+                JointKinematics::DHParameters dhParameters;
+
+                if (jointData.contains(JointKeys2::JointKinematics) && jointData[JointKeys2::JointKinematics].is_object())
+                {
+                    const auto &dhParams = jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters];
+
+                    if (dhParams.contains(DhParametersKeys2::Alpha))
+                        dhParameters.setAlpha(getNumberFromJson(dhParams[DhParametersKeys2::Alpha]));
+                    if (dhParams.contains(DhParametersKeys2::D))
+                        dhParameters.setD(getNumberFromJson(dhParams[DhParametersKeys2::D]));
+                    if (dhParams.contains(DhParametersKeys2::Theta))
+                        dhParameters.setTheta(getNumberFromJson(dhParams[DhParametersKeys2::Theta]));
+                    if (dhParams.contains(DhParametersKeys2::A))
+                        dhParameters.setA(getNumberFromJson(dhParams[DhParametersKeys2::A]));
+
+                    if (dhParams.contains(DhParametersKeys2::DHType) && dhParams[DhParametersKeys2::DHType].is_string())
+                        kinematics.setDhType(dhParams[DhParametersKeys2::DHType]);
+
+                    kinematics.setDhParameters(dhParameters);
+
+                    JointKinematics::RotationalValues rotationalValues;
+                    const auto &rotValues = jointData[JointKeys2::JointKinematics][KinematicsKeys2::RotationalValues];
+
+                    if (rotValues.contains(RotationalValuesKeys2::Ixx))
+                        rotationalValues.setIxx(getNumberFromJson(rotValues[RotationalValuesKeys2::Ixx]));
+                    if (rotValues.contains(RotationalValuesKeys2::Ixy))
+                        rotationalValues.setIxy(getNumberFromJson(rotValues[RotationalValuesKeys2::Ixy]));
+                    if (rotValues.contains(RotationalValuesKeys2::Ixz))
+                        rotationalValues.setIxz(getNumberFromJson(rotValues[RotationalValuesKeys2::Ixz]));
+                    if (rotValues.contains(RotationalValuesKeys2::Iyy))
+                        rotationalValues.setIyy(getNumberFromJson(rotValues[RotationalValuesKeys2::Iyy]));
+                    if (rotValues.contains(RotationalValuesKeys2::Iyz))
+                        rotationalValues.setIyz(getNumberFromJson(rotValues[RotationalValuesKeys2::Iyz]));
+                    if (rotValues.contains(RotationalValuesKeys2::Izz))
+                        rotationalValues.setIzz(getNumberFromJson(rotValues[RotationalValuesKeys2::Izz]));
+                    kinematics.setRotationalValues(rotationalValues);
+
+                    joint.setKinematics(kinematics);
+                }
+
+                if (jointData.contains(JointKeys2::JointDynamics) && jointData[JointKeys2::JointDynamics].is_object())
+                {
+                    for (const auto &dynamicsJson : jointData[JointKeys2::JointDynamics].items())
+                    {
+                        const std::string payloadKey = dynamicsJson.key();
+                        const auto &dynamicsData = dynamicsJson.value();
+
+                        JointDynamics &dynamics = joint.createAndAddDynamics();
+
+                        if (!payloadKey.empty())
+                        {
+                            dynamics.setPayloadNumber(payloadKey);
+                        }
+
+                        if (dynamicsData.contains(DynamicsKeys2::TestPayload))
+                            dynamics.setTestPayload(getNumberFromJson(dynamicsData[DynamicsKeys2::TestPayload]));
+                        if (dynamicsData.contains(DynamicsKeys2::PayloadPercentage))
+                            dynamics.setPayloadPercentage(getNumberFromJson(dynamicsData[DynamicsKeys2::PayloadPercentage]));
+                        if (dynamicsData.contains(DynamicsKeys2::RepeatabilityPercentage))
+                            dynamics.setReachabilityPercentage(getNumberFromJson(dynamicsData[DynamicsKeys2::RepeatabilityPercentage]));
+                        if (dynamicsData.contains(DynamicsKeys2::SpeedPercentage))
+                            dynamics.setSpeedPercentage(getNumberFromJson(dynamicsData[DynamicsKeys2::SpeedPercentage]));
+                        if (dynamicsData.contains(DynamicsKeys2::BreakingDistance))
+                            dynamics.setBreakingDistance(getNumberFromJson(dynamicsData[DynamicsKeys2::BreakingDistance]));
+                        if (dynamicsData.contains(DynamicsKeys2::BreakingTime))
+                            dynamics.setBreakingTime(getNumberFromJson(dynamicsData[DynamicsKeys2::BreakingTime]));
+                    }
+                }
+            }
+            catch (const std::runtime_error &e)
+            {
+                std::cerr << "Error: " << e.what() << std::endl;
+                continue;
+            }
+        }
+    }
+
+    return robot;
+}
+
+
+
 
 //
 bool RobotLib::saveToJson(const std::string &filePath, Robot &robot) const

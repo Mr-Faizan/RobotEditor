@@ -192,6 +192,9 @@ void MainWindow::on_actionOpenFromDevice_triggered()
             // Load the robot from the file
             Robot robot = robotLib.loadFromFile(filePath.toStdString());
 
+            robotLib.printData();
+           
+
             // Populate data in the model
             populateTreeView(robot);
         }
@@ -1228,8 +1231,7 @@ void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
         }
         // verify that the existing json has valid foramtted data.
 
-         
-         int robotId = currentItem->data(Qt::UserRole + 1).toInt();
+
 
          // Convert QString to std::string
         std::string stdFilePath = filePath.toStdString();
@@ -1238,7 +1240,7 @@ void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
         nlohmann::json json = nlohmann::json::parse(QString(QJsonDocument(qJson).toJson(QJsonDocument::Compact)).toStdString());
          
          // Pass the JSON data to RobotLib to update the robot values
-         if (!robotLib.updateAndSaveRobotData(stdFilePath, json, robotId))
+         if (!robotLib.updateAndSaveRobotData(stdFilePath, json))
          {
              qWarning() << "Failed to update robot data in RobotLib";
 
