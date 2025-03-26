@@ -1,6 +1,0 @@
-set(__QT_DEPLOY_TARGET_RobotLib_FILE C:/Users/fahmed/WorkFolder/Projects/RobotEditor/RobotLib/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/libRobotLib.dll)
-set(__QT_DEPLOY_TARGET_RobotLib_TYPE SHARED_LIBRARY)
-set(__QT_DEPLOY_TARGET_RobotLib_RUNTIME_DLLS C:/InstalledSoftwares/QT/6.8.1/mingw_64/bin/Qt6Core.dll)
-set(__QT_DEPLOY_TARGET_RobotLibTest_FILE C:/Users/fahmed/WorkFolder/Projects/RobotEditor/RobotLib/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/RobotLibTest.exe)
-set(__QT_DEPLOY_TARGET_RobotLibTest_TYPE EXECUTABLE)
-set(__QT_DEPLOY_TARGET_RobotLibTest_RUNTIME_DLLS C:/Users/fahmed/WorkFolder/Projects/RobotEditor/RobotLib/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/libRobotLib.dll;C:/InstalledSoftwares/QT/6.8.1/mingw_64/bin/Qt6Core.dll)
