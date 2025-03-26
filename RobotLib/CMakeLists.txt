@@ -13,22 +13,30 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
 add_library(RobotLib SHARED
   RobotLib_global.h
-  robotlib.cpp
   robotlib.h
-  robot.cpp
+  robotlib.cpp
   robot.h
-  joint.cpp
+  robot.cpp
   joint.h
-  tool.cpp
-  tool.h
-  kinematics.cpp
+  joint.cpp
   kinematics.h
-  dynamics.cpp
+  kinematics.cpp
   dynamics.h
-  visualization.cpp
-  visualization.h
+  dynamics.cpp
+  robotlib_test.h robotlib_test.cpp
+  main.cpp
+  jsonkeys2.h
 )
+
+
 
 target_link_libraries(RobotLib PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 target_include_directories(RobotLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(RobotLib PRIVATE ROBOTLIB_LIBRARY)
+
+
+# Add the executable
+add_executable(RobotLibTest main.cpp robot.cpp joint.cpp kinematics.cpp dynamics.cpp robotlib_test.cpp)
+
+# Link the RobotLib library to the executable
+target_link_libraries(RobotLibTest PRIVATE RobotLib)

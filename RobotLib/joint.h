@@ -2,16 +2,19 @@
 #define JOINT_H
 
 #include <string>
+#include <stdexcept> 
 #include <vector>
 #include "dynamics.h"
 #include "kinematics.h"
-#include "visualization.h"
+#include "jsonkeys2.h"
 
 using namespace std;
 
 class Joint
 {
 private:
+
+    std::string jointNumber;
     string name;
     double motionRangeMin;
     double motionRangeMax;
@@ -19,17 +22,20 @@ private:
     double frictionCoefficient;
     double stiffnessCoefficient;
     double dampingCoefficient;
-
+    string visualization;
+    JointKinematics kinematics;
     vector<JointDynamics> dynamics; // Container for multiple JointDynamics objects
-    Kinematics *kinematics;
-    Visualization *visualization;
-
+    int payloadCounter;
 public:
-    Joint() = default;
-    Joint(const string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient);
-    ~Joint();
+
+    Joint();
+    Joint(string &name);
+
+    Joint(string &name, double motionRangeMin, double motionRangeMax, double jointSpeedLimit, double frictionCoefficient, double stiffnessCoefficient, double dampingCoefficient, const string &visualization);
+    ~Joint() = default;
 
     // Setters
+    void setJointNumber(const string &jointNumber) { this->jointNumber = jointNumber; }
     void setName(const string &name) { this->name = name; }
     void setMotionRangeMin(double min) { this->motionRangeMin = min; }
     void setMotionRangeMax(double max) { this->motionRangeMax = max; }
@@ -37,8 +43,11 @@ public:
     void setFrictionCoefficient(double friction) { this->frictionCoefficient = friction; }
     void setStiffnessCoefficient(double stiffness) { this->stiffnessCoefficient = stiffness; }
     void setDampingCoefficient(double damping) { this->dampingCoefficient = damping; }
+    void setVisualization(const string &visualization) { this->visualization = visualization; }
+    void setKinematics(const JointKinematics &kinematics) { this->kinematics = kinematics; }
 
     // Getters
+    string getJointNumber() const { return jointNumber; }
     string getName() const { return name; }
     double getMotionRangeMin() const { return motionRangeMin; }
     double getMotionRangeMax() const { return motionRangeMax; }
@@ -46,6 +55,16 @@ public:
     double getFrictionCoefficient() const { return frictionCoefficient; }
     double getStiffnessCoefficient() const { return stiffnessCoefficient; }
     double getDampingCoefficient() const { return dampingCoefficient; }
+    string getVisualization() const { return visualization; }
+    JointKinematics getKinematics() const { return kinematics; }
+    vector<JointDynamics> getDynamics() const { return dynamics; }
+
+    // General Functions
+    void addDynamics(JointDynamics &dynamics);
+
+    JointDynamics& createAndAddDynamics();
+    JointDynamics& setDynamics(JointDynamics &payload);
+    JointDynamics& getDynamicsByPayloadNumber(const string &payloadNumber);
 };
 
 #endif // JOINT_H

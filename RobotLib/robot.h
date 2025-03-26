@@ -2,6 +2,9 @@
 #define ROBOT_H
 
 #include <string>
+#include <stdexcept> 
+#include <vector>
+#include "joint.h"
 
 using namespace std;
 
@@ -21,7 +24,8 @@ class Robot
 {
 
 private:
-    int id; // Unique ID for each Robot.
+    static int lastAssignedId;
+    int id;
     string name;
     string manufacturer;
     double payload;
@@ -30,37 +34,49 @@ private:
     double repeatability;
     double weight;
     int dof;
+    std::vector<Joint> joints;
+    int jointCounter;
 
 public:
-    Robot() = default;
+    Robot();
+
+    Robot(const std::string &name);
 
     // Implement Constructor Overloading for easy initialization of the Robot.
-    Robot(int id, const string &name, const string &manufacturer, double payload, double footPrint, double maxReach, double repeatability, double weight, int dof);
+    Robot(const string &name, const string &manufacturer, double payload, double footPrint, double maxReach, double repeatability, double weight, int dof);
 
     // Implement Destructor for the Robot.
-    ~Robot();
+    ~Robot(){};
 
     // Setters
+    // Do not set ID as it is auto-generated. This function is for testing purposes.
     void setId(int id) { this->id = id; }
     void setName(const string &name) { this->name = name; }
     void setManufacturer(const string &manufacturer) { this->manufacturer = manufacturer; }
     void setPayload(double payload) { this->payload = payload; }
-    void setFootPrint(double footPrint) { this->footPrint = footPrint; }
+    void setFootprint(double footPrint) { this->footPrint = footPrint; }
     void setMaxReach(double maxReach) { this->maxReach = maxReach; }
     void setRepeatability(double repeatability) { this->repeatability = repeatability; }
     void setWeight(double weight) { this->weight = weight; }
     void setDof(int dof) { this->dof = dof; }
+    
 
     // Getters
     int getId() const { return id; }
     string getName() const { return name; }
     string getManufacturer() const { return manufacturer; }
     double getPayload() const { return payload; }
-    double getFootPrint() const { return footPrint; }
+    double getFootprint() const { return footPrint; }
     double getMaxReach() const { return maxReach; }
     double getRepeatability() const { return repeatability; }
     double getWeight() const { return weight; }
     int getDof() const { return dof; }
+    const std::vector<Joint> &getJoints() const { return joints; }
+
+    // General Functions
+    void addJoint(const Joint &joint);
+    Joint& createAndAddJoint();
+    Joint& getJointByJointNumber(const std::string &jointNumber);
 };
 
 #endif // ROBOT_H

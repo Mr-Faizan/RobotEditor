@@ -1,6 +1,8 @@
 #ifndef DYNAMICS_H
 #define DYNAMICS_H
 
+#include <string>
+
 /*
 Implementation Structure.
 Dynamics can be for the Robot or for the Joints or for the Tools.
@@ -14,17 +16,20 @@ And Also can override the functionalities according to their requirements.
 */
 
 // This class will responsible for handling the functionality that is common in Robot, Joint, and Tool.
+
 class Dynamics
 {
 public:
-    virtual ~Dynamics() = default;
+
     virtual void calculateDynamics() = 0;
+    virtual ~Dynamics() = default; 
 };
 
 // This class will responsible for calculating the Dynamics of the Joint.
 class JointDynamics : public Dynamics
 {
 private:
+    std::string payloadNumber;
     double testPayload;
     double payloadPercentage;
     double reachabilityPercentage;
@@ -33,12 +38,17 @@ private:
     double breakingTime;
 
 public:
-    JointDynamics() = default;
-    JointDynamics(double testPayload, double payloadPercentage, double reachabilityPercentage, double speedPercentage, double breakingDistance, double breakingTime);
+    JointDynamics();
 
-    void calculateDynamics() override;
+    JointDynamics(std::string payloadNumber, double testPayload, double payloadPercentage, double reachabilityPercentage, double speedPercentage, double breakingDistance, double breakingTime);
+
+    void calculateDynamics() override
+    {
+        // Implementation of dynamics calculation
+    }
 
     // Setters
+    void setPayloadNumber(const std::string &payloadNumber) { this->payloadNumber = payloadNumber; }
     void setTestPayload(double testPayload) { this->testPayload = testPayload; }
     void setPayloadPercentage(double payloadPercentage) { this->payloadPercentage = payloadPercentage; }
     void setReachabilityPercentage(double reachabilityPercentage) { this->reachabilityPercentage = reachabilityPercentage; }
@@ -47,6 +57,7 @@ public:
     void setBreakingTime(double breakingTime) { this->breakingTime = breakingTime; }
 
     // Getters
+    std::string getPayloadNumber() const { return payloadNumber; }
     double getTestPayload() const { return testPayload; }
     double getPayloadPercentage() const { return payloadPercentage; }
     double getReachabilityPercentage() const { return reachabilityPercentage; }
@@ -59,14 +70,20 @@ public:
 class RobotDynamics : public Dynamics
 {
 public:
-    void calculateDynamics() override;
+    void calculateDynamics() override
+    {
+        // Implementation
+    }
 };
 
 // This class will responsible for calculating the Dynamics of the Tool.
 class ToolDynamics : public Dynamics
 {
 public:
-    void calculateDynamics() override;
+    void calculateDynamics() override
+    {
+        // Implementation
+    }
 };
 
 #endif
