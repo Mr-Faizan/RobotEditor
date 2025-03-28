@@ -1,0 +1,767 @@
+#include "importvcmx.h"
+
+importvcmx::importvcmx(const std::string &filePath) : filePath(filePath)
+{
+    // Derive outputDir from filePath
+    std::string fileNameWithoutExtension = fs::path(filePath).stem().string();
+    outputDir = fs::path(filePath).parent_path().string() + "/" + fileNameWithoutExtension;
+}
+
+int importvcmx::importVCMXData()
+{
+    try
+    {
+
+        // Step 1: Run ZipExtractor
+        if (!zipExtractor())
+        {
+            cerr << "Error: Failed to Extract Zip Files." << endl;
+            return 1; // Return error code
+        }
+        cout << "Step 1: Zip extraction completed successfully!" << endl;
+
+        
+        // Step 2: Run ImageConverter for all 3DS files
+        if (!imageConverter())
+        {
+            cerr << "Error: Failed to process new files." << endl;
+            return 2; // Return error code
+        }
+
+        cout << "Step 2: 3DS to OBJ conversion completed successfully!" << endl;
+
+/*
+                // Step 3: Run RscToJsonParser for all component.rsc files
+                RscToJsonParser::processAllFiles(unzipDir, jsonDir);
+                cout << "Step 3: RSC to JSON conversion completed successfully!" << endl;
+
+
+                // Step 4: Run DHParameterCalculator
+                DHParameterCalculator::processAllFiles(jsonDir, outputDir);
+                cout << "Step 4: DH parameters calculation completed successfully!" << endl;
+        */
+    }
+    catch (const exception &e)
+    {
+        cerr << "Error: " << e.what() << endl;
+        return 1;
+    }
+
+    return 0; // success
+}
+
+/***************** Zip Extraction Funtions ******************** */
+bool importvcmx::zipExtractor()
+{
+    try
+    {
+        // Check if the file exists and has a ".vcmx" extension
+        if (!fs::exists(filePath) || fs::path(filePath).extension() != ".vcmx")
+        {
+            cerr << "Error: File does not exist or is not a .vcmx file: " << filePath << endl;
+            return false;
+        }
+
+        // Rename the file to .zip
+        string zipFilePath = filePath.substr(0, filePath.find_last_of('.')) + ".zip";
+        fs::copy(filePath, zipFilePath, fs::copy_options::overwrite_existing);
+
+        // Create the output directory
+        fs::create_directories(outputDir);
+
+        // Extract the zip file into the output directory
+        if (!extractZipFile(zipFilePath, outputDir))
+        {
+            cerr << "Error: Failed to extract zip file." << endl;
+            return false;
+        }
+
+        // Remove the zip file after extraction
+        fs::permissions(zipFilePath, fs::perms::owner_write, fs::perm_options::add);
+        fs::remove(zipFilePath);
+        return true;
+    }
+    catch (const std::exception &e)
+    {
+        cerr << "Error in processNewFiles: " << e.what() << endl;
+        return false;
+    }
+}
+
+bool importvcmx::extractZipFile(const std::string &zipFilePath, const std::string &destDir)
+{
+    mz_zip_archive zip;
+    memset(&zip, 0, sizeof(zip));
+
+    try
+    {
+        // Open the zip file
+        if (!mz_zip_reader_init_file(&zip, zipFilePath.c_str(), 0))
+        {
+            cerr << "Error opening zip file: " << zipFilePath << endl;
+            return false;
+        }
+
+        // Create the destination directory
+        fs::create_directories(destDir);
+
+        // Get the number of files in the archive
+        int numFiles = (int)mz_zip_reader_get_num_files(&zip);
+
+        // Extract each file
+        for (int i = 0; i < numFiles; ++i)
+        {
+            mz_zip_archive_file_stat fileStat;
+            if (!mz_zip_reader_file_stat(&zip, i, &fileStat))
+            {
+                cerr << "Failed to get file info for file index: " << i << endl;
+                continue;
+            }
+
+            std::string fileName = fileStat.m_filename;
+            std::string outputPath = destDir + "/" + fileName;
+
+            // Create directories if needed
+            fs::create_directories(fs::path(outputPath).parent_path());
+
+            // Extract the file
+            if (!mz_zip_reader_is_file_a_directory(&zip, i))
+            {
+                if (!mz_zip_reader_extract_to_file(&zip, i, outputPath.c_str(), 0))
+                {
+                    cerr << "Failed to extract file: " << fileName << endl;
+                }
+            }
+        }
+
+        // Close the zip archive
+        mz_zip_reader_end(&zip);
+        return true;
+    }
+    catch (const exception &e)
+    {
+        cerr << "Error in extractZipFile: " << e.what() << endl;
+        mz_zip_reader_end(&zip); // Ensure the zip archive is closed
+        return false;
+    }
+}
+
+/******************** Image Converter Functions ******************** */
+
+
+bool importvcmx::imageConverter()
+{
+    for (const auto &entry : fs::recursive_directory_iterator(outputDir))
+    {
+        if (entry.is_regular_file())
+        {
+            string filePath = entry.path().string();
+            string extension = entry.path().extension().string();
+
+            if (extension.empty() || extension == ".3ds")
+            {
+                string newFilePath = filePath;
+                string robotData = outputDir + "/RobotData";
+                if (extension.empty())
+                {
+                    newFilePath += ".3ds";
+                    fs::rename(filePath, newFilePath);
+                    // std::cout << "Renamed: " << filePath << " -> " << newFilePath << std::endl;
+                }
+
+                string subDirName = entry.path().parent_path().filename().string();
+                string outputSubDir = robotData + "/" + subDirName;
+                if (!fs::exists(outputSubDir))
+                {
+                    fs::create_directories(outputSubDir);
+                }
+
+                string outputFileName = entry.path().stem().string() + ".obj";
+                string outputFilePath = outputSubDir + "/" + outputFileName;
+
+                convert3DSToOBJ(newFilePath, outputFilePath);
+            }
+        }
+    }
+    return true;
+}
+
+void importvcmx::convert3DSToOBJ(const string &inputFilePath, const string &outputFilePath)
+{
+    Assimp::Importer importer;
+
+    const aiScene *scene = importer.ReadFile(inputFilePath, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+    if (!scene)
+    {
+        // std::cerr << "Error importing 3DS file: " << importer.GetErrorString() << std::endl;
+        return;
+    }
+
+    Assimp::Exporter exporter;
+    if (exporter.Export(scene, "obj", outputFilePath) != AI_SUCCESS)
+    {
+        std::cerr << "Error exporting OBJ file: " << exporter.GetErrorString() << std::endl;
+    }
+}
+
+
+/********************************************************************************************* */
+
+// In this RscToJsonParser class i will extract the most important data from the .rsc file and convert it to a json file.
+// This data will be used for the robot simulation in QT 3D Studio.
+
+// DOF regex to match the DOF section
+std::regex dofRegex(R"(Dof  \"(Rotational|Custom|RotationalFollower|Translational)\")");
+std::regex KinematicsRegex(R"(Functionality\s*\"(rKinArticulated2|rKinParallellogram)\")");
+
+RscToJsonParser::RscToJsonParser(const string &filename) : filename(filename) {}
+
+// This function will parse the .rsc file and return the json object
+json RscToJsonParser::parse()
+{
+    ifstream file(filename);
+    if (!file)
+    {
+        throw runtime_error("Unable to open file " + filename);
+    }
+
+    // This root object will contain all the data extracted.
+    json root;
+    string line;
+    while (getline(file, line))
+    {
+        // Process line by line
+        processLine(line, file);
+    }
+
+    // Its time to collect all the pieces of puzzle.
+    root["kinematics"] = kinematics;
+    root["jointMap"] = jointMap;
+    root["jointOffset"] = jointOffset;
+    root["geometryMatrix"] = geometryMatrix;
+    return root;
+}
+
+// This function will process the line and extract the data
+void RscToJsonParser::processLine(string &line, ifstream &file)
+{
+    line.erase(0, line.find_first_not_of(" \t")); // Trim leading whitespace
+
+    if (std::regex_search(line, KinematicsRegex))
+    {
+        // if (line.find("Functionality \"rKinArticulated2\"") != string::npos) {
+        isKinematicsSection = true;
+        isJointMapSection = false;
+        return;
+    }
+
+    if (line.find("JointMap") != string::npos)
+    {
+        isJointMapSection = true;
+        isKinematicsSection = false;
+        return;
+    }
+
+    if (std::regex_search(line, dofRegex))
+    {
+        // if (line.find("Dof  \"Rotational\"") != string::npos) {
+        isDofSection = true;
+        foundNameInDOFsection = false;
+        return;
+    }
+    /*
+            if (line.find("Dof \"Fixed\"") != string::npos) {
+                isDofFixedSection = true;
+                return;
+            }
+    */
+    if (isDofSection && line.find("}") != string::npos)
+    {
+        isDofSection = false;
+        captureNextOffset = true;
+        return;
+    }
+
+    if (captureNextOffset && line.find("Offset") != string::npos)
+    {
+        isOffsetSection = true;
+        captureNextOffset = false;
+
+        // cout << "Offset section Case 1" << endl;
+        return;
+    }
+
+    if (line.find("Node \"rSimLink\"") != string::npos)
+    {
+        isGeometryMatrixSection = true;
+        return;
+    }
+
+    if (isKinematicsSection || isJointMapSection)
+    {
+        // cout << "isKinematicsSection Section Case 0" << endl;
+        processKinematicsOrJointMapSection(line);
+    }
+    else if (isGeometryMatrixSection)
+    {
+        // cout << "isGeometryMatrixSection Section Case 0" << endl;
+        processGeometryMatrixSection(line);
+    }
+    else
+    {
+        // cout << "process other section Case 1" << endl;
+        processOtherSections(line, file);
+    }
+}
+
+// This function will process the Kinematics and JointMap section
+void RscToJsonParser::processKinematicsOrJointMapSection(const string &line)
+{
+    if (line.find("}") != string::npos)
+    {
+        if (isKinematicsSection)
+        {
+            isKinematicsSection = false;
+        }
+        if (isJointMapSection)
+        {
+            isJointMapSection = false;
+        }
+        return;
+    }
+
+    auto pos = line.find(" ");
+    if (isJointMapSection)
+    {
+        // Find the second space
+        if (pos != string::npos)
+        {
+            auto secondPos = line.find(" ", pos + 1); // Find space after the first one
+            if (secondPos != string::npos)
+            {
+                pos = secondPos;
+            }
+        }
+    }
+
+    if (pos != string::npos)
+    {
+        string key = line.substr(0, pos);
+        string value = line.substr(pos + 1);
+
+        // Remove quotes from string values
+        if (value.front() == '\"' && value.back() == '\"')
+        {
+            value = value.substr(1, value.size() - 2);
+        }
+
+        // Convert numeric values to appropriate types
+        if (!value.empty() && value.find_first_not_of("0123456789.-") == string::npos)
+        {
+            try
+            {
+                if (value.find('.') != string::npos)
+                {
+                    if (isKinematicsSection)
+                    {
+                        kinematics[key] = stod(value);
+                    }
+                    else if (isJointMapSection)
+                    {
+                        jointMap[key] = stod(value);
+                    }
+                }
+                else
+                {
+                    if (isKinematicsSection)
+                    {
+                        kinematics[key] = stoi(value);
+                    }
+                    else if (isJointMapSection)
+                    {
+                        jointMap[key] = stoi(value);
+                    }
+                }
+            }
+            catch (const std::invalid_argument &e)
+            {
+                cerr << "Invalid argument for stoi: " << value << endl;
+            }
+            catch (const std::out_of_range &e)
+            {
+                cerr << "Out of range for stoi: " << value << endl;
+            }
+        }
+        else
+        {
+
+            if (isKinematicsSection)
+            {
+                kinematics[key] = value;
+            }
+            else if (isJointMapSection)
+            {
+                jointMap[key] = value;
+            }
+        }
+    }
+}
+
+// This function will process the other sections like Dof, Offset and GeometryMatrix
+void RscToJsonParser::processOtherSections(const string &line, ifstream &file)
+{
+    if (isDofSection)
+    {
+
+        if (!foundNameInDOFsection && line.find("Name") != string::npos)
+        {
+            auto pos = line.find(" ");
+            if (pos != string::npos)
+            {
+                currentJointName = line.substr(pos + 1);
+                // cout << "Offset section Case 2 Name found" << endl;
+                if (currentJointName.size() > 1 && currentJointName.front() == '\"' && currentJointName.back() == '\"')
+                {
+                    currentJointName = currentJointName.substr(1, currentJointName.size() - 2);
+                }
+                foundNameInDOFsection = true;
+            }
+        }
+    }
+
+    if (isOffsetSection)
+    {
+        processOffsetSection(line, file);
+    }
+}
+
+// This function will process the Offset section
+void RscToJsonParser::processOffsetSection(const string &line, ifstream &file)
+{
+    string offsetLine = line;
+    // cout << "Offset section Case 3 processoffsetSection" << endl;
+    offsetLine.erase(0, offsetLine.find_first_not_of(" \t")); // Trim leading whitespace
+    if (offsetLine.find("Expression") != string::npos)
+    {
+        auto pos = offsetLine.find(" ");
+        if (pos != string::npos)
+        {
+            currentOffsetExpression = offsetLine.substr(pos + 1);
+
+            // I need to handle a case where the expression is multiline.
+            while (!currentOffsetExpression.empty() && currentOffsetExpression.back() == '\\')
+            {
+                currentOffsetExpression.pop_back(); // Remove the backslash
+                string nextLine;
+                if (getline(file, nextLine))
+                {
+                    nextLine.erase(0, nextLine.find_first_not_of(" \t")); // Trim leading whitespace
+                    currentOffsetExpression += nextLine;
+                }
+            }
+
+            if (currentOffsetExpression.size() > 1 && currentOffsetExpression.front() == '\"' && currentOffsetExpression.back() == '\"')
+            {
+                currentOffsetExpression = currentOffsetExpression.substr(1, currentOffsetExpression.size() - 2);
+            }
+            //  cout << "Offset section Case 4 currentoffsetexpression = " + currentOffsetExpression << endl;
+        }
+    }
+    if (offsetLine.find("}") != string::npos)
+    {
+        if (!currentJointName.empty() && !currentOffsetExpression.empty())
+        {
+            jointOffset[currentJointName] = currentOffsetExpression;
+            // cout << "Offset section Case 5 currentJointName = " + currentJointName << endl;
+        }
+        currentJointName.clear();
+        currentOffsetExpression.clear();
+        isOffsetSection = false;
+    }
+}
+
+// This function will process the GeometryMatrix section
+void RscToJsonParser::processGeometryMatrixSection(const string &line)
+{
+
+    // As I need three things from this section that is Joint Name, Geometry File and Matrix.
+    // Finishing at VariableSpace is bad approach but I dont want to process long lines that i dont need.
+    if (line.find("VariableSpace") != string::npos)
+    {
+        if (!currentRSimLinkName.empty() && !currentGeoFeatureName.empty())
+        {
+            rSimLinkObject["GeometryFile"] = currentGeoFeatureName;
+            if (!currentMatrix.empty())
+            {
+                rSimLinkObject["Matrix"] = currentMatrix;
+            }
+            geometryMatrix[currentRSimLinkName].push_back(rSimLinkObject);
+        }
+        isGeometryMatrixSection = false;
+        currentRSimLinkName.clear();
+        currentGeoFeatureName.clear();
+        currentMatrix.clear();
+        return;
+    }
+
+    // only get first name and ignore the rest
+    if (currentRSimLinkName.empty() && line.find("Name") != string::npos)
+    {
+        auto pos = line.find(" ");
+        if (pos != string::npos)
+        {
+            currentRSimLinkName = line.substr(pos + 1);
+            if (currentRSimLinkName.size() > 1 && currentRSimLinkName.front() == '\"' && currentRSimLinkName.back() == '\"')
+            {
+                currentRSimLinkName = currentRSimLinkName.substr(1, currentRSimLinkName.size() - 2);
+            }
+        }
+    }
+
+    if (line.find("Feature \"rGeoFeature\"") != string::npos)
+    {
+        isGeoFeatureSection = true;
+        return;
+    }
+
+    if (isGeoFeatureSection && line.find("VariableSpace") != string::npos)
+    {
+        isGeoFeatureSection = false;
+        return;
+    }
+
+    // Getting the Geometry File name.
+    if (isGeoFeatureSection)
+    {
+        if (line.find("Name") != string::npos)
+        {
+            auto pos = line.find(" ");
+            if (pos != string::npos)
+            {
+                currentGeoFeatureName = line.substr(pos + 1);
+                if (currentGeoFeatureName.size() > 1 && currentGeoFeatureName.front() == '\"' && currentGeoFeatureName.back() == '\"')
+                {
+                    currentGeoFeatureName = currentGeoFeatureName.substr(1, currentGeoFeatureName.size() - 2);
+                }
+            }
+        }
+
+        // Getting the Matrix with the hope that i will use it in 3D modeling.
+        if (line.find("Matrix") != string::npos)
+        {
+            currentMatrix = line.substr(line.find("Matrix") + 7);
+        }
+    }
+}
+
+void RscToJsonParser::processAllFiles(const string &unzipDir, const string &jsonDir)
+{
+    for (const auto &entry : fs::directory_iterator(unzipDir))
+    {
+        if (entry.is_directory())
+        {
+            string subDir = entry.path().string();
+            string componentFilePath = subDir + "/component.rsc";
+            if (fs::exists(componentFilePath))
+            {
+                try
+                {
+                    RscToJsonParser parser(componentFilePath);
+                    json rscJson = parser.parse();
+
+                    string subDirName = entry.path().filename().string();
+                    string outputSubDir = jsonDir + "/" + subDirName;
+                    fs::create_directories(outputSubDir);
+
+                    string outputFilePath = outputSubDir + "/component.json";
+                    ofstream outputFile(outputFilePath);
+                    outputFile << rscJson.dump(4); // Pretty print with 4 spaces indent
+                    outputFile.close();
+
+                    cout << "Processed: " << componentFilePath << " -> " << outputFilePath << endl;
+                }
+                catch (const exception &e)
+                {
+                    cerr << "Error processing file " << componentFilePath << ": " << e.what() << endl;
+                }
+            }
+        }
+    }
+}
+
+/********************************************************************************************* */
+
+//
+// Created by Faizan Ahmed on 9/28/2024.
+//
+
+DHParameterCalculator::DHParameterCalculator(const std::string &inputFilename, const std::string &outputFilename)
+    : inputFilename(inputFilename), outputFilename(outputFilename) {}
+
+void DHParameterCalculator::calculateDHParameters()
+{
+    std::ifstream inputFile(inputFilename);
+    if (!inputFile)
+    {
+        throw std::runtime_error("Unable to open input file " + inputFilename);
+    }
+
+    json inputData;
+    inputFile >> inputData;
+    inputFile.close();
+
+    json dhParameters = computeDHParameters(inputData);
+
+    std::ofstream outputFile(outputFilename);
+    if (!outputFile)
+    {
+        throw std::runtime_error("Unable to open output file " + outputFilename);
+    }
+    outputFile << dhParameters.dump(4); // Pretty print with 4 spaces indent
+    outputFile.close();
+
+    std::cout << "DH parameters calculation completed successfully!" << std::endl;
+}
+
+json DHParameterCalculator::computeDHParameters(const json &inputData)
+{
+    json dhParameters;
+    const auto &kinematics = inputData["kinematics"];
+    const auto &geometryMatrix = inputData["geometryMatrix"];
+
+    for (const auto &joint : inputData["jointOffset"].items())
+    {
+        std::string jointName = joint.key();
+        std::string expression = joint.value();
+        json jointData;
+
+        try
+        {
+            double Rx = 0, Tx = 0, Tz = 0, Rz = 0;
+
+            // Parse the expression
+            std::istringstream exprStream(expression);
+            std::string token;
+            while (std::getline(exprStream, token, '.'))
+            {
+                std::string key;
+                double sign = 1.0;
+
+                if (token.find("Tz(") != std::string::npos)
+                {
+                    key = token.substr(3, token.size() - 4);
+                    if (key[0] == '-')
+                    {
+                        sign = -1.0;
+                        key = key.substr(1);
+                    }
+                    key = key.substr(key.find("::") + 2); // Remove "Kinematics::"
+                    Tz = sign * kinematics.at(key).get<double>();
+                }
+                else if (token.find("Tx(") != std::string::npos)
+                {
+                    key = token.substr(3, token.size() - 4);
+                    if (key[0] == '-')
+                    {
+                        sign = -1.0;
+                        key = key.substr(1);
+                    }
+                    key = key.substr(key.find("::") + 2);
+                    Tx = sign * kinematics.at(key).get<double>();
+                }
+                else if (token.find("Ty(") != std::string::npos)
+                {
+                    key = token.substr(3, token.size() - 4);
+                    if (key[0] == '-')
+                    {
+                        sign = -1.0;
+                        key = key.substr(1);
+                    }
+                    key = key.substr(key.find("::") + 2);
+                    // Don't know where I use this but for now just keep as it is.
+                }
+                else if (token.find("Rz(") != std::string::npos)
+                {
+                    key = token.substr(3, token.size() - 4);
+                    if (key[0] == '-')
+                    {
+                        sign = -1.0;
+                        key = key.substr(1);
+                    }
+                    key = key.substr(key.find("::") + 2);
+                    Rz = sign * kinematics.at(key).get<double>();
+                }
+                else if (token.find("Rx(") != std::string::npos)
+                {
+                    key = token.substr(3, token.size() - 4);
+                    if (key[0] == '-')
+                    {
+                        sign = -1.0;
+                        key = key.substr(1);
+                    }
+                    key = key.substr(key.find("::") + 2); // Remove "Kinematics::"
+                    Rx = sign * kinematics.at(key).get<double>();
+                }
+                else if (token.find("Ry(") != std::string::npos)
+                {
+                    key = token.substr(3, token.size() - 4);
+                    if (key[0] == '-')
+                    {
+                        sign = -1.0;
+                        key = key.substr(1);
+                    }
+                    key = key.substr(key.find("::") + 2); // Remove "Kinematics::"
+                    // Also not sure for now, where I will use it.
+                }
+            }
+
+            // Get the GeometryFile for the current joint
+            std::string geometryFile = geometryMatrix.at(jointName).at(0).at("GeometryFile");
+
+            // Now join the pieces of the puzzle.
+            jointData["joint"] = jointName;
+            jointData["Rx"] = Rx;
+            jointData["Tx"] = Tx;
+            jointData["Tz"] = Tz;
+            jointData["Rz"] = Rz;
+            dhParameters[geometryFile] = jointData;
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Error processing joint " << jointName << ": " << e.what() << std::endl;
+        }
+    }
+
+    return dhParameters;
+}
+
+void DHParameterCalculator::processAllFiles(const std::string &jsonDir, const std::string &outputDir)
+{
+    for (const auto &entry : fs::directory_iterator(jsonDir))
+    {
+        if (entry.is_directory())
+        {
+            std::string subDir = entry.path().string();
+            std::string componentFilePath = subDir + "/component.json";
+            if (fs::exists(componentFilePath))
+            {
+                try
+                {
+                    std::string subDirName = entry.path().filename().string();
+                    std::string outputSubDir = outputDir + "/" + subDirName;
+                    fs::create_directories(outputSubDir);
+
+                    std::string outputFilePath = outputSubDir + "/dhParameters.json";
+                    DHParameterCalculator calculator(componentFilePath, outputFilePath);
+                    calculator.calculateDHParameters();
+
+                    // std::cout << "Processed: " << componentFilePath << " -> " << outputFilePath << std::endl;
+                }
+                catch (const std::exception &e)
+                {
+                    std::cerr << "Error processing file " << componentFilePath << ": " << e.what() << std::endl;
+                }
+            }
+        }
+    }
+}

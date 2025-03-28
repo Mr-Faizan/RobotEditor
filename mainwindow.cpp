@@ -231,6 +231,32 @@ void MainWindow::on_actionOpenFromDevice_triggered()
     }
 }
 
+void MainWindow::on_actionImportFromVCMX_triggered()
+{
+    // Open the VCMX file and extract the data to create a new Robot.
+
+    QString filePath = QFileDialog::getOpenFileName(this, "Open VCMX", "", "VCMX Files (*.vcmx)");
+    if (!filePath.isEmpty())
+    {
+        QFileInfo fileInfo(filePath);
+        QString filePath = fileInfo.absoluteFilePath();
+
+        try
+        {
+            // Run the data extractor
+            Robot newRobot = robotLib.importRobotFromVCMX(filePath.toStdString());
+            populateTreeView(newRobot);
+
+        }
+        catch (const std::runtime_error &e)
+        {
+            qWarning() << "Failed to load robot data from VCMX file: " << e.what();
+            return;
+        }
+
+    }
+}
+
 void MainWindow::on_actionResetModel_triggered()
 {
     // commenting this because it creates issue with setting up to original position.

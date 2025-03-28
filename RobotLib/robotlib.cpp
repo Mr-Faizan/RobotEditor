@@ -9,8 +9,8 @@ RobotLib::~RobotLib() {}
 Robot RobotLib::initializeNewRobot()
 {
     Robot newRobot;
-    Joint& newJoint = newRobot.createAndAddJoint();
-    JointDynamics& newDynamics = newJoint.createAndAddDynamics();
+    Joint &newJoint = newRobot.createAndAddJoint();
+    JointDynamics &newDynamics = newJoint.createAndAddDynamics();
     return newRobot;
 }
 
@@ -20,7 +20,6 @@ Robot RobotLib::createRobot()
     Robot robot;
     return robot;
 }
-
 
 Joint RobotLib::createJoint()
 {
@@ -34,7 +33,6 @@ JointDynamics RobotLib::createDynamics()
     JointDynamics dynamics;
     return dynamics;
 }
-
 
 void RobotLib::addRobot(const Robot &robot)
 {
@@ -97,8 +95,7 @@ bool RobotLib::updateAndSaveRobotData(const std::string &filePath, const json &j
     {
         // load from json
 
-
-        Robot robot  = loadFromJson(json);
+        Robot robot = loadFromJson(json);
 
         // Save the updated robot data to the file
         if (!saveToJson(filePath, robot))
@@ -485,9 +482,6 @@ Robot RobotLib::loadFromJson(const json jsonData)
     return robot;
 }
 
-
-
-
 //
 bool RobotLib::saveToJson(const std::string &filePath, Robot &robot) const
 {
@@ -629,4 +623,29 @@ void RobotLib::printData() const
             }
         }
     }
+}
+
+Robot RobotLib::importRobotFromVCMX(const string &filePath)
+{
+    Robot newRobot;
+    try
+    {
+        importvcmx importer(filePath);
+        int status = importer.importVCMXData();
+
+        if (status == 0)
+        {
+            std::cout << "VCMX data imported successfully!" << std::endl;
+        }
+        else
+        {
+            std::cerr << "Failed to import VCMX data. Status code: " << status << std::endl;
+        }
+    }
+    catch (const std::exception &e)
+    {
+        cerr << "Error while importing robot from VCMX: " << e.what() << endl;
+    }
+
+    return newRobot;
 }
