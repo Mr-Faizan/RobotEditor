@@ -7,11 +7,12 @@
 #include <filesystem>
 
 #include "libraries/miniz/miniz.h"
-
+/*
 #include <libraries/assimp/include/assimp/Importer.hpp>
 #include "libraries/assimp/include/assimp/Exporter.hpp"
 #include "libraries/assimp/include/assimp/scene.h"
 #include "libraries/assimp/include/assimp/postprocess.h"
+*/
 #include <regex>
 
 #include "nlohmann/json.hpp"
@@ -28,55 +29,24 @@ public:
     int importVCMXData();
 
 private:
-    std::string filePath;  // Input file path
-    std::string outputDir; // Output directory derived from filePath
-    // ZipExtractor Functions
-    bool zipExtractor();
-    bool extractZipFile(const std::string &zipFilePath, const std::string &destDir);
+    string filePath;  // Input file path
+    string outputDir; // Output directory derived from filePath
+    string robotDataDir; // Directory for robot data
+    string resourceFilePath; // Path to the resource file
+// Need to set this Path of resource file.
 
-    // ImageConverter Functions
-    bool imageConverter();
-    void convert3DSToOBJ(const std::string &inputFilePath, const std::string &outputFilePath);
-};
-
-
-
-// ImageConverter class
-class ImageConverter
-{
-public:
-    ImageConverter(const std::string &unzipDir, const std::string &outputDir);
-    void processNewFiles();
-
-private:
-    std::string unzipDir;
-    std::string outputDir;
-
-
-};
-
-
-
-// RscToJsonParser class
-class RscToJsonParser
-{
-public:
-    RscToJsonParser(const std::string &filename);
-    nlohmann::json parse();
-    static void processAllFiles(const std::string &unzipDir, const std::string &jsonDir);
-
-private:
-    std::string filename;
+    // RscToJsonParser
+    string filename;
     nlohmann::json kinematics;
     nlohmann::json jointMap;
     nlohmann::json jointOffset;
     nlohmann::json geometryMatrix;
     nlohmann::json rSimLinkObject;
-    std::string currentJointName;
-    std::string currentOffsetExpression;
-    std::string currentRSimLinkName;
-    std::string currentGeoFeatureName;
-    std::string currentMatrix;
+    string currentJointName;
+    string currentOffsetExpression;
+    string currentRSimLinkName;
+    string currentGeoFeatureName;
+    string currentMatrix;
     bool isKinematicsSection;
     bool isJointMapSection;
     bool isDofSection;
@@ -87,12 +57,33 @@ private:
     bool isGeometryMatrixSection;
     bool isGeoFeatureSection;
 
-    void processLine(std::string &line, std::ifstream &file);
-    void processKinematicsOrJointMapSection(const std::string &line);
-    void processOtherSections(const std::string &line, std::ifstream &file);
-    void processOffsetSection(const std::string &line, std::ifstream &file);
-    void processGeometryMatrixSection(const std::string &line);
+
+
+
+    // ZipExtractor Functions
+    bool zipExtractor();
+    bool extractZipFile(const std::string &zipFilePath, const std::string &destDir);
+
+    // ImageConverter Functions
+    bool imageConverter();
+   // void convert3DSToOBJ(const std::string &inputFilePath, const std::string &outputFilePath);
+
+
+
+   // RscToJsonParser Functions
+   nlohmann::json parse(std::string &filePath);
+   
+   void processResourceFile();
+
+   void processLine(std::string &line, std::ifstream &file);
+   void processKinematicsOrJointMapSection(const std::string &line);
+   void processOtherSections(const std::string &line, std::ifstream &file);
+   void processOffsetSection(const std::string &line, std::ifstream &file);
+   void processGeometryMatrixSection(const std::string &line);
+
 };
+
+
 
 // DHParameterCalculator class
 

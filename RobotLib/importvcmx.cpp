@@ -20,8 +20,8 @@ int importvcmx::importVCMXData()
         }
         cout << "Step 1: Zip extraction completed successfully!" << endl;
 
-        
         // Step 2: Run ImageConverter for all 3DS files
+        
         if (!imageConverter())
         {
             cerr << "Error: Failed to process new files." << endl;
@@ -30,16 +30,16 @@ int importvcmx::importVCMXData()
 
         cout << "Step 2: 3DS to OBJ conversion completed successfully!" << endl;
 
-/*
-                // Step 3: Run RscToJsonParser for all component.rsc files
-                RscToJsonParser::processAllFiles(unzipDir, jsonDir);
-                cout << "Step 3: RSC to JSON conversion completed successfully!" << endl;
 
+        // Step 3: Get important data from component.rsc files
+        processResourceFile();
+        cout << "Step 3: RSC to JSON conversion completed successfully!" << endl;
 
-                // Step 4: Run DHParameterCalculator
-                DHParameterCalculator::processAllFiles(jsonDir, outputDir);
-                cout << "Step 4: DH parameters calculation completed successfully!" << endl;
-        */
+        /*
+                        // Step 4: Run DHParameterCalculator
+                        DHParameterCalculator::processAllFiles(jsonDir, outputDir);
+                        cout << "Step 4: DH parameters calculation completed successfully!" << endl;
+                */
     }
     catch (const exception &e)
     {
@@ -148,44 +148,52 @@ bool importvcmx::extractZipFile(const std::string &zipFilePath, const std::strin
 
 /******************** Image Converter Functions ******************** */
 
-
 bool importvcmx::imageConverter()
 {
-    for (const auto &entry : fs::recursive_directory_iterator(outputDir))
+    if (!outputDir.empty())
     {
-        if (entry.is_regular_file())
+        for (const auto &entry : fs::recursive_directory_iterator(outputDir))
         {
-            string filePath = entry.path().string();
-            string extension = entry.path().extension().string();
-
-            if (extension.empty() || extension == ".3ds")
+            if (entry.is_regular_file())
             {
-                string newFilePath = filePath;
-                string robotData = outputDir + "/RobotData";
-                if (extension.empty())
+                string filePath = entry.path().string();
+                string extension = entry.path().extension().string();
+
+                robotDataDir = outputDir + "/RobotData"; // Create RobotData directory
+                if (!fs::exists(robotDataDir))
                 {
-                    newFilePath += ".3ds";
-                    fs::rename(filePath, newFilePath);
-                    // std::cout << "Renamed: " << filePath << " -> " << newFilePath << std::endl;
+                    fs::create_directories(robotDataDir);
                 }
 
-                string subDirName = entry.path().parent_path().filename().string();
-                string outputSubDir = robotData + "/" + subDirName;
-                if (!fs::exists(outputSubDir))
+                // if file is component.rsc then assign resourceFilePath
+                if (entry.path().filename() == "component.rsc")
                 {
-                    fs::create_directories(outputSubDir);
+                    resourceFilePath = filePath;
                 }
+                else if (extension.empty() || extension == ".3ds")
+                {
+                    string newFilePath = filePath;
+                    if (extension.empty())
+                    {
+                        newFilePath += ".3ds";
+                        fs::rename(filePath, newFilePath);
+                        // std::cout << "Renamed: " << filePath << " -> " << newFilePath << std::endl;
+                    }
 
-                string outputFileName = entry.path().stem().string() + ".obj";
-                string outputFilePath = outputSubDir + "/" + outputFileName;
 
-                convert3DSToOBJ(newFilePath, outputFilePath);
+                    string outputFileName = entry.path().stem().string() + ".obj";
+                    string outputFilePath = robotDataDir + "/" + outputFileName;
+
+                  //  convert3DSToOBJ(newFilePath, outputFilePath);
+                }
+                return true;
             }
         }
     }
-    return true;
+    return false;
 }
 
+/*
 void importvcmx::convert3DSToOBJ(const string &inputFilePath, const string &outputFilePath)
 {
     Assimp::Importer importer;
@@ -203,26 +211,29 @@ void importvcmx::convert3DSToOBJ(const string &inputFilePath, const string &outp
         std::cerr << "Error exporting OBJ file: " << exporter.GetErrorString() << std::endl;
     }
 }
+*/
 
+    /********************************************************************************************* */
 
-/********************************************************************************************* */
+    // In these functions i will extract the most important data from the .rsc file and convert it to a json file.
+    // This data will be used for the robot simulation in QT 3D Studio.
 
-// In this RscToJsonParser class i will extract the most important data from the .rsc file and convert it to a json file.
-// This data will be used for the robot simulation in QT 3D Studio.
-
-// DOF regex to match the DOF section
-std::regex dofRegex(R"(Dof  \"(Rotational|Custom|RotationalFollower|Translational)\")");
+    // DOF regex to match the DOF section
+    std::regex dofRegex(R"(Dof  \"(Rotational|Custom|RotationalFollower|Translational)\")");
 std::regex KinematicsRegex(R"(Functionality\s*\"(rKinArticulated2|rKinParallellogram)\")");
 
-RscToJsonParser::RscToJsonParser(const string &filename) : filename(filename) {}
-
 // This function will parse the .rsc file and return the json object
-json RscToJsonParser::parse()
+json importvcmx::parse(string &filePath)
 {
-    ifstream file(filename);
+    if (!fs::exists(filePath))
+    {
+        throw runtime_error("File does not exist: " + filePath);
+    }
+
+    ifstream file(filePath);
     if (!file)
     {
-        throw runtime_error("Unable to open file " + filename);
+        throw runtime_error("Unable to open file " + filePath);
     }
 
     // This root object will contain all the data extracted.
@@ -243,7 +254,7 @@ json RscToJsonParser::parse()
 }
 
 // This function will process the line and extract the data
-void RscToJsonParser::processLine(string &line, ifstream &file)
+void importvcmx::processLine(string &line, ifstream &file)
 {
     line.erase(0, line.find_first_not_of(" \t")); // Trim leading whitespace
 
@@ -315,7 +326,7 @@ void RscToJsonParser::processLine(string &line, ifstream &file)
 }
 
 // This function will process the Kinematics and JointMap section
-void RscToJsonParser::processKinematicsOrJointMapSection(const string &line)
+void importvcmx::processKinematicsOrJointMapSection(const string &line)
 {
     if (line.find("}") != string::npos)
     {
@@ -408,7 +419,7 @@ void RscToJsonParser::processKinematicsOrJointMapSection(const string &line)
 }
 
 // This function will process the other sections like Dof, Offset and GeometryMatrix
-void RscToJsonParser::processOtherSections(const string &line, ifstream &file)
+void importvcmx::processOtherSections(const string &line, ifstream &file)
 {
     if (isDofSection)
     {
@@ -436,7 +447,7 @@ void RscToJsonParser::processOtherSections(const string &line, ifstream &file)
 }
 
 // This function will process the Offset section
-void RscToJsonParser::processOffsetSection(const string &line, ifstream &file)
+void importvcmx::processOffsetSection(const string &line, ifstream &file)
 {
     string offsetLine = line;
     // cout << "Offset section Case 3 processoffsetSection" << endl;
@@ -481,7 +492,7 @@ void RscToJsonParser::processOffsetSection(const string &line, ifstream &file)
 }
 
 // This function will process the GeometryMatrix section
-void RscToJsonParser::processGeometryMatrixSection(const string &line)
+void importvcmx::processGeometryMatrixSection(const string &line)
 {
 
     // As I need three things from this section that is Joint Name, Geometry File and Matrix.
@@ -554,37 +565,25 @@ void RscToJsonParser::processGeometryMatrixSection(const string &line)
     }
 }
 
-void RscToJsonParser::processAllFiles(const string &unzipDir, const string &jsonDir)
+void importvcmx::processResourceFile()
 {
-    for (const auto &entry : fs::directory_iterator(unzipDir))
+
+    if ((!resourceFilePath.empty()) && (fs::exists(resourceFilePath)))
     {
-        if (entry.is_directory())
+        try
         {
-            string subDir = entry.path().string();
-            string componentFilePath = subDir + "/component.rsc";
-            if (fs::exists(componentFilePath))
-            {
-                try
-                {
-                    RscToJsonParser parser(componentFilePath);
-                    json rscJson = parser.parse();
+            json rscJson = parse(resourceFilePath);
 
-                    string subDirName = entry.path().filename().string();
-                    string outputSubDir = jsonDir + "/" + subDirName;
-                    fs::create_directories(outputSubDir);
+            string outputFilePath = robotDataDir + "/component.json";
+            ofstream outputFile(outputFilePath);
+            outputFile << rscJson.dump(4); // Pretty print with 4 spaces indent
+            outputFile.close();
 
-                    string outputFilePath = outputSubDir + "/component.json";
-                    ofstream outputFile(outputFilePath);
-                    outputFile << rscJson.dump(4); // Pretty print with 4 spaces indent
-                    outputFile.close();
-
-                    cout << "Processed: " << componentFilePath << " -> " << outputFilePath << endl;
-                }
-                catch (const exception &e)
-                {
-                    cerr << "Error processing file " << componentFilePath << ": " << e.what() << endl;
-                }
-            }
+            cout << "Processed: " << resourceFilePath << " -> " << outputFilePath << endl;
+        }
+        catch (const exception &e)
+        {
+            cerr << "Error processing file " << resourceFilePath << ": " << e.what() << endl;
         }
     }
 }
