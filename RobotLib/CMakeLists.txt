@@ -12,9 +12,12 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
 # Add the miniz library as a subdirectory
-add_subdirectory(libraries/miniz)
+# add_subdirectory(libraries/miniz)
 # Add the assimp library as a subdirectory
-add_subdirectory(libraries/assimp)
+
+
+add_subdirectory(libraries/assimp-5.4.2)
+
 
 add_library(RobotLib SHARED
   RobotLib_global.h
@@ -36,8 +39,11 @@ add_library(RobotLib SHARED
 
 
 
-target_link_libraries(RobotLib PRIVATE Qt${QT_VERSION_MAJOR}::Core miniz assimp)
-target_include_directories(RobotLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(RobotLib PRIVATE Qt${QT_VERSION_MAJOR}::Core assimp ${ASSIMP_LIBRARIES})
+target_include_directories(RobotLib PUBLIC 
+${CMAKE_CURRENT_SOURCE_DIR}/libraries/assimp-5.4.2/include
+${CMAKE_CURRENT_BINARY_DIR}/libraries/assimp-5.4.2/include
+)
 target_compile_definitions(RobotLib PRIVATE ROBOTLIB_LIBRARY)
 
 
@@ -45,4 +51,4 @@ target_compile_definitions(RobotLib PRIVATE ROBOTLIB_LIBRARY)
 add_executable(RobotLibTest main.cpp robot.cpp joint.cpp kinematics.cpp dynamics.cpp robotlib_test.cpp)
 
 # Link the RobotLib library to the executable
-target_link_libraries(RobotLibTest PRIVATE RobotLib miniz assimp)
+target_link_libraries(RobotLibTest PRIVATE RobotLib assimp)

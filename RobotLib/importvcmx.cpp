@@ -32,7 +32,11 @@ int importvcmx::importVCMXData()
 
 
         // Step 3: Get important data from component.rsc files
-        processResourceFile();
+        if(! processResourceFile())
+        {
+            cerr << "Error: Failed to process resource file." << endl;
+            return 3; // Return error code
+        }
         cout << "Step 3: RSC to JSON conversion completed successfully!" << endl;
 
         /*
@@ -184,16 +188,16 @@ bool importvcmx::imageConverter()
                     string outputFileName = entry.path().stem().string() + ".obj";
                     string outputFilePath = robotDataDir + "/" + outputFileName;
 
-                  //  convert3DSToOBJ(newFilePath, outputFilePath);
+                    convert3DSToOBJ(newFilePath, outputFilePath);
                 }
-                return true;
             }
         }
+        return true;
     }
     return false;
 }
 
-/*
+
 void importvcmx::convert3DSToOBJ(const string &inputFilePath, const string &outputFilePath)
 {
     Assimp::Importer importer;
@@ -201,7 +205,7 @@ void importvcmx::convert3DSToOBJ(const string &inputFilePath, const string &outp
     const aiScene *scene = importer.ReadFile(inputFilePath, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
     if (!scene)
     {
-        // std::cerr << "Error importing 3DS file: " << importer.GetErrorString() << std::endl;
+        std::cerr << "Error importing 3DS file: " << importer.GetErrorString() << std::endl;
         return;
     }
 
@@ -211,7 +215,7 @@ void importvcmx::convert3DSToOBJ(const string &inputFilePath, const string &outp
         std::cerr << "Error exporting OBJ file: " << exporter.GetErrorString() << std::endl;
     }
 }
-*/
+
 
     /********************************************************************************************* */
 
@@ -565,7 +569,7 @@ void importvcmx::processGeometryMatrixSection(const string &line)
     }
 }
 
-void importvcmx::processResourceFile()
+bool importvcmx::processResourceFile()
 {
 
     if ((!resourceFilePath.empty()) && (fs::exists(resourceFilePath)))
@@ -580,12 +584,15 @@ void importvcmx::processResourceFile()
             outputFile.close();
 
             cout << "Processed: " << resourceFilePath << " -> " << outputFilePath << endl;
+            return true;
         }
         catch (const exception &e)
         {
             cerr << "Error processing file " << resourceFilePath << ": " << e.what() << endl;
+            return false;
         }
     }
+    return false;
 }
 
 /********************************************************************************************* */

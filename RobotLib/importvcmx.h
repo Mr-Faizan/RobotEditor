@@ -7,12 +7,20 @@
 #include <filesystem>
 
 #include "libraries/miniz/miniz.h"
+
 /*
 #include <libraries/assimp/include/assimp/Importer.hpp>
 #include "libraries/assimp/include/assimp/Exporter.hpp"
 #include "libraries/assimp/include/assimp/scene.h"
 #include "libraries/assimp/include/assimp/postprocess.h"
 */
+
+#include <assimp/Importer.hpp>
+#include <assimp/Exporter.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+
 #include <regex>
 
 #include "nlohmann/json.hpp"
@@ -66,14 +74,14 @@ private:
 
     // ImageConverter Functions
     bool imageConverter();
-   // void convert3DSToOBJ(const std::string &inputFilePath, const std::string &outputFilePath);
+    void convert3DSToOBJ(const std::string &inputFilePath, const std::string &outputFilePath);
 
 
 
    // RscToJsonParser Functions
    nlohmann::json parse(std::string &filePath);
    
-   void processResourceFile();
+   bool processResourceFile();
 
    void processLine(std::string &line, std::ifstream &file);
    void processKinematicsOrJointMapSection(const std::string &line);
