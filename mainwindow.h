@@ -80,7 +80,7 @@ private slots:
     void on_actionDeleteAll_triggered();
     void on_actionNewRobot_triggered();
     void on_actionOpenFromDevice_triggered();
-    void on_actionImportFromVCMX_triggered();
+    void on_actionImportFromVisualComponent_triggered();
     void on_actionResetModel_triggered();
     void on_actionRotateModel_triggered();
     void on_actionJointVisualization_triggered();

@@ -6,23 +6,17 @@
 #include <fstream>
 #include <filesystem>
 
-#include "libraries/miniz/miniz.h"
+//#include "libraries/miniz/miniz.h"
 
-/*
-#include <libraries/assimp/include/assimp/Importer.hpp>
-#include "libraries/assimp/include/assimp/Exporter.hpp"
-#include "libraries/assimp/include/assimp/scene.h"
-#include "libraries/assimp/include/assimp/postprocess.h"
-*/
-
-#include <assimp/Importer.hpp>
-#include <assimp/Exporter.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+//#include <assimp/Importer.hpp>
+//#include <assimp/Exporter.hpp>
+//#include <assimp/scene.h>
+//#include <assimp/postprocess.h>
 
 
 #include <regex>
 
+#include <iostream>
 #include "nlohmann/json.hpp"
 
 using namespace std;
@@ -32,9 +26,13 @@ namespace fs = std::filesystem;
 class importvcmx
 {
 public:
+    importvcmx() = default;
     importvcmx(const std::string &filePath);
 
     int importVCMXData();
+
+       // RscToJsonParser Functions
+   nlohmann::json parse(std::string &filePath);
 
 private:
     string filePath;  // Input file path
@@ -45,6 +43,7 @@ private:
 
     // RscToJsonParser
     string filename;
+    json robotData;
     nlohmann::json kinematics;
     nlohmann::json jointMap;
     nlohmann::json jointOffset;
@@ -69,17 +68,16 @@ private:
 
 
     // ZipExtractor Functions
-    bool zipExtractor();
-    bool extractZipFile(const std::string &zipFilePath, const std::string &destDir);
+    // bool zipExtractor();
+    // bool extractZipFile(const std::string &zipFilePath, const std::string &destDir);
 
     // ImageConverter Functions
-    bool imageConverter();
-    void convert3DSToOBJ(const std::string &inputFilePath, const std::string &outputFilePath);
+    // bool imageConverter();
+    // void convert3DSToOBJ(const std::string &inputFilePath, const std::string &outputFilePath);
 
 
 
-   // RscToJsonParser Functions
-   nlohmann::json parse(std::string &filePath);
+
    
    bool processResourceFile();
 
@@ -88,6 +86,7 @@ private:
    void processOtherSections(const std::string &line, std::ifstream &file);
    void processOffsetSection(const std::string &line, std::ifstream &file);
    void processGeometryMatrixSection(const std::string &line);
+
 
 };
 

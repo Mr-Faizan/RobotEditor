@@ -8,6 +8,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_PREFIX_PATH "C:/InstalledSoftwares/QT/6.8.1/mingw_64")
+
+# This is for debugging
+set(CMAKE_BUILD_TYPE Debug)
+
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
@@ -16,7 +22,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 # Add the assimp library as a subdirectory
 
 
-add_subdirectory(libraries/assimp-5.4.2)
+#add_subdirectory(libraries/assimp-5.4.2)
 
 
 add_library(RobotLib SHARED
@@ -37,18 +43,20 @@ add_library(RobotLib SHARED
   importvcmx.h importvcmx.cpp
 )
 
+target_link_libraries(RobotLib PRIVATE Qt${QT_VERSION_MAJOR}::Core)
+target_include_directories(RobotLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-
-target_link_libraries(RobotLib PRIVATE Qt${QT_VERSION_MAJOR}::Core assimp ${ASSIMP_LIBRARIES})
-target_include_directories(RobotLib PUBLIC 
-${CMAKE_CURRENT_SOURCE_DIR}/libraries/assimp-5.4.2/include
-${CMAKE_CURRENT_BINARY_DIR}/libraries/assimp-5.4.2/include
-)
+#target_link_libraries(RobotLib PRIVATE Qt${QT_VERSION_MAJOR}::Core assimp ${ASSIMP_LIBRARIES})
+#target_include_directories(RobotLib PUBLIC 
+#${CMAKE_CURRENT_SOURCE_DIR}/libraries/assimp-5.4.2/include
+#${CMAKE_CURRENT_BINARY_DIR}/libraries/assimp-5.4.2/include
+#)
 target_compile_definitions(RobotLib PRIVATE ROBOTLIB_LIBRARY)
 
 
 # Add the executable
-add_executable(RobotLibTest main.cpp robot.cpp joint.cpp kinematics.cpp dynamics.cpp robotlib_test.cpp)
+add_executable(RobotLibTest main.cpp robot.cpp joint.cpp kinematics.cpp dynamics.cpp robotlib_test.cpp importvcmx.cpp)
 
 # Link the RobotLib library to the executable
-target_link_libraries(RobotLibTest PRIVATE RobotLib assimp)
+#target_link_libraries(RobotLibTest PRIVATE RobotLib assimp)
+target_link_libraries(RobotLibTest PRIVATE RobotLib)

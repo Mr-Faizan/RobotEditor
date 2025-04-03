@@ -11,33 +11,35 @@ int importvcmx::importVCMXData()
 {
     try
     {
+        /*
+                // Step 1: Run ZipExtractor
+                if (!zipExtractor())
+                {
+                    cerr << "Error: Failed to Extract Zip Files." << endl;
+                    return 1; // Return error code
+                }
+                cout << "Step 1: Zip extraction completed successfully!" << endl;
 
-        // Step 1: Run ZipExtractor
-        if (!zipExtractor())
-        {
-            cerr << "Error: Failed to Extract Zip Files." << endl;
-            return 1; // Return error code
-        }
-        cout << "Step 1: Zip extraction completed successfully!" << endl;
+                // Step 2: Run ImageConverter for all 3DS files
 
-        // Step 2: Run ImageConverter for all 3DS files
-        
-        if (!imageConverter())
-        {
-            cerr << "Error: Failed to process new files." << endl;
-            return 2; // Return error code
-        }
+                if (!imageConverter())
+                {
+                    cerr << "Error: Failed to process new files." << endl;
+                    return 2; // Return error code
+                }
 
-        cout << "Step 2: 3DS to OBJ conversion completed successfully!" << endl;
+                cout << "Step 2: 3DS to OBJ conversion completed successfully!" << endl;
 
 
-        // Step 3: Get important data from component.rsc files
-        if(! processResourceFile())
-        {
-            cerr << "Error: Failed to process resource file." << endl;
-            return 3; // Return error code
-        }
-        cout << "Step 3: RSC to JSON conversion completed successfully!" << endl;
+                // Step 3: Get important data from component.rsc files
+                if(! processResourceFile())
+                {
+                    cerr << "Error: Failed to process resource file." << endl;
+                    return 3; // Return error code
+                }
+                cout << "Step 3: RSC to JSON conversion completed successfully!" << endl;
+
+         */
 
         /*
                         // Step 4: Run DHParameterCalculator
@@ -55,6 +57,7 @@ int importvcmx::importVCMXData()
 }
 
 /***************** Zip Extraction Funtions ******************** */
+/*
 bool importvcmx::zipExtractor()
 {
     try
@@ -149,9 +152,9 @@ bool importvcmx::extractZipFile(const std::string &zipFilePath, const std::strin
         return false;
     }
 }
-
+*/
 /******************** Image Converter Functions ******************** */
-
+/*
 bool importvcmx::imageConverter()
 {
     if (!outputDir.empty())
@@ -216,14 +219,14 @@ void importvcmx::convert3DSToOBJ(const string &inputFilePath, const string &outp
     }
 }
 
+*/
+/********************************************************************************************* */
 
-    /********************************************************************************************* */
+// In these functions i will extract the most important data from the .rsc file and convert it to a json file.
+// This data will be used for the robot simulation in QT 3D Studio.
 
-    // In these functions i will extract the most important data from the .rsc file and convert it to a json file.
-    // This data will be used for the robot simulation in QT 3D Studio.
-
-    // DOF regex to match the DOF section
-    std::regex dofRegex(R"(Dof  \"(Rotational|Custom|RotationalFollower|Translational)\")");
+// DOF regex to match the DOF section
+std::regex dofRegex(R"(Dof  \"(Rotational|Custom|RotationalFollower|Translational)\")");
 std::regex KinematicsRegex(R"(Functionality\s*\"(rKinArticulated2|rKinParallellogram)\")");
 
 // This function will parse the .rsc file and return the json object
@@ -250,6 +253,7 @@ json importvcmx::parse(string &filePath)
     }
 
     // Its time to collect all the pieces of puzzle.
+    root["robotData"] = robotData;
     root["kinematics"] = kinematics;
     root["jointMap"] = jointMap;
     root["jointOffset"] = jointOffset;
@@ -261,6 +265,42 @@ json importvcmx::parse(string &filePath)
 void importvcmx::processLine(string &line, ifstream &file)
 {
     line.erase(0, line.find_first_not_of(" \t")); // Trim leading whitespace
+
+    // Check for BOMname
+    if (line.find("BOMname") != string::npos)
+    {
+        auto pos = line.find("\"");
+        if (pos != string::npos)
+        {
+            string value = line.substr(pos + 1, line.rfind("\"") - pos - 1);
+            robotData["BOMname"] = value;
+        }
+        return;
+    }
+
+    // Check for BOMdescription
+    if (line.find("BOMdescription") != string::npos)
+    {
+        auto pos = line.find("\"");
+        if (pos != string::npos)
+        {
+            string value = line.substr(pos + 1, line.rfind("\"") - pos - 1);
+            robotData["BOMdescription"] = value;
+        }
+        return;
+    }
+
+    // Check for Category
+    if (line.find("Category") != string::npos)
+    {
+        auto pos = line.find("\"");
+        if (pos != string::npos)
+        {
+            string value = line.substr(pos + 1, line.rfind("\"") - pos - 1);
+            robotData["Category"] = value;
+        }
+        return;
+    }
 
     if (std::regex_search(line, KinematicsRegex))
     {
@@ -725,12 +765,13 @@ json DHParameterCalculator::computeDHParameters(const json &inputData)
             std::string geometryFile = geometryMatrix.at(jointName).at(0).at("GeometryFile");
 
             // Now join the pieces of the puzzle.
-            jointData["joint"] = jointName;
-            jointData["Rx"] = Rx;
-            jointData["Tx"] = Tx;
-            jointData["Tz"] = Tz;
-            jointData["Rz"] = Rz;
-            dhParameters[geometryFile] = jointData;
+            jointData["visualization"] = geometryFile;
+            jointData["alpha"] = Rx;
+            jointData["a"] = Tx;
+            jointData["d"] = Tz;
+            jointData["theta"] = Rz;
+            
+            dhParameters[jointName] = jointData;
         }
         catch (const std::exception &e)
         {

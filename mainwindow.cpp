@@ -231,7 +231,7 @@ void MainWindow::on_actionOpenFromDevice_triggered()
     }
 }
 
-void MainWindow::on_actionImportFromVCMX_triggered()
+void MainWindow::on_actionImportFromVisualComponent_triggered()
 {
     // Open the VCMX file and extract the data to create a new Robot.
 
