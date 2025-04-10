@@ -3,6 +3,7 @@
 
 
 #include "importvcmx.h"
+#include "dhcalculator.h"
 #include <filesystem>
 
 #include "nlohmann/json.hpp"
@@ -36,9 +37,15 @@ int main() {
         outputFile << parsedData.dump(4); // Pretty print with 4 spaces indent
         outputFile.close();
 
-        
-        DHParameterCalculator calculator(outputFilePath, dhParameterFile);
+        try{
+        dhCalculator calculator(outputFilePath);
         calculator.calculateDHParameters();
+        calculator.validateDHParameters(outputFilePath);
+        }catch (const std::exception &e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+            return 1;
+        }
+
 
         cout << "Step 4: DH parameters calculation completed successfully!" << endl;
 

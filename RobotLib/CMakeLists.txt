@@ -41,6 +41,7 @@ add_library(RobotLib SHARED
   main.cpp
   jsonkeys2.h
   importvcmx.h importvcmx.cpp
+  dhcalculator.h dhcalculator.cpp
 )
 
 target_link_libraries(RobotLib PRIVATE Qt${QT_VERSION_MAJOR}::Core)
@@ -55,7 +56,7 @@ target_compile_definitions(RobotLib PRIVATE ROBOTLIB_LIBRARY)
 
 
 # Add the executable
-add_executable(RobotLibTest main.cpp robot.cpp joint.cpp kinematics.cpp dynamics.cpp robotlib_test.cpp importvcmx.cpp)
+add_executable(RobotLibTest main.cpp robot.cpp joint.cpp kinematics.cpp dynamics.cpp robotlib_test.cpp importvcmx.cpp dhcalculator.cpp)
 
 # Link the RobotLib library to the executable
 #target_link_libraries(RobotLibTest PRIVATE RobotLib assimp)
