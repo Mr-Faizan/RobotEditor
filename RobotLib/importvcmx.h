@@ -6,18 +6,18 @@
 #include <fstream>
 #include <filesystem>
 
-//#include "libraries/miniz/miniz.h"
+#include "libraries/miniz/miniz.h"
 
-//#include <assimp/Importer.hpp>
-//#include <assimp/Exporter.hpp>
-//#include <assimp/scene.h>
-//#include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
+#include <assimp/Exporter.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 
 #include <regex>
-
-#include <iostream>
 #include "nlohmann/json.hpp"
+
+#include "dhcalculator.h"
 
 using namespace std;
 using json = nlohmann::json;
@@ -28,17 +28,19 @@ class importvcmx
 public:
     importvcmx() = default;
     importvcmx(const std::string &filePath);
-
     int importVCMXData();
-
        // RscToJsonParser Functions
    nlohmann::json parse(std::string &filePath);
+
+   // function to get the robotDataDir path
+    std::string getRobotDataDir() const { return robotDataDir; }
 
 private:
     string filePath;  // Input file path
     string outputDir; // Output directory derived from filePath
     string robotDataDir; // Directory for robot data
     string resourceFilePath; // Path to the resource file
+    string jsonFilePath; // Path to the component.json file
 // Need to set this Path of resource file.
 
     // RscToJsonParser
@@ -68,14 +70,14 @@ private:
 
 
     // ZipExtractor Functions
-    // bool zipExtractor();
-    // bool extractZipFile(const std::string &zipFilePath, const std::string &destDir);
+    bool zipExtractor();
+    bool extractZipFile(const std::string &zipFilePath, const std::string &destDir);
 
     // ImageConverter Functions
-    // bool imageConverter();
-    // void convert3DSToOBJ(const std::string &inputFilePath, const std::string &outputFilePath);
+    bool imageConverter();
+    void convert3DSToOBJ(const std::string &inputFilePath, const std::string &outputFilePath);
 
-
+    bool runDHParameterCalculator();
 
 
    

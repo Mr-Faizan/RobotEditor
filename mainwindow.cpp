@@ -1453,7 +1453,7 @@ void MainWindow::loadSingleObjFile(const QString &filePath, const QJsonObject &j
         float Rz = geomData.value("Rz").toDouble();
 
         // Set the translation and rotation values
-        // transform->setTranslation(QVector3D(Tx, 0.0f, Tz));
+        transform->setTranslation(QVector3D(Tx, 0.0f, Tz));
         transform->setRotationX(Rx);
         transform->setRotationZ(Rz);
     }

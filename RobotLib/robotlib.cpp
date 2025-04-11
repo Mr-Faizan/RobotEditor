@@ -630,17 +630,32 @@ Robot RobotLib::importRobotFromVCMX(const string &filePath)
     Robot newRobot;
     try
     {
+
+        
+        string robotDataDir = "C:/Users/fahmed/WorkFolder/Projects/Payload Samples/ER6-1600/RobotData";
+        // pass newRobot to the function parseRobotFromVCMX
+    
+
+        newRobot = parseRobotFromVCMX(robotDataDir);
+        
+
+        /*
         importvcmx importer(filePath);
         int status = importer.importVCMXData();
 
         if (status == 0)
         {
+            newRobot = parseRobotFromVCMX(importer.getRobotDataDir());
+
             std::cout << "VCMX data imported successfully!" << std::endl;
         }
         else
         {
             std::cerr << "Failed to import VCMX data. Status code: " << status << std::endl;
         }
+
+        */
+            
     }
     catch (const std::exception &e)
     {
@@ -648,4 +663,98 @@ Robot RobotLib::importRobotFromVCMX(const string &filePath)
     }
 
     return newRobot;
+}
+
+// Function to parse the robot data from a JSON file and populate a Robot object
+Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
+{
+
+    // Locate the component.json file in the given folder
+    string filePath = robotDataFolderPath + "/component.json";
+    if (!fs::exists(filePath))
+    {
+        throw runtime_error("component.json file not found in folder: " + robotDataFolderPath);
+    }
+
+    // Open and parse the JSON file
+    ifstream inputFile(filePath);
+    if (!inputFile)
+    {
+        throw runtime_error("Unable to open file: " + filePath);
+    }
+
+    json inputData;
+    try {
+        inputFile >> inputData;
+    } catch (const json::parse_error &e) {
+        throw std::runtime_error("Error parsing JSON file: " + std::string(e.what()));
+    }
+    inputFile.close();
+
+    Robot robot;
+
+    // Populate robot details
+    if (inputData.contains("robotData")) {
+        const auto &robotData = inputData["robotData"];
+        if (robotData.contains("Category") && robotData["Category"].is_string() && robotData["Category"] == "Robot") {
+            if (robotData.contains("BOMname") && robotData["BOMname"].is_string()) {
+                robot.setName(robotData["BOMname"]);
+            }
+            if (robotData.contains("BOMdescription") && robotData["BOMdescription"].is_string()) {
+                robot.setManufacturer(robotData["BOMdescription"]);
+            }
+        }
+    }
+
+    // Populate DH parameters
+    if (inputData.contains("dhParameters")) {
+        const auto &dhParametersJson = inputData["dhParameters"];
+        for (const auto &[jointName, dhParam] : dhParametersJson.items()) {
+            Joint &joint = robot.createAndAddJoint();
+            joint.setName(jointName);
+
+            JointKinematics kinematics;
+            JointKinematics::DHParameters dhParameters;
+
+            if (dhParam.contains("a") && dhParam["a"].is_number()) {
+                dhParameters.setA(dhParam["a"]);
+            }
+            if (dhParam.contains("alpha") && dhParam["alpha"].is_number()) {
+                dhParameters.setAlpha(dhParam["alpha"]);
+            }
+            if (dhParam.contains("d") && dhParam["d"].is_number()) {
+                dhParameters.setD(dhParam["d"]);
+            }
+            if (dhParam.contains("theta") && dhParam["theta"].is_number()) {
+                dhParameters.setTheta(dhParam["theta"]);
+            }
+
+            kinematics.setDhParameters(dhParameters);
+            joint.setKinematics(kinematics);
+
+            if (dhParam.contains("visualization") && dhParam["visualization"].is_string()) {
+                string fileName = dhParam["visualization"].get<string>();
+
+                // if 1st letter of file name is alphabet and it is capital letter then make it as small letter and assign new name back to fileName
+
+                if (isupper(fileName[0])) {
+                    fileName[0] = tolower(fileName[0]);
+
+                }
+
+                fileName = fileName + ".obj";
+
+
+                string visualizationFilePath = robotDataFolderPath + "/" + fileName;
+                if (fs::exists(visualizationFilePath)) {
+                    joint.setVisualization(visualizationFilePath);
+                } else {
+                    std::cerr << "Warning: Visualization file not found: " << visualizationFilePath << std::endl;
+                }
+            }
+        }
+    }
+
+
+    return robot;
 }

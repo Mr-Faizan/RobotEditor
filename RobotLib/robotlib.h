@@ -52,6 +52,7 @@ public:
     void printData() const;
     // New function to initiate vcmxDataExtractor
     Robot importRobotFromVCMX(const string &filePath);
+    Robot parseRobotFromVCMX(const string &robotDataFolderPath);
 };
 
 #endif // ROBOTLIB_H

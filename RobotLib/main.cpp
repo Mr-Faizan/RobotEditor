@@ -1,14 +1,15 @@
-#include "robotlib_test.h"
+//#include "robotlib_test.h"
+#include "robotlib.h" 
 
 
-
-#include "importvcmx.h"
-#include "dhcalculator.h"
+//#include "importvcmx.h"
+//#include "dhcalculator.h"
 #include <filesystem>
 
-#include "nlohmann/json.hpp"
+//#include "nlohmann/json.hpp"
 
 namespace fs = std::filesystem;
+
 
 int main() {
     try {
@@ -24,6 +25,25 @@ int main() {
             return 1;
         }
 
+        // Path to the robot data folder
+        std::string robotDataFolderPath = "C:/Users/fahmed/WorkFolder/Projects/Payload Samples/ER6-1600/RobotData";
+/*
+        // Create an instance of RobotLib
+        RobotLib robotLib;
+        Robot robot;
+        // Parse the robot data from the VCMX folder
+        Robot robot = robotLib.parseRobotFromVCMX(robot, robotDataFolderPath);
+
+        robotLib.addRobot(robot); 
+        
+        // Print the robot details
+        std::cout << "Robot successfully parsed!" << std::endl;
+        robotLib.printData();
+
+*/
+
+
+        /*
         // Create an instance of importvcmx and parse the file
         importvcmx parser(inputFilePath);
         nlohmann::json parsedData = parser.parse(inputFilePath);
@@ -51,6 +71,8 @@ int main() {
 
         std::cout << "File processed successfully!" << std::endl;
         std::cout << "Output is saved to: " << outputFilePath << std::endl;
+
+        */
     } catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;

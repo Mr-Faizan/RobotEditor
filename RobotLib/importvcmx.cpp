@@ -11,7 +11,7 @@ int importvcmx::importVCMXData()
 {
     try
     {
-        /*
+
                 // Step 1: Run ZipExtractor
                 if (!zipExtractor())
                 {
@@ -39,13 +39,24 @@ int importvcmx::importVCMXData()
                 }
                 cout << "Step 3: RSC to JSON conversion completed successfully!" << endl;
 
-         */
+                
+        // Step 4: Run DHParameterCalculator
+        if (!runDHParameterCalculator()) {
+            cerr << "Error: Failed to calculate and validate DH parameters." << endl;
+            return 4; // Return error code for Step 4
+        }
+        cout << "Step 4: DH parameters calculation completed successfully!" << endl;
 
-        /*
-                        // Step 4: Run DHParameterCalculator
-                        DHParameterCalculator::processAllFiles(jsonDir, outputDir);
-                        cout << "Step 4: DH parameters calculation completed successfully!" << endl;
-                */
+        
+/*
+        string jsonFilePath = outputDir + "/component.json";
+
+        dhCalculator calculator(jsonFilePath);
+
+        // Calculate DH parameters
+        calculator.calculateDHParameters();
+*/
+
     }
     catch (const exception &e)
     {
@@ -56,8 +67,9 @@ int importvcmx::importVCMXData()
     return 0; // success
 }
 
+
 /***************** Zip Extraction Funtions ******************** */
-/*
+
 bool importvcmx::zipExtractor()
 {
     try
@@ -152,9 +164,10 @@ bool importvcmx::extractZipFile(const std::string &zipFilePath, const std::strin
         return false;
     }
 }
-*/
+
+
 /******************** Image Converter Functions ******************** */
-/*
+
 bool importvcmx::imageConverter()
 {
     if (!outputDir.empty())
@@ -219,7 +232,7 @@ void importvcmx::convert3DSToOBJ(const string &inputFilePath, const string &outp
     }
 }
 
-*/
+
 /********************************************************************************************* */
 
 // In these functions i will extract the most important data from the .rsc file and convert it to a json file.
@@ -618,12 +631,12 @@ bool importvcmx::processResourceFile()
         {
             json rscJson = parse(resourceFilePath);
 
-            string outputFilePath = robotDataDir + "/component.json";
-            ofstream outputFile(outputFilePath);
+            jsonFilePath = robotDataDir + "/component.json";
+            ofstream outputFile(jsonFilePath);
             outputFile << rscJson.dump(4); // Pretty print with 4 spaces indent
             outputFile.close();
 
-            cout << "Processed: " << resourceFilePath << " -> " << outputFilePath << endl;
+            cout << "Processed: " << resourceFilePath << " -> " << jsonFilePath << endl;
             return true;
         }
         catch (const exception &e)
@@ -636,3 +649,30 @@ bool importvcmx::processResourceFile()
 }
 
 /********************************************************************************************* */
+
+bool importvcmx::runDHParameterCalculator() {
+    try {
+        
+        if ((!jsonFilePath.empty()) && (fs::exists(jsonFilePath)))
+        {
+        
+        dhCalculator calculator(jsonFilePath);
+
+        // Calculate DH parameters
+        calculator.calculateDHParameters();
+
+        // Validate DH parameters
+        calculator.validateDHParameters(jsonFilePath);
+
+        return true; // Success
+        }
+        else {
+            cerr << "Error: component.json file does not exist." << endl;
+            return false; // Failure
+        }
+    } catch (const std::exception &e) {
+        cerr << "Error in DHParameterCalculator: " << e.what() << endl;
+        return false; // Failure
+    }
+}
+
