@@ -22,6 +22,9 @@ class dhCalculator
 public:
     dhCalculator(const std::string &filePath);
     void calculateDHParameters();
+    json computeTransformationMatrix(const json &dhParameters);
+    std::map<std::string, std::tuple<std::array<double, 3>, std::array<double, 3>>> getJointTransformations();
+    std::tuple<std::array<double, 3>, std::array<double, 3>> getTranslationAndRotation(const std::vector<std::vector<double>>& matrix);
     static void processAllFiles(const std::string &robotDataDir);
 
     // Validate DH parameters against geometryMatrix

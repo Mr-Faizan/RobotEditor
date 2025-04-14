@@ -17,6 +17,15 @@ void dhCalculator::calculateDHParameters()
 
     // Here we got the computed DH parameters.
     json dhParameters = computeDHParameters(inputData);
+
+    // from these DH parameters we will now compute the transformation matrix.
+
+    // Compute transformation matrices and update the DH parameters
+    json updatedJoints = computeTransformationMatrix(dhParameters);
+
+    // Save the updated joints back to the JSON file
+    inputData[RobotKeys2::Joints] = updatedJoints;
+    
     
     // So we will save these DH parameters in component.json file.
     // Add the DH parameters to the existing JSON data
@@ -175,7 +184,42 @@ void dhCalculator::processAllFiles(const std::string &robotDataDir)
 
 
 
-/************************* DH Parameter Verification Section ********************* */
+/************************* Homogeneous Transformation matrix calculation Section ********************* */
+
+json dhCalculator::computeTransformationMatrix(const json &dhParameters) {
+    json updatedJoints;
+
+    // Iterate through each joint in the DH parameters
+    for (const auto& [jointName, jointData] : dhParameters.items()) {
+        if (jointData.contains(JointKeys2::JointKinematics) &&
+            jointData[JointKeys2::JointKinematics].contains(KinematicsKeys2::DhParameters)) {
+            const auto& dhParams = jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters];
+
+            // Extract DH parameters
+            double a = dhParams[DhParametersKeys2::A];
+            double alpha = dhParams[DhParametersKeys2::Alpha];
+            double d = dhParams[DhParametersKeys2::D];
+            double theta = dhParams[DhParametersKeys2::Theta];
+
+            // Compute the DH matrix
+            auto matrix = computeDHMatrix(a, alpha, d, theta);
+
+            // Extract translation and rotation
+            auto [translation, rotation] = getTranslationAndRotation(matrix);
+
+            // Create a copy of the joint data and add translation and rotation
+            json updatedJointData = jointData;
+            updatedJointData["translation"] = {translation[0], translation[1], translation[2]};
+            updatedJointData["rotation"] = {rotation[0], rotation[1], rotation[2]};
+
+            // Add the updated joint data to the result
+            updatedJoints[jointName] = updatedJointData;
+        }
+    }
+
+    std::cout << "Transformation matrices computed successfully!" << std::endl;
+    return updatedJoints;
+}
 
 // Helper function to parse the provided matrix from a string
 std::vector<std::vector<double>> dhCalculator::parseMatrix(const std::string& matrixStr) {
@@ -197,7 +241,6 @@ std::vector<std::vector<double>> dhCalculator::computeDHMatrix(double a, double 
     alpha = alpha * M_PI / 180.0;
     theta = theta * M_PI / 180.0;
 
-    // Fill the DH transformation matrix
     matrix[0][0] = cos(theta);
     matrix[0][1] = -sin(theta) * cos(alpha);
     matrix[0][2] = sin(theta) * sin(alpha);
@@ -221,6 +264,7 @@ std::vector<std::vector<double>> dhCalculator::computeDHMatrix(double a, double 
     return matrix;
 }
 
+
 // Compare two matrices with a tolerance
 bool dhCalculator::compareMatrices(const std::vector<std::vector<double>>& mat1, const std::vector<std::vector<double>>& mat2, double tolerance) {
     for (int i = 0; i < 4; ++i) {
@@ -232,6 +276,50 @@ bool dhCalculator::compareMatrices(const std::vector<std::vector<double>>& mat1,
     }
     return true;
 }
+
+
+// Function to extract translation and rotation from the DH matrix
+std::map<std::string, std::tuple<std::array<double, 3>, std::array<double, 3>>> dhCalculator::getJointTransformations() {
+    std::map<std::string, std::tuple<std::array<double, 3>, std::array<double, 3>>> transformations;
+
+    for (const auto& [joint, dhParam] : dhParameters.items()) {
+        double a = dhParam["a"];
+        double alpha = dhParam["alpha"];
+        double d = dhParam["d"];
+        double theta = dhParam["theta"];
+
+        // Compute the DH matrix
+        auto matrix = computeDHMatrix(a, alpha, d, theta);
+
+        // Extract translation and rotation
+        auto [translation, rotation] = getTranslationAndRotation(matrix);
+
+        // Store the transformation
+        transformations[joint] = {translation, rotation};
+    }
+
+    return transformations;
+}
+
+// Function to extract translation and rotation from the matrix
+std::tuple<std::array<double, 3>, std::array<double, 3>> dhCalculator::getTranslationAndRotation(const std::vector<std::vector<double>>& matrix) {
+    // Extract translation
+    std::array<double, 3> translation = {matrix[0][3], matrix[1][3], matrix[2][3]};
+
+    // Extract rotation (Euler angles in degrees)
+    double thetaX = atan2(matrix[2][1], matrix[2][2]) * 180.0 / M_PI;
+    double thetaY = atan2(-matrix[2][0], sqrt(matrix[2][1] * matrix[2][1] + matrix[2][2] * matrix[2][2])) * 180.0 / M_PI;
+    double thetaZ = atan2(matrix[1][0], matrix[0][0]) * 180.0 / M_PI;
+    std::array<double, 3> rotation = {thetaX, thetaY, thetaZ};
+
+    return {translation, rotation};
+}
+
+
+
+
+/************************* DH Parameter Verification Section ********************* */
+
 
 // Function to validate DH parameters against geometryMatrix
 void dhCalculator::validateDHParameters(const std::string& filePath) {
@@ -261,6 +349,27 @@ void dhCalculator::validateDHParameters(const std::string& filePath) {
 
         // Compute the DH matrix
         auto computedMatrix = computeDHMatrix(a, alpha, d, theta);
+
+
+         // Extract translation and rotation
+         auto [translation, rotation] = getTranslationAndRotation(computedMatrix);
+
+         // Store the transformation
+         transformations[joint] = {translation, rotation};
+
+
+
+
+
+
+
+
+
+
+
+
+// 2nd part of the code
+
 
         // Find the corresponding matrix in geometryMatrix
         if (geometryMatrix.contains(jointName)) {
