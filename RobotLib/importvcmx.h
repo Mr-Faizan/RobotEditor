@@ -6,7 +6,7 @@
 #include <fstream>
 #include <filesystem>
 
-#include "libraries/miniz/miniz.h"
+#include <miniz/miniz.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/Exporter.hpp>

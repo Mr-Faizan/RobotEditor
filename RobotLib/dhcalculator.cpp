@@ -20,7 +20,7 @@ void dhCalculator::calculateDHParameters()
     
     // So we will save these DH parameters in component.json file.
     // Add the DH parameters to the existing JSON data
-    inputData["dhParameters"] = dhParameters;
+    inputData[RobotKeys2::Joints] = dhParameters;
 
     std::ofstream outputFile(filePath);
     if (!outputFile)
@@ -129,11 +129,11 @@ json dhCalculator::computeDHParameters(const json &inputData)
             std::string geometryFile = geometryMatrix.at(jointName).at(0).at("GeometryFile");
 
             // Now join the pieces of the puzzle.
-            jointData["visualization"] = geometryFile;
-            jointData["alpha"] = Rx;
-            jointData["a"] = Tx;
-            jointData["d"] = Tz;
-            jointData["theta"] = Rz;
+            jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::Alpha] = Rx;
+            jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::A] = Tx;
+            jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::D] = Tz;
+            jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::Theta] = Rz;
+            jointData[JointKeys2::Visualization] = geometryFile;
             
             dhParameters[jointName] = jointData;
         }
@@ -246,37 +246,40 @@ void dhCalculator::validateDHParameters(const std::string& filePath) {
     inputFile.close();
 
     // Extract dhParameters and geometryMatrix
-    const auto& dhParameters = inputData["dhParameters"];
+    const auto& joints = inputData[RobotKeys2::Joints];
     const auto& geometryMatrix = inputData["geometryMatrix"];
 
     // Iterate through each joint in dhParameters
-    for (const auto& [joint, dhParam] : dhParameters.items()) {
-        double a = dhParam["a"];
-        double alpha = dhParam["alpha"];
-        double d = dhParam["d"];
-        double theta = dhParam["theta"];
+    for (const auto& [jointName, jointData] : joints.items()) {
+
+        const auto& dhParams = jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters];
+
+        double a = dhParams[DhParametersKeys2::A];
+        double alpha = dhParams[DhParametersKeys2::Alpha];
+        double d = dhParams[DhParametersKeys2::D];
+        double theta = dhParams[DhParametersKeys2::Theta];
 
         // Compute the DH matrix
         auto computedMatrix = computeDHMatrix(a, alpha, d, theta);
 
         // Find the corresponding matrix in geometryMatrix
-        if (geometryMatrix.contains(joint)) {
-            const auto& jointData = geometryMatrix[joint];
+        if (geometryMatrix.contains(jointName)) {
+            const auto& jointData = geometryMatrix[jointName];
             if (!jointData.empty() && jointData[0].contains("Matrix")) {
                 std::string providedMatrixStr = jointData[0]["Matrix"];
                 auto providedMatrix = parseMatrix(providedMatrixStr);
 
                 // Compare the matrices
                 if (compareMatrices(computedMatrix, providedMatrix)) {
-                    std::cout << "Joint " << joint << ": The DH parameters are correct!" << std::endl;
+                    std::cout << "Joint " << jointName << ": The DH parameters are correct!" << std::endl;
                 } else {
-                    std::cout << "Joint " << joint << ": The DH parameters are incorrect!" << std::endl;
+                    std::cout << "Joint " << jointName << ": The DH parameters are incorrect!" << std::endl;
                 }
             } else {
-                std::cerr << "Joint " << joint << ": No matrix found in geometryMatrix!" << std::endl;
+                std::cerr << "Joint " << jointName << ": No matrix found in geometryMatrix!" << std::endl;
             }
         } else {
-            std::cerr << "Joint " << joint << ": Not found in geometryMatrix!" << std::endl;
+            std::cerr << "Joint " << jointName << ": Not found in geometryMatrix!" << std::endl;
         }
     }
 }

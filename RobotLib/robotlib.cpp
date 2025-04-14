@@ -632,16 +632,21 @@ Robot RobotLib::importRobotFromVCMX(const string &filePath)
     {
 
         
-        string robotDataDir = "C:/Users/fahmed/WorkFolder/Projects/Payload Samples/ER6-1600/RobotData";
+
+        
+
+        
+        importvcmx importer(filePath);
+        int status = importer.importVCMXData();
+
+        //string robotDataDir = "C:/Users/fahmed/WorkFolder/Projects/Payload Samples/KR 120 R3500-2 P/RobotData";
         // pass newRobot to the function parseRobotFromVCMX
     
 
-        newRobot = parseRobotFromVCMX(robotDataDir);
+        //newRobot = parseRobotFromVCMX(robotDataDir);
+
         
 
-        /*
-        importvcmx importer(filePath);
-        int status = importer.importVCMXData();
 
         if (status == 0)
         {
@@ -654,7 +659,7 @@ Robot RobotLib::importRobotFromVCMX(const string &filePath)
             std::cerr << "Failed to import VCMX data. Status code: " << status << std::endl;
         }
 
-        */
+        
             
     }
     catch (const std::exception &e)
@@ -707,43 +712,46 @@ Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
     }
 
     // Populate DH parameters
-    if (inputData.contains("dhParameters")) {
-        const auto &dhParametersJson = inputData["dhParameters"];
-        for (const auto &[jointName, dhParam] : dhParametersJson.items()) {
+    if (inputData.contains(RobotKeys2::Joints)) {
+        const auto &jointsJson = inputData[RobotKeys2::Joints];
+        for (const auto &[jointName, jointData] : jointsJson.items()) {
             Joint &joint = robot.createAndAddJoint();
             joint.setName(jointName);
 
-            JointKinematics kinematics;
-            JointKinematics::DHParameters dhParameters;
+            if (jointData.contains(JointKeys2::JointKinematics) && jointData[JointKeys2::JointKinematics].contains(KinematicsKeys2::DhParameters)) {
+                const auto &dhParams = jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters];
 
-            if (dhParam.contains("a") && dhParam["a"].is_number()) {
-                dhParameters.setA(dhParam["a"]);
+                JointKinematics kinematics;
+                JointKinematics::DHParameters dhParameters;
+
+                if (dhParams.contains(DhParametersKeys2::A) && dhParams[DhParametersKeys2::A].is_number()) {
+                    dhParameters.setA(dhParams[DhParametersKeys2::A]);
+                }
+                if (dhParams.contains(DhParametersKeys2::Alpha) && dhParams[DhParametersKeys2::Alpha].is_number()) {
+                    dhParameters.setAlpha(dhParams[DhParametersKeys2::Alpha]);
+                }
+                if (dhParams.contains(DhParametersKeys2::D) && dhParams[DhParametersKeys2::D].is_number()) {
+                    dhParameters.setD(dhParams[DhParametersKeys2::D]);
+                }
+                if (dhParams.contains(DhParametersKeys2::Theta) && dhParams[DhParametersKeys2::Theta].is_number()) {
+                    dhParameters.setTheta(dhParams[DhParametersKeys2::Theta]);
+                }
+
+                kinematics.setDhParameters(dhParameters);
+                joint.setKinematics(kinematics);
             }
-            if (dhParam.contains("alpha") && dhParam["alpha"].is_number()) {
-                dhParameters.setAlpha(dhParam["alpha"]);
-            }
-            if (dhParam.contains("d") && dhParam["d"].is_number()) {
-                dhParameters.setD(dhParam["d"]);
-            }
-            if (dhParam.contains("theta") && dhParam["theta"].is_number()) {
-                dhParameters.setTheta(dhParam["theta"]);
-            }
 
-            kinematics.setDhParameters(dhParameters);
-            joint.setKinematics(kinematics);
+            // Extract Visualization
+            if (jointData.contains(JointKeys2::Visualization) && jointData[JointKeys2::Visualization].is_string()) {
+                string fileName = jointData[JointKeys2::Visualization].get<string>();
 
-            if (dhParam.contains("visualization") && dhParam["visualization"].is_string()) {
-                string fileName = dhParam["visualization"].get<string>();
-
-                // if 1st letter of file name is alphabet and it is capital letter then make it as small letter and assign new name back to fileName
-
+                                
                 if (isupper(fileName[0])) {
                     fileName[0] = tolower(fileName[0]);
 
                 }
-
+                    
                 fileName = fileName + ".obj";
-
 
                 string visualizationFilePath = robotDataFolderPath + "/" + fileName;
                 if (fs::exists(visualizationFilePath)) {
@@ -752,6 +760,7 @@ Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
                     std::cerr << "Warning: Visualization file not found: " << visualizationFilePath << std::endl;
                 }
             }
+
         }
     }
 
