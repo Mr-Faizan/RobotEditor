@@ -29,7 +29,7 @@ void dhCalculator::calculateDHParameters()
     
     // So we will save these DH parameters in component.json file.
     // Add the DH parameters to the existing JSON data
-    inputData[RobotKeys2::Joints] = dhParameters;
+    //inputData[RobotKeys2::Joints] = dhParameters;
 
     std::ofstream outputFile(filePath);
     if (!outputFile)
@@ -155,32 +155,6 @@ json dhCalculator::computeDHParameters(const json &inputData)
     return dhParameters;
 }
 
-void dhCalculator::processAllFiles(const std::string &robotDataDir)
-{
-    for (const auto &entry : fs::directory_iterator(robotDataDir))
-    {
-        if (entry.is_directory())
-        {
-            std::string subDir = entry.path().string();
-            std::string componentFilePath = subDir + "/component.json";
-            if (fs::exists(componentFilePath))
-            {
-                try
-                {
-
-                    dhCalculator calculator(componentFilePath);
-                    calculator.calculateDHParameters();
-
-                    // std::cout << "Processed: " << componentFilePath << " -> " << outputFilePath << std::endl;
-                }
-                catch (const std::exception &e)
-                {
-                    std::cerr << "Error processing file " << componentFilePath << ": " << e.what() << std::endl;
-                }
-            }
-        }
-    }
-}
 
 
 
@@ -188,6 +162,11 @@ void dhCalculator::processAllFiles(const std::string &robotDataDir)
 
 json dhCalculator::computeTransformationMatrix(const json &dhParameters) {
     json updatedJoints;
+
+    if(dhParameters.empty()) {
+        std::cerr << "No DH parameters provided!" << std::endl;
+        return updatedJoints;
+    }
 
     // Iterate through each joint in the DH parameters
     for (const auto& [jointName, jointData] : dhParameters.items()) {
@@ -209,8 +188,8 @@ json dhCalculator::computeTransformationMatrix(const json &dhParameters) {
 
             // Create a copy of the joint data and add translation and rotation
             json updatedJointData = jointData;
-            updatedJointData["translation"] = {translation[0], translation[1], translation[2]};
-            updatedJointData["rotation"] = {rotation[0], rotation[1], rotation[2]};
+            updatedJointData[VisualizationKeys2::Translation] = {translation[0], translation[1], translation[2]};
+            updatedJointData[VisualizationKeys2::Rotation] = {rotation[0], rotation[1], rotation[2]};
 
             // Add the updated joint data to the result
             updatedJoints[jointName] = updatedJointData;
@@ -219,18 +198,6 @@ json dhCalculator::computeTransformationMatrix(const json &dhParameters) {
 
     std::cout << "Transformation matrices computed successfully!" << std::endl;
     return updatedJoints;
-}
-
-// Helper function to parse the provided matrix from a string
-std::vector<std::vector<double>> dhCalculator::parseMatrix(const std::string& matrixStr) {
-    std::vector<std::vector<double>> matrix(4, std::vector<double>(4, 0.0));
-    std::istringstream iss(matrixStr);
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            iss >> matrix[i][j];
-        }
-    }
-    return matrix;
 }
 
 // Compute the transformation matrix from DH parameters
@@ -264,43 +231,6 @@ std::vector<std::vector<double>> dhCalculator::computeDHMatrix(double a, double 
     return matrix;
 }
 
-
-// Compare two matrices with a tolerance
-bool dhCalculator::compareMatrices(const std::vector<std::vector<double>>& mat1, const std::vector<std::vector<double>>& mat2, double tolerance) {
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            if (std::abs(mat1[i][j] - mat2[i][j]) > tolerance) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-
-// Function to extract translation and rotation from the DH matrix
-std::map<std::string, std::tuple<std::array<double, 3>, std::array<double, 3>>> dhCalculator::getJointTransformations() {
-    std::map<std::string, std::tuple<std::array<double, 3>, std::array<double, 3>>> transformations;
-
-    for (const auto& [joint, dhParam] : dhParameters.items()) {
-        double a = dhParam["a"];
-        double alpha = dhParam["alpha"];
-        double d = dhParam["d"];
-        double theta = dhParam["theta"];
-
-        // Compute the DH matrix
-        auto matrix = computeDHMatrix(a, alpha, d, theta);
-
-        // Extract translation and rotation
-        auto [translation, rotation] = getTranslationAndRotation(matrix);
-
-        // Store the transformation
-        transformations[joint] = {translation, rotation};
-    }
-
-    return transformations;
-}
-
 // Function to extract translation and rotation from the matrix
 std::tuple<std::array<double, 3>, std::array<double, 3>> dhCalculator::getTranslationAndRotation(const std::vector<std::vector<double>>& matrix) {
     // Extract translation
@@ -314,8 +244,6 @@ std::tuple<std::array<double, 3>, std::array<double, 3>> dhCalculator::getTransl
 
     return {translation, rotation};
 }
-
-
 
 
 /************************* DH Parameter Verification Section ********************* */
@@ -350,27 +278,6 @@ void dhCalculator::validateDHParameters(const std::string& filePath) {
         // Compute the DH matrix
         auto computedMatrix = computeDHMatrix(a, alpha, d, theta);
 
-
-         // Extract translation and rotation
-         auto [translation, rotation] = getTranslationAndRotation(computedMatrix);
-
-         // Store the transformation
-         transformations[joint] = {translation, rotation};
-
-
-
-
-
-
-
-
-
-
-
-
-// 2nd part of the code
-
-
         // Find the corresponding matrix in geometryMatrix
         if (geometryMatrix.contains(jointName)) {
             const auto& jointData = geometryMatrix[jointName];
@@ -391,4 +298,30 @@ void dhCalculator::validateDHParameters(const std::string& filePath) {
             std::cerr << "Joint " << jointName << ": Not found in geometryMatrix!" << std::endl;
         }
     }
+}
+
+
+// Helper function to parse the provided matrix from a string
+std::vector<std::vector<double>> dhCalculator::parseMatrix(const std::string& matrixStr) {
+    std::vector<std::vector<double>> matrix(4, std::vector<double>(4, 0.0));
+    std::istringstream iss(matrixStr);
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            iss >> matrix[i][j];
+        }
+    }
+    return matrix;
+}
+
+
+// Compare two matrices with a tolerance
+bool dhCalculator::compareMatrices(const std::vector<std::vector<double>>& mat1, const std::vector<std::vector<double>>& mat2, double tolerance) {
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            if (std::abs(mat1[i][j] - mat2[i][j]) > tolerance) {
+                return false;
+            }
+        }
+    }
+    return true;
 }

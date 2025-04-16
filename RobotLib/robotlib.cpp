@@ -630,11 +630,6 @@ Robot RobotLib::importRobotFromVCMX(const string &filePath)
     Robot newRobot;
     try
     {
-
-        
-
-        
-
         
         importvcmx importer(filePath);
         int status = importer.importVCMXData();
@@ -644,9 +639,6 @@ Robot RobotLib::importRobotFromVCMX(const string &filePath)
     
 
         //newRobot = parseRobotFromVCMX(robotDataDir);
-
-        
-
 
         if (status == 0)
         {
@@ -659,8 +651,6 @@ Robot RobotLib::importRobotFromVCMX(const string &filePath)
             std::cerr << "Failed to import VCMX data. Status code: " << status << std::endl;
         }
 
-        
-            
     }
     catch (const std::exception &e)
     {

@@ -67,6 +67,9 @@ const QString BreakingTime = "Breaking Time (s)";
 namespace VisualizationKeys {
 const QString PathToObjFile = "Path to OBJ File";
 const QString PathToMltFile = "Path to MTL File";
+
+const string Translation = "Translation";
+const string Rotation = "Rotation";
 }
 
 #endif // JSONKEYS_H
