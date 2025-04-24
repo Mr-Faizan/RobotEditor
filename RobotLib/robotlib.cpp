@@ -634,12 +634,6 @@ Robot RobotLib::importRobotFromVCMX(const string &filePath)
         importvcmx importer(filePath);
         int status = importer.importVCMXData();
 
-        //string robotDataDir = "C:/Users/fahmed/WorkFolder/Projects/Payload Samples/KR 120 R3500-2 P/RobotData";
-        // pass newRobot to the function parseRobotFromVCMX
-    
-
-        //newRobot = parseRobotFromVCMX(robotDataDir);
-
         if (status == 0)
         {
             newRobot = parseRobotFromVCMX(importer.getRobotDataDir());
@@ -749,6 +743,16 @@ Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
                 } else {
                     std::cerr << "Warning: Visualization file not found: " << visualizationFilePath << std::endl;
                 }
+            }
+
+            if (jointData.contains(JointKeys2::JointTranslation) && jointData[JointKeys2::JointTranslation].is_array()) {
+                
+                joint.setTranslation(jointData[JointKeys2::JointTranslation].get<std::array<double, 3>>());
+            }
+            
+            if (jointData.contains(JointKeys2::JointRotation) && jointData[JointKeys2::JointRotation].is_array()) {
+                
+                joint.setRotation(jointData[JointKeys2::JointRotation].get<std::array<double, 3>>());
             }
 
         }

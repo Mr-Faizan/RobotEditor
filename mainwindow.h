@@ -135,7 +135,7 @@ private:
     void load3DModel();
     void remove3DModel();
     void loadObjFiles(const QString& directoryPath, Qt3DCore::QEntity* rootEntity);
-    void loadSingleObjFile(const QString &filePath, const QJsonObject &jsonObject, Qt3DCore::QEntity *rootEntity);
+    void loadSingleObjFile(const QJsonObject &jsonObject, Qt3DCore::QEntity *rootEntity);
     void deleteCurrentObjFile(QStandardItem *currentItem);
     bool parseMtlFile(const QString& mtlFilePath, QColor& ambient, QColor& diffuse, QColor& specular, float& shininess, float& transparency, int& illumModel);
     void updateRotation();

@@ -188,8 +188,8 @@ json dhCalculator::computeTransformationMatrix(const json &dhParameters) {
 
             // Create a copy of the joint data and add translation and rotation
             json updatedJointData = jointData;
-            updatedJointData[VisualizationKeys2::Translation] = {translation[0], translation[1], translation[2]};
-            updatedJointData[VisualizationKeys2::Rotation] = {rotation[0], rotation[1], rotation[2]};
+            updatedJointData[JointKeys2::JointTranslation] = {translation[0], translation[1], translation[2]};
+            updatedJointData[JointKeys2::JointRotation] = {rotation[0], rotation[1], rotation[2]};
 
             // Add the updated joint data to the result
             updatedJoints[jointName] = updatedJointData;

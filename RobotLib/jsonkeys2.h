@@ -33,6 +33,8 @@ namespace JointKeys2
     const string JointKinematics = "Joint Kinematics";
     const string JointDynamics = "Joint Dynamics";
     const string Visualization = "Joint Visualization";
+    const string JointTranslation = "Joint Translation";
+    const string JointRotation = "Joint Rotation";
 }
 
 namespace KinematicsKeys2
@@ -76,8 +78,6 @@ namespace VisualizationKeys2
     const string PathToObjFile = "Path to OBJ File";
     const string PathToMltFile = "Path to MTL File";
 
-    const string Translation = "Translation";
-    const string Rotation = "Rotation";
 }
 
 #endif // JSONKEYS_H

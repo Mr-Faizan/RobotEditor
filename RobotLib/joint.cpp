@@ -13,7 +13,9 @@ Joint::Joint()
   stiffnessCoefficient(0),
   dampingCoefficient(0),
   visualization(""),
-  payloadCounter(0)
+  payloadCounter(0),
+  translation({0, 0, 0}),
+  rotation({0, 0, 0})
 {
 // Add a default JointDynamics object
 //dynamics.push_back(JointDynamics());
@@ -30,7 +32,9 @@ Joint::Joint(string &name)
   stiffnessCoefficient(0),
   dampingCoefficient(0),
   visualization(""),
-  payloadCounter(0)
+  payloadCounter(0),
+  translation({0, 0, 0}),
+  rotation({0, 0, 0})
 {
 // Add a default JointDynamics object
 //dynamics.push_back(JointDynamics());

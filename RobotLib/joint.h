@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept> 
 #include <vector>
+#include <array>
 #include "dynamics.h"
 #include "kinematics.h"
 #include "jsonkeys2.h"
@@ -26,6 +27,10 @@ private:
     JointKinematics kinematics;
     vector<JointDynamics> dynamics; // Container for multiple JointDynamics objects
     int payloadCounter;
+
+    std::array<double, 3> translation; // Translation vector (Tx, Ty, Tz)
+    std::array<double, 3> rotation;    // Rotation vector (thetaX, thetaY, thetaZ)
+
 public:
 
     Joint();
@@ -46,6 +51,9 @@ public:
     void setVisualization(const string &visualization) { this->visualization = visualization; }
     void setKinematics(const JointKinematics &kinematics) { this->kinematics = kinematics; }
 
+    void setTranslation(const std::array<double, 3> &t) { translation = t; }
+    void setRotation(const std::array<double, 3> &r) { rotation = r; }
+
     // Getters
     string getJointNumber() const { return jointNumber; }
     string getName() const { return name; }
@@ -58,6 +66,10 @@ public:
     string getVisualization() const { return visualization; }
     JointKinematics getKinematics() const { return kinematics; }
     vector<JointDynamics> getDynamics() const { return dynamics; }
+
+    const std::array<double, 3>& getTranslation() const { return translation; }
+    const std::array<double, 3>& getRotation() const { return rotation; }
+
 
     // General Functions
     void addDynamics(JointDynamics &dynamics);

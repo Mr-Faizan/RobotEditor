@@ -316,7 +316,8 @@ void MainWindow::on_actionJointVisualization_triggered()
 
             // Call the loadSingleObjFile function with the selected file path
             QJsonObject jsonObject;
-            loadSingleObjFile(filePath, jsonObject, rootEntity);
+            jsonObject["filePath"] = filePath;
+            loadSingleObjFile(jsonObject, rootEntity);
         }
 
         QStandardItem *filePathItem = model->itemFromIndex(currentItem->index().sibling(currentItem->row(), 1));
@@ -595,7 +596,24 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const Joint &joint)
     {
         // Call the loadSingleObjFile function with the selected file path
         QJsonObject jsonObject;
-        loadSingleObjFile(QString::fromStdString(joint.getVisualization()), jsonObject, rootEntity);
+        
+        jsonObject["filePath"] = QString::fromStdString(joint.getVisualization());
+
+            
+        QJsonArray translationArray;
+        for (const auto &value : joint.getTranslation()) {
+            translationArray.append(value);
+        }
+        jsonObject["translation"] = translationArray;
+
+   
+        QJsonArray rotationArray;
+        for (const auto &value : joint.getRotation()) {
+            rotationArray.append(value);
+        }
+        jsonObject["rotation"] = rotationArray;
+
+        loadSingleObjFile(jsonObject, rootEntity);
     }
 }
 
@@ -1367,7 +1385,8 @@ void MainWindow::load3DModel()
     for (const QString &filePath : filePaths)
     {
         QJsonObject jsonObject;
-        loadSingleObjFile(filePath, jsonObject, rootEntity);
+        jsonObject["filePath"] = filePath; 
+        loadSingleObjFile(jsonObject, rootEntity);
     }
 
     // Set the root Entity
@@ -1422,13 +1441,20 @@ void MainWindow::loadObjFiles(const QString &directoryPath, Qt3DCore::QEntity *r
     for (const QFileInfo &fileInfo : fileList)
     {
         const QString &filePath = fileInfo.absoluteFilePath();
-        loadSingleObjFile(filePath, jsonObject, rootEntity);
+        jsonObject["filePath"] = filePath; // Set the file path in the JSON object
+        loadSingleObjFile(jsonObject, rootEntity);
     }
 }
 
 // This function will load the single OBJ file and add it to the Scene.
-void MainWindow::loadSingleObjFile(const QString &filePath, const QJsonObject &jsonObject, Qt3DCore::QEntity *rootEntity)
+void MainWindow::loadSingleObjFile(const QJsonObject &jsonObject, Qt3DCore::QEntity *rootEntity)
 {
+    QString filePath = jsonObject["filePath"].toString();
+    if (filePath.isEmpty()) {
+        qWarning() << "File path is empty. Cannot load OBJ file.";
+        return;
+    }
+
     QString geometryName = QFileInfo(filePath).baseName(); // Get the base name without the file extension
 
     // Create an entity to hold the 3D model
@@ -1442,27 +1468,47 @@ void MainWindow::loadSingleObjFile(const QString &filePath, const QJsonObject &j
     Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
 
     // Check if the JSON object contains transformation data for this geometry
-    if (!jsonObject.isEmpty() && jsonObject.contains(geometryName))
-    {
-        QJsonObject geomData = jsonObject.value(geometryName).toObject();
+    
+    if (jsonObject.contains("translation") && jsonObject["translation"].isArray()) {
+        QJsonArray translationArray = jsonObject["translation"].toArray();
+        if (translationArray.size() == 3) {
+            float Tx = translationArray[0].toDouble();
+            float Ty = translationArray[1].toDouble();
+            float Tz = translationArray[2].toDouble();
+            transform->setTranslation(QVector3D(Tx, Ty, Tz));
 
-        // Extract translation and rotation values
-        float Tx = geomData.value("Tx").toDouble();
-        float Tz = geomData.value("Tz").toDouble();
-        float Rx = geomData.value("Rx").toDouble();
-        float Rz = geomData.value("Rz").toDouble();
-
-        // Set the translation and rotation values
-        transform->setTranslation(QVector3D(Tx, 0.0f, Tz));
-        transform->setRotationX(Rx);
-        transform->setRotationZ(Rz);
+            // print translation values for debugging
+            qDebug() << "Translation values:" << Tx << Ty << Tz;
+        } else {
+            qWarning() << "Invalid translation array size. Using default translation.";
+            transform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
+        }
+    } else {
+        qWarning() << "Translation not found in JSON. Using default translation.";
+        transform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
     }
+
+    // Extract rotation values from the JSON object
+    if (jsonObject.contains("rotation") && jsonObject["rotation"].isArray()) {
+        QJsonArray rotationArray = jsonObject["rotation"].toArray();
+        if (rotationArray.size() == 3) {
+            float Rx = rotationArray[0].toDouble();
+            float Ry = rotationArray[1].toDouble();
+            float Rz = rotationArray[2].toDouble();
+            QQuaternion rotation = QQuaternion::fromEulerAngles(Rx, Ry, Rz);
+            transform->setRotation(rotation);
+
+            // print rotation values for debugging
+            qDebug() << "Rotation values:" << Rx << Ry << Rz;
+        } else {
+            qWarning() << "Invalid rotation array size. Using default rotation.";
+            transform->setRotation(QQuaternion::fromEulerAngles(0.0f, 0.0f, 0.0f));
+        }
+    } 
     else
     {
-        // Default transformations if no data in JSON
-        transform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
-        transform->setRotationX(0.0f);
-        transform->setRotationZ(0.0f);
+        qWarning() << "Rotation not found in JSON. Using default rotation.";
+        transform->setRotation(QQuaternion::fromEulerAngles(0.0f, 0.0f, 0.0f));
     }
 
     transform->setScale(0.1f); // Example scale
