@@ -1,5 +1,3 @@
-set(__QT_DEPLOY_TARGET_miniz_FILE H:/WorkFolder/Projects/RobotEditor/out/build/debug/RobotLib/libraries/miniz/minizd.lib)
-set(__QT_DEPLOY_TARGET_miniz_TYPE STATIC_LIBRARY)
 set(__QT_DEPLOY_TARGET_RobotLib_FILE H:/WorkFolder/Projects/RobotEditor/out/build/debug/RobotLib/RobotLibd.dll)
 set(__QT_DEPLOY_TARGET_RobotLib_TYPE SHARED_LIBRARY)
 set(__QT_DEPLOY_TARGET_RobotLib_RUNTIME_DLLS D:/Install_Softwares/Qt/6.8.3/msvc2022_64/bin/Qt6Cored.dll)

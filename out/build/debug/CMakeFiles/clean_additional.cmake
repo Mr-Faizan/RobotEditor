@@ -12,8 +12,5 @@ if("${CONFIG}" STREQUAL "" OR "${CONFIG}" STREQUAL "Debug")
   "RobotLib\\CMakeFiles\\RobotLib_autogen.dir\\ParseCache.txt"
   "RobotLib\\RobotLibTest_autogen"
   "RobotLib\\RobotLib_autogen"
-  "RobotLib\\libraries\\miniz\\CMakeFiles\\miniz_autogen.dir\\AutogenUsed.txt"
-  "RobotLib\\libraries\\miniz\\CMakeFiles\\miniz_autogen.dir\\ParseCache.txt"
-  "RobotLib\\libraries\\miniz\\miniz_autogen"
   )
 endif()
