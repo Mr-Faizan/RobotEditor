@@ -172,40 +172,45 @@ bool importvcmx::imageConverter()
 {
     if (!outputDir.empty())
     {
-        for (const auto &entry : fs::recursive_directory_iterator(outputDir))
+        std::set<std::string> skipExts = { ".dat", ".rsc", ".tga", ".xml", ".mtl", ".obj", ".json"};
+
+        robotDataDir = outputDir + "/RobotData";
+        if (!fs::exists(robotDataDir))
+            fs::create_directories(robotDataDir);
+
+        for (const auto& entry : fs::recursive_directory_iterator(outputDir))
         {
             if (entry.is_regular_file())
             {
-                string filePath = entry.path().string();
-                string extension = entry.path().extension().string();
+                std::string filePath = entry.path().string();
+                std::string extension = entry.path().extension().string();
 
-                robotDataDir = outputDir + "/RobotData"; // Create RobotData directory
-                if (!fs::exists(robotDataDir))
+                // Skip unwanted extensions
+                if (skipExts.find(extension) != skipExts.end())
                 {
-                    fs::create_directories(robotDataDir);
+                    if (extension == ".rsc")
+                        resourceFilePath = filePath;
+                    continue;
                 }
 
-                // if file is component.rsc then assign resourceFilePath
-                if (entry.path().filename() == "component.rsc")
+                std::string newFilePath = filePath;
+                // Only add .3ds if not already .3ds
+                if (extension != ".3ds")
                 {
-                    resourceFilePath = filePath;
+                    newFilePath = filePath + ".3ds";
+                    fs::rename(filePath, newFilePath);
                 }
-                else if (extension.empty() || extension == ".3ds")
-                {
-                    string newFilePath = filePath;
-                    if (extension.empty())
-                    {
-                        newFilePath += ".3ds";
-                        fs::rename(filePath, newFilePath);
-                        // std::cout << "Renamed: " << filePath << " -> " << newFilePath << std::endl;
-                    }
 
+                // Use the original file name (without any extension) for output OBJ
+                std::string baseName = fs::path(filePath).stem().string();
+                // If the original file had multiple extensions, get the first part
+                if (extension != ".3ds" && fs::path(filePath).stem().extension() != "")
+                    baseName = fs::path(filePath).stem().stem().string();
 
-                    string outputFileName = entry.path().stem().string() + ".obj";
-                    string outputFilePath = robotDataDir + "/" + outputFileName;
+                std::string outputFileName = baseName + ".obj";
+                std::string outputFilePath = robotDataDir + "/" + outputFileName;
 
-                    convert3DSToOBJ(newFilePath, outputFilePath);
-                }
+                convert3DSToOBJ(newFilePath, outputFilePath);
             }
         }
         return true;

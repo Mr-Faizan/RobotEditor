@@ -202,6 +202,7 @@ void MainWindow::on_actionOpenFromDevice_triggered()
 
             // Populate data in the model
             populateTreeView(robot);
+
         }
         catch (const std::runtime_error &e)
         {
@@ -255,6 +256,14 @@ void MainWindow::on_actionImportFromVisualComponent_triggered()
             // Run the data extractor
             Robot newRobot = robotLib.importRobotFromVCMX(filePath.toStdString());
             populateTreeView(newRobot);
+
+            // I will update this part later to load actual robot model.
+			// For now, let's assume we have a directory with OBJ files for the robot.
+            QString robotDataDir = "D:/Faizan_Ahmed/Visual Component Sample data/All Components/Components/ABB/Robots/CRB 1100-4_475/RobotData";
+
+            loadObjFiles(robotDataDir);
+
+            //
 
         }
         catch (const std::runtime_error &e)
@@ -333,7 +342,7 @@ void MainWindow::on_actionJointVisualization_triggered()
             // Call the loadSingleObjFile function with the selected file path
             QJsonObject jsonObject;
             jsonObject["filePath"] = filePath;
-            loadSingleObjFile(jsonObject, rootEntity);
+            loadSingleObjFile(jsonObject);
         }
 
         QStandardItem *filePathItem = model->itemFromIndex(currentItem->index().sibling(currentItem->row(), 1));
@@ -521,7 +530,7 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
         {
             // Call the loadSingleObjFile function with the selected file path
             QJsonObject jsonObject;
-            loadSingleObjFile(visualizationPath, jsonObject, rootEntity);
+            loadSingleObjFile(visualizationPath, jsonObject);
         }
     }
 }
@@ -629,7 +638,7 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const Joint &joint)
         }
         jsonObject["rotation"] = rotationArray;
 
-        loadSingleObjFile(jsonObject, rootEntity);
+        loadSingleObjFile(jsonObject);
     }
 }
 
@@ -1402,7 +1411,7 @@ void MainWindow::load3DModel()
     {
         QJsonObject jsonObject;
         jsonObject["filePath"] = filePath; 
-        loadSingleObjFile(jsonObject, rootEntity);
+        loadSingleObjFile(jsonObject);
     }
 
     // Set the root Entity
@@ -1422,21 +1431,9 @@ void MainWindow::remove3DModel()
 }
 
 // Load the Mesh files from the Resources
-void MainWindow::loadObjFiles(const QString &directoryPath, Qt3DCore::QEntity *rootEntity)
+void MainWindow::loadObjFiles(const QString &directoryPath)
 {
-
-    // Load JSON file containing transformation data
-
-    QFile jsonFile(":/Resources/Json/dhParameters.json"); // Load JSON file here
-    if (!jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qWarning() << "Failed to open JSON file.";
-    }
-
-    QByteArray jsonData = jsonFile.readAll();
-    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
-    QJsonObject jsonObject = doc.object();
-    qDebug() << "JSON file loaded successfully with keys:" << jsonObject.keys(); // Debugging JSON keys
+    QJsonObject jsonObject;
 
     // Create a QDir object for the specified directory
     QDir dir(directoryPath);
@@ -1458,12 +1455,12 @@ void MainWindow::loadObjFiles(const QString &directoryPath, Qt3DCore::QEntity *r
     {
         const QString &filePath = fileInfo.absoluteFilePath();
         jsonObject["filePath"] = filePath; // Set the file path in the JSON object
-        loadSingleObjFile(jsonObject, rootEntity);
+        loadSingleObjFile(jsonObject);
     }
 }
 
 // This function will load the single OBJ file and add it to the Scene.
-void MainWindow::loadSingleObjFile(const QJsonObject &jsonObject, Qt3DCore::QEntity *rootEntity)
+void MainWindow::loadSingleObjFile(const QJsonObject &jsonObject)
 {
     QString filePath = jsonObject["filePath"].toString();
     if (filePath.isEmpty()) {
@@ -1484,7 +1481,7 @@ void MainWindow::loadSingleObjFile(const QJsonObject &jsonObject, Qt3DCore::QEnt
     Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
 
     // Check if the JSON object contains transformation data for this geometry
-    
+    /*
     if (jsonObject.contains("translation") && jsonObject["translation"].isArray()) {
         QJsonArray translationArray = jsonObject["translation"].toArray();
         if (translationArray.size() == 3) {
@@ -1526,6 +1523,7 @@ void MainWindow::loadSingleObjFile(const QJsonObject &jsonObject, Qt3DCore::QEnt
         qWarning() << "Rotation not found in JSON. Using default rotation.";
         transform->setRotation(QQuaternion::fromEulerAngles(0.0f, 0.0f, 0.0f));
     }
+    */
 
     transform->setScale(0.1f); // Example scale
 

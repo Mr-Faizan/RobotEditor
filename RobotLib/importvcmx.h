@@ -6,8 +6,9 @@
 #include <fstream>
 #include <filesystem>
 #include "jsonkeys2.h"
+#include <set>
 
-#include "libraries/miniz/miniz.h"
+#include <miniz/miniz.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/Exporter.hpp>
@@ -17,7 +18,6 @@
 
 #include <regex>
 #include "nlohmann/json.hpp"
-
 #include "dhcalculator.h"
 
 
