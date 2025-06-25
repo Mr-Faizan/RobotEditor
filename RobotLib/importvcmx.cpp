@@ -418,7 +418,7 @@ void importvcmx::processKinematicsOrJointMapSection(const string &line)
         string value = line.substr(pos + 1);
 
         // Remove quotes from string values
-        if (value.front() == '\"' && value.back() == '\"')
+        if (!value.empty() && value.front() == '\"' && value.back() == '\"')
         {
             value = value.substr(1, value.size() - 2);
         }

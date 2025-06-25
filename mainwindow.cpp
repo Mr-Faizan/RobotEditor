@@ -85,6 +85,11 @@ void MainWindow::on_actionActiveRobot_triggered()
         ui->treeView->collapse(model->indexFromItem(activeRobotItem));
     }
 
+    //  check that the index is still in the model
+    if (currentIndex.row() >= model->rowCount(currentIndex.parent()))
+        return;
+
+
     // Set the font of the selected robot to bold and expand its tree view
     QFont font = currentItem->font();
     font.setBold(true);
@@ -235,7 +240,11 @@ void MainWindow::on_actionImportFromVisualComponent_triggered()
 {
     // Open the VCMX file and extract the data to create a new Robot.
 
-    QString filePath = QFileDialog::getOpenFileName(this, "Open VCMX", "", "VCMX Files (*.vcmx)");
+    
+    QString initialDir = "D://Faizan_Ahmed/Visual Component Sample data/All Components/Components";
+
+
+    QString filePath = QFileDialog::getOpenFileName(this, "Open VCMX", initialDir, "VCMX Files (*.vcmx)");
     if (!filePath.isEmpty())
     {
         QFileInfo fileInfo(filePath);
@@ -255,6 +264,13 @@ void MainWindow::on_actionImportFromVisualComponent_triggered()
         }
 
     }
+}
+
+
+void MainWindow::on_actionImportFromVisualComponentFolder_triggered()
+{
+    // Select the folder of Robot and extract the data to create a new Robot.
+
 }
 
 void MainWindow::on_actionResetModel_triggered()

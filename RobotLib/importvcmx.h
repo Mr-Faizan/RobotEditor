@@ -7,7 +7,7 @@
 #include <filesystem>
 #include "jsonkeys2.h"
 
-#include <miniz/miniz.h>
+#include "libraries/miniz/miniz.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/Exporter.hpp>

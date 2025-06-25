@@ -15,6 +15,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools Cor
 # Add the RobotLib subdirectory
 add_subdirectory(RobotLib)
 
+
 set(TS_FILES RobotEditor_de_DE.ts)
 
 set(PROJECT_SOURCES
@@ -34,26 +35,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
 
     )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET RobotEditor APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-
-    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-else()
-    if(ANDROID)
-        add_library(RobotEditor SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(RobotEditor
-            ${PROJECT_SOURCES}
-        )
-    endif()
-
-    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
 # Link the RobotLib library and Qt libraries
@@ -64,6 +45,21 @@ Qt${QT_VERSION_MAJOR}::3DInput Qt${QT_VERSION_MAJOR}::3DRender Qt${QT_VERSION_MA
 
 # Include directories
 target_include_directories(RobotEditor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/RobotLib)
+
+# Copy required DLL files to output directory for MSVC builds
+if(MSVC)
+    # Copy assimp DLL
+    add_custom_command(TARGET RobotEditor POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/RobotLib/libraries/assimp-install/bin/assimp-vc143-mtd.dll"
+        $<TARGET_FILE_DIR:RobotEditor>)
+    
+    # Copy RobotLib DLL (will be built in the RobotLib subdirectory)
+    add_custom_command(TARGET RobotEditor POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:RobotLib>
+        $<TARGET_FILE_DIR:RobotEditor>)
+endif()
 
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
