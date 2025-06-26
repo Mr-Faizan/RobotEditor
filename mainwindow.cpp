@@ -251,21 +251,29 @@ void MainWindow::on_actionImportFromVisualComponent_triggered()
         QFileInfo fileInfo(filePath);
         QString filePath = fileInfo.absoluteFilePath();
 
-        try
-        {
-            // Run the data extractor
-            Robot newRobot = robotLib.importRobotFromVCMX(filePath.toStdString());
-            populateTreeView(newRobot);
+		try
+		{
+			// Run the data extractor
+			Robot newRobot = robotLib.importRobotFromVCMX(filePath.toStdString());
+			populateTreeView(newRobot);
 
-            // I will update this part later to load actual robot model.
-			// For now, let's assume we have a directory with OBJ files for the robot.
-            QString robotDataDir = "D:/Faizan_Ahmed/Visual Component Sample data/All Components/Components/ABB/Robots/CRB 1100-4_475/RobotData";
 
-            loadObjFiles(robotDataDir);
+			if (newRobot.getId()) {
 
-            //
+				QString baseName = QFileInfo(filePath).completeBaseName();
+				QString parentDir = QFileInfo(filePath).absolutePath();
+				QString outputDir = parentDir + "/" + baseName;
+				QString robotDataDir = outputDir + "/RobotData";
 
-        }
+				if (QDir(robotDataDir).exists()) {
+					loadObjFiles(robotDataDir);
+				}
+
+			}
+
+			//
+
+		}
         catch (const std::runtime_error &e)
         {
             qWarning() << "Failed to load robot data from VCMX file: " << e.what();
