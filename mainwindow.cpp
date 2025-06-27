@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent)
     setup3DPlayground();
     // Set the root Entity
     view->setRootEntity(rootEntity);
+
+    on_actionImportFromVisualComponentFolder_triggered();
 }
 
 MainWindow::~MainWindow()
@@ -283,10 +285,45 @@ void MainWindow::on_actionImportFromVisualComponent_triggered()
     }
 }
 
-
+// this function is temporary function for testing
 void MainWindow::on_actionImportFromVisualComponentFolder_triggered()
 {
-    // Select the folder of Robot and extract the data to create a new Robot.
+    QString initialDir = "D://Faizan_Ahmed/Visual Component Sample data/All Components/Extracted/Good/ABB/IRB 260_30_156";
+
+    QString folderPath = QFileDialog::getExistingDirectory(this, "Select Folder", initialDir);
+ 
+    if (!folderPath.isEmpty())
+    {
+
+
+        try
+        {
+            // Run the data extractor
+            Robot newRobot = robotLib.importRobotFromVCMX(folderPath.toStdString());
+            populateTreeView(newRobot);
+
+
+            if (newRobot.getId()) {
+
+            
+                QString robotDataDir = folderPath + "/RobotData";
+
+                if (QDir(robotDataDir).exists()) {
+                    loadObjFiles(robotDataDir);
+                }
+
+            }
+
+            //
+
+        }
+        catch (const std::runtime_error& e)
+        {
+            qWarning() << "Failed to load robot data from VCMX file: " << e.what();
+            return;
+        }
+
+    }
 
 }
 

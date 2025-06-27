@@ -67,6 +67,7 @@ private:
     bool captureNextOffset;
     bool isGeometryMatrixSection;
     bool isGeoFeatureSection;
+    bool skipExtraction = false; // Temporary
 
 
 

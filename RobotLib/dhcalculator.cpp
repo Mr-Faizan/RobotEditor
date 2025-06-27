@@ -53,10 +53,11 @@ json dhCalculator::computeDHParameters(const json &inputData)
         std::string jointName = joint.key();
         std::string expression = joint.value();
         json jointData;
+        std::string geometryFile = "";
 
         try
         {
-            double Rx = 0, Tx = 0, Tz = 0, Rz = 0;
+            double  Tx = 0,Ty= 0, Tz = 0, Rx = 0, Ry = 0, Rz = 0;
 
             // Parse the expression
             std::istringstream exprStream(expression);
@@ -75,7 +76,10 @@ json dhCalculator::computeDHParameters(const json &inputData)
                         key = key.substr(1);
                     }
                     key = key.substr(key.find("::") + 2); // Remove "Kinematics::"
-                    Tz = sign * kinematics.at(key).get<double>();
+
+                    if (kinematics.is_object() && kinematics.contains(key)) {
+                        Tz = sign * kinematics.at(key).get<double>();
+                    }
                 }
                 else if (token.find("Tx(") != std::string::npos)
                 {
@@ -86,7 +90,9 @@ json dhCalculator::computeDHParameters(const json &inputData)
                         key = key.substr(1);
                     }
                     key = key.substr(key.find("::") + 2);
-                    Tx = sign * kinematics.at(key).get<double>();
+                    if (kinematics.is_object() && kinematics.contains(key)) {
+                        Tx = sign * kinematics.at(key).get<double>();
+                    }
                 }
                 else if (token.find("Ty(") != std::string::npos)
                 {
@@ -98,6 +104,9 @@ json dhCalculator::computeDHParameters(const json &inputData)
                     }
                     key = key.substr(key.find("::") + 2);
                     // Don't know where I use this but for now just keep as it is.
+                    if (kinematics.is_object() && kinematics.contains(key)) {
+                        Ty = sign * kinematics.at(key).get<double>();
+                    }
                 }
                 else if (token.find("Rz(") != std::string::npos)
                 {
@@ -108,7 +117,10 @@ json dhCalculator::computeDHParameters(const json &inputData)
                         key = key.substr(1);
                     }
                     key = key.substr(key.find("::") + 2);
-                    Rz = sign * kinematics.at(key).get<double>();
+
+                    if (kinematics.is_object() && kinematics.contains(key)) {
+                        Rz = sign * kinematics.at(key).get<double>();
+                    }
                 }
                 else if (token.find("Rx(") != std::string::npos)
                 {
@@ -119,7 +131,9 @@ json dhCalculator::computeDHParameters(const json &inputData)
                         key = key.substr(1);
                     }
                     key = key.substr(key.find("::") + 2); // Remove "Kinematics::"
-                    Rx = sign * kinematics.at(key).get<double>();
+                    if (kinematics.is_object() && kinematics.contains(key)) {
+                        Rx = sign * kinematics.at(key).get<double>();
+                    }
                 }
                 else if (token.find("Ry(") != std::string::npos)
                 {
@@ -131,11 +145,16 @@ json dhCalculator::computeDHParameters(const json &inputData)
                     }
                     key = key.substr(key.find("::") + 2); // Remove "Kinematics::"
                     // Also not sure for now, where I will use it.
+                    if (kinematics.is_object() && kinematics.contains(key)) {
+						Ry = sign * kinematics.at(key).get<double>();
+					}
                 }
             }
 
             // Get the GeometryFile for the current joint
-            std::string geometryFile = geometryMatrix.at(jointName).at(0).at("GeometryFile");
+            if (geometryMatrix.contains(jointName) && geometryMatrix.at(jointName).at(0).contains("GeometryFile")) {
+                geometryFile = geometryMatrix.at(jointName).at(0).at("GeometryFile");
+            } 
 
             // Now join the pieces of the puzzle.
             jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::Alpha] = Rx;
