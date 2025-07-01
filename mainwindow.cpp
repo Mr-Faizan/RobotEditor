@@ -6,7 +6,9 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       rotationAngle(0.0f),
       rotating(false),
-      ui(new Ui::MainWindow)
+      ui(new Ui::MainWindow),
+      view(nullptr),
+      rootEntity(nullptr)
 {
     ui->setupUi(this);
 
@@ -88,7 +90,7 @@ void MainWindow::on_actionActiveRobot_triggered()
     }
 
     //  check that the index is still in the model
-    if (currentIndex.row() >= model->rowCount(currentIndex.parent()))
+    if (!currentIndex.isValid() || currentIndex.row() >= model->rowCount(currentIndex.parent()))
         return;
 
 
@@ -169,6 +171,7 @@ void MainWindow::on_actionSaveAll_triggered()
 
 void MainWindow::on_actionNewRobot_triggered()
 {
+   
     // Create new Robot.
     Robot newRobot = robotLib.initializeNewRobot();
     populateTreeView(newRobot);
@@ -196,6 +199,7 @@ void MainWindow::on_actionOpenFromDevice_triggered()
 
         try
         {
+            
             // Load the robot from the file
             Robot robot = robotLib.loadFromFile(filePath.toStdString());
 
@@ -255,6 +259,7 @@ void MainWindow::on_actionImportFromVisualComponent_triggered()
 
 		try
 		{
+            
 			// Run the data extractor
 			Robot newRobot = robotLib.importRobotFromVCMX(filePath.toStdString());
 			populateTreeView(newRobot);
@@ -298,6 +303,8 @@ void MainWindow::on_actionImportFromVisualComponentFolder_triggered()
 
         try
         {
+ 
+
             // Run the data extractor
             Robot newRobot = robotLib.importRobotFromVCMX(folderPath.toStdString());
             populateTreeView(newRobot);
@@ -410,6 +417,9 @@ void MainWindow::on_actionDeleteAll_triggered()
 
     // Reset the active robot item
     activeRobotItem = nullptr;
+
+    // Remove the existing 3D model
+    remove3DModel();
 
     // Remove all rows from the root item
     rootItem->removeRows(0, rootItem->rowCount());
@@ -803,8 +813,9 @@ void MainWindow::deleteCurrentRobot()
     }
 
     // Remove the selected robot item
+    QString robotName = currentItem->text();
     model->removeRow(currentItem->row(), currentItem->parent() ? currentItem->parent()->index() : QModelIndex());
-    qDebug() << "Deleted robot: " << currentItem->text();
+    qDebug() << "Deleted robot: " << robotName;
 }
 
 void MainWindow::deleteCurrentJoint()
@@ -1388,6 +1399,8 @@ void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
 void MainWindow::setup3DPlayground()
 {
 
+  
+
     // First creating 3D window
     view = new Qt3DExtras::Qt3DWindow();
     rootEntity = new Qt3DCore::QEntity();
@@ -1467,6 +1480,8 @@ void MainWindow::load3DModel()
 // This function will remove the 3D Model from the Scene.
 void MainWindow::remove3DModel()
 {
+    if (!rootEntity)
+        return;
     // Remove the root entity
     for (auto entity : rootEntity->children())
     {

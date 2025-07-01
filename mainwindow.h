@@ -110,7 +110,6 @@ private:
 
     float rotationAngle = 0.0f;        // Current rotation angle
     bool rotating = false;      // Flag to indicate if rotation is enabled 
-
     // RobotLib Object
     RobotLib robotLib;
 

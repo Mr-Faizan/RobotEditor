@@ -310,7 +310,7 @@ json importvcmx::parse(string& filePath)
 	}
 	catch (const std::exception& e) {
 		std::cerr << "[parse] Exception: " << e.what() << std::endl;
-		throw; 
+		throw;
 	}
 }
 
@@ -320,42 +320,23 @@ void importvcmx::processLine(string& line, ifstream& file)
 	try {
 		line.erase(0, line.find_first_not_of(" \t")); // Trim leading whitespace
 
-		// Check for BOMname
-		if (line.find("BOMname") != string::npos)
+		//Capture Robot Basic Values
+		processRobotValues(line);
+
+
+		if (line.find("Name \"Kinematics\"") != std::string::npos)
 		{
-			auto pos = line.find("\"");
-			if (pos != string::npos)
-			{
-				string value = line.substr(pos + 1, line.rfind("\"") - pos - 1);
-				robotData["BOMname"] = value;
-			}
+			processKinematicsSection(file);
 			return;
 		}
 
-		// Check for BOMdescription
-		if (line.find("BOMdescription") != string::npos)
+		if (line.find("JointMap") != std::string::npos)
 		{
-			auto pos = line.find("\"");
-			if (pos != string::npos)
-			{
-				string value = line.substr(pos + 1, line.rfind("\"") - pos - 1);
-				robotData["BOMdescription"] = value;
-			}
+			processJointMapSection(file);
 			return;
 		}
 
-		// Check for Category
-		if (line.find("Category") != string::npos)
-		{
-			auto pos = line.find("\"");
-			if (pos != string::npos)
-			{
-				string value = line.substr(pos + 1, line.rfind("\"") - pos - 1);
-				robotData["Category"] = value;
-			}
-			return;
-		}
-
+/*
 		if (std::regex_search(line, KinematicsRegex))
 		{
 			// if (line.find("Functionality \"rKinArticulated2\"") != string::npos) {
@@ -370,7 +351,7 @@ void importvcmx::processLine(string& line, ifstream& file)
 			isKinematicsSection = false;
 			return;
 		}
-
+		
 		if (std::regex_search(line, dofRegex))
 		{
 			// if (line.find("Dof  \"Rotational\"") != string::npos) {
@@ -384,6 +365,7 @@ void importvcmx::processLine(string& line, ifstream& file)
 					return;
 				}
 		*/
+		/*
 		if (isDofSection && line.find("}") != string::npos)
 		{
 			isDofSection = false;
@@ -421,11 +403,127 @@ void importvcmx::processLine(string& line, ifstream& file)
 			// cout << "process other section Case 1" << endl;
 			processOtherSections(line, file);
 		}
+		*/
 
 	}
 	catch (const std::exception& e) {
 		std::cerr << "[processLine] Exception: " << e.what() << std::endl;
-		throw; 
+		throw;
+	}
+}
+
+// Helper function to get the values of Robot Name , Manufacturer and category.
+bool importvcmx::processRobotValues(const std::string& line) 
+{
+
+	if (foundAllRobotValues)
+		return true;
+
+	bool updated = false;
+	auto extractValue = [](const std::string& line) -> std::string {
+		auto pos = line.find("\"");
+		if (pos != std::string::npos) {
+			return line.substr(pos + 1, line.rfind("\"") - pos - 1);
+		}
+		return {};
+		};
+
+	if (line.find("BOMname") != std::string::npos) {
+		robotData["BOMname"] = extractValue(line);
+		updated = true;
+	}
+	else if (line.find("BOMdescription") != std::string::npos) {
+		robotData["BOMdescription"] = extractValue(line);
+		updated = true;
+	}
+	else if (line.find("Category") != std::string::npos) {
+		robotData["Category"] = extractValue(line);
+		updated = true;
+	}
+
+	// If all three fields are present, set the static flag
+	if (robotData.contains("BOMname") &&
+		robotData.contains("BOMdescription") &&
+		robotData.contains("Category")) {
+		foundAllRobotValues = true;
+	}
+
+	return updated;
+}
+
+// This function will handle the Kinematics section.
+void importvcmx::processKinematicsSection(std::ifstream& file)
+{
+	std::string sectionLine;
+	while (std::getline(file, sectionLine))
+	{
+		sectionLine.erase(0, sectionLine.find_first_not_of(" \t")); // Trim leading whitespace
+		if (sectionLine.find("}") != std::string::npos)
+		{
+			// End of Kinematics section
+			break;
+		}
+		// Parse key-value pairs
+		auto pos = sectionLine.find(" ");
+		if (pos != std::string::npos)
+		{
+			std::string key = sectionLine.substr(0, pos);
+			std::string value = sectionLine.substr(pos + 1);
+
+			// Remove quotes from string values
+			if (!value.empty() && value.front() == '\"' && value.back() == '\"')
+			{
+				value = value.substr(1, value.size() - 2);
+			}
+
+			// Convert numeric values to appropriate types
+			if (!value.empty() && value.find_first_not_of("0123456789.-") == std::string::npos)
+			{
+				try
+				{
+					if (value.find('.') != std::string::npos)
+						kinematics[key] = std::stod(value);
+					else
+						kinematics[key] = std::stoi(value);
+				}
+				catch (...)
+				{
+					kinematics[key] = value; // fallback to string
+				}
+			}
+			else
+			{
+				kinematics[key] = value;
+			}
+		}
+	}
+}
+
+// This function Handles the JointMap section
+void importvcmx::processJointMapSection(std::ifstream& file)
+{
+	std::string sectionLine;
+	while (std::getline(file, sectionLine))
+	{
+		sectionLine.erase(0, sectionLine.find_first_not_of(" \t"));
+		if (sectionLine.find("}") != std::string::npos)
+		{
+			// End of JointMap section
+			break;
+		}
+		// Find the last space (separates key and value)
+		auto lastSpace = sectionLine.rfind(' ');
+		if (lastSpace != std::string::npos)
+		{
+			std::string key = sectionLine.substr(0, lastSpace);
+			std::string value = sectionLine.substr(lastSpace + 1);
+			// Remove quotes from value if present
+			if (!value.empty() && value.front() == '"' && value.back() == '"')
+			{
+				value = value.substr(1, value.size() - 2);
+			}
+			jointMap[key] = value;
+		}
 	}
 }
 

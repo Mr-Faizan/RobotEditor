@@ -68,6 +68,8 @@ private:
     bool isGeometryMatrixSection;
     bool isGeoFeatureSection;
     bool skipExtraction = false; // Temporary
+    bool foundAllRobotValues = false; // Flag to indicate the Robot values like name , manufacturer , category is picked up.
+
 
 
 
@@ -86,7 +88,11 @@ private:
    
    bool processResourceFile();
 
-   void processLine(std::string &line, std::ifstream &file);
+   void processLine(string &line, ifstream &file);
+   bool processRobotValues(const string& line);
+   void processKinematicsSection(ifstream& file);
+   void processJointMapSection(ifstream& file);
+
    void processKinematicsOrJointMapSection(const std::string &line);
    void processOtherSections(const std::string &line, std::ifstream &file);
    void processOffsetSection(const std::string &line, std::ifstream &file);
