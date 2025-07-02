@@ -48,6 +48,7 @@ private:
     // RscToJsonParser
     string filename;
     json robotData;
+	json robotVariables;
     nlohmann::json kinematics;
     nlohmann::json jointMap;
     nlohmann::json jointOffset;
@@ -68,7 +69,9 @@ private:
     bool isGeometryMatrixSection;
     bool isGeoFeatureSection;
     bool skipExtraction = false; // Temporary
-    bool foundAllRobotValues = false; // Flag to indicate the Robot values like name , manufacturer , category is picked up.
+
+    bool foundRobotCategory = false; // Flag to indicate the Robot values like name , manufacturer , category is picked up.
+	bool foundGeometrysection = false; // Flag to indicate the rSimLink section is found or not.
 
 
 
@@ -89,7 +92,8 @@ private:
    bool processResourceFile();
 
    void processLine(string &line, ifstream &file);
-   bool processRobotValues(const string& line);
+   bool processRobotValues(const string& line, ifstream& file);
+   void processVariableSpace(ifstream& file);
    void processKinematicsSection(ifstream& file);
    void processJointMapSection(ifstream& file);
 

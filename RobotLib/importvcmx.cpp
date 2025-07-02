@@ -272,7 +272,6 @@ void importvcmx::convert3DSToOBJ(const string& inputFilePath, const string& outp
 
 // DOF regex to match the DOF section
 std::regex dofRegex(R"(Dof  \"(Rotational|Custom|RotationalFollower|Translational)\")");
-std::regex KinematicsRegex(R"(Functionality\s*\"(rKinArticulated2|rKinParallellogram)\")");
 
 // This function will parse the .rsc file and return the json object
 json importvcmx::parse(string& filePath)
@@ -301,6 +300,7 @@ json importvcmx::parse(string& filePath)
 
 		// Its time to collect all the pieces of puzzle.
 		root["robotData"] = robotData;
+		root["robotVariables"] = robotVariables;
 		root["kinematics"] = kinematics;
 		root["jointMap"] = jointMap;
 		root["jointOffset"] = jointOffset;
@@ -320,8 +320,20 @@ void importvcmx::processLine(string& line, ifstream& file)
 	try {
 		line.erase(0, line.find_first_not_of(" \t")); // Trim leading whitespace
 
-		//Capture Robot Basic Values
-		processRobotValues(line);
+
+		if (!foundRobotCategory && line.find("BOMname") != std::string::npos) {
+			processRobotValues(line, file);
+			return;
+		}
+
+		// Here we are searching Robot variables from variableSpace until we find rSimLink section.
+		if (foundRobotCategory && !foundGeometrysection && line.find("VariableSpace") != std::string::npos)
+		{
+			processVariableSpace(file);
+			return;
+		}
+
+		
 
 
 		if (line.find("Name \"Kinematics\"") != std::string::npos)
@@ -329,28 +341,14 @@ void importvcmx::processLine(string& line, ifstream& file)
 			processKinematicsSection(file);
 			return;
 		}
-
-		if (line.find("JointMap") != std::string::npos)
+		else if (line.find("JointMap") != std::string::npos)
 		{
 			processJointMapSection(file);
 			return;
 		}
 
-/*
-		if (std::regex_search(line, KinematicsRegex))
-		{
-			// if (line.find("Functionality \"rKinArticulated2\"") != string::npos) {
-			isKinematicsSection = true;
-			isJointMapSection = false;
-			return;
-		}
 
-		if (line.find("JointMap") != string::npos)
-		{
-			isJointMapSection = true;
-			isKinematicsSection = false;
-			return;
-		}
+
 		
 		if (std::regex_search(line, dofRegex))
 		{
@@ -359,12 +357,7 @@ void importvcmx::processLine(string& line, ifstream& file)
 			foundNameInDOFsection = false;
 			return;
 		}
-		/*
-				if (line.find("Dof \"Fixed\"") != string::npos) {
-					isDofFixedSection = true;
-					return;
-				}
-		*/
+
 		/*
 		if (isDofSection && line.find("}") != string::npos)
 		{
@@ -413,13 +406,9 @@ void importvcmx::processLine(string& line, ifstream& file)
 }
 
 // Helper function to get the values of Robot Name , Manufacturer and category.
-bool importvcmx::processRobotValues(const std::string& line) 
+bool importvcmx::processRobotValues(const std::string& line, std::ifstream& file)
 {
 
-	if (foundAllRobotValues)
-		return true;
-
-	bool updated = false;
 	auto extractValue = [](const std::string& line) -> std::string {
 		auto pos = line.find("\"");
 		if (pos != std::string::npos) {
@@ -430,25 +419,89 @@ bool importvcmx::processRobotValues(const std::string& line)
 
 	if (line.find("BOMname") != std::string::npos) {
 		robotData["BOMname"] = extractValue(line);
-		updated = true;
-	}
-	else if (line.find("BOMdescription") != std::string::npos) {
-		robotData["BOMdescription"] = extractValue(line);
-		updated = true;
-	}
-	else if (line.find("Category") != std::string::npos) {
-		robotData["Category"] = extractValue(line);
-		updated = true;
 	}
 
-	// If all three fields are present, set the static flag
-	if (robotData.contains("BOMname") &&
-		robotData.contains("BOMdescription") &&
-		robotData.contains("Category")) {
-		foundAllRobotValues = true;
+	// Read next lines for BOMdescription and Category
+	std::string nextLine;
+	while (std::getline(file, nextLine)) {
+		nextLine.erase(0, nextLine.find_first_not_of(" \t"));
+		if (nextLine.find("BOMdescription") != std::string::npos) {
+			robotData["BOMdescription"] = extractValue(nextLine);
+		}
+		else if (nextLine.find("Category") != std::string::npos) {
+			robotData["Category"] = extractValue(nextLine);
+			foundRobotCategory = true; // Set the flag to true when all values are found
+			break; // Stop after Category
+		}
 	}
 
-	return updated;
+	return foundRobotCategory;
+}
+
+// This function will process the VariableSpace section
+void importvcmx::processVariableSpace(std::ifstream& file) {
+	std::string line;
+	bool inVariableSpace = true;
+	while (inVariableSpace && std::getline(file, line)) {
+		line.erase(0, line.find_first_not_of(" \t")); // Trim leading whitespace
+
+		// Stop if we reach Node "rSimLink"
+		if (line.find("Node \"rSimLink\"") != std::string::npos) {
+			foundGeometrysection = true; // Set the flag to true when rSimLink section is found
+			break;
+		}
+
+		// Look for Variable section
+		if (line.find("Variable") == 0) {
+			std::string varName, varValue;
+			bool foundName = false, foundValue = false;
+			// Enter Variable block
+			while (std::getline(file, line)) {
+				line.erase(0, line.find_first_not_of(" \t"));
+				if (line.find("Name") == 0) {
+					auto pos = line.find(" ");
+					if (pos != std::string::npos) {
+						varName = line.substr(pos + 1);
+						if (!varName.empty() && varName.front() == '"' && varName.back() == '"')
+							varName = varName.substr(1, varName.size() - 2);
+						foundName = true;
+					}
+				}
+				else if (line.find("Value") == 0) {
+					auto pos = line.find(" ");
+					if (pos != std::string::npos) {
+						varValue = line.substr(pos + 1);
+						// Remove quotes if present
+						if (!varValue.empty() && varValue.front() == '"' && varValue.back() == '"')
+							varValue = varValue.substr(1, varValue.size() - 2);
+						foundValue = true;
+					}
+				}
+				else if (line.find("Group") == 0 || line.find("}") == 0) {
+					// End of this variable block
+					break;
+				}
+			}
+			if (foundName && foundValue) {
+				// Check if varValue is numeric (integer or floating point)
+				bool isNumeric = !varValue.empty() && (varValue.find_first_not_of("0123456789.-") == std::string::npos);
+				if (isNumeric) {
+					try {
+						if (varValue.find('.') != std::string::npos) {
+							robotVariables[varName] = std::stod(varValue);
+						}
+						else {
+							robotVariables[varName] = std::stoi(varValue);
+						}
+					}
+					catch (...) {
+						// If conversion fails, skip this value
+					}
+				}
+				// If not numeric, skip storing this variable
+			}
+		}
+	}
 }
 
 // This function will handle the Kinematics section.
