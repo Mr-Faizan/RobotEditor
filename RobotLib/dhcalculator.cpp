@@ -51,7 +51,17 @@ json dhCalculator::computeDHParameters(const json &inputData)
     for (const auto &joint : inputData["jointOffset"].items())
     {
         std::string jointName = joint.key();
-        std::string expression = joint.value();
+
+        std::string expression;
+        if (joint.value().contains("Offset") && !joint.value().at("Offset").get<std::string>().empty()) {
+            expression = joint.value().at("Offset").get<std::string>();
+        }
+        else {
+            
+            std::cerr << "Warning: Joint " << jointName << " has no Offset expression." << std::endl;
+            continue;
+        }
+
         json jointData;
         std::string geometryFile = "";
 

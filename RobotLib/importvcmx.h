@@ -70,8 +70,14 @@ private:
     bool isGeoFeatureSection;
     bool skipExtraction = false; // Temporary
 
+
+    bool finishKinematicsSection = false;
+    bool finishJointMapSection = false;
     bool foundRobotCategory = false; // Flag to indicate the Robot values like name , manufacturer , category is picked up.
-	bool foundGeometrysection = false; // Flag to indicate the rSimLink section is found or not.
+    bool finishVariableSpaceSection = false; // Flag to indicate that we already picked up the Variable space.
+	bool foundGeometrySection = false; // Flag to indicate the rSimLink section is found or not.
+    bool foundDofSection = false; // Flag to indicate the Dof (Degree of Freedom) section is found or not.
+   
 
 
 
@@ -94,6 +100,8 @@ private:
    void processLine(string &line, ifstream &file);
    bool processRobotValues(const string& line, ifstream& file);
    void processVariableSpace(ifstream& file);
+   void processGeometrySection(ifstream& file);
+   void processDofSection(ifstream& file);
    void processKinematicsSection(ifstream& file);
    void processJointMapSection(ifstream& file);
 

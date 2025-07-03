@@ -321,34 +321,48 @@ void importvcmx::processLine(string& line, ifstream& file)
 		line.erase(0, line.find_first_not_of(" \t")); // Trim leading whitespace
 
 
-		if (!foundRobotCategory && line.find("BOMname") != std::string::npos) {
-			processRobotValues(line, file);
-			return;
-		}
-
-		// Here we are searching Robot variables from variableSpace until we find rSimLink section.
-		if (foundRobotCategory && !foundGeometrysection && line.find("VariableSpace") != std::string::npos)
+		if (!finishKinematicsSection && line.find("Name \"Kinematics\"") != std::string::npos)
 		{
-			processVariableSpace(file);
-			return;
-		}
-
-		
-
-
-		if (line.find("Name \"Kinematics\"") != std::string::npos)
-		{
+			//Extract the Kinematics Section.
 			processKinematicsSection(file);
 			return;
 		}
-		else if (line.find("JointMap") != std::string::npos)
+		else if (!finishJointMapSection && line.find("JointMap") != std::string::npos)
 		{
+			// Extract the JointMap Section
 			processJointMapSection(file);
+			return;
+		}
+		else if (!foundRobotCategory && line.find("BOMname") != std::string::npos) {
+			processRobotValues(line, file);
+			return;
+		}
+		else if (foundRobotCategory && !finishVariableSpaceSection && line.find("VariableSpace") != std::string::npos)
+		{
+			// Here we are searching Robot variables from variableSpace until we find rSimLink section.
+			processVariableSpace(file);
+			return;
+		}
+		else if (foundGeometrySection && !foundDofSection)
+		{
+			// Here we are searching Joint name, Geometry link with joint and matrix until we find Dof section.
+			processGeometrySection(file);
+			foundGeometrySection = false;
+			return;
+		}
+		else if (foundDofSection && !foundGeometrySection)
+		{
+			// Here we are searching Joint name, Geometry link with joint and matrix until we find Dof section.
+			processDofSection(file);
+			foundDofSection = false;
 			return;
 		}
 
 
 
+
+
+		/*
 		
 		if (std::regex_search(line, dofRegex))
 		{
@@ -358,7 +372,7 @@ void importvcmx::processLine(string& line, ifstream& file)
 			return;
 		}
 
-		/*
+		
 		if (isDofSection && line.find("}") != string::npos)
 		{
 			isDofSection = false;
@@ -447,7 +461,8 @@ void importvcmx::processVariableSpace(std::ifstream& file) {
 
 		// Stop if we reach Node "rSimLink"
 		if (line.find("Node \"rSimLink\"") != std::string::npos) {
-			foundGeometrysection = true; // Set the flag to true when rSimLink section is found
+			finishVariableSpaceSection = true;
+			foundGeometrySection = true; // Set the flag to true when rSimLink section is found
 			break;
 		}
 
@@ -504,6 +519,295 @@ void importvcmx::processVariableSpace(std::ifstream& file) {
 	}
 }
 
+
+// This function will process the Geometry section.
+void importvcmx::processGeometrySection(ifstream& file) {
+	string line;
+	string currentJointName;
+	bool foundJointName = false;
+
+	try {
+		while (getline(file, line)) {
+			line.erase(0, line.find_first_not_of(" \t"));
+
+			// Stop if we reach a Dof section
+			if (line.find("Dof ") == 0) {
+				// Let processLine handle the Dof section
+				foundDofSection = true;
+				break;
+			}
+
+			// Detect start of a new joint
+			if (!foundJointName && line.find("Name ") == 0) {
+				auto pos = line.find(" ");
+				if (pos != string::npos) {
+					currentJointName = line.substr(pos + 1);
+					if (!currentJointName.empty() && currentJointName.front() == '"' && currentJointName.back() == '"')
+						currentJointName = currentJointName.substr(1, currentJointName.size() - 2);
+					foundJointName = true;
+				}
+				continue;
+			}
+
+			// Only process geometry features if we are inside a joint
+			if (foundJointName && line.find("Feature \"rGeoFeature\"") == 0) {
+				try {
+					json geoObj;
+					string geometryName, uri, matrix;
+					bool foundGeometryUri = false, foundGeometryName = false;
+
+					// Parse the rGeoFeature block
+					while (getline(file, line)) {
+						line.erase(0, line.find_first_not_of(" \t"));
+
+						// End of rGeoFeature block is when we find Uri (always last in block)
+						if (!foundGeometryName && line.find("Name ") == 0) {
+							auto pos = line.find(" ");
+							if (pos != string::npos) {
+								geometryName = line.substr(pos + 1);
+								if (!geometryName.empty() && geometryName.front() == '"' && geometryName.back() == '"')
+									geometryName = geometryName.substr(1, geometryName.size() - 2);
+								foundGeometryName = true;
+							}
+						}
+
+						else if (line.find("Matrix") == 0) {
+							matrix = line.substr(line.find("Matrix") + 7);
+						}
+
+						else if (line.find("Uri ") == 0) {
+							auto pos = line.find(" ");
+							if (pos != string::npos) {
+								uri = line.substr(pos + 1);
+								if (!uri.empty() && uri.front() == '"' && uri.back() == '"')
+									uri = uri.substr(1, uri.size() - 2);
+								foundGeometryUri = true;
+							}
+						}
+						
+						else if (line.find("Dof ") == 0) {
+							// Dof found inside geometry block (should not happen, but break for safety)
+							foundDofSection = true;
+							break;
+						}
+						// Ignore stray braces and other lines
+						if (foundGeometryUri) break;
+					}
+					if (foundGeometryName) geoObj["GeometryFile"] = geometryName;
+					if (!uri.empty()) geoObj["Uri"] = uri;
+					if (!matrix.empty()) geoObj["Matrix"] = matrix;
+					if (!currentJointName.empty() && foundGeometryName && foundGeometryUri)
+						geometryMatrix[currentJointName].push_back(geoObj);
+				}
+				catch (const exception& e) {
+					cerr << "[processGeometrySection] Exception in rGeoFeature: " << e.what() << endl;
+					
+				}
+			}
+		}
+	}
+	catch (const exception& e) {
+		cerr << "[processGeometrySection] Exception: " << e.what() << endl;
+		
+	}
+}
+
+// This function will process the Dof Degree of freedom section.
+void importvcmx::processDofSection(ifstream& file) {
+	string line;
+	string jointName;
+	json jointData;
+	bool inDof = true;
+	bool inProperties = false;
+	bool inVariable = false;
+	string currentVarName;
+	bool inValueBlock = false;
+	bool inMinLimit = false, inMaxLimit = false, inOffset = false;
+
+	try {
+		while (getline(file, line)) {
+			line.erase(0, line.find_first_not_of(" \t"));
+
+			// Break if we reach the next rSimLink node
+			if (line.find("Node \"rSimLink\"") != string::npos) {
+				foundDofSection = false;
+				foundGeometrySection = true;
+				break;
+			}
+			// End of Dof section
+			if (line.find("Dof ") == 0 && !jointName.empty()) {
+				// If another Dof starts, stop (let processLine handle it)
+				foundDofSection = true;
+				foundGeometrySection = false;
+				break;
+			}
+
+			// Joint name
+			if (line.find("Name ") == 0 && jointName.empty()) {
+				auto pos = line.find(" ");
+				if (pos != string::npos) {
+					jointName = line.substr(pos + 1);
+					if (!jointName.empty() && jointName.front() == '"' && jointName.back() == '"')
+						jointName = jointName.substr(1, jointName.size() - 2);
+				}
+				continue;
+			}
+
+
+
+			/*
+			// Enter Properties block
+			if (line.find("Properties") == 0) {
+				inProperties = true;
+				continue;
+			}
+			if (inProperties && line.find("}") == 0) {
+				inProperties = false;
+				continue;
+			}
+
+			// Inside Properties: look for Variable blocks
+			if (inProperties && line.find("Variable") == 0) {
+				inVariable = true;
+				currentVarName.clear();
+				continue;
+			}
+			if (inVariable && line.find("}") == 0) {
+				inVariable = false;
+				currentVarName.clear();
+				continue;
+			}
+
+			// Inside Variable: get Name
+			if (inVariable && line.find("Name ") == 0) {
+				auto pos = line.find(" ");
+				if (pos != string::npos) {
+					currentVarName = line.substr(pos + 1);
+					if (!currentVarName.empty() && currentVarName.front() == '"' && currentVarName.back() == '"')
+						currentVarName = currentVarName.substr(1, currentVarName.size() - 2);
+				}
+				continue;
+			}
+
+			// MaxSpeed
+			if (inVariable && !currentVarName.empty() && currentVarName == "MaxSpeed" && line.find("Value") == 0) {
+				auto pos = line.find(" ");
+				if (pos != string::npos) {
+					string value = line.substr(pos + 1);
+					jointData["MaxSpeed"] = value;
+				}
+				continue;
+			}
+
+			// MinLimit/MaxLimit (SoftMinLimit/SoftMaxLimit)
+			if (inVariable && (currentVarName == "SoftMinLimit" || currentVarName == "SoftMaxLimit")) {
+				if (line.find("Value") == 0) {
+					inValueBlock = true;
+					continue;
+				}
+				if (inValueBlock && line.find("Expression") == 0) {
+					auto pos = line.find(" ");
+					if (pos != string::npos) {
+						string expr = line.substr(pos + 1);
+						if (!expr.empty() && expr.front() == '"' && expr.back() == '"')
+							expr = expr.substr(1, expr.size() - 2);
+						if (currentVarName == "SoftMinLimit")
+							jointData["MinLimit"] = expr;
+						else if (currentVarName == "SoftMaxLimit")
+							jointData["MaxLimit"] = expr;
+					}
+					inValueBlock = false;
+					continue;
+				}
+			}
+
+			*/
+			// MinLimit/MaxLimit outside Properties
+			if (line.find("MinLimit") == 0) {
+				inMinLimit = true;
+				continue;
+			}
+			if (inMinLimit && line.find("Expression") == 0) {
+				auto pos = line.find(" ");
+				if (pos != string::npos) {
+					string expr = line.substr(pos + 1);
+					if (!expr.empty() && expr.front() == '"' && expr.back() == '"')
+						expr = expr.substr(1, expr.size() - 2);
+					jointData["MinLimit"] = expr;
+				}
+				inMinLimit = false;
+				continue;
+			}
+			if (line.find("MaxLimit") == 0) {
+				inMaxLimit = true;
+				continue;
+			}
+			if (inMaxLimit && line.find("Expression") == 0) {
+				auto pos = line.find(" ");
+				if (pos != string::npos) {
+					string expr = line.substr(pos + 1);
+					if (!expr.empty() && expr.front() == '"' && expr.back() == '"')
+						expr = expr.substr(1, expr.size() - 2);
+					jointData["MaxLimit"] = expr;
+				}
+				inMaxLimit = false;
+				continue;
+			}
+
+			// AxisType
+			if (line.find("AxisType") == 0) {
+				auto pos = line.find(" ");
+				if (pos != string::npos) {
+					string axisType = line.substr(pos + 1);
+					jointData["AxisType"] = axisType;
+				}
+				continue;
+			}
+
+			// Offset block
+			if (line.find("Offset") == 0) {
+				inOffset = true;
+				continue;
+			}
+			if (inOffset && line.find("Expression") == 0) {
+				auto pos = line.find(" ");
+				if (pos != string::npos) {
+					string expr = line.substr(pos + 1);
+
+					// Handle multi-line expressions ending with '\'
+					while (!expr.empty() && expr.back() == '\\') {
+						expr.pop_back(); // Remove the backslash
+						string nextLine;
+						if (getline(file, nextLine)) {
+							nextLine.erase(0, nextLine.find_first_not_of(" \t"));
+							expr += nextLine;
+						}
+						else {
+							break;
+						}
+					}
+
+					// Remove surrounding quotes if present
+					if (expr.size() > 1 && expr.front() == '"' && expr.back() == '"')
+						expr = expr.substr(1, expr.size() - 2);
+
+					jointData["Offset"] = expr;
+				}
+				inOffset = false;
+				continue;
+			}
+		}
+		// Store the joint data if jointName is found
+		if (!jointName.empty() && !jointData.empty()) {
+			jointOffset[jointName] = jointData;
+		}
+	}
+	catch (const exception& e) {
+		cerr << "[processDofSection] Exception: " << e.what() << endl;
+	}
+}
+
+
 // This function will handle the Kinematics section.
 void importvcmx::processKinematicsSection(std::ifstream& file)
 {
@@ -514,6 +818,7 @@ void importvcmx::processKinematicsSection(std::ifstream& file)
 		if (sectionLine.find("}") != std::string::npos)
 		{
 			// End of Kinematics section
+			finishKinematicsSection = true;
 			break;
 		}
 		// Parse key-value pairs
@@ -562,6 +867,7 @@ void importvcmx::processJointMapSection(std::ifstream& file)
 		if (sectionLine.find("}") != std::string::npos)
 		{
 			// End of JointMap section
+			finishJointMapSection = true;
 			break;
 		}
 		// Find the last space (separates key and value)
