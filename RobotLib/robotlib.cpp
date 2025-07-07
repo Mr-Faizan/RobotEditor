@@ -687,7 +687,7 @@ Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
     // Populate robot details
     if (inputData.contains("robotData")) {
         const auto &robotData = inputData["robotData"];
-        if (robotData.contains("Category") && robotData["Category"].is_string() && robotData["Category"] == "Robot") {
+        if (robotData.contains("Category") && robotData["Category"].is_string() && robotData["Category"] == "Robots") {
             if (robotData.contains("BOMname") && robotData["BOMname"].is_string()) {
                 robot.setName(robotData["BOMname"]);
             }

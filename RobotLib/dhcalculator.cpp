@@ -167,9 +167,6 @@ json dhCalculator::computeDHParameters(const json &inputData)
             }
 
             // Get the GeometryFile for the current joint
-            if (geometryMatrix.contains(jointName) && geometryMatrix.at(jointName).at(2).contains("Uri")) {
-                geometryFile = geometryMatrix.at(jointName).at(2).at("Uri").get<string>();
-            } 
 
             vector<string> geometryUris;
             if (geometryMatrix.contains(jointName)) {
