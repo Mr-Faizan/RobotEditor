@@ -171,12 +171,22 @@ json dhCalculator::computeDHParameters(const json &inputData)
                 geometryFile = geometryMatrix.at(jointName).at(2).at("Uri").get<string>();
             } 
 
+            vector<string> geometryUris;
+            if (geometryMatrix.contains(jointName)) {
+                const auto& arr = geometryMatrix.at(jointName);
+                for (const auto& entry : arr) {
+                    if (entry.contains("Uri")) {
+                        geometryUris.push_back(entry.at("Uri").get<std::string>());
+                    }
+                }
+            }
+
             // Now join the pieces of the puzzle.
             jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::Alpha] = Rx;
             jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::A] = Tx;
             jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::D] = Tz;
             jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::Theta] = Rz;
-            jointData[JointKeys2::Visualization] = geometryFile;
+            jointData[JointKeys2::Visualization] = geometryUris;
             
             dhParameters[jointName] = jointData;
         }
