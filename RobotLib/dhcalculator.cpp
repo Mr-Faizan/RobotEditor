@@ -45,12 +45,38 @@ void dhCalculator::calculateDHParameters()
 json dhCalculator::computeDHParameters(const json &inputData)
 {
     json dhParameters;
-    const auto &kinematics = inputData["kinematics"];
-    const auto &geometryMatrix = inputData["geometryMatrix"];
 
-    for (const auto &joint : inputData["jointOffset"].items())
+    // verify input data exist otherwise return
+    if (inputData.is_null() || !inputData.is_object() || inputData.empty()) {
+
+        cerr << "Input data for computeDHParameters function is invalid or empty" << endl;
+        return dhParameters;
+    }
+
+    // Get important values from Json File
+    const auto &kinematics = inputData.value("kinematics",json::object());
+    const auto &geometryMatrix = inputData.value("geometryMatrix", json::object());
+    const auto &jointMap = inputData.value("jointMap", json::object());
+    const auto &jointOffset = inputData.value("jointOffset", json::object());
+    const auto &robotVariables = inputData.value("robotVariables", json::object());
+
+
+    for (const auto &joint : jointOffset.items())
     {
         std::string jointName = joint.key();
+
+        // 3. Check if joint exists in jointMap
+        bool jointInMap = false;
+        for (const auto& item : jointMap.items()) {
+            if (item.value() == jointName) {
+                jointInMap = true;
+                break;
+            }
+        }
+        if (!jointInMap) {
+            cerr << "Joint " << jointName << " not found in jointMap values. Skipping." << endl;
+            continue;
+        }
 
         std::string expression;
         if (joint.value().contains("Offset") && !joint.value().at("Offset").get<std::string>().empty()) {
@@ -74,96 +100,75 @@ json dhCalculator::computeDHParameters(const json &inputData)
             std::string token;
             while (std::getline(exprStream, token, '.'))
             {
-                std::string key;
+
+
+                // Find operator and value
+                size_t open = token.find('(');
+                size_t close = token.find(')');
+                if (open == std::string::npos || close == std::string::npos || close <= open + 1)
+                    continue;
+
+                std::string op = token.substr(0, open);
+                std::string val = token.substr(open + 1, close - open - 1);
+
                 double sign = 1.0;
+                if (!val.empty() && val[0] == '-') {
+                    sign = -1.0;
+                    val = val.substr(1);
+                }
 
-                if (token.find("Tz(") != std::string::npos)
-                {
-                    key = token.substr(3, token.size() - 4);
-                    if (key[0] == '-')
-                    {
-                        sign = -1.0;
-                        key = key.substr(1);
-                    }
-                    key = key.substr(key.find("::") + 2); // Remove "Kinematics::"
+                double parsedVal = 0;
+                bool found = false;
 
-                    if (kinematics.is_object() && kinematics.contains(key)) {
-                        Tz = sign * kinematics.at(key).get<double>();
+                // Direct numeric value
+                try {
+                    size_t idx;
+                    parsedVal = std::stod(val, &idx);
+                    if (idx == val.size()) {
+                        found = true;
+                        std::cout << "Value for " << op << " from direct numeric: " << parsedVal << std::endl;
                     }
                 }
-                else if (token.find("Tx(") != std::string::npos)
-                {
-                    key = token.substr(3, token.size() - 4);
-                    if (key[0] == '-')
-                    {
-                        sign = -1.0;
-                        key = key.substr(1);
-                    }
-                    key = key.substr(key.find("::") + 2);
-                    if (kinematics.is_object() && kinematics.contains(key)) {
-                        Tx = sign * kinematics.at(key).get<double>();
-                    }
-                }
-                else if (token.find("Ty(") != std::string::npos)
-                {
-                    key = token.substr(3, token.size() - 4);
-                    if (key[0] == '-')
-                    {
-                        sign = -1.0;
-                        key = key.substr(1);
-                    }
-                    key = key.substr(key.find("::") + 2);
-                    // Don't know where I use this but for now just keep as it is.
-                    if (kinematics.is_object() && kinematics.contains(key)) {
-                        Ty = sign * kinematics.at(key).get<double>();
-                    }
-                }
-                else if (token.find("Rz(") != std::string::npos)
-                {
-                    key = token.substr(3, token.size() - 4);
-                    if (key[0] == '-')
-                    {
-                        sign = -1.0;
-                        key = key.substr(1);
-                    }
-                    key = key.substr(key.find("::") + 2);
+                catch (...) {}
 
-                    if (kinematics.is_object() && kinematics.contains(key)) {
-                        Rz = sign * kinematics.at(key).get<double>();
+                // Kinematics
+                if (!found && val.find("Kinematics::") == 0) {
+                    std::string kinKey = val.substr(std::string("Kinematics::").size());
+                    if (kinematics.contains(kinKey)) {
+                        parsedVal = kinematics.at(kinKey).get<float>();
+                        found = true;
+                        std::cout << "Value for " << op << " from kinematics: " << parsedVal << std::endl;
+                    }
+                    else {
+                        std::cerr << "Kinematics key " << kinKey << " not found for joint " << jointName << std::endl;
                     }
                 }
-                else if (token.find("Rx(") != std::string::npos)
-                {
-                    key = token.substr(3, token.size() - 4);
-                    if (key[0] == '-')
-                    {
-                        sign = -1.0;
-                        key = key.substr(1);
-                    }
-                    key = key.substr(key.find("::") + 2); // Remove "Kinematics::"
-                    if (kinematics.is_object() && kinematics.contains(key)) {
-                        Rx = sign * kinematics.at(key).get<double>();
-                    }
+
+                // RobotVariables
+                if (!found && robotVariables.contains(val)) {
+                    parsedVal = robotVariables.at(val).get<float>();
+                    found = true;
+                    std::cout << "Value for " << op << " from robotVariables: " << parsedVal << std::endl;
                 }
-                else if (token.find("Ry(") != std::string::npos)
-                {
-                    key = token.substr(3, token.size() - 4);
-                    if (key[0] == '-')
-                    {
-                        sign = -1.0;
-                        key = key.substr(1);
-                    }
-                    key = key.substr(key.find("::") + 2); // Remove "Kinematics::"
-                    // Also not sure for now, where I will use it.
-                    if (kinematics.is_object() && kinematics.contains(key)) {
-						Ry = sign * kinematics.at(key).get<double>();
-					}
+
+                if (!found) {
+                    std::cerr << "Value for " << op << " (" << val << ") not found for joint " << jointName << std::endl;
+                    continue;
                 }
+
+                parsedVal *= sign;
+                if (op == "Tx") Tx = parsedVal;
+                else if (op == "Ty") Ty = parsedVal;
+                else if (op == "Tz") Tz = parsedVal;
+                else if (op == "Rx") Rx = parsedVal;
+                else if (op == "Ry") Ry = parsedVal;
+                else if (op == "Rz") Rz = parsedVal;
+
             }
 
             // Get the GeometryFile for the current joint
-            if (geometryMatrix.contains(jointName) && geometryMatrix.at(jointName).at(0).contains("GeometryFile")) {
-                geometryFile = geometryMatrix.at(jointName).at(0).at("GeometryFile");
+            if (geometryMatrix.contains(jointName) && geometryMatrix.at(jointName).at(2).contains("Uri")) {
+                geometryFile = geometryMatrix.at(jointName).at(2).at("Uri").get<string>();
             } 
 
             // Now join the pieces of the puzzle.
