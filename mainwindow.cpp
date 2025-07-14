@@ -844,6 +844,8 @@ void MainWindow::deleteCurrentRobot()
     if (currentItem == activeRobotItem)
     {
         activeRobotItem = nullptr;
+        // Remove the existing 3D model
+        remove3DModel();
     }
 
     // Remove the selected robot item
@@ -1637,6 +1639,16 @@ void MainWindow::loadSingleObjFile(const QJsonObject &jsonObject)
 
         if (parseMtlFile(mtlFilePath, ambientColor, diffuseColor, specularColor, shininess, transparency, illumModel))
         {
+
+            // Check if any diffuse color channel is less than 1.0
+            if (diffuseColor.redF() < 1.0 || diffuseColor.greenF() < 1.0 || diffuseColor.blueF() < 1.0) {
+                // Set a default color (e.g., light gray or any color you prefer)
+                ambientColor = QColor::fromRgbF(0.2, 0.2, 0.2);
+                diffuseColor = QColor::fromRgbF(0.498039, 0.498039, 0.498039);
+                specularColor = QColor::fromRgbF(1.0, 1.0, 1.0);
+                shininess = 0.0f;
+            }
+
             material->setAmbient(ambientColor);
             material->setDiffuse(diffuseColor);
             material->setSpecular(specularColor);
