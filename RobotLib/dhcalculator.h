@@ -38,7 +38,8 @@ public:
 
 
 private:
-    std::string filePath;
+    string filePath;
+    string robotDataDir; // Directory for robot data
 
     nlohmann::json computeDHParameters(const nlohmann::json &inputData);
 };

@@ -398,8 +398,18 @@ Robot RobotLib::loadFromJson(const json jsonData)
                     joint.setStiffnessCoefficient(getNumberFromJson(jointData[JointKeys2::StiffnessCoefficient]));
                 if (jointData.contains(JointKeys2::DampingCoefficient))
                     joint.setDampingCoefficient(getNumberFromJson(jointData[JointKeys2::DampingCoefficient]));
-                if (jointData.contains(JointKeys2::Visualization) && jointData[JointKeys2::Visualization].is_string())
-                    joint.setVisualization(jointData[JointKeys2::Visualization]);
+                if (jointData.contains(JointKeys2::Visualization) && jointData[JointKeys2::Visualization].is_array()) {
+                    vector<pair<string, string>> visualizations;
+                    for (const auto& vis : jointData[JointKeys2::Visualization]) {
+                        if (vis.contains("filename") && vis.contains("filepath")) {
+                            visualizations.emplace_back(
+                                vis["filename"].get<string>(),
+                                vis["filepath"].get<string>()
+                            );
+                        }
+                    }
+                    joint.setVisualizations(visualizations);
+                }
 
                 JointKinematics kinematics;
                 JointKinematics::DHParameters dhParameters;
@@ -518,7 +528,13 @@ bool RobotLib::saveToJson(const std::string &filePath, Robot &robot) const
             jointJson[JointKeys2::FrictionCoefficient] = joint.getFrictionCoefficient();
             jointJson[JointKeys2::StiffnessCoefficient] = joint.getStiffnessCoefficient();
             jointJson[JointKeys2::DampingCoefficient] = joint.getDampingCoefficient();
-            jointJson[JointKeys2::Visualization] = joint.getVisualization();
+
+            json visualizationsJson = json::array();
+            for (const auto& vis : joint.getVisualizations()) {
+                visualizationsJson.push_back({ {"filename", vis.first}, {"filepath", vis.second} });
+            }
+            jointJson[JointKeys2::Visualization] = visualizationsJson;
+
 
             json kinematicsJson;
             json dhParamsJson;
@@ -590,7 +606,11 @@ void RobotLib::printData() const
             cout << "  Friction Coefficient: " << joint.getFrictionCoefficient() << endl;
             cout << "  Stiffness Coefficient: " << joint.getStiffnessCoefficient() << endl;
             cout << "  Damping Coefficient: " << joint.getDampingCoefficient() << endl;
-            cout << "  Visualization: " << joint.getVisualization() << endl;
+
+            cout << "  Visualizations:" << endl;
+            for (const auto& vis : joint.getVisualizations()) {
+                cout << "    Filename: " << vis.first << ", Filepath: " << vis.second << endl;
+            }
 
             const auto &kinematics = joint.getKinematics();
             const auto &dhParameters = kinematics.getDhParameters();
@@ -727,24 +747,35 @@ Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
                 joint.setKinematics(kinematics);
             }
 
-            // Extract Visualization
-            if (jointData.contains(JointKeys2::Visualization) && jointData[JointKeys2::Visualization].is_string()) {
-                string fileName = jointData[JointKeys2::Visualization].get<string>();
+            // Extract Visualization 
+            if (jointData.contains(JointKeys2::Visualization) && jointData[JointKeys2::Visualization].is_array()) {
+                vector<pair<string, string>> visualizations;
+                for (const auto& vis : jointData[JointKeys2::Visualization]) {
+                    if (vis.contains("filename") && vis.contains("filepath")) {
+                        string filename = vis["filename"].get<string>();
+                        string filepath = vis["filepath"].get<string>();
+                        
+                        // Check for file existence with and without .obj extension
+                        if (fs::exists(filepath)) {
+                            visualizations.emplace_back(filename, filepath);
+                        }
+                        else {
+                            // Try with .obj extension if not present
+                            string filepathWithObj = filepath;
+                            if (filepathWithObj.find(".obj") == string::npos) {
+                                filepathWithObj += ".obj";
+                            }
+                            if (fs::exists(filepathWithObj)) {
+                                visualizations.emplace_back(filename, filepathWithObj);
+                            }
+                            else {
+                                std::cerr << "Warning: Visualization file not found: " << filepath << " or " << filepathWithObj << std::endl;
+                            }
+                        }
 
-                                
-                if (isupper(fileName[0])) {
-                    fileName[0] = tolower(fileName[0]);
-
+                    }
                 }
-                    
-                fileName = fileName + ".obj";
-
-                string visualizationFilePath = robotDataFolderPath + "/" + fileName;
-                if (fs::exists(visualizationFilePath)) {
-                    joint.setVisualization(visualizationFilePath);
-                } else {
-                    std::cerr << "Warning: Visualization file not found: " << visualizationFilePath << std::endl;
-                }
+                joint.setVisualizations(visualizations);
             }
 
             if (jointData.contains(JointKeys2::JointTranslation) && jointData[JointKeys2::JointTranslation].is_array()) {

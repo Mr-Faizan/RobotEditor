@@ -23,7 +23,7 @@ private:
     double frictionCoefficient;
     double stiffnessCoefficient;
     double dampingCoefficient;
-    string visualization;
+    vector <pair<string, string>> visualizations;
     JointKinematics kinematics;
     vector<JointDynamics> dynamics; // Container for multiple JointDynamics objects
     int payloadCounter;
@@ -48,11 +48,10 @@ public:
     void setFrictionCoefficient(double friction) { this->frictionCoefficient = friction; }
     void setStiffnessCoefficient(double stiffness) { this->stiffnessCoefficient = stiffness; }
     void setDampingCoefficient(double damping) { this->dampingCoefficient = damping; }
-    void setVisualization(const string &visualization) { this->visualization = visualization; }
     void setKinematics(const JointKinematics &kinematics) { this->kinematics = kinematics; }
-
     void setTranslation(const std::array<double, 3> &t) { translation = t; }
     void setRotation(const std::array<double, 3> &r) { rotation = r; }
+    void setVisualizations(const vector<pair<string, string>>& vis) { visualizations = vis; }
 
     // Getters
     string getJointNumber() const { return jointNumber; }
@@ -63,12 +62,14 @@ public:
     double getFrictionCoefficient() const { return frictionCoefficient; }
     double getStiffnessCoefficient() const { return stiffnessCoefficient; }
     double getDampingCoefficient() const { return dampingCoefficient; }
-    string getVisualization() const { return visualization; }
     JointKinematics getKinematics() const { return kinematics; }
     vector<JointDynamics> getDynamics() const { return dynamics; }
+    const array<double, 3>& getTranslation() const { return translation; }
+    const array<double, 3>& getRotation() const { return rotation; }
+    const vector<pair<string, string>>& getVisualizations() const { return visualizations; }
 
-    const std::array<double, 3>& getTranslation() const { return translation; }
-    const std::array<double, 3>& getRotation() const { return rotation; }
+    void addVisualization(const string& filename, const string& filepath) { visualizations.emplace_back(filename, filepath); }
+    void clearVisualizations() { visualizations.clear(); }
 
 
     // General Functions

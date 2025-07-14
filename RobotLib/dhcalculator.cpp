@@ -11,6 +11,8 @@ void dhCalculator::calculateDHParameters()
         throw std::runtime_error("Unable to open input file " + filePath);
     }
 
+    robotDataDir = fs::path(filePath).parent_path().string();
+
     json inputData;
     inputFile >> inputData;
     inputFile.close();
@@ -167,7 +169,7 @@ json dhCalculator::computeDHParameters(const json &inputData)
             }
 
             // Get the GeometryFile for the current joint
-
+            /*
             vector<string> geometryUris;
             if (geometryMatrix.contains(jointName)) {
                 const auto& arr = geometryMatrix.at(jointName);
@@ -177,13 +179,27 @@ json dhCalculator::computeDHParameters(const json &inputData)
                     }
                 }
             }
+            */
+
+            vector<json> geometryVisualizations;
+            if (geometryMatrix.contains(jointName)) {
+                const auto& arr = geometryMatrix.at(jointName);
+                for (const auto& entry : arr) {
+                    if (entry.contains("Uri")) {
+                        string filename = entry.at("Uri").get<string>();
+                        string filepath = robotDataDir + "/" + filename;
+                        geometryVisualizations.push_back({ {"filename", filename}, {"filepath", filepath} });
+                    }
+                }
+            }
+
 
             // Now join the pieces of the puzzle.
             jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::Alpha] = Rx;
             jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::A] = Tx;
             jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::D] = Tz;
             jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters][DhParametersKeys2::Theta] = Rz;
-            jointData[JointKeys2::Visualization] = geometryUris;
+            jointData[JointKeys2::Visualization] = geometryVisualizations;
             
             dhParameters[jointName] = jointData;
         }

@@ -12,7 +12,7 @@ Joint::Joint()
   frictionCoefficient(0),
   stiffnessCoefficient(0),
   dampingCoefficient(0),
-  visualization(""),
+  visualizations{},
   payloadCounter(0),
   translation({0, 0, 0}),
   rotation({0, 0, 0})
@@ -31,7 +31,7 @@ Joint::Joint(string &name)
   frictionCoefficient(0),
   stiffnessCoefficient(0),
   dampingCoefficient(0),
-  visualization(""),
+  visualizations{},
   payloadCounter(0),
   translation({0, 0, 0}),
   rotation({0, 0, 0})
@@ -48,7 +48,7 @@ Joint::Joint(string &name, double motionRangeMin, double motionRangeMax, double 
       frictionCoefficient(frictionCoefficient),
       stiffnessCoefficient(stiffnessCoefficient),
       dampingCoefficient(dampingCoefficient),
-      visualization(visualization)
+      visualizations{ {visualization, visualization} }
 {
   // Add a default JointDynamics object
   //dynamics.push_back(JointDynamics());
