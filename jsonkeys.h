@@ -30,6 +30,8 @@ const QString DampingCoefficient = "Damping Coefficient (Ns/m)";
 const QString JointKinematics = "Joint Kinematics";
 const QString JointDynamics = "Joint Dynamics";
 const QString Visualization = "Joint Visualization";
+const string JointTranslation = "Joint Translation";
+const string JointRotation = "Joint Rotation";
 }
 
 namespace KinematicsKeys {
@@ -67,6 +69,7 @@ const QString BreakingTime = "Breaking Time (s)";
 namespace VisualizationKeys {
 const QString PathToObjFile = "Path to OBJ File";
 const QString PathToMltFile = "Path to MTL File";
+
 }
 
 #endif // JSONKEYS_H

@@ -13,6 +13,8 @@
 
 #include "jsonkeys2.h"
 
+#include "importvcmx.h"
+
 using namespace std;
 using json = nlohmann::json;
 
@@ -48,6 +50,9 @@ public:
 
     // Print data
     void printData() const;
+    // New function to initiate vcmxDataExtractor
+    Robot importRobotFromVCMX(const string &filePath);
+    Robot parseRobotFromVCMX(const string &robotDataFolderPath);
 };
 
 #endif // ROBOTLIB_H

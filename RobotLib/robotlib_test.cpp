@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 
+
 void RobotLibTest::runTests() {
     testAddRobot();
     testRemoveRobot();

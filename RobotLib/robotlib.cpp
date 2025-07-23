@@ -9,8 +9,8 @@ RobotLib::~RobotLib() {}
 Robot RobotLib::initializeNewRobot()
 {
     Robot newRobot;
-    Joint& newJoint = newRobot.createAndAddJoint();
-    JointDynamics& newDynamics = newJoint.createAndAddDynamics();
+    Joint &newJoint = newRobot.createAndAddJoint();
+    JointDynamics &newDynamics = newJoint.createAndAddDynamics();
     return newRobot;
 }
 
@@ -20,7 +20,6 @@ Robot RobotLib::createRobot()
     Robot robot;
     return robot;
 }
-
 
 Joint RobotLib::createJoint()
 {
@@ -34,7 +33,6 @@ JointDynamics RobotLib::createDynamics()
     JointDynamics dynamics;
     return dynamics;
 }
-
 
 void RobotLib::addRobot(const Robot &robot)
 {
@@ -97,8 +95,7 @@ bool RobotLib::updateAndSaveRobotData(const std::string &filePath, const json &j
     {
         // load from json
 
-
-        Robot robot  = loadFromJson(json);
+        Robot robot = loadFromJson(json);
 
         // Save the updated robot data to the file
         if (!saveToJson(filePath, robot))
@@ -401,8 +398,18 @@ Robot RobotLib::loadFromJson(const json jsonData)
                     joint.setStiffnessCoefficient(getNumberFromJson(jointData[JointKeys2::StiffnessCoefficient]));
                 if (jointData.contains(JointKeys2::DampingCoefficient))
                     joint.setDampingCoefficient(getNumberFromJson(jointData[JointKeys2::DampingCoefficient]));
-                if (jointData.contains(JointKeys2::Visualization) && jointData[JointKeys2::Visualization].is_string())
-                    joint.setVisualization(jointData[JointKeys2::Visualization]);
+                if (jointData.contains(JointKeys2::Visualization) && jointData[JointKeys2::Visualization].is_array()) {
+                    vector<pair<string, string>> visualizations;
+                    for (const auto& vis : jointData[JointKeys2::Visualization]) {
+                        if (vis.contains("filename") && vis.contains("filepath")) {
+                            visualizations.emplace_back(
+                                vis["filename"].get<string>(),
+                                vis["filepath"].get<string>()
+                            );
+                        }
+                    }
+                    joint.setVisualizations(visualizations);
+                }
 
                 JointKinematics kinematics;
                 JointKinematics::DHParameters dhParameters;
@@ -485,9 +492,6 @@ Robot RobotLib::loadFromJson(const json jsonData)
     return robot;
 }
 
-
-
-
 //
 bool RobotLib::saveToJson(const std::string &filePath, Robot &robot) const
 {
@@ -524,7 +528,13 @@ bool RobotLib::saveToJson(const std::string &filePath, Robot &robot) const
             jointJson[JointKeys2::FrictionCoefficient] = joint.getFrictionCoefficient();
             jointJson[JointKeys2::StiffnessCoefficient] = joint.getStiffnessCoefficient();
             jointJson[JointKeys2::DampingCoefficient] = joint.getDampingCoefficient();
-            jointJson[JointKeys2::Visualization] = joint.getVisualization();
+
+            json visualizationsJson = json::array();
+            for (const auto& vis : joint.getVisualizations()) {
+                visualizationsJson.push_back({ {"filename", vis.first}, {"filepath", vis.second} });
+            }
+            jointJson[JointKeys2::Visualization] = visualizationsJson;
+
 
             json kinematicsJson;
             json dhParamsJson;
@@ -596,7 +606,11 @@ void RobotLib::printData() const
             cout << "  Friction Coefficient: " << joint.getFrictionCoefficient() << endl;
             cout << "  Stiffness Coefficient: " << joint.getStiffnessCoefficient() << endl;
             cout << "  Damping Coefficient: " << joint.getDampingCoefficient() << endl;
-            cout << "  Visualization: " << joint.getVisualization() << endl;
+
+            cout << "  Visualizations:" << endl;
+            for (const auto& vis : joint.getVisualizations()) {
+                cout << "    Filename: " << vis.first << ", Filepath: " << vis.second << endl;
+            }
 
             const auto &kinematics = joint.getKinematics();
             const auto &dhParameters = kinematics.getDhParameters();
@@ -629,4 +643,154 @@ void RobotLib::printData() const
             }
         }
     }
+}
+
+Robot RobotLib::importRobotFromVCMX(const string &filePath)
+{
+    Robot newRobot;
+    try
+    {
+        
+        importvcmx importer(filePath);
+        int status = importer.importVCMXData();
+
+        if (status == 0)
+        {
+            newRobot = parseRobotFromVCMX(importer.getRobotDataDir());
+
+            std::cout << "VCMX data imported successfully!" << std::endl;
+        }
+        else
+        {
+            std::cerr << "Failed to import VCMX data. Status code: " << status << std::endl;
+        }
+
+    }
+    catch (const std::exception &e)
+    {
+        cerr << "Error while importing robot from VCMX: " << e.what() << endl;
+    }
+
+    return newRobot;
+}
+
+
+
+// Function to parse the robot data from a JSON file and populate a Robot object
+Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
+{
+
+    // Locate the component.json file in the given folder
+    string filePath = robotDataFolderPath + "/component.json";
+    if (!fs::exists(filePath))
+    {
+        throw runtime_error("component.json file not found in folder: " + robotDataFolderPath);
+    }
+
+    // Open and parse the JSON file
+    ifstream inputFile(filePath);
+    if (!inputFile)
+    {
+        throw runtime_error("Unable to open file: " + filePath);
+    }
+
+    json inputData;
+    try {
+        inputFile >> inputData;
+    } catch (const json::parse_error &e) {
+        throw std::runtime_error("Error parsing JSON file: " + std::string(e.what()));
+    }
+    inputFile.close();
+
+    Robot robot;
+
+    // Populate robot details
+    if (inputData.contains("robotData")) {
+        const auto &robotData = inputData["robotData"];
+        if (robotData.contains("Category") && robotData["Category"].is_string() && robotData["Category"] == "Robots") {
+            if (robotData.contains("BOMname") && robotData["BOMname"].is_string()) {
+                robot.setName(robotData["BOMname"]);
+            }
+            if (robotData.contains("BOMdescription") && robotData["BOMdescription"].is_string()) {
+                robot.setManufacturer(robotData["BOMdescription"]);
+            }
+        }
+    }
+
+    // Populate DH parameters
+    if (inputData.contains(RobotKeys2::Joints)) {
+        const auto &jointsJson = inputData[RobotKeys2::Joints];
+        for (const auto &[jointName, jointData] : jointsJson.items()) {
+            Joint &joint = robot.createAndAddJoint();
+            joint.setName(jointName);
+
+            if (jointData.contains(JointKeys2::JointKinematics) && jointData[JointKeys2::JointKinematics].contains(KinematicsKeys2::DhParameters)) {
+                const auto &dhParams = jointData[JointKeys2::JointKinematics][KinematicsKeys2::DhParameters];
+
+                JointKinematics kinematics;
+                JointKinematics::DHParameters dhParameters;
+
+                if (dhParams.contains(DhParametersKeys2::A) && dhParams[DhParametersKeys2::A].is_number()) {
+                    dhParameters.setA(dhParams[DhParametersKeys2::A]);
+                }
+                if (dhParams.contains(DhParametersKeys2::Alpha) && dhParams[DhParametersKeys2::Alpha].is_number()) {
+                    dhParameters.setAlpha(dhParams[DhParametersKeys2::Alpha]);
+                }
+                if (dhParams.contains(DhParametersKeys2::D) && dhParams[DhParametersKeys2::D].is_number()) {
+                    dhParameters.setD(dhParams[DhParametersKeys2::D]);
+                }
+                if (dhParams.contains(DhParametersKeys2::Theta) && dhParams[DhParametersKeys2::Theta].is_number()) {
+                    dhParameters.setTheta(dhParams[DhParametersKeys2::Theta]);
+                }
+
+                kinematics.setDhParameters(dhParameters);
+                joint.setKinematics(kinematics);
+            }
+
+            // Extract Visualization 
+            if (jointData.contains(JointKeys2::Visualization) && jointData[JointKeys2::Visualization].is_array()) {
+                vector<pair<string, string>> visualizations;
+                for (const auto& vis : jointData[JointKeys2::Visualization]) {
+                    if (vis.contains("filename") && vis.contains("filepath")) {
+                        string filename = vis["filename"].get<string>();
+                        string filepath = vis["filepath"].get<string>();
+                        
+                        // Check for file existence with and without .obj extension
+                        if (fs::exists(filepath)) {
+                            visualizations.emplace_back(filename, filepath);
+                        }
+                        else {
+                            // Try with .obj extension if not present
+                            string filepathWithObj = filepath;
+                            if (filepathWithObj.find(".obj") == string::npos) {
+                                filepathWithObj += ".obj";
+                            }
+                            if (fs::exists(filepathWithObj)) {
+                                visualizations.emplace_back(filename, filepathWithObj);
+                            }
+                            else {
+                                std::cerr << "Warning: Visualization file not found: " << filepath << " or " << filepathWithObj << std::endl;
+                            }
+                        }
+
+                    }
+                }
+                joint.setVisualizations(visualizations);
+            }
+
+            if (jointData.contains(JointKeys2::JointTranslation) && jointData[JointKeys2::JointTranslation].is_array()) {
+                
+                joint.setTranslation(jointData[JointKeys2::JointTranslation].get<std::array<double, 3>>());
+            }
+            
+            if (jointData.contains(JointKeys2::JointRotation) && jointData[JointKeys2::JointRotation].is_array()) {
+                
+                joint.setRotation(jointData[JointKeys2::JointRotation].get<std::array<double, 3>>());
+            }
+
+        }
+    }
+
+
+    return robot;
 }

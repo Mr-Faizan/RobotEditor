@@ -6,7 +6,9 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       rotationAngle(0.0f),
       rotating(false),
-      ui(new Ui::MainWindow)
+      ui(new Ui::MainWindow),
+      view(nullptr),
+      rootEntity(nullptr)
 {
     ui->setupUi(this);
 
@@ -43,6 +45,8 @@ MainWindow::MainWindow(QWidget *parent)
     setup3DPlayground();
     // Set the root Entity
     view->setRootEntity(rootEntity);
+
+    on_actionImportFromVisualComponentFolder_triggered();
 }
 
 MainWindow::~MainWindow()
@@ -85,13 +89,18 @@ void MainWindow::on_actionActiveRobot_triggered()
         ui->treeView->collapse(model->indexFromItem(activeRobotItem));
     }
 
+    //  check that the index is still in the model
+    if (!currentIndex.isValid() || currentIndex.row() >= model->rowCount(currentIndex.parent()))
+        return;
+
+
     // Set the font of the selected robot to bold and expand its tree view
     QFont font = currentItem->font();
     font.setBold(true);
     currentItem->setFont(font);
     ui->treeView->expand(currentIndex);
 
-    // Update the active robot item
+    // Update the active robot itemA breakpoint instruction (__debugbreak() statement or a similar call) was executed in RobotEditor.exe.
     activeRobotItem = currentItem;
 
     // Load Model of this Robot
@@ -162,6 +171,7 @@ void MainWindow::on_actionSaveAll_triggered()
 
 void MainWindow::on_actionNewRobot_triggered()
 {
+   
     // Create new Robot.
     Robot newRobot = robotLib.initializeNewRobot();
     populateTreeView(newRobot);
@@ -189,6 +199,7 @@ void MainWindow::on_actionOpenFromDevice_triggered()
 
         try
         {
+            
             // Load the robot from the file
             Robot robot = robotLib.loadFromFile(filePath.toStdString());
 
@@ -197,6 +208,7 @@ void MainWindow::on_actionOpenFromDevice_triggered()
 
             // Populate data in the model
             populateTreeView(robot);
+
         }
         catch (const std::runtime_error &e)
         {
@@ -229,6 +241,97 @@ void MainWindow::on_actionOpenFromDevice_triggered()
         */
 
     }
+}
+
+void MainWindow::on_actionImportFromVisualComponent_triggered()
+{
+    // Open the VCMX file and extract the data to create a new Robot.
+
+    
+    QString initialDir = "D://Faizan_Ahmed/Visual Component Sample data/All Components/Components";
+
+
+    QString filePath = QFileDialog::getOpenFileName(this, "Open VCMX", initialDir, "VCMX Files (*.vcmx)");
+    if (!filePath.isEmpty())
+    {
+        QFileInfo fileInfo(filePath);
+        QString filePath = fileInfo.absoluteFilePath();
+
+		try
+		{
+            
+			// Run the data extractor
+			Robot newRobot = robotLib.importRobotFromVCMX(filePath.toStdString());
+			populateTreeView(newRobot);
+
+
+			if (newRobot.getId()) {
+
+				QString baseName = QFileInfo(filePath).completeBaseName();
+				QString parentDir = QFileInfo(filePath).absolutePath();
+				QString outputDir = parentDir + "/" + baseName;
+				QString robotDataDir = outputDir + "/RobotData";
+
+				if (QDir(robotDataDir).exists()) {
+					loadObjFiles(robotDataDir);
+				}
+
+			}
+
+			//
+
+		}
+        catch (const std::runtime_error &e)
+        {
+            qWarning() << "Failed to load robot data from VCMX file: " << e.what();
+            return;
+        }
+
+    }
+}
+
+// this function is temporary function for testing
+void MainWindow::on_actionImportFromVisualComponentFolder_triggered()
+{
+    QString initialDir = "D://Faizan_Ahmed/Visual Component Sample data/All Components/Extracted/Good/ABB/IRB 260_30_156";
+
+    QString folderPath = QFileDialog::getExistingDirectory(this, "Select Folder", initialDir);
+ 
+    if (!folderPath.isEmpty())
+    {
+
+
+        try
+        {
+ 
+
+            // Run the data extractor
+            Robot newRobot = robotLib.importRobotFromVCMX(folderPath.toStdString());
+            populateTreeView(newRobot);
+
+
+            if (newRobot.getId()) {
+
+            
+                QString robotDataDir = folderPath + "/RobotData";
+
+                if (QDir(robotDataDir).exists()) {
+                    loadObjFiles(robotDataDir);
+                }
+
+            }
+
+            //
+
+        }
+        catch (const std::runtime_error& e)
+        {
+            qWarning() << "Failed to load robot data from VCMX file: " << e.what();
+            return;
+        }
+
+    }
+
 }
 
 void MainWindow::on_actionResetModel_triggered()
@@ -285,19 +388,27 @@ void MainWindow::on_actionJointVisualization_triggered()
         QStandardItem *parentRobotItem = getParentRobotItem(currentItem);
         if (parentRobotItem && parentRobotItem == activeRobotItem)
         {
+
             // First Delete the current OBJ file if it exists
-            deleteCurrentObjFile(currentItem);
+            //deleteCurrentObjFile(currentItem);
+
+            QString fileName = QFileInfo(filePath).fileName();
+            QStandardItem* meshNameItem = new QStandardItem(fileName);
+            meshNameItem->setFlags(meshNameItem->flags() & ~Qt::ItemIsEditable);
+            QStandardItem* meshPathItem = new QStandardItem(filePath);
+            meshPathItem->setFlags(meshPathItem->flags() & ~Qt::ItemIsEditable);
+            currentItem->appendRow(QList<QStandardItem*>() << meshNameItem << meshPathItem);
+
 
             // Call the loadSingleObjFile function with the selected file path
             QJsonObject jsonObject;
-            loadSingleObjFile(filePath, jsonObject, rootEntity);
+            jsonObject["filePath"] = filePath;
+            loadSingleObjFile(jsonObject);
+
+            
+            ui->treeView->expand(model->indexFromItem(currentItem));
         }
 
-        QStandardItem *filePathItem = model->itemFromIndex(currentItem->index().sibling(currentItem->row(), 1));
-        if (filePathItem)
-        {
-            filePathItem->setText(filePath);
-        }
     }
 }
 
@@ -313,6 +424,9 @@ void MainWindow::on_actionDeleteAll_triggered()
 
     // Reset the active robot item
     activeRobotItem = nullptr;
+
+    // Remove the existing 3D model
+    remove3DModel();
 
     // Remove all rows from the root item
     rootItem->removeRows(0, rootItem->rowCount());
@@ -478,7 +592,7 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const QString &jointKey, co
         {
             // Call the loadSingleObjFile function with the selected file path
             QJsonObject jsonObject;
-            loadSingleObjFile(visualizationPath, jsonObject, rootEntity);
+            loadSingleObjFile(visualizationPath, jsonObject);
         }
     }
 }
@@ -558,6 +672,32 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const Joint &joint)
         }
     }
 
+
+    // Loading visualization
+    QStandardItem* visualizationItem = new QStandardItem(QIcon(":/Resources/Icons/robot-dynamics.png"), JointKeys::Visualization);
+    visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
+
+    // Create a non-editable item for the second column
+    QStandardItem* visualizationNonEditableItem = new QStandardItem();
+    visualizationNonEditableItem->setFlags(visualizationNonEditableItem->flags() & ~Qt::ItemIsEditable);
+    singleJointItem->appendRow(QList<QStandardItem*>() << visualizationItem << visualizationNonEditableItem);
+
+    
+    const auto& visualizations = joint.getVisualizations();
+    for (const auto& vis : visualizations) {
+        QStandardItem* meshNameItem = new QStandardItem(QString::fromStdString(vis.first));
+        meshNameItem->setFlags(meshNameItem->flags() & ~Qt::ItemIsEditable);
+        QStandardItem* meshPathItem = new QStandardItem(QString::fromStdString(vis.second));
+        meshPathItem->setFlags(meshPathItem->flags() & ~Qt::ItemIsEditable);
+        visualizationItem->appendRow(QList<QStandardItem*>() << meshNameItem << meshPathItem);
+
+        
+        QJsonObject jsonObject;
+        jsonObject["filePath"] = QString::fromStdString(vis.second);
+        loadSingleObjFile(jsonObject);
+    }
+
+    /*
     // Loading visualization
     QStandardItem *visualizationItem = new QStandardItem(QIcon(":/Resources/Icons/robot-dynamics.png"), JointKeys::Visualization);
     visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
@@ -569,8 +709,26 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const Joint &joint)
     {
         // Call the loadSingleObjFile function with the selected file path
         QJsonObject jsonObject;
-        loadSingleObjFile(QString::fromStdString(joint.getVisualization()), jsonObject, rootEntity);
+        
+        jsonObject["filePath"] = QString::fromStdString(joint.getVisualization());
+
+            
+        QJsonArray translationArray;
+        for (const auto &value : joint.getTranslation()) {
+            translationArray.append(value);
+        }
+        jsonObject["translation"] = translationArray;
+
+   
+        QJsonArray rotationArray;
+        for (const auto &value : joint.getRotation()) {
+            rotationArray.append(value);
+        }
+        jsonObject["rotation"] = rotationArray;
+
+        loadSingleObjFile(jsonObject);
     }
+    */
 }
 
 
@@ -686,11 +844,14 @@ void MainWindow::deleteCurrentRobot()
     if (currentItem == activeRobotItem)
     {
         activeRobotItem = nullptr;
+        // Remove the existing 3D model
+        remove3DModel();
     }
 
     // Remove the selected robot item
+    QString robotName = currentItem->text();
     model->removeRow(currentItem->row(), currentItem->parent() ? currentItem->parent()->index() : QModelIndex());
-    qDebug() << "Deleted robot: " << currentItem->text();
+    qDebug() << "Deleted robot: " << robotName;
 }
 
 void MainWindow::deleteCurrentJoint()
@@ -1274,6 +1435,8 @@ void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
 void MainWindow::setup3DPlayground()
 {
 
+  
+
     // First creating 3D window
     view = new Qt3DExtras::Qt3DWindow();
     rootEntity = new Qt3DCore::QEntity();
@@ -1285,7 +1448,8 @@ void MainWindow::setup3DPlayground()
     camera = view->camera();
     camera->lens()->setPerspectiveProjection(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
     camera->setPosition(QVector3D(0.159012, -504.859, -10.8127));
-    camera->setViewCenter(QVector3D(0, 0, 0));
+    camera->setViewCenter(QVector3D(0, -2.0f, 0));
+    camera->setUpVector(QVector3D(0, 0, 1));         // Z is up
 
     // For camera control and setting the Zooming speed
     Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
@@ -1341,7 +1505,8 @@ void MainWindow::load3DModel()
     for (const QString &filePath : filePaths)
     {
         QJsonObject jsonObject;
-        loadSingleObjFile(filePath, jsonObject, rootEntity);
+        jsonObject["filePath"] = filePath; 
+        loadSingleObjFile(jsonObject);
     }
 
     // Set the root Entity
@@ -1352,8 +1517,10 @@ void MainWindow::load3DModel()
 // This function will remove the 3D Model from the Scene.
 void MainWindow::remove3DModel()
 {
+    if (!rootEntity)
+        return;
     // Remove the root entity
-    for (auto entity : rootEntity->children())
+    for (auto entity : rootEntity->findChildren<Qt3DCore::QEntity *>(QString("ModelEntity"), Qt::FindDirectChildrenOnly))
     {
         delete entity;
     }
@@ -1361,21 +1528,9 @@ void MainWindow::remove3DModel()
 }
 
 // Load the Mesh files from the Resources
-void MainWindow::loadObjFiles(const QString &directoryPath, Qt3DCore::QEntity *rootEntity)
+void MainWindow::loadObjFiles(const QString &directoryPath)
 {
-
-    // Load JSON file containing transformation data
-
-    QFile jsonFile(":/Resources/Json/dhParameters.json"); // Load JSON file here
-    if (!jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qWarning() << "Failed to open JSON file.";
-    }
-
-    QByteArray jsonData = jsonFile.readAll();
-    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
-    QJsonObject jsonObject = doc.object();
-    qDebug() << "JSON file loaded successfully with keys:" << jsonObject.keys(); // Debugging JSON keys
+    QJsonObject jsonObject;
 
     // Create a QDir object for the specified directory
     QDir dir(directoryPath);
@@ -1396,13 +1551,20 @@ void MainWindow::loadObjFiles(const QString &directoryPath, Qt3DCore::QEntity *r
     for (const QFileInfo &fileInfo : fileList)
     {
         const QString &filePath = fileInfo.absoluteFilePath();
-        loadSingleObjFile(filePath, jsonObject, rootEntity);
+        jsonObject["filePath"] = filePath; // Set the file path in the JSON object
+        loadSingleObjFile(jsonObject);
     }
 }
 
 // This function will load the single OBJ file and add it to the Scene.
-void MainWindow::loadSingleObjFile(const QString &filePath, const QJsonObject &jsonObject, Qt3DCore::QEntity *rootEntity)
+void MainWindow::loadSingleObjFile(const QJsonObject &jsonObject)
 {
+    QString filePath = jsonObject["filePath"].toString();
+    if (filePath.isEmpty()) {
+        qWarning() << "File path is empty. Cannot load OBJ file.";
+        return;
+    }
+
     QString geometryName = QFileInfo(filePath).baseName(); // Get the base name without the file extension
 
     // Create an entity to hold the 3D model
@@ -1416,28 +1578,49 @@ void MainWindow::loadSingleObjFile(const QString &filePath, const QJsonObject &j
     Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
 
     // Check if the JSON object contains transformation data for this geometry
-    if (!jsonObject.isEmpty() && jsonObject.contains(geometryName))
-    {
-        QJsonObject geomData = jsonObject.value(geometryName).toObject();
+    /*
+    if (jsonObject.contains("translation") && jsonObject["translation"].isArray()) {
+        QJsonArray translationArray = jsonObject["translation"].toArray();
+        if (translationArray.size() == 3) {
+            float Tx = translationArray[0].toDouble();
+            float Ty = translationArray[1].toDouble();
+            float Tz = translationArray[2].toDouble();
+            transform->setTranslation(QVector3D(Tx, Ty, Tz));
 
-        // Extract translation and rotation values
-        float Tx = geomData.value("Tx").toDouble();
-        float Tz = geomData.value("Tz").toDouble();
-        float Rx = geomData.value("Rx").toDouble();
-        float Rz = geomData.value("Rz").toDouble();
-
-        // Set the translation and rotation values
-        // transform->setTranslation(QVector3D(Tx, 0.0f, Tz));
-        transform->setRotationX(Rx);
-        transform->setRotationZ(Rz);
+            // print translation values for debugging
+            qDebug() << "Translation values:" << Tx << Ty << Tz;
+        } else {
+            qWarning() << "Invalid translation array size. Using default translation.";
+            transform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
+        }
+    } else {
+        qWarning() << "Translation not found in JSON. Using default translation.";
+        transform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
     }
+
+    // Extract rotation values from the JSON object
+    if (jsonObject.contains("rotation") && jsonObject["rotation"].isArray()) {
+        QJsonArray rotationArray = jsonObject["rotation"].toArray();
+        if (rotationArray.size() == 3) {
+            float Rx = rotationArray[0].toDouble();
+            float Ry = rotationArray[1].toDouble();
+            float Rz = rotationArray[2].toDouble();
+            QQuaternion rotation = QQuaternion::fromEulerAngles(Rx, Ry, Rz);
+            transform->setRotation(rotation);
+
+            // print rotation values for debugging
+            qDebug() << "Rotation values:" << Rx << Ry << Rz;
+        } else {
+            qWarning() << "Invalid rotation array size. Using default rotation.";
+            transform->setRotation(QQuaternion::fromEulerAngles(0.0f, 0.0f, 0.0f));
+        }
+    } 
     else
     {
-        // Default transformations if no data in JSON
-        transform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
-        transform->setRotationX(0.0f);
-        transform->setRotationZ(0.0f);
+        qWarning() << "Rotation not found in JSON. Using default rotation.";
+        transform->setRotation(QQuaternion::fromEulerAngles(0.0f, 0.0f, 0.0f));
     }
+    */
 
     transform->setScale(0.1f); // Example scale
 
@@ -1445,7 +1628,7 @@ void MainWindow::loadSingleObjFile(const QString &filePath, const QJsonObject &j
     Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial();
 
     // Check for the existence of the corresponding MTL file
-    QString mtlFilePath = QFileInfo(filePath).absolutePath() + "/" + geometryName + ".obj.mtl";
+    QString mtlFilePath = QFileInfo(filePath).absolutePath() + "/" + geometryName + ".mtl";
     QFile mtlFile(mtlFilePath);
     if (mtlFile.exists())
     {
@@ -1456,6 +1639,16 @@ void MainWindow::loadSingleObjFile(const QString &filePath, const QJsonObject &j
 
         if (parseMtlFile(mtlFilePath, ambientColor, diffuseColor, specularColor, shininess, transparency, illumModel))
         {
+
+            // Check if any diffuse color channel is less than 1.0
+            if (diffuseColor.redF() < 1.0 || diffuseColor.greenF() < 1.0 || diffuseColor.blueF() < 1.0) {
+                // Set a default color (e.g., light gray or any color you prefer)
+                ambientColor = QColor::fromRgbF(0.2, 0.2, 0.2);
+                diffuseColor = QColor::fromRgbF(0.498039, 0.498039, 0.498039);
+                specularColor = QColor::fromRgbF(1.0, 1.0, 1.0);
+                shininess = 0.0f;
+            }
+
             material->setAmbient(ambientColor);
             material->setDiffuse(diffuseColor);
             material->setSpecular(specularColor);
@@ -1483,6 +1676,9 @@ void MainWindow::loadSingleObjFile(const QString &filePath, const QJsonObject &j
         material->setSpecular(QColor::fromRgbF(1.0, 1.0, 1.0));
         material->setShininess(0.0);
     }
+
+    // Adding tags so that i can only remove those entities.
+    entity->setObjectName("ModelEntity");
 
     // Add the components (mesh, transformation, material) to the entity
     entity->addComponent(mesh);
@@ -1601,36 +1797,40 @@ QStandardItem *MainWindow::getParentRobotItem(QStandardItem *item)
     return nullptr;
 }
 
-// This function will return the path of the visualization files for the selected robot.
-QStringList MainWindow::collectVisualizationPaths(QStandardItem *robotItem)
+
+// This function will return the path of all visualization files for the selected robot.
+QStringList MainWindow::collectVisualizationPaths(QStandardItem* robotItem)
 {
     QStringList filePaths;
 
     if (!robotItem)
-    {
         return filePaths;
-    }
 
     for (int i = 0; i < robotItem->rowCount(); ++i)
     {
-        QStandardItem *jointsItem = robotItem->child(i);
+        QStandardItem* jointsItem = robotItem->child(i);
         if (jointsItem && jointsItem->text() == RobotKeys::Joints)
         {
             for (int j = 0; j < jointsItem->rowCount(); ++j)
             {
-                QStandardItem *singleJointItem = jointsItem->child(j);
+                QStandardItem* singleJointItem = jointsItem->child(j);
                 for (int k = 0; k < singleJointItem->rowCount(); ++k)
                 {
-                    QStandardItem *visualizationItem = singleJointItem->child(k, 0);
+                    QStandardItem* visualizationItem = singleJointItem->child(k, 0);
                     if (visualizationItem && visualizationItem->text() == JointKeys::Visualization)
                     {
-                        QStandardItem *filePathItem = singleJointItem->child(k, 1);
-                        if (filePathItem)
+                        // Iterate over all mesh children under the visualization node
+                        for (int m = 0; m < visualizationItem->rowCount(); ++m)
                         {
-                            QString filePath = filePathItem->text();
-                            if (!filePath.isEmpty())
+                            QStandardItem* meshNameItem = visualizationItem->child(m, 0);
+                            QStandardItem* meshPathItem = visualizationItem->child(m, 1);
+                            if (meshPathItem)
                             {
-                                filePaths.append(filePath);
+                                QString filePath = meshPathItem->text();
+                                if (!filePath.isEmpty())
+                                {
+                                    filePaths.append(filePath);
+                                }
                             }
                         }
                     }

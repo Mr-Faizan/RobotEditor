@@ -80,6 +80,8 @@ private slots:
     void on_actionDeleteAll_triggered();
     void on_actionNewRobot_triggered();
     void on_actionOpenFromDevice_triggered();
+    void on_actionImportFromVisualComponent_triggered();
+    void on_actionImportFromVisualComponentFolder_triggered();
     void on_actionResetModel_triggered();
     void on_actionRotateModel_triggered();
     void on_actionJointVisualization_triggered();
@@ -108,7 +110,6 @@ private:
 
     float rotationAngle = 0.0f;        // Current rotation angle
     bool rotating = false;      // Flag to indicate if rotation is enabled 
-
     // RobotLib Object
     RobotLib robotLib;
 
@@ -133,8 +134,8 @@ private:
     void setup3DPlayground();
     void load3DModel();
     void remove3DModel();
-    void loadObjFiles(const QString& directoryPath, Qt3DCore::QEntity* rootEntity);
-    void loadSingleObjFile(const QString &filePath, const QJsonObject &jsonObject, Qt3DCore::QEntity *rootEntity);
+    void loadObjFiles(const QString& directoryPath);
+    void loadSingleObjFile(const QJsonObject &jsonObject);
     void deleteCurrentObjFile(QStandardItem *currentItem);
     bool parseMtlFile(const QString& mtlFilePath, QColor& ambient, QColor& diffuse, QColor& specular, float& shininess, float& transparency, int& illumModel);
     void updateRotation();
