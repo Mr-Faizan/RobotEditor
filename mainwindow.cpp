@@ -16,24 +16,6 @@ MainWindow::MainWindow(QWidget *parent)
     rotationTimer = new QTimer(this);
     connect(rotationTimer, &QTimer::timeout, this, &MainWindow::updateRotation);
 
-    // Load the JSON template
-    // loadTemplate();
-/*
-    if (!robotLib.loadFromJson("C:/Users/fahmed/WorkFolder/Projects/RobotEditor/Resources/Json/FaizanTest.json"))
-        {
-            qWarning("Failed to load robot data from JSON file");
-            return;
-        }
-
-    // Print the robotLib object to see the data.
-    robotLib.printData();
-
-    // Save the loaded data to a new JSON file
-    if (!robotLib.saveToJson("C:/Users/fahmed/WorkFolder/Projects/SavedRobotData.json", 0))
-    {
-        qWarning("Failed to save robot data to JSON file");
-    }
-*/
 
     // Not define model here because it will not be accessible in other functions.
     model = new QStandardItemModel(0, 2, this);
@@ -107,36 +89,136 @@ void MainWindow::on_actionActiveRobot_triggered()
     load3DModel();
 }
 
+
 void MainWindow::on_actionSave_triggered()
 {
 
-    QString filePath = QFileDialog::getSaveFileName(this, "Save JSON", "", "JSON Files (*.json)");
-    if (!filePath.isEmpty())
+    // 1. Ask user for the .re file path (location + name) in one dialog
+    QString reFilePath = QFileDialog::getSaveFileName(
+        this,
+        "Save Robot Editor Package",
+        QDir::homePath() + "/MyRobot.re",
+        "Robot Editor Package (*.re)"
+    );
+    if (reFilePath.isEmpty())
+        return;
+
+    // Ensure the file has the .re extension
+    if (!reFilePath.endsWith(".re", Qt::CaseInsensitive))
+        reFilePath += ".re";
+
+    // 2. Create a temporary folder for packaging
+    QString tempFolder = QDir::temp().absoluteFilePath(QFileInfo(reFilePath).baseName() + "_re_temp");
+    QDir tempDir(tempFolder);
+    tempDir.removeRecursively(); // Clean up if exists
+    QDir().mkpath(tempFolder);
+
+    // 3. Save JSON and data to the temp folder using your existing function
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
     {
-        QModelIndex currentIndex = ui->treeView->currentIndex();
-        if (!currentIndex.isValid())
-        {
-            qWarning() << "No item selected.";
-            return;
-        }
-
-        QStandardItem *currentItem = model->itemFromIndex(currentIndex);
-        if (!currentItem)
-        {
-            qWarning() << "Invalid item selected.";
-            return;
-        }
-
-        // Ensure the selected item is the Robot item
-        if (currentItem->text() != RobotKeys::Robot)
-        {
-            qWarning() << "Selected item is not the Robot item.";
-            return;
-        }
-
-        qDebug() << "Saving to: " << filePath;
-        saveToJson(filePath, currentItem);
+        qWarning() << "No item selected.";
+        return;
     }
+    QStandardItem* currentItem = model->itemFromIndex(currentIndex);
+    if (!currentItem || currentItem->text() != RobotKeys::Robot)
+    {
+        qWarning() << "Invalid or non-robot item selected.";
+        return;
+    }
+    saveToJson(tempFolder, currentItem);
+
+    // 4. Zip the temp folder using RobotLib (returns .re file path as std::string)
+    std::string tempReFileStd = robotLib.zipRobotPackage(tempFolder.toStdString());
+    QString tempReFile = QString::fromStdString(tempReFileStd);
+
+    // 5. Move the .re file to the user-selected location
+    bool moved = QFile::rename(tempReFile, reFilePath);
+
+    // 6. Clean up the temp folder
+    tempDir.removeRecursively(); 
+
+    // 7. Show result
+    if (moved && QFile::exists(reFilePath))
+        QMessageBox::information(this, "Success", "Robot Editor package saved as: " + reFilePath);
+    else
+        QMessageBox::warning(this, "Error", "Failed to create Robot Editor package.");
+
+
+
+
+        /*
+        QJsonObject robotJson = modelToJson(currentItem);
+        QString jsonFilePath = packageFolderPath + "/robot.json";
+        QFile jsonFile(jsonFilePath);
+        if (jsonFile.open(QIODevice::WriteOnly))
+        {
+            QJsonDocument doc(robotJson);
+            jsonFile.write(doc.toJson(QJsonDocument::Indented));
+            jsonFile.close();
+        }
+        else
+        {
+            qWarning() << "Failed to write JSON file.";
+            return;
+        }
+
+        // 3. Copy all files from RobotData folder
+        QString robotDataSrc = "RobotData"; // Adjust this path as needed
+        QString robotDataDst = packageFolderPath + "/RobotData";
+        QDir().mkpath(robotDataDst);
+
+        QDir srcDir(robotDataSrc);
+        if (srcDir.exists())
+        {
+            for (const QFileInfo& fileInfo : srcDir.entryInfoList(QDir::Files))
+            {
+                QFile::copy(fileInfo.absoluteFilePath(), robotDataDst + "/" + fileInfo.fileName());
+            }
+        }
+
+        // 4. Zip the folder using miniz
+        QString zipFilePath = dirPath + "/" + folderName + ".zip";
+        {
+            
+            // #include "miniz.h"
+            mz_zip_archive zip;
+            memset(&zip, 0, sizeof(zip));
+            mz_zip_writer_init_file(&zip, zipFilePath.toStdString().c_str(), 0);
+
+            // Add all files in the package folder recursively
+            std::function<void(const QString&, const QString&)> addDirToZip;
+            addDirToZip = [&](const QString& folder, const QString& base) {
+                QDir dir(folder);
+                for (const QFileInfo& entry : dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Dirs))
+                {
+                    QString relPath = base.isEmpty() ? entry.fileName() : base + "/" + entry.fileName();
+                    if (entry.isDir())
+                    {
+                        addDirToZip(entry.absoluteFilePath(), relPath);
+                    }
+                    else
+                    {
+                        mz_zip_writer_add_file(&zip, relPath.toStdString().c_str(), entry.absoluteFilePath().toStdString().c_str(), nullptr, 0, MZ_BEST_COMPRESSION);
+                    }
+                }
+                };
+            addDirToZip(packageFolderPath, "");
+
+            mz_zip_writer_finalize_archive(&zip);
+            mz_zip_writer_end(&zip);
+        }
+
+        // 5. Rename .zip to .re
+        QString reFilePath = dirPath + "/" + folderName + ".re";
+        QFile::remove(reFilePath); // Remove if exists
+        QFile::rename(zipFilePath, reFilePath);
+
+        QMessageBox::information(this, "Success", "Robot Editor package saved as: " + reFilePath);
+
+       // qDebug() << "Saving to: " << filePath;
+       // saveToJson(filePath, currentItem);
+    */
 }
 
 void MainWindow::on_actionSaveAll_triggered()
@@ -1405,26 +1487,9 @@ void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
          {
              qWarning() << "Failed to update robot data in RobotLib";
 
-             robotLib.printData();
-
              return;
          }
 
-        /*
-
-        QJsonDocument doc(json);
-        QFile file(filePath);
-        if (file.open(QIODevice::WriteOnly))
-        {
-            file.write(doc.toJson());
-            file.close();
-        }
-        else
-        {
-            qWarning() << "Failed to open file for writing";
-        }
-            
-        */
     }
 }
 

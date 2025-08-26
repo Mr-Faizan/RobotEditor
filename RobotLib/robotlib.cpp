@@ -794,3 +794,42 @@ Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
 
     return robot;
 }
+
+
+
+string RobotLib::zipRobotPackage(const string& folderPath)
+{
+    namespace fs = std::filesystem;
+    string zipFilePath = folderPath + ".zip";
+    string reFilePath = folderPath + ".re";
+
+    mz_zip_archive zip;
+    memset(&zip, 0, sizeof(zip));
+    if (!mz_zip_writer_init_file(&zip, zipFilePath.c_str(), 0))
+        return "";
+
+    // Recursively add files
+    auto addDirToZip = [&](const fs::path& dir, const std::string& base, auto&& addDirToZipRef) -> void {
+        for (const auto& entry : fs::directory_iterator(dir)) {
+            std::string relPath = base.empty() ? entry.path().filename().string() : base + "/" + entry.path().filename().string();
+            if (fs::is_directory(entry.status())) {
+                addDirToZipRef(entry.path(), relPath, addDirToZipRef);
+            }
+            else if (fs::is_regular_file(entry.status())) {
+                mz_zip_writer_add_file(&zip, relPath.c_str(), entry.path().string().c_str(), nullptr, 0, MZ_BEST_COMPRESSION);
+            }
+        }
+        };
+    addDirToZip(fs::path(folderPath), "", addDirToZip);
+
+    mz_zip_writer_finalize_archive(&zip);
+    mz_zip_writer_end(&zip);
+
+    // Rename .zip to .re
+    std::error_code ec;
+    fs::remove(reFilePath, ec); // Remove if exists, ignore error
+    fs::rename(zipFilePath, reFilePath, ec);
+    if (ec) return "";
+
+    return reFilePath;
+}

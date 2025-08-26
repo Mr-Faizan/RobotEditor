@@ -7,6 +7,10 @@
 #include <vector>
 #include <fstream>
 
+#include <miniz/miniz.h>
+#include <filesystem>
+#include <cstring> // for memset
+
 #include "RobotLib_global.h"
 #include "robot.h"
 #include "nlohmann/json.hpp"
@@ -45,6 +49,7 @@ public:
     // Load and save data
     Robot loadFromJson(const json jsonData);
     bool saveToJson(const std::string &filePath, Robot &robot) const;
+    string zipRobotPackage(const string& folderPath);
 
 
 

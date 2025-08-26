@@ -7,6 +7,8 @@
 #include <QDebug>
 #include <iostream>
 #include <QIcon>
+#include <QInputDialog>
+#include <QMessageBox>
 
 // Qt JSON and File Libraries
 #include <QJsonDocument>
