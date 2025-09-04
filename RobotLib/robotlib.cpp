@@ -833,3 +833,46 @@ string RobotLib::zipRobotPackage(const string& folderPath)
 
     return reFilePath;
 }
+
+bool RobotLib::extractRobotPackage(const std::string& reFilePath, const std::string& destDir)
+{
+    namespace fs = std::filesystem;
+
+    // Clean up destination directory if it exists
+    std::error_code ec;
+    fs::remove_all(destDir, ec);
+    fs::create_directories(destDir, ec);
+
+    mz_zip_archive zip;
+    memset(&zip, 0, sizeof(zip));
+
+    // Open the .re (zip) file
+    if (!mz_zip_reader_init_file(&zip, reFilePath.c_str(), 0)) {
+        return false;
+    }
+
+    mz_uint numFiles = mz_zip_reader_get_num_files(&zip);
+    for (mz_uint i = 0; i < numFiles; ++i) {
+        mz_zip_archive_file_stat file_stat;
+        if (!mz_zip_reader_file_stat(&zip, i, &file_stat))
+            continue;
+
+        std::string outPath = destDir + "/" + file_stat.m_filename;
+
+        // Create directories if needed
+        fs::create_directories(fs::path(outPath).parent_path(), ec);
+
+        if (mz_zip_reader_is_file_a_directory(&zip, i)) {
+            fs::create_directories(outPath, ec);
+            continue;
+        }
+
+        if (!mz_zip_reader_extract_to_file(&zip, i, outPath.c_str(), 0)) {
+            mz_zip_reader_end(&zip);
+            return false;
+        }
+    }
+
+    mz_zip_reader_end(&zip);
+    return true;
+}

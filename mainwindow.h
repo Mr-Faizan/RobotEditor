@@ -129,6 +129,7 @@ private:
     void saveToJson(const QString &filePath, QStandardItem *currentItem);
 
     QJsonObject modelToJson(QStandardItem *robotItem);
+    bool copyDirectoryRecursively(const QString& srcPath, const QString& dstPath);
 
 
 

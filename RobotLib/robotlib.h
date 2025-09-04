@@ -50,6 +50,7 @@ public:
     Robot loadFromJson(const json jsonData);
     bool saveToJson(const std::string &filePath, Robot &robot) const;
     string zipRobotPackage(const string& folderPath);
+    bool extractRobotPackage(const string& reFilePath, const string& destDir);
 
 
 

@@ -36,7 +36,7 @@ private:
     int dof;
     std::vector<Joint> joints;
     int jointCounter;
-
+    string robotDataDir; // path to RobotData for this robot
 public:
     Robot();
 
@@ -59,6 +59,7 @@ public:
     void setRepeatability(double repeatability) { this->repeatability = repeatability; }
     void setWeight(double weight) { this->weight = weight; }
     void setDof(int dof) { this->dof = dof; }
+    void setRobotDataDir(const string& dir) { robotDataDir = dir; }
     
 
     // Getters
@@ -77,6 +78,7 @@ public:
     void addJoint(const Joint &joint);
     Joint& createAndAddJoint();
     Joint& getJointByJointNumber(const std::string &jointNumber);
+    const string& getRobotDataDir() const { return robotDataDir; }
 };
 
 #endif // ROBOT_H
