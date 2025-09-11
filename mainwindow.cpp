@@ -578,23 +578,27 @@ void MainWindow::on_actionJointVisualization_triggered()
 
     robotObjFiles[robotId] << destObj;
 
+
+    QString fileName = QFileInfo(filePath).fileName();
+
+    // First column: editable, user-defined name (initially empty)
+    QStandardItem* meshNameItem = new QStandardItem("");
+    meshNameItem->setFlags(meshNameItem->flags() | Qt::ItemIsEditable); // Make editable
+
+    // Second column: non-editable, just the filename
+    QStandardItem* meshPathItem = new QStandardItem(fileName);
+    meshPathItem->setFlags(meshPathItem->flags() & ~Qt::ItemIsEditable);
+
+    currentItem->appendRow(QList<QStandardItem*>() << meshNameItem << meshPathItem);
+
    if (parentRobotItem == activeRobotItem)
    {
+       // Call the loadSingleObjFile function with the selected file path
+       QJsonObject jsonObject;
+       jsonObject["filePath"] = destObj;
+       loadSingleObjFile(jsonObject);
 
-        QStandardItem* meshNameItem = new QStandardItem(destObj);
-        meshNameItem->setFlags(meshNameItem->flags() & ~Qt::ItemIsEditable);
-        QStandardItem* meshPathItem = new QStandardItem(destObj);
-        meshPathItem->setFlags(meshPathItem->flags() & ~Qt::ItemIsEditable);
-        currentItem->appendRow(QList<QStandardItem*>() << meshNameItem << meshPathItem);
-
-
-        // Call the loadSingleObjFile function with the selected file path
-        QJsonObject jsonObject;
-        jsonObject["filePath"] = destObj;
-        loadSingleObjFile(jsonObject);
-
-            
-        ui->treeView->expand(model->indexFromItem(currentItem));
+       ui->treeView->expand(model->indexFromItem(currentItem));
    }
 
     
@@ -1161,6 +1165,7 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
                 // Also declare the inner objects and pointers here
                 QStandardItem *kinematicsItem = nullptr;
                 QStandardItem *dynamicsItem = nullptr;
+                QStandardItem *visualizationItem = nullptr;
 
                 QJsonObject kinematicsObject;
                 QJsonObject dynamicsObject;
@@ -1182,6 +1187,10 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
                         else if (propertyItem->text() == JointKeys::JointDynamics)
                         {
                             dynamicsItem = singleJointItem->child(k);
+                        }
+                        else if (propertyItem->text() == JointKeys::Visualization)
+                        {
+                            visualizationItem = singleJointItem->child(k);
                         }
                         else
                         {
@@ -1289,6 +1298,22 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
                     }
                     singleJointObject[JointKeys::JointDynamics] = dynamicsObject;
                 }
+
+                if (visualizationItem) {
+                    QJsonArray visualizationArray;
+                    for (int m = 0; m < visualizationItem->rowCount(); ++m) {
+                        QStandardItem* meshNameItem = visualizationItem->child(m, 0);
+                        QStandardItem* meshPathItem = visualizationItem->child(m, 1);
+                        QJsonObject meshObj;
+                        
+                        meshObj["filename"] = meshNameItem ? meshNameItem->data(Qt::DisplayRole).toString() : "";
+                        
+                        meshObj["filepath"] = meshPathItem ? meshPathItem->data(Qt::DisplayRole).toString() : "";
+                        visualizationArray.append(meshObj);
+                    }
+                    singleJointObject[JointKeys::Visualization] = visualizationArray;
+                }
+
                 jointsObject[singleJointItem->text()] = singleJointObject;
             }
             robotObject[RobotKeys::Joints] = jointsObject;
