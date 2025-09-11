@@ -27,8 +27,8 @@ void dhCalculator::calculateDHParameters()
 
     // Save the updated joints back to the JSON file
     inputData[RobotKeys2::Joints] = updatedJoints;
-    
-    
+
+ 
     // So we will save these DH parameters in component.json file.
     // Add the DH parameters to the existing JSON data
     //inputData[RobotKeys2::Joints] = dhParameters;

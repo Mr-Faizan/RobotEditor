@@ -28,7 +28,6 @@ MainWindow::MainWindow(QWidget *parent)
     // Set the root Entity
     view->setRootEntity(rootEntity);
 
-    on_actionImportFromVisualComponentFolder_triggered();
 }
 
 MainWindow::~MainWindow()
@@ -65,6 +64,9 @@ void MainWindow::on_actionActiveRobot_triggered()
     // Reset the font of the previously active robot to normal and collapse its tree view
     if (activeRobotItem && model->indexFromItem(activeRobotItem).isValid())
     {
+        int prevId = getRobotId(activeRobotItem);
+        remove3DModel();
+
         QFont font = activeRobotItem->font();
         font.setBold(false);
         activeRobotItem->setFont(font);
@@ -85,10 +87,68 @@ void MainWindow::on_actionActiveRobot_triggered()
     // Update the active robot itemA breakpoint instruction (__debugbreak() statement or a similar call) was executed in RobotEditor.exe.
     activeRobotItem = currentItem;
 
+    // Show new robot model
+    int robotId = getRobotId(currentItem);
+    loadRobotObjFiles(robotId);
+
     // Load Model of this Robot
-    load3DModel();
+    //load3DModel();
 }
 
+
+void MainWindow::on_actionSave_triggered()
+{
+    QModelIndex currentIndex = ui->treeView->currentIndex();
+    if (!currentIndex.isValid())
+    {
+        qWarning() << "No item selected.";
+        return;
+    }
+    QStandardItem* currentItem = model->itemFromIndex(currentIndex);
+
+    saveRobot(currentItem);
+}
+
+void MainWindow::on_actionSaveAll_triggered()
+{
+    if (!model)
+    {
+        qWarning() << "Model does not exist";
+        return;
+    }
+
+    QStandardItem* rootItem = model->invisibleRootItem();
+    if (!rootItem || rootItem->rowCount() == 0)
+        return;
+
+    for (int i = 0; i < rootItem->rowCount(); ++i)
+    {
+        QStandardItem* robotItem = rootItem->child(i);
+
+        // Ask for file path for each robot
+        QString filePath = QFileDialog::getSaveFileName(
+            this,
+            "Save Robot Editor Package for " + robotItem->text(),
+            QDir::homePath() + "/MyRobot",
+            "Robot Editor Package (*.re)"
+        );
+
+        if (!filePath.isEmpty())
+        {
+            if (!filePath.endsWith(".re", Qt::CaseInsensitive))
+                filePath += ".re";
+
+            saveRobot(robotItem, filePath);
+        }
+        else
+        {
+            qWarning() << "Skipped saving robot:" << robotItem->text();
+        }
+    }
+}
+
+
+/*
 
 void MainWindow::on_actionSave_triggered()
 {
@@ -107,11 +167,6 @@ void MainWindow::on_actionSave_triggered()
     if (!reFilePath.endsWith(".re", Qt::CaseInsensitive))
         reFilePath += ".re";
 
-    // 2. Create a temporary folder for packaging
-    QString tempFolder = QDir::temp().absoluteFilePath(QFileInfo(reFilePath).baseName() + "_re_temp");
-    QDir tempDir(tempFolder);
-    tempDir.removeRecursively(); // Clean up if exists
-    QDir().mkpath(tempFolder);
 
     // 3. Save JSON and data to the temp folder using your existing function
     QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -127,25 +182,23 @@ void MainWindow::on_actionSave_triggered()
         return;
     }
 
-    qDebug() << "Temp folder path:" << tempFolder;
+   
 
     const QString srcRobotDataDir = currentItem->data(Qt::UserRole + 2).toString();
 
-    qDebug() << " Source data Dir :" << srcRobotDataDir;
-    if (!srcRobotDataDir.isEmpty() && QDir(srcRobotDataDir).exists()) {
-        
-        if (!copyDirectoryRecursively(srcRobotDataDir, tempFolder)) {
-            qWarning() << "Failed to copy RobotData from" << srcRobotDataDir << "to" << tempFolder;
-        }
-    }
+   
+    if (reFilePath.isEmpty())
+        return;
 
-    QString robotDataFilePath = tempFolder + '/' + "RobotData.json";
+
+    QString robotDataFilePath = srcRobotDataDir + '/' + "RobotData.json";
 
     // This function will create JSON File of RobotData in the temp folder.
     saveToJson(robotDataFilePath, currentItem);
 
     // 4. Zip the temp folder using RobotLib (returns .re file path as std::string)
-    std::string tempReFileStd = robotLib.zipRobotPackage(tempFolder.toStdString());
+   // std::string tempReFileStd = robotLib.zipRobotPackage(tempFolder.toStdString());
+    std::string tempReFileStd = robotLib.zipRobotPackage(srcRobotDataDir.toStdString());
     QString tempReFile = QString::fromStdString(tempReFileStd);
 
     // 5. Move the .re file to the user-selected location
@@ -155,6 +208,7 @@ void MainWindow::on_actionSave_triggered()
     bool moved = QFile::rename(tempReFile, reFilePath);
 
     // 6. Clean up the temp folder
+    QDir tempDir(srcRobotDataDir);
     tempDir.removeRecursively(); 
 
     // 7. Show result
@@ -195,22 +249,41 @@ void MainWindow::on_actionSaveAll_triggered()
     }
 }
 
+*/
+
 void MainWindow::on_actionNewRobot_triggered()
 {
+
+    try {
+
    
     // Create new Robot.
     Robot newRobot = robotLib.initializeNewRobot();
+
+    if (newRobot.getId()) {
+
+        QString robotIdStr = QString::number(newRobot.getId());
+
+
+    // 2. Create a temporary folder. I am making this temp folder because when we save the .re file , we will use this folder and also when processing multiple robots.
+    QString tempFolder = QDir::temp().absoluteFilePath(robotIdStr + "_re_temp");
+    QDir tempDir(tempFolder);
+    tempDir.removeRecursively(); // Clean up if exists
+    QDir().mkpath(tempFolder);
+
+    newRobot.setRobotDataDir(tempFolder.toStdString());
+    robotDataDirs[newRobot.getId()] = tempFolder;
+
+
     populateTreeView(newRobot);
-
-/*
-
-    if (!templateObject.isEmpty())
-    {
-        // Populate data in the model
-        populateTreeView(templateObject);
     }
 
-*/
+    }
+    catch (const std::runtime_error& e) {
+        qWarning() << "Failed to Create new robot :" << e.what();
+    }
+
+
 }
 
 void MainWindow::on_actionOpenFromDevice_triggered()
@@ -262,60 +335,6 @@ void MainWindow::on_actionOpenFromDevice_triggered()
         return;
     }
 
-
-    /*
-    // Open the JSON file from the device and populate the data in the TreeView.
-
-    QString filePath = QFileDialog::getOpenFileName(this, "Open JSON", "", "JSON Files (*.json)");
-    if (!filePath.isEmpty())
-    {
-        qDebug() << "Opening from: " << filePath;
-
-
-        try
-        {
-            
-            // Load the robot from the file
-            Robot robot = robotLib.loadFromFile(filePath.toStdString());
-
-            robotLib.printData();
-           
-
-            // Populate data in the model
-            populateTreeView(robot);
-
-        }
-        catch (const std::runtime_error &e)
-        {
-            qWarning() << "Failed to load robot data from JSON file: " << e.what();
-            return;
-        }
-        */
-        /*
-        // Print the robotLib object to see the data.
-        robotLib.printData();
-
-
-
-        QJsonObject jsonObject;
-
-        if (jsonObject.isEmpty())
-        {
-            qWarning() << "Given JSON object is empty";
-            return;
-        }
-
-        if (!jsonObject.contains(RobotKeys::Robot) || !jsonObject[RobotKeys::Robot].isObject())
-        {
-            qWarning() << "Invalid JSON: Missing or invalid 'Robot' object";
-            return;
-        }
-
-        // Populate data in the model
-        populateTreeView(jsonObject);
-        */
-
-   // }
 }
 
 void MainWindow::on_actionImportFromVisualComponent_triggered()
@@ -323,7 +342,7 @@ void MainWindow::on_actionImportFromVisualComponent_triggered()
     // Open the VCMX file and extract the data to create a new Robot.
 
     
-    QString initialDir = "D://Faizan_Ahmed/Visual Component Sample data/All Components/Components";
+    QString initialDir = QDir::homePath();
 
 
     QString filePath = QFileDialog::getOpenFileName(this, "Open VCMX", initialDir, "VCMX Files (*.vcmx)");
@@ -345,18 +364,53 @@ void MainWindow::on_actionImportFromVisualComponent_triggered()
 				QString outputDir = parentDir + "/" + baseName;
 				QString robotDataDir = outputDir + "/RobotData";
 
-                // store on the robot
-                newRobot.setRobotDataDir(robotDataDir.toStdString());
 
-				if (QDir(robotDataDir).exists()) {
-					loadObjFiles(robotDataDir);
+
+				// 2. Create a temporary folder. I am making this temp folder because when we save the .re file , we will use this folder and also when processing multiple robots.
+                QString tempFolder = QDir::temp().absoluteFilePath(QFileInfo(baseName).baseName() + "_re_temp");
+                QDir tempDir(tempFolder);
+                tempDir.removeRecursively(); // Clean up if exists
+                QDir().mkpath(tempFolder);
+
+
+
+
+                qDebug() << "Temp folder path:" << tempFolder;
+
+                if (!robotDataDir.isEmpty() && QDir(robotDataDir).exists()) {
+
+                    if (!copyDirectoryRecursively(robotDataDir, tempFolder)) {
+                        qWarning() << "Failed to copy RobotData from" << robotDataDir << "to" << tempFolder;
+                    }
+                }
+
+
+                // Copy all OBJ/MTL files to robotDataDir
+                // (Assume robotLib provides a way to get the list of OBJ files, or scan the extracted folder)
+                QStringList objFiles;
+                QDir srcDir(parentDir + "/" + baseName + "/RobotData");
+                for (const QFileInfo& fi : srcDir.entryInfoList(QStringList() << "*.obj", QDir::Files)) {
+                    QString dest = robotDataDir + "/" + fi.fileName();
+                    objFiles << dest;
+                 
+                }
+                newRobot.setRobotDataDir(tempFolder.toStdString());
+                robotObjFiles[newRobot.getId()] = objFiles;
+                robotDataDirs[newRobot.getId()] = tempFolder;
+
+				// Remove RobotDataDir
+                QDir robotDir(robotDataDir);
+                robotDir.removeRecursively(); // Clean up if exists
+
+
+				if (QDir(tempFolder).exists()) {
+					loadObjFiles(tempFolder);
 				}
 
 			}
 
             populateTreeView(newRobot);
 
-			//
 
 		}
         catch (const std::runtime_error &e)
@@ -371,7 +425,7 @@ void MainWindow::on_actionImportFromVisualComponent_triggered()
 // this function is temporary function for testing
 void MainWindow::on_actionImportFromVisualComponentFolder_triggered()
 {
-    QString initialDir = "D://Faizan_Ahmed/Visual Component Sample data/All Components/Extracted/Good/ABB/IRB 260_30_156";
+    QString initialDir = QDir::homePath();
 
     QString folderPath = QFileDialog::getExistingDirectory(this, "Select Folder", initialDir);
  
@@ -389,14 +443,53 @@ void MainWindow::on_actionImportFromVisualComponentFolder_triggered()
 
             if (newRobot.getId()) {
 
-            
+                QFileInfo dirInfo(folderPath);
+
+                QString baseName = dirInfo.baseName();      // Folder name only
+                
                 QString robotDataDir = folderPath + "/RobotData";
 
-                // store on the robot
-                newRobot.setRobotDataDir(robotDataDir.toStdString());
 
-                if (QDir(robotDataDir).exists()) {
-                    loadObjFiles(robotDataDir);
+                // 2. Create a temporary folder. I am making this temp folder because when we save the .re file , 
+                // we will use this folder and also when processing multiple robots.
+                QString tempFolder = QDir::temp().absoluteFilePath(QFileInfo(baseName).baseName() + "_re_temp");
+                QDir tempDir(tempFolder);
+                tempDir.removeRecursively(); // Clean up if exists
+                QDir().mkpath(tempFolder);
+
+
+
+
+                qDebug() << "Temp folder path:" << tempFolder;
+
+                if (!robotDataDir.isEmpty() && QDir(robotDataDir).exists()) {
+
+                    if (!copyDirectoryRecursively(robotDataDir, tempFolder)) {
+                        qWarning() << "Failed to copy RobotData from" << robotDataDir << "to" << tempFolder;
+                    }
+                }
+
+
+                // Copy all OBJ/MTL files to robotDataDir
+                // (Assume robotLib provides a way to get the list of OBJ files, or scan the extracted folder)
+                QStringList objFiles;
+                QDir srcDir(robotDataDir);
+                for (const QFileInfo& fi : srcDir.entryInfoList(QStringList() << "*.obj", QDir::Files)) {
+                    QString dest = robotDataDir + "/" + fi.fileName();
+                    objFiles << dest;
+
+                }
+                newRobot.setRobotDataDir(tempFolder.toStdString());
+                robotObjFiles[newRobot.getId()] = objFiles;
+                robotDataDirs[newRobot.getId()] = tempFolder;
+
+                // Remove RobotDataDir
+                QDir robotDir(robotDataDir);
+                robotDir.removeRecursively(); // Clean up if exists
+
+
+                if (QDir(tempFolder).exists()) {
+                    loadObjFiles(tempFolder);
                 }
 
             }
@@ -448,6 +541,7 @@ void MainWindow::on_actionRotateModel_triggered()
 
 void MainWindow::on_actionJointVisualization_triggered()
 {
+
     QModelIndex currentIndex = ui->treeView->currentIndex();
     if (!currentIndex.isValid())
     {
@@ -462,36 +556,48 @@ void MainWindow::on_actionJointVisualization_triggered()
         return;
     }
 
+
+    QStandardItem* parentRobotItem = getParentRobotItem(currentItem);
+    if (!parentRobotItem) return;
+    int robotId = getRobotId(parentRobotItem);
+    QString robotDataDir = getRobotDataDir(parentRobotItem);
+    if (robotId < 0 || robotDataDir.isEmpty()) return;
+
+
     QString filePath = QFileDialog::getOpenFileName(this, "Select OBJ File", "", "OBJ Files (*.obj)");
-    if (!filePath.isEmpty())
-    {
 
-        // Get the parent robot item
-        QStandardItem *parentRobotItem = getParentRobotItem(currentItem);
-        if (parentRobotItem && parentRobotItem == activeRobotItem)
-        {
+    if (filePath.isEmpty()) return;
 
-            // First Delete the current OBJ file if it exists
-            //deleteCurrentObjFile(currentItem);
+    // Copy OBJ/MTL to robotDataDir
+    QDir().mkpath(robotDataDir);
+    QString destObj = robotDataDir + "/" + QFileInfo(filePath).fileName();
+    QFile::copy(filePath, destObj);
+    QString mtlSrc = QFileInfo(filePath).absolutePath() + "/" + QFileInfo(filePath).baseName() + ".mtl";
+    QString mtlDest = robotDataDir + "/" + QFileInfo(filePath).baseName() + ".mtl";
+    if (QFile::exists(mtlSrc)) QFile::copy(mtlSrc, mtlDest);
 
-            QString fileName = QFileInfo(filePath).fileName();
-            QStandardItem* meshNameItem = new QStandardItem(fileName);
-            meshNameItem->setFlags(meshNameItem->flags() & ~Qt::ItemIsEditable);
-            QStandardItem* meshPathItem = new QStandardItem(filePath);
-            meshPathItem->setFlags(meshPathItem->flags() & ~Qt::ItemIsEditable);
-            currentItem->appendRow(QList<QStandardItem*>() << meshNameItem << meshPathItem);
+    robotObjFiles[robotId] << destObj;
+
+   if (parentRobotItem == activeRobotItem)
+   {
+
+        QStandardItem* meshNameItem = new QStandardItem(destObj);
+        meshNameItem->setFlags(meshNameItem->flags() & ~Qt::ItemIsEditable);
+        QStandardItem* meshPathItem = new QStandardItem(destObj);
+        meshPathItem->setFlags(meshPathItem->flags() & ~Qt::ItemIsEditable);
+        currentItem->appendRow(QList<QStandardItem*>() << meshNameItem << meshPathItem);
 
 
-            // Call the loadSingleObjFile function with the selected file path
-            QJsonObject jsonObject;
-            jsonObject["filePath"] = filePath;
-            loadSingleObjFile(jsonObject);
+        // Call the loadSingleObjFile function with the selected file path
+        QJsonObject jsonObject;
+        jsonObject["filePath"] = destObj;
+        loadSingleObjFile(jsonObject);
 
             
-            ui->treeView->expand(model->indexFromItem(currentItem));
-        }
+        ui->treeView->expand(model->indexFromItem(currentItem));
+   }
 
-    }
+    
 }
 
 void MainWindow::on_actionDeleteAll_triggered()
@@ -682,38 +788,6 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const Joint &joint)
         loadSingleObjFile(jsonObject);
     }
 
-    /*
-    // Loading visualization
-    QStandardItem *visualizationItem = new QStandardItem(QIcon(":/Resources/Icons/robot-dynamics.png"), JointKeys::Visualization);
-    visualizationItem->setFlags(visualizationItem->flags() & ~Qt::ItemIsEditable); // Make the item non-editable
-    QStandardItem *visualizationPathItem = new QStandardItem(QString::fromStdString(joint.getVisualization()));
-    visualizationPathItem->setFlags(visualizationPathItem->flags() & ~Qt::ItemIsEditable);
-    singleJointItem->appendRow(QList<QStandardItem *>() << visualizationItem << visualizationPathItem);
-
-    if (!joint.getVisualization().empty())
-    {
-        // Call the loadSingleObjFile function with the selected file path
-        QJsonObject jsonObject;
-        
-        jsonObject["filePath"] = QString::fromStdString(joint.getVisualization());
-
-            
-        QJsonArray translationArray;
-        for (const auto &value : joint.getTranslation()) {
-            translationArray.append(value);
-        }
-        jsonObject["translation"] = translationArray;
-
-   
-        QJsonArray rotationArray;
-        for (const auto &value : joint.getRotation()) {
-            rotationArray.append(value);
-        }
-        jsonObject["rotation"] = rotationArray;
-
-        loadSingleObjFile(jsonObject);
-    }
-    */
 }
 
 
@@ -809,6 +883,7 @@ void MainWindow::deleteCurrentRobot()
         return;
     }
 
+    int robotId = getRobotId(currentItem);
     if (currentItem == activeRobotItem)
     {
         activeRobotItem = nullptr;
@@ -817,9 +892,9 @@ void MainWindow::deleteCurrentRobot()
     }
 
     // Remove the selected robot item
-    QString robotName = currentItem->text();
+    removeRobotObjFiles(robotId);
     model->removeRow(currentItem->row(), currentItem->parent() ? currentItem->parent()->index() : QModelIndex());
-    qDebug() << "Deleted robot: " << robotName;
+    
 }
 
 void MainWindow::deleteCurrentJoint()
@@ -1679,7 +1754,10 @@ QStringList MainWindow::collectVisualizationPaths(QStandardItem* robotItem)
 }
 
 
-// small helper
+/****************** Helper functions ******************/
+
+
+
 bool MainWindow::copyDirectoryRecursively(const QString& srcPath, const QString& dstPath)
 {
     QDir src(srcPath);
@@ -1703,3 +1781,111 @@ bool MainWindow::copyDirectoryRecursively(const QString& srcPath, const QString&
     }
     return true;
 }
+
+
+// This Helper function is responsible to save the current robot data into a .re package.
+
+bool MainWindow::saveRobot(QStandardItem* robotItem, const QString& targetPath)
+{
+    if (!robotItem || robotItem->text() != RobotKeys::Robot)
+    {
+        qWarning() << "Invalid or non-robot item provided.";
+        return false;
+    }
+
+    // Ask user if no path provided
+    QString reFilePath = targetPath;
+    if (reFilePath.isEmpty())
+    {
+        reFilePath = QFileDialog::getSaveFileName(
+            this,
+            "Save Robot Editor Package",
+            QDir::homePath() + "/MyRobot",
+            "Robot Editor Package (*.re)"
+        );
+        if (reFilePath.isEmpty())
+            return false;
+
+        if (!reFilePath.endsWith(".re", Qt::CaseInsensitive))
+            reFilePath += ".re";
+    }
+
+    const QString srcRobotDataDir = robotItem->data(Qt::UserRole + 2).toString();
+    if (srcRobotDataDir.isEmpty())
+    {
+        qWarning() << "Source robot data directory missing.";
+        return false;
+    }
+
+    QString robotDataFilePath = srcRobotDataDir + '/' + "RobotData.json";
+
+    // Save JSON data
+    saveToJson(robotDataFilePath, robotItem);
+
+    // Zip package
+    std::string tempReFileStd = robotLib.zipRobotPackage(srcRobotDataDir.toStdString());
+    QString tempReFile = QString::fromStdString(tempReFileStd);
+
+    // Move final .re
+    if (QFile::exists(reFilePath)) {
+        QFile::remove(reFilePath);
+    }
+    bool moved = QFile::rename(tempReFile, reFilePath);
+
+    // Clean up
+    QDir tempDir(srcRobotDataDir);
+    tempDir.removeRecursively();
+
+    if (moved && QFile::exists(reFilePath)) {
+        QMessageBox::information(this, "Success", "Robot package saved as: " + reFilePath);
+        return true;
+    }
+    else {
+        QMessageBox::warning(this, "Error", "Failed to create Robot package.");
+        return false;
+    }
+}
+
+
+
+
+
+// Helper: Get robot ID from QStandardItem
+int MainWindow::getRobotId(QStandardItem* robotItem) const {
+    return robotItem ? robotItem->data(Qt::UserRole + 1).toInt() : -1;
+}
+
+// Helper: Get robot data dir from QStandardItem
+QString MainWindow::getRobotDataDir(QStandardItem* robotItem) const {
+    return robotItem ? robotItem->data(Qt::UserRole + 2).toString() : QString();
+}
+
+
+
+// Load OBJ files for a robot into the 3D viewer
+void MainWindow::loadRobotObjFiles(int robotId) {
+    remove3DModel(); // Remove any previous entities for this robot
+    if (!robotObjFiles.contains(robotId)) return;
+    for (const QString& filePath : robotObjFiles[robotId]) {
+        QJsonObject jsonObject;
+        jsonObject["filePath"] = filePath;
+        loadSingleObjFile(jsonObject);
+    }
+    view->setRootEntity(rootEntity);
+}
+
+// Remove OBJ files from disk and internal structures
+void MainWindow::removeRobotObjFiles(int robotId) {
+    if (!robotObjFiles.contains(robotId)) return;
+    for (const QString& filePath : robotObjFiles[robotId]) {
+        QFile::remove(filePath);
+        QString mtlPath = QFileInfo(filePath).absolutePath() + "/" + QFileInfo(filePath).baseName() + ".mtl";
+        QFile::remove(mtlPath);
+    }
+    robotObjFiles.remove(robotId);
+    if (robotDataDirs.contains(robotId)) {
+        QDir(robotDataDirs[robotId]).removeRecursively();
+        robotDataDirs.remove(robotId);
+    }
+}
+

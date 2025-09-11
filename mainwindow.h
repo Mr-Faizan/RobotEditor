@@ -109,6 +109,9 @@ private:
     Qt3DRender::QCamera *camera;
     QTimer *rotationTimer;      // Timer for rotation
     QMap<QString, Qt3DCore::QEntity*> entityMap; // Map to store the entities for each OBJ file
+    QMap<int, QStringList> robotObjFiles; // robotId -> list of OBJ file paths
+    QMap<int, QString> robotDataDirs;     // robotId -> robot data directory
+
 
     float rotationAngle = 0.0f;        // Current rotation angle
     bool rotating = false;      // Flag to indicate if rotation is enabled 
@@ -130,6 +133,14 @@ private:
 
     QJsonObject modelToJson(QStandardItem *robotItem);
     bool copyDirectoryRecursively(const QString& srcPath, const QString& dstPath);
+
+    bool saveRobot(QStandardItem* robotItem, const QString& targetPath = QString());
+
+
+    void loadRobotObjFiles(int robotId);
+    void removeRobotObjFiles(int robotId);
+    int getRobotId(QStandardItem* robotItem) const;
+    QString getRobotDataDir(QStandardItem* robotItem) const;
 
 
 
