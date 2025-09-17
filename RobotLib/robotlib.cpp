@@ -747,6 +747,7 @@ Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
                 joint.setKinematics(kinematics);
             }
 
+
             // Extract Visualization 
             if (jointData.contains(JointKeys2::Visualization) && jointData[JointKeys2::Visualization].is_array()) {
                 vector<pair<string, string>> visualizations;
@@ -755,6 +756,14 @@ Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
                         string filename = vis["filename"].get<string>();
                         string filepath = vis["filepath"].get<string>();
                         
+                        // how to check if filepath is not empty
+
+                        if (!filepath.empty()) {
+                            visualizations.emplace_back(filename, filepath);
+                        }
+
+
+                        /*
                         // Check for file existence with and without .obj extension
                         if (fs::exists(filepath)) {
                             visualizations.emplace_back(filename, filepath);
@@ -772,6 +781,8 @@ Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
                                 std::cerr << "Warning: Visualization file not found: " << filepath << " or " << filepathWithObj << std::endl;
                             }
                         }
+
+                        */
 
                     }
                 }

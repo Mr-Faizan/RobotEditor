@@ -174,6 +174,7 @@ json dhCalculator::computeDHParameters(const json &inputData)
             if (geometryMatrix.contains(jointName)) {
                 const auto& arr = geometryMatrix.at(jointName);
                 for (const auto& entry : arr) {
+
                     if (entry.contains("Uri")) {
                         geometryUris.push_back(entry.at("Uri").get<std::string>());
                     }
@@ -186,9 +187,10 @@ json dhCalculator::computeDHParameters(const json &inputData)
                 const auto& arr = geometryMatrix.at(jointName);
                 for (const auto& entry : arr) {
                     if (entry.contains("Uri")) {
+                        string userDefinedName = "[User Defined Name]";
                         string filename = entry.at("Uri").get<string>();
-                        string filepath = robotDataDir + "/" + filename;
-                        geometryVisualizations.push_back({ {"filename", filename}, {"filepath", filepath} });
+                       
+                        geometryVisualizations.push_back({ {"filename", userDefinedName}, {"filepath", filename} });
                     }
                 }
             }
