@@ -2,6 +2,35 @@
 #include "./ui_mainwindow.h"
 #include "jsonkeys.h"
 
+
+/*!
+ * \file mainwindow.cpp
+ * \brief Implementation of all UI Implemenation for the RobotEditor application.
+ *
+ * This file contains the implementation of the MainWindow class, which serves as the main user interface
+ * for the RobotEditor application. It provides functionalities for robot management, 3D visualization,
+ * file operations, and user interaction through a tree view and context menus.
+ *
+ * Main features:
+ * - Create, import, open, save, and delete robot configurations.
+ * - Visualize robot models and joints in a 3D scene using Qt3D.
+ * - Edit robot and joint properties via a tree view.
+ * - Export and import robot data in .re package format.
+ * - Support for joint dynamics and kinematics editing.
+ * - Context menu actions for adding/removing joints and payloads.
+ * - JSON serialization and deserialization for robot data.
+ *
+ * \author Faizan Ahmed
+ * \date 2025-09-17
+ *
+ * \see mainwindow.h
+ * \see RobotLib
+ */
+
+ /*!
+  * \brief Constructs the MainWindow object and initializes the UI and 3D playground.
+  * \param parent Pointer to the parent QWidget.
+  */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       rotationAngle(0.0f),
@@ -30,6 +59,9 @@ MainWindow::MainWindow(QWidget *parent)
 
 }
 
+/*!
+ * \brief Destructor for MainWindow. Cleans up UI resources.
+ */
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -37,7 +69,12 @@ MainWindow::~MainWindow()
 
 /****************** Slots Implementation ******************/
 
-// We need to mark one Robot as Active, so that we can only load the 3D Model of the Active Robot.
+/*!
+ * \brief Sets the selected robot as the active robot and loads its 3D model.
+ *
+ * This slot is triggered when the user selects "Set as Active Robot" from the context menu.
+ * It updates the UI to highlight the active robot and loads its associated 3D model.
+ */
 void MainWindow::on_actionActiveRobot_triggered()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -95,7 +132,11 @@ void MainWindow::on_actionActiveRobot_triggered()
     //load3DModel();
 }
 
-
+/*!
+ * \brief Saves the currently selected robot to a .re package.
+ *
+ * This slot is triggered when the user selects "Save Robot" from the context menu.
+ */
 void MainWindow::on_actionSave_triggered()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -109,6 +150,11 @@ void MainWindow::on_actionSave_triggered()
     saveRobot(currentItem);
 }
 
+/*!
+ * \brief Saves all robots in the tree view to .re packages.
+ *
+ * This slot is triggered when the user selects "Save All Robots" from the menu.
+ */
 void MainWindow::on_actionSaveAll_triggered()
 {
     if (!model)
@@ -251,6 +297,12 @@ void MainWindow::on_actionSaveAll_triggered()
 
 */
 
+/*!
+ * \brief Creates a new robot and adds it to the tree view.
+ *
+ * This slot is triggered when the user selects "New Robot" from the context menu.
+ */
+
 void MainWindow::on_actionNewRobot_triggered()
 {
 
@@ -285,6 +337,12 @@ void MainWindow::on_actionNewRobot_triggered()
 
 
 }
+
+/*!
+ * \brief Opens a robot from a .re package file and loads its data and 3D model.
+ *
+ * This slot is triggered when the user selects "Open from Device..." from the context menu.
+ */
 
 void MainWindow::on_actionOpenFromDevice_triggered()
 {
@@ -337,6 +395,11 @@ void MainWindow::on_actionOpenFromDevice_triggered()
 
 }
 
+/*!
+ * \brief Imports a robot from a VCMX file and adds it to the tree view.
+ *
+ * This slot is triggered when the user selects "Import from Visual Component" from the menu.
+ */
 void MainWindow::on_actionImportFromVisualComponent_triggered()
 {
     // Open the VCMX file and extract the data to create a new Robot.
@@ -422,7 +485,11 @@ void MainWindow::on_actionImportFromVisualComponent_triggered()
     }
 }
 
-// this function is temporary function for testing
+/*!
+ * \brief Imports a robot from a folder containing VCMX data and adds it to the tree view.
+ *
+ * This slot is for testing and is triggered when the user selects "Import from Visual Component Folder".
+ */
 void MainWindow::on_actionImportFromVisualComponentFolder_triggered()
 {
     QString initialDir = QDir::homePath();
@@ -509,6 +576,11 @@ void MainWindow::on_actionImportFromVisualComponentFolder_triggered()
 
 }
 
+/*!
+ * \brief Resets the 3D model view to its original camera position and orientation.
+ *
+ * This slot is triggered when the user selects "Reset Model" from the menu.
+ */
 void MainWindow::on_actionResetModel_triggered()
 {
     // commenting this because it creates issue with setting up to original position.
@@ -525,6 +597,12 @@ void MainWindow::on_actionResetModel_triggered()
     camera->setUpVector(QVector3D(0, 1, 0));
 }
 
+/*!
+ * \brief Toggles rotation animation of the 3D model.
+ *
+ * This slot is triggered when the user selects "Rotate Model" from the menu.
+ */
+
 void MainWindow::on_actionRotateModel_triggered()
 {
 
@@ -538,6 +616,12 @@ void MainWindow::on_actionRotateModel_triggered()
         rotationTimer->stop();
     }
 }
+
+/*!
+ * \brief Allows the user to select an OBJ file for joint visualization and loads it into the 3D scene.
+ *
+ * This slot is triggered when the user selects "Select OBJ File" from the context menu.
+ */
 
 void MainWindow::on_actionJointVisualization_triggered()
 {
@@ -604,6 +688,12 @@ void MainWindow::on_actionJointVisualization_triggered()
     
 }
 
+/*!
+ * \brief Deletes all robots from the tree view and removes their 3D models.
+ *
+ * This slot is triggered when the user selects "Delete All Robots" from the menu.
+ */
+
 void MainWindow::on_actionDeleteAll_triggered()
 {
 
@@ -626,6 +716,12 @@ void MainWindow::on_actionDeleteAll_triggered()
 }
 
 /****************** Add Section ******************/
+
+/*!
+ * \brief Adds a new joint to the currently selected robot's joints item.
+ *
+ * This slot is triggered from the context menu under the "Joints" item.
+ */
 
 void MainWindow::addNewJoint()
 {
@@ -661,6 +757,12 @@ void MainWindow::addNewJoint()
     ui->treeView->expand(currentIndex);
 }
 
+/*!
+ * \brief Adds a new dynamics payload to the currently selected joint dynamics item.
+ *
+ * This slot is triggered from the context menu under the "Joint Dynamics" item.
+ */
+
 void MainWindow::addNewDynamics()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -692,7 +794,11 @@ void MainWindow::addNewDynamics()
 }
 
 
-
+/*!
+ * \brief Adds a new joint to the selected robot.
+ * \param jointsItem Pointer to the parent QStandardItem representing the joints.
+ * \param joint The Joint object to add to the tree view.
+ */
 void MainWindow::addJoint(QStandardItem *jointsItem, const Joint &joint)
 {
 
@@ -795,7 +901,12 @@ void MainWindow::addJoint(QStandardItem *jointsItem, const Joint &joint)
 }
 
 
-// This function will add the Payload in the TreeView.
+/*!
+ * \brief Adds a dynamics payload to the specified dynamics item in the tree view.
+ * \param dynamicsItem Pointer to the parent QStandardItem representing the dynamics.
+ * \param dynamics The JointDynamics object to add.
+ */
+
 void MainWindow::addDynamicsPayload(QStandardItem *dynamicsItem, const JointDynamics &dynamics)
 {
     //QStandardItem *payloadItem = new QStandardItem(QString::fromStdString(dynamics.getPayloadNumber()));
@@ -814,7 +925,13 @@ void MainWindow::addDynamicsPayload(QStandardItem *dynamicsItem, const JointDyna
 }
 
 
-// Using this function to handle each row of the TreeView
+/*!
+ * \brief Adds a key-value item to the specified parent item in the tree view.
+ * \param parent Pointer to the parent QStandardItem.
+ * \param key The key string for the item.
+ * \param value The value to display.
+ */
+
 void MainWindow::addItem(QStandardItem *parent, const QString &key, const QVariant &value)
 {
     QStandardItem *keyItem = new QStandardItem(key);
@@ -826,7 +943,12 @@ void MainWindow::addItem(QStandardItem *parent, const QString &key, const QVaria
     parent->appendRow(QList<QStandardItem *>() << keyItem << valueItem);
 }
 
-// This function is used to add the ComboBox Item in the TreeView.
+/*!
+ * \brief Adds a combo box item to the specified parent item in the tree view.
+ * \param parent Pointer to the parent QStandardItem.
+ * \param key The key string for the item.
+ * \param value The default value for the combo box.
+ */
 void MainWindow::addComboBoxItem(QStandardItem *parent, const QString &key, const QString &value)
 {
     QStandardItem *keyItem = new QStandardItem(key);
@@ -865,6 +987,10 @@ void MainWindow::addComboBoxItem(QStandardItem *parent, const QString &key, cons
 
 /****************** Delete Section ******************/
 
+/*!
+ * \brief Deletes the currently selected robot from the tree view and removes its 3D model.
+ */
+
 void MainWindow::deleteCurrentRobot()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -901,6 +1027,9 @@ void MainWindow::deleteCurrentRobot()
     
 }
 
+/*!
+ * \brief Deletes the last joint from the currently selected joints item.
+ */
 void MainWindow::deleteCurrentJoint()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -954,6 +1083,9 @@ void MainWindow::deleteCurrentJoint()
     }
 }
 
+/*!
+ * \brief Deletes the last dynamics payload from the currently selected joint dynamics item.
+ */
 void MainWindow::deleteCurrentPayload()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -986,7 +1118,11 @@ void MainWindow::deleteCurrentPayload()
     }
 }
 
-// This function will delete the current OBJ file from the 3D scene
+/*!
+ * \brief Deletes the current OBJ file from the 3D scene.
+ * \param currentItem Pointer to the QStandardItem representing the visualization item.
+ */
+
 void MainWindow::deleteCurrentObjFile(QStandardItem *currentItem)
 {
     if (currentItem)
@@ -1011,6 +1147,11 @@ void MainWindow::deleteCurrentObjFile(QStandardItem *currentItem)
 }
 
 /****************** Show / Load Section ******************/
+
+/*!
+ * \brief Shows the context menu for the tree view at the specified position.
+ * \param pos The position in the tree view where the menu should be shown.
+ */
 
 void MainWindow::showContextMenu(const QPoint &pos)
 {
@@ -1051,6 +1192,10 @@ void MainWindow::showContextMenu(const QPoint &pos)
 }
 
 
+/*!
+ * \brief Populates the tree view with the data from the specified robot.
+ * \param robot The Robot object whose data will be displayed.
+ */
 
 void MainWindow::populateTreeView(const Robot &robot)
 {
@@ -1122,6 +1267,12 @@ void MainWindow::populateTreeView(const Robot &robot)
 
 // Now trickies part starts with saving JSON in such a way that I can access it later on and able to load the data in TreeView.
 // Not to make any mistake with structure, otherwise it will be surprice for you on loading data.
+
+/*!
+ * \brief Converts the robot item and its children to a QJsonObject for serialization.
+ * \param robotItem Pointer to the QStandardItem representing the robot.
+ * \return QJsonObject containing the robot's data.
+ */
 
 QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
 {
@@ -1328,6 +1479,12 @@ QJsonObject MainWindow::modelToJson(QStandardItem *robotItem)
     return json;
 }
 
+/*!
+ * \brief Saves the robot data to a JSON file.
+ * \param filePath The path to the JSON file.
+ * \param currentItem Pointer to the QStandardItem representing the robot.
+ */
+
 void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
 {
     // Check if the file path and current item are valid
@@ -1367,11 +1524,12 @@ void MainWindow::saveToJson(const QString &filePath, QStandardItem *currentItem)
 /****************** 3D Related Function Implementation ******************/
 
 // Setup the Main Playground for 3D Viewer
-// This function will setup the 3D Playground for the Robot Model Visualization.
+
+/*!
+ * \brief Sets up the 3D playground for robot model visualization.
+ */
 void MainWindow::setup3DPlayground()
 {
-
-  
 
     // First creating 3D window
     view = new Qt3DExtras::Qt3DWindow();
@@ -1422,7 +1580,9 @@ void MainWindow::setup3DPlayground()
 }
 
 // Add the 3D Model to the Scene
-// This function will load the 3D Model from the Resources and add it to the Scene.
+/*!
+ * \brief Loads the 3D model for the active robot into the scene.
+ */
 void MainWindow::load3DModel()
 {
     if (!activeRobotItem)
@@ -1450,7 +1610,9 @@ void MainWindow::load3DModel()
 }
 
 // Remove the 3D Model from the Scene
-// This function will remove the 3D Model from the Scene.
+/*!
+ * \brief Removes the 3D model from the scene.
+ */
 void MainWindow::remove3DModel()
 {
     if (!rootEntity)
@@ -1463,7 +1625,10 @@ void MainWindow::remove3DModel()
     entityMap.clear();
 }
 
-// Load the Mesh files from the Resources
+/*!
+ * \brief Loads all OBJ files from the specified directory into the 3D scene.
+ * \param directoryPath The path to the directory containing OBJ files.
+ */
 void MainWindow::loadObjFiles(const QString &directoryPath)
 {
     QJsonObject jsonObject;
@@ -1492,7 +1657,10 @@ void MainWindow::loadObjFiles(const QString &directoryPath)
     }
 }
 
-// This function will load the single OBJ file and add it to the Scene.
+/*!
+ * \brief Loads a single OBJ file and adds it to the 3D scene.
+ * \param jsonObject QJsonObject containing the file path and optional transformation data.
+ */
 void MainWindow::loadSingleObjFile(const QJsonObject &jsonObject)
 {
     QString filePath = jsonObject["filePath"].toString();
@@ -1626,6 +1794,17 @@ void MainWindow::loadSingleObjFile(const QJsonObject &jsonObject)
 }
 
 // Sample function to parse the MTL file and return colors
+/*!
+ * \brief Parses an MTL file and extracts material properties.
+ * \param mtlFilePath Path to the MTL file.
+ * \param ambient Reference to store the ambient color.
+ * \param diffuse Reference to store the diffuse color.
+ * \param specular Reference to store the specular color.
+ * \param shininess Reference to store the shininess value.
+ * \param transparency Reference to store the transparency value.
+ * \param illumModel Reference to store the illumination model.
+ * \return True if parsing was successful, false otherwise.
+ */
 bool MainWindow::parseMtlFile(const QString &mtlFilePath, QColor &ambient, QColor &diffuse, QColor &specular, float &shininess, float &transparency, int &illumModel)
 {
     QFile mtlFile(mtlFilePath);
@@ -1673,7 +1852,9 @@ bool MainWindow::parseMtlFile(const QString &mtlFilePath, QColor &ambient, QColo
     return true; // Successfully parsed the MTL file
 }
 
-// Update the rotation and translation of the 3D model
+/*!
+ * \brief Updates the rotation and translation of the 3D model for animation.
+ */
 void MainWindow::updateRotation()
 {
     rotationAngle += 1.0f;
@@ -1700,7 +1881,10 @@ void MainWindow::updateRotation()
 
 /****************** Utility Function Implementation ******************/
 
-// This function will check if the current robot is active or not.
+/*!
+ * \brief Checks if the currently selected robot is the active robot.
+ * \return True if the current robot is active, false otherwise.
+ */
 bool MainWindow::isCurrentRobotActive()
 {
     QModelIndex currentIndex = ui->treeView->currentIndex();
@@ -1719,7 +1903,11 @@ bool MainWindow::isCurrentRobotActive()
     return currentItem == activeRobotItem;
 }
 
-// This function will return the parent Robot item of the selected item.
+/*!
+ * \brief Returns the parent robot item of the specified item.
+ * \param item Pointer to the QStandardItem whose parent robot item is to be found.
+ * \return Pointer to the parent robot QStandardItem, or nullptr if not found.
+ */
 QStandardItem *MainWindow::getParentRobotItem(QStandardItem *item)
 {
     while (item)
@@ -1734,7 +1922,11 @@ QStandardItem *MainWindow::getParentRobotItem(QStandardItem *item)
 }
 
 
-// This function will return the path of all visualization files for the selected robot.
+/*!
+ * \brief Collects all visualization file paths for the specified robot.
+ * \param robotItem Pointer to the QStandardItem representing the robot.
+ * \return QStringList of file paths for visualization.
+ */
 QStringList MainWindow::collectVisualizationPaths(QStandardItem* robotItem)
 {
     QStringList filePaths;
@@ -1781,7 +1973,12 @@ QStringList MainWindow::collectVisualizationPaths(QStandardItem* robotItem)
 
 /****************** Helper functions ******************/
 
-
+/*!
+ * \brief Recursively copies the contents of a directory.
+ * \param srcPath Source directory path.
+ * \param dstPath Destination directory path.
+ * \return True if the copy was successful, false otherwise.
+ */
 
 bool MainWindow::copyDirectoryRecursively(const QString& srcPath, const QString& dstPath)
 {
@@ -1808,7 +2005,12 @@ bool MainWindow::copyDirectoryRecursively(const QString& srcPath, const QString&
 }
 
 
-// This Helper function is responsible to save the current robot data into a .re package.
+/*!
+ * \brief Saves the current robot data into a .re package.
+ * \param robotItem Pointer to the QStandardItem representing the robot.
+ * \param targetPath Target path for the .re package file.
+ * \return True if the save was successful, false otherwise.
+ */
 
 bool MainWindow::saveRobot(QStandardItem* robotItem, const QString& targetPath)
 {
@@ -1875,19 +2077,31 @@ bool MainWindow::saveRobot(QStandardItem* robotItem, const QString& targetPath)
 
 
 
-// Helper: Get robot ID from QStandardItem
+/*!
+ * \brief Gets the robot ID from the specified QStandardItem.
+ * \param robotItem Pointer to the QStandardItem representing the robot.
+ * \return The robot ID as an integer, or -1 if not found.
+ */
 int MainWindow::getRobotId(QStandardItem* robotItem) const {
     return robotItem ? robotItem->data(Qt::UserRole + 1).toInt() : -1;
 }
 
-// Helper: Get robot data dir from QStandardItem
+/*!
+ * \brief Gets the robot data directory from the specified QStandardItem.
+ * \param robotItem Pointer to the QStandardItem representing the robot.
+ * \return The robot data directory as a QString.
+ */
 QString MainWindow::getRobotDataDir(QStandardItem* robotItem) const {
     return robotItem ? robotItem->data(Qt::UserRole + 2).toString() : QString();
 }
 
 
 
-// Load OBJ files for a robot into the 3D viewer
+
+/*!
+ * \brief Loads OBJ files for a robot into the 3D viewer.
+ * \param robotId The ID of the robot whose OBJ files should be loaded.
+ */
 void MainWindow::loadRobotObjFiles(int robotId) {
     remove3DModel(); // Remove any previous entities for this robot
     if (!robotObjFiles.contains(robotId)) return;
@@ -1899,7 +2113,10 @@ void MainWindow::loadRobotObjFiles(int robotId) {
     view->setRootEntity(rootEntity);
 }
 
-// Remove OBJ files from disk and internal structures
+/*!
+ * \brief Removes OBJ files for a robot from disk and internal structures.
+ * \param robotId The ID of the robot whose OBJ files should be removed.
+ */
 void MainWindow::removeRobotObjFiles(int robotId) {
     if (!robotObjFiles.contains(robotId)) return;
     for (const QString& filePath : robotObjFiles[robotId]) {
