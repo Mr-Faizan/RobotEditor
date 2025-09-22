@@ -1,8 +1,31 @@
+/**
+ * @file dhcalculator.cpp
+ * @brief Implementation of dhCalculator class for DH parameter calculation and verification.
+ *
+ * This file contains the implementation of the dhCalculator class, which provides methods to
+ * compute Denavit-Hartenberg (DH) parameters, transformation matrices, and verify DH parameters
+ * against robot geometry data. The class reads robot configuration from JSON files, processes
+ * kinematic and geometric data, and outputs results for robot modeling and validation.
+ *
+ * @author Faizan Ahmed
+ * @date 2025-09-17
+ */
+
 #include "dhcalculator.h"
 
+/**
+ * @brief Constructor for dhCalculator.
+ * @param filePath Path to the robot configuration JSON file.
+ */
 dhCalculator::dhCalculator(const std::string &filePath)
     : filePath(filePath) {}
 
+/**
+ * @brief Calculate DH parameters and transformation matrices, and update the JSON file.
+ *
+ * Reads the robot configuration from the JSON file, computes DH parameters for each joint,
+ * calculates transformation matrices, and updates the JSON file with the results.
+ */
 void dhCalculator::calculateDHParameters()
 {
     std::ifstream inputFile(filePath);
@@ -44,6 +67,11 @@ void dhCalculator::calculateDHParameters()
     std::cout << "DH parameters calculation completed successfully and saved to the same file!" << std::endl;
 }
 
+/**
+ * @brief Compute DH parameters for all joints from input JSON data.
+ * @param inputData JSON object containing robot configuration and kinematics.
+ * @return JSON object with computed DH parameters for each joint.
+ */
 json dhCalculator::computeDHParameters(const json &inputData)
 {
     json dhParameters;
@@ -214,11 +242,13 @@ json dhCalculator::computeDHParameters(const json &inputData)
     return dhParameters;
 }
 
-
-
-
 /************************* Homogeneous Transformation matrix calculation Section ********************* */
 
+/**
+ * @brief Compute transformation matrices for all joints from DH parameters.
+ * @param dhParameters JSON object containing DH parameters for each joint.
+ * @return JSON object with updated joint data including translation and rotation.
+ */
 json dhCalculator::computeTransformationMatrix(const json &dhParameters) {
     json updatedJoints;
 
@@ -259,7 +289,14 @@ json dhCalculator::computeTransformationMatrix(const json &dhParameters) {
     return updatedJoints;
 }
 
-// Compute the transformation matrix from DH parameters
+/**
+ * @brief Compute a 4x4 transformation matrix from DH parameters.
+ * @param a Link length.
+ * @param alpha Link twist (degrees).
+ * @param d Link offset.
+ * @param theta Joint angle (degrees).
+ * @return 4x4 transformation matrix.
+ */
 std::vector<std::vector<double>> dhCalculator::computeDHMatrix(double a, double alpha, double d, double theta) {
     std::vector<std::vector<double>> matrix(4, std::vector<double>(4, 0.0));
 
@@ -290,7 +327,11 @@ std::vector<std::vector<double>> dhCalculator::computeDHMatrix(double a, double 
     return matrix;
 }
 
-// Function to extract translation and rotation from the matrix
+/**
+ * @brief Extract translation and rotation (Euler angles) from a transformation matrix.
+ * @param matrix 4x4 transformation matrix.
+ * @return Tuple containing translation array and rotation array (degrees).
+ */
 std::tuple<std::array<double, 3>, std::array<double, 3>> dhCalculator::getTranslationAndRotation(const std::vector<std::vector<double>>& matrix) {
     // Extract translation
     std::array<double, 3> translation = {matrix[0][3], matrix[1][3], matrix[2][3]};
@@ -304,11 +345,12 @@ std::tuple<std::array<double, 3>, std::array<double, 3>> dhCalculator::getTransl
     return {translation, rotation};
 }
 
-
 /************************* DH Parameter Verification Section ********************* */
 
-
-// Function to validate DH parameters against geometryMatrix
+/**
+ * @brief Validate DH parameters against geometryMatrix in the JSON file.
+ * @param filePath Path to the robot configuration JSON file.
+ */
 void dhCalculator::validateDHParameters(const std::string& filePath) {
     // Open and parse the JSON file
     std::ifstream inputFile(filePath);
@@ -359,8 +401,11 @@ void dhCalculator::validateDHParameters(const std::string& filePath) {
     }
 }
 
-
-// Helper function to parse the provided matrix from a string
+/**
+ * @brief Parse a 4x4 matrix from a string.
+ * @param matrixStr String containing matrix values.
+ * @return 4x4 matrix as a vector of vectors.
+ */
 std::vector<std::vector<double>> dhCalculator::parseMatrix(const std::string& matrixStr) {
     std::vector<std::vector<double>> matrix(4, std::vector<double>(4, 0.0));
     std::istringstream iss(matrixStr);
@@ -372,8 +417,13 @@ std::vector<std::vector<double>> dhCalculator::parseMatrix(const std::string& ma
     return matrix;
 }
 
-
-// Compare two matrices with a tolerance
+/**
+ * @brief Compare two 4x4 matrices with a given tolerance.
+ * @param mat1 First matrix.
+ * @param mat2 Second matrix.
+ * @param tolerance Allowed difference between elements.
+ * @return True if matrices are equal within tolerance, false otherwise.
+ */
 bool dhCalculator::compareMatrices(const std::vector<std::vector<double>>& mat1, const std::vector<std::vector<double>>& mat2, double tolerance) {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
