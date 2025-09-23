@@ -1,11 +1,41 @@
+/**
+ * @file robotlib.cpp
+ * @brief Implementation of RobotLib class for robot management, file I/O, and VCMX import.
+ *
+ * This file contains the implementation of the RobotLib class, which provides methods for managing
+ * a collection of robots, loading and saving robot data to JSON, importing robots from VCMX files,
+ * and handling robot package zipping and extraction.
+ *
+ * Main features:
+ * - Manage a collection of Robot objects
+ * - Add, remove, and retrieve robots by name or ID
+ * - Load and save robot data from/to JSON files
+ * - Import robots from VCMX files and parse robot data
+ * - Zip and extract robot package folders
+ * - Print robot and joint data for debugging
+ *
+ * @author Faizan Ahmed
+ * @date 2025-09-19
+ */
+
 #include "robotlib.h"
 
+/**
+ * @brief Default constructor for RobotLib.
+ */
 RobotLib::RobotLib()
 {
 }
 
+/**
+ * @brief Destructor for RobotLib.
+ */
 RobotLib::~RobotLib() {}
 
+/**
+ * @brief Initialize a new Robot with a default joint and dynamics.
+ * @return New Robot object.
+ */
 Robot RobotLib::initializeNewRobot()
 {
     Robot newRobot;
@@ -14,31 +44,49 @@ Robot RobotLib::initializeNewRobot()
     return newRobot;
 }
 
-// Creating a new Robot here because i want to only expose this class to the outside world.
+/**
+ * @brief Create a new Robot object.
+ * @return New Robot object.
+ */
 Robot RobotLib::createRobot()
 {
     Robot robot;
     return robot;
 }
 
+/**
+ * @brief Create a new Joint object.
+ * @return New Joint object.
+ */
 Joint RobotLib::createJoint()
 {
     Joint joint;
-
     return joint;
 }
 
+/**
+ * @brief Create a new JointDynamics object.
+ * @return New JointDynamics object.
+ */
 JointDynamics RobotLib::createDynamics()
 {
     JointDynamics dynamics;
     return dynamics;
 }
 
+/**
+ * @brief Add a Robot to the collection.
+ * @param robot Robot object to add.
+ */
 void RobotLib::addRobot(const Robot &robot)
 {
     robotCollection.push_back(robot);
 }
 
+/**
+ * @brief Remove a Robot from the collection by name.
+ * @param name Name of the robot to remove.
+ */
 void RobotLib::removeRobot(const std::string &name)
 {
     robotCollection.erase(std::remove_if(robotCollection.begin(), robotCollection.end(), [&](const Robot &robot)
@@ -46,6 +94,12 @@ void RobotLib::removeRobot(const std::string &name)
                           robotCollection.end());
 }
 
+/**
+ * @brief Get a Robot by name.
+ * @param name Name of the robot.
+ * @return Reference to the Robot object.
+ * @throws std::runtime_error if not found.
+ */
 Robot &RobotLib::getRobot(const std::string &name)
 {
     for (auto &robot : robotCollection)
@@ -58,6 +112,12 @@ Robot &RobotLib::getRobot(const std::string &name)
     throw std::runtime_error("Robot not found");
 }
 
+/**
+ * @brief Get a Robot by ID.
+ * @param robotId Robot ID.
+ * @return Reference to the Robot object.
+ * @throws std::runtime_error if not found.
+ */
 Robot &RobotLib::getRobotById(int robotId)
 {
     for (auto &robot : robotCollection)
@@ -70,6 +130,11 @@ Robot &RobotLib::getRobotById(int robotId)
     throw std::runtime_error("Robot not found");
 }
 
+/**
+ * @brief Get a Robot by ID (const pointer version).
+ * @param robotId Robot ID.
+ * @return Pointer to the Robot object, or nullptr if not found.
+ */
 const Robot *RobotLib::getRobotById2(int robotId) const
 {
     auto it = std::find_if(robotCollection.begin(), robotCollection.end(), [robotId](const Robot &robot)
@@ -83,12 +148,21 @@ const Robot *RobotLib::getRobotById2(int robotId) const
     return nullptr;
 }
 
+/**
+ * @brief Get the collection of robots.
+ * @return Const reference to the vector of Robot objects.
+ */
 const std::vector<Robot> &RobotLib::getRobots() const
 {
     return robotCollection;
 }
 
-// Function responsible for updating and saving the robot data
+/**
+ * @brief Update and save robot data to a file.
+ * @param filePath Path to the file.
+ * @param json JSON data to save.
+ * @return True if successful, false otherwise.
+ */
 bool RobotLib::updateAndSaveRobotData(const std::string &filePath, const json &json)
 {
     try
@@ -113,7 +187,11 @@ bool RobotLib::updateAndSaveRobotData(const std::string &filePath, const json &j
     }
 }
 
-// Load data from JSON file
+/**
+ * @brief Load a Robot from a JSON file.
+ * @param filePath Path to the file.
+ * @return Loaded Robot object.
+ */
 Robot RobotLib::loadFromFile(const std::string &filePath)
 {
     std::ifstream file(filePath);
@@ -308,7 +386,14 @@ Robot RobotLib::loadFromJson(const json jsonData)
 
     return robot;
 }
-*/
+ */
+
+
+ /**
+  * @brief Get a number value from a JSON object (handles string/number types).
+  * @param value JSON value.
+  * @return Number as double.
+  */
 
 double RobotLib::getNumberFromJson(const json &value)
 {
@@ -326,6 +411,11 @@ double RobotLib::getNumberFromJson(const json &value)
     }
 }
 
+/**
+ * @brief Load a Robot from a JSON object.
+ * @param jsonData JSON data.
+ * @return Loaded Robot object.
+ */
 Robot RobotLib::loadFromJson(const json jsonData)
 {
     // Check if the JSON data is an object and jsonData is valid json
@@ -492,7 +582,12 @@ Robot RobotLib::loadFromJson(const json jsonData)
     return robot;
 }
 
-//
+/**
+ * @brief Save a Robot to a JSON file.
+ * @param filePath Path to the file.
+ * @param robot Robot object to save.
+ * @return True if successful, false otherwise.
+ */
 bool RobotLib::saveToJson(const std::string &filePath, Robot &robot) const
 {
     std::ofstream file(filePath);
@@ -584,6 +679,9 @@ bool RobotLib::saveToJson(const std::string &filePath, Robot &robot) const
     return true;
 }
 
+/**
+ * @brief Print all robot and joint data to the console.
+ */
 void RobotLib::printData() const
 {
     for (const auto &robot : robotCollection)
@@ -645,6 +743,11 @@ void RobotLib::printData() const
     }
 }
 
+/**
+ * @brief Import a robot from a VCMX file.
+ * @param filePath Path to the VCMX file.
+ * @return Imported Robot object.
+ */
 Robot RobotLib::importRobotFromVCMX(const string &filePath)
 {
     Robot newRobot;
@@ -674,9 +777,11 @@ Robot RobotLib::importRobotFromVCMX(const string &filePath)
     return newRobot;
 }
 
-
-
-// Function to parse the robot data from a JSON file and populate a Robot object
+/**
+ * @brief Parse robot data from a VCMX data folder.
+ * @param robotDataFolderPath Path to the robot data folder.
+ * @return Parsed Robot object.
+ */
 Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
 {
 
@@ -806,8 +911,11 @@ Robot RobotLib::parseRobotFromVCMX(const string &robotDataFolderPath)
     return robot;
 }
 
-
-
+/**
+ * @brief Zip a robot package folder into a .re file.
+ * @param folderPath Path to the folder.
+ * @return Path to the .re file.
+ */
 string RobotLib::zipRobotPackage(const string& folderPath)
 {
     namespace fs = std::filesystem;
@@ -845,6 +953,12 @@ string RobotLib::zipRobotPackage(const string& folderPath)
     return reFilePath;
 }
 
+/**
+ * @brief Extract a robot package .re file to a destination directory.
+ * @param reFilePath Path to the .re file.
+ * @param destDir Destination directory.
+ * @return True if successful, false otherwise.
+ */
 bool RobotLib::extractRobotPackage(const std::string& reFilePath, const std::string& destDir)
 {
     namespace fs = std::filesystem;

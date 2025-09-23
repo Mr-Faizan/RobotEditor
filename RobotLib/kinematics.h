@@ -5,39 +5,65 @@
 
 using namespace std;
 
-/*
-Implementation Structure.
-Kinematics can be for the Robot or for the Joints or for the Tools.
-So I will implement the concept of Inheritance for the Kinematics.
-As Kinematics is the base class and JointKinematics is the derived class.
-And I will also implement the concept of Abrstraction and Polymorphism for the Kinematics.
-As Kinematics is the abstract class and it will contain the common functionalities for the Kinematics.
-And JointKinematics, ToolKinematics, and RobotKinematics will implement the common functionalities of the Kinematics.
-And Also can override the functionalities according to their requirements.
+/**
+ * @file kinematics.h
+ * @brief Declaration of Kinematics classes for robot, joint, and tool kinematics calculations.
+ *
+ * This file defines the base class Kinematics and its derived classes JointKinematics, RobotKinematics,
+ * and ToolKinematics. These classes provide an abstraction for calculating kinematic properties for
+ * robots, joints, and tools, using inheritance and polymorphism. JointKinematics includes structures
+ * for DH parameters and rotational values, with methods for setting and getting these properties.
+ *
+ * Main features:
+ * - Abstract base class for kinematics calculations
+ * - Derived classes for joint, robot, and tool kinematics
+ * - Structures for DH parameters and rotational values
+ * - Setters and getters for kinematic properties
+ * - Polymorphic interface for calculating DH parameters
+ *
+ * @author Faizan Ahmed
+ * @date 2025-09-18
+ */
 
-*/
-
-// This class will responsible for handling the functionality that is common in Robot, Joint, and Tool.
+/**
+ * @class Kinematics
+ * @brief Abstract base class for kinematics calculations.
+ *
+ * Provides a pure virtual interface for calculating DH parameters, to be implemented by derived classes.
+ */
 class Kinematics
 {
 public:
+    /**
+     * @brief Pure virtual function to calculate DH parameters.
+     */
     virtual void calculateDhParams() = 0;
 };
 
-// This class will responsible for calculating the Kinematics of the Joint.
+/**
+ * @class JointKinematics
+ * @brief Class for calculating kinematics of robot joints.
+ *
+ * Inherits from Kinematics and provides structures and methods for joint-specific kinematics calculations,
+ * including DH parameters and rotational values.
+ */
 class JointKinematics : public Kinematics
 {
 public:
-    // DH Parameters Structure
+    /**
+     * @struct DHParameters
+     * @brief Structure for Denavit-Hartenberg parameters of a joint.
+     */
     struct DHParameters
     {
-        double alpha;
-        double d;
-        double theta;
-        double a;
-        string dhType;
-        bool modifiedDh;
+        double alpha; /**< Link twist angle. */
+        double d; /**< Link offset. */
+        double theta; /**< Joint angle. */
+        double a; /**< Link length. */
+        string dhType; /**< DH type (standard/modified). */
+        bool modifiedDh; /**< Flag for modified DH convention. */
 
+        /** @brief Default constructor for DHParameters. */
         DHParameters()
         {
             alpha = 0;
@@ -48,6 +74,7 @@ public:
             modifiedDh = false;
         }
 
+        /** @brief Parameterized constructor for DHParameters. */
         DHParameters(double alpha, double d, double theta, double a, const string &dhType, bool modifiedDh)
             : alpha(alpha), d(d), theta(theta), a(a), dhType(dhType), modifiedDh(modifiedDh) {}
 
@@ -68,16 +95,20 @@ public:
         void setModifiedDh(bool modifiedDh) { this->modifiedDh = modifiedDh; }
     };
 
-    // Rotational Values Structure
+    /**
+     * @struct RotationalValues
+     * @brief Structure for rotational inertia values of a joint.
+     */
     struct RotationalValues
     {
-        double ixx;
-        double ixy;
-        double ixz;
-        double iyy;
-        double iyz;
-        double izz;
+        double ixx; /**< Inertia XX. */
+        double ixy; /**< Inertia XY. */
+        double ixz; /**< Inertia XZ. */
+        double iyy; /**< Inertia YY. */
+        double iyz; /**< Inertia YZ. */
+        double izz; /**< Inertia ZZ. */
 
+        /** @brief Default constructor for RotationalValues. */
         RotationalValues()
         {
             ixx = 0;
@@ -88,6 +119,7 @@ public:
             izz = 0;
         }
 
+        /** @brief Parameterized constructor for RotationalValues. */
         RotationalValues(double ixx, double ixy, double ixz, double iyy, double iyz, double izz)
             : ixx(ixx), ixy(ixy), ixz(ixz), iyy(iyy), iyz(iyz), izz(izz) {}
 
@@ -109,12 +141,15 @@ public:
     };
 
 private:
-    DHParameters dhParameters;
-    RotationalValues rotationalValues;
-    string dhType;
-    bool modifiedDh;
+    DHParameters dhParameters; /**< DH parameters for the joint. */
+    RotationalValues rotationalValues; /**< Rotational inertia values for the joint. */
+    string dhType; /**< DH type (standard/modified). */
+    bool modifiedDh; /**< Flag for modified DH convention. */
 
 public:
+    /**
+     * @brief Default constructor for JointKinematics.
+     */
     JointKinematics()
     {
         dhParameters = DHParameters();
@@ -123,45 +158,78 @@ public:
         modifiedDh = false;
     }
 
+    /**
+     * @brief Parameterized constructor for JointKinematics.
+     * @param dhParameters DH parameters structure.
+     * @param rotationalValues Rotational values structure.
+     * @param dhType DH type string.
+     * @param modifiedDh Flag for modified DH convention.
+     */
     JointKinematics(const DHParameters &dhParameters, const RotationalValues &rotationalValues, const string &dhType, bool modifiedDh)
         : dhParameters(dhParameters),
           rotationalValues(rotationalValues),
           dhType(dhType),
           modifiedDh(modifiedDh) {}
 
+    /**
+     * @brief Calculate DH parameters for the joint (override).
+     */
     void calculateDhParams() override
     {
         // Implementation
     }
 
     // Setters
+    /** @brief Set the DH parameters structure. */
     void setDhParameters(const DHParameters &dhParameters) { this->dhParameters = dhParameters; }
+    /** @brief Set the rotational values structure. */
     void setRotationalValues(const RotationalValues &rotationalValues) { this->rotationalValues = rotationalValues; }
+    /** @brief Set the DH type string. */
     void setDhType(const string &dhType) { this->dhType = dhType; }
+    /** @brief Set the modified DH flag. */
     void setModifiedDh(bool modifiedDh) { this->modifiedDh = modifiedDh; }
 
     // Getters
+    /** @brief Get the DH parameters structure. */
     DHParameters getDhParameters() const { return dhParameters; }
+    /** @brief Get the rotational values structure. */
     RotationalValues getRotationalValues() const { return rotationalValues; }
+    /** @brief Get the DH type string. */
     string getDhType() const { return dhType; }
+    /** @brief Get the modified DH flag. */
     bool isModifiedDh() const { return modifiedDh; }
 };
 
-// This class will responsible for calculating the Kinematics of the Robot.
+/**
+ * @class RobotKinematics
+ * @brief Class for calculating kinematics of the robot as a whole.
+ *
+ * Inherits from Kinematics and provides an interface for robot-level kinematics calculations.
+ */
 class RobotKinematics : public Kinematics
 {
 public:
+    /**
+     * @brief Calculate DH parameters for the robot (override).
+     */
     void calculateDhParams() override
     {
         // Implementation
     }
 };
 
-// This class will responsible for calculating the Kinematics of the Tool.
+/**
+ * @class ToolKinematics
+ * @brief Class for calculating kinematics of the tool.
+ *
+ * Inherits from Kinematics and provides an interface for tool-level kinematics calculations.
+ */
 class ToolKinematics : public Kinematics
 {
-
 public:
+    /**
+     * @brief Calculate DH parameters for the tool (override).
+     */
     void calculateDhParams() override
     {
         // Implementation

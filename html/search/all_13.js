@@ -1,29 +1,4 @@
 var searchData=
 [
-  ['readme_2emd_0',['README.md',['../_r_e_a_d_m_e_8md.html',1,'']]],
-  ['remove3dmodel_1',['remove3DModel',['../class_main_window.html#ae82c1487b11d7eded60c4970b980f13f',1,'MainWindow']]],
-  ['removerobotobjfiles_2',['removeRobotObjFiles',['../class_main_window.html#a59dd5bbf2d8eb1aad63ddf4356c58cf9',1,'MainWindow']]],
-  ['repeatabilitypercentage_3',['RepeatabilityPercentage',['../namespace_dynamics_keys.html#ace01f17c5b7e06c08c10e2d8306f9c0c',1,'DynamicsKeys']]],
-  ['repository_4',['Clone the Repository',['../md__r_e_a_d_m_e.html#autotoc_md2',1,'']]],
-  ['responsibilities_5',['Key Classes and Their Responsibilities',['../md__r_e_a_d_m_e.html#autotoc_md12',1,'']]],
-  ['robot_6',['Robot',['../namespace_robot_keys.html#a8693c6a62d20fbf2e0dcc980740864e8',1,'RobotKeys']]],
-  ['robotdatadirs_7',['robotDataDirs',['../class_main_window.html#aab61ac969847bb3a677535b801c865b6',1,'MainWindow']]],
-  ['roboteditor_8',['RobotEditor',['../md__r_e_a_d_m_e.html',1,'']]],
-  ['robotfootprint_9',['RobotFootprint',['../namespace_robot_keys.html#a99111e96f032744a4e2ea941b90083fb',1,'RobotKeys']]],
-  ['robotkeys_10',['RobotKeys',['../namespace_robot_keys.html',1,'']]],
-  ['robotlib_11',['robotLib',['../class_main_window.html#a036347f6b07fed8f8e7fc402186f0995',1,'MainWindow']]],
-  ['robotmanufacturer_12',['RobotManufacturer',['../namespace_robot_keys.html#a7ffe9626f2ce1f5de7946d980f7f8c27',1,'RobotKeys']]],
-  ['robotmaxreach_13',['RobotMaxReach',['../namespace_robot_keys.html#a482ec1e9498d163d918cb98d48fe0380',1,'RobotKeys']]],
-  ['robotname_14',['RobotName',['../namespace_robot_keys.html#ab15aecb92976d386da158833a58c2a48',1,'RobotKeys']]],
-  ['robotobjfiles_15',['robotObjFiles',['../class_main_window.html#aae8f14dd9c34baa1c999d16948745210',1,'MainWindow']]],
-  ['robotpayload_16',['RobotPayload',['../namespace_robot_keys.html#a4bb14aa84c65d5836140af5681c71368',1,'RobotKeys']]],
-  ['robotrepeatability_17',['RobotRepeatability',['../namespace_robot_keys.html#a9b6e50cb7ae593b76f43680c32a4ca65',1,'RobotKeys']]],
-  ['robotweight_18',['RobotWeight',['../namespace_robot_keys.html#a8d2225780f103017ef0e5ca9e45ae69b',1,'RobotKeys']]],
-  ['rootentity_19',['rootEntity',['../class_main_window.html#a9931eb6353a05f0b6ea94028ac6c59b9',1,'MainWindow']]],
-  ['rotating_20',['rotating',['../class_main_window.html#a5b854729d1e514c1447cfcd62d13e95d',1,'MainWindow']]],
-  ['rotationalvalues_21',['RotationalValues',['../namespace_kinematics_keys.html#a147c3792efbe4ec10bbb758f1dcd45da',1,'KinematicsKeys']]],
-  ['rotationalvalueskeys_22',['RotationalValuesKeys',['../namespace_rotational_values_keys.html',1,'']]],
-  ['rotationangle_23',['rotationAngle',['../class_main_window.html#a852fe2ab702ab8b2feb3a7191f2ca198',1,'MainWindow']]],
-  ['rotationtimer_24',['rotationTimer',['../class_main_window.html#a70cc559405b2fc4cce469e6609ca8c86',1,'MainWindow']]],
-  ['run_20the_20application_25',['Run the Application',['../md__r_e_a_d_m_e.html#autotoc_md4',1,'']]]
+  ['_7emainwindow_0',['~MainWindow',['../class_main_window.html#ae98d00a93bc118200eeef9f9bba1dba7',1,'MainWindow']]]
 ];

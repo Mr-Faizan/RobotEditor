@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['h_20files_0',['Headers (.h files)',['../md__r_e_a_d_m_e.html#autotoc_md9',1,'']]],
-  ['headers_20h_20files_1',['Headers (.h files)',['../md__r_e_a_d_m_e.html#autotoc_md9',1,'']]]
+  ['key_20classes_20and_20their_20responsibilities_0',['Key Classes and Their Responsibilities',['../md__r_e_a_d_m_e.html#autotoc_md12',1,'']]],
+  ['kinematics_1',['2. Kinematics',['../md__r_e_a_d_m_e.html#autotoc_md6',1,'']]]
 ];
