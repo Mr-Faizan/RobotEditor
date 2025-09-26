@@ -13,6 +13,35 @@
  * - Zip and extract robot package folders
  * - Print robot and joint data for debugging
  *
+ * 
+ * 
+ * 
+ * @section extlibs External Libraries Used
+ *
+ * - @b nlohmann/json:
+ *   Used for JSON serialization and deserialization throughout the project.
+ *   The header file (json.hpp) is included directly from the nlohmann folder.
+ *   Location: RobotLib/libraries/nlohmann/json.hpp
+ *
+ * - @b miniz:
+ *   Used for zipping and unzipping VCMX files and creating RE package files.
+ *   Source code is in RobotLib/libraries/miniz, and the compiled DLL is in RobotLib/libraries/miniz-install.
+ *   The compiled version is used for faster builds.
+ *   Location: RobotLib/libraries/miniz (source), RobotLib/libraries/miniz-install (compiled)
+ *
+ * - @b Assimp:
+ *   Used to convert 3DS images into OBJ format for 3D visualization in Qt3D.
+ *   Source code is in robotlib/libraries/assimp, and the compiled version is in robotlib/libraries/assimp-install.
+ *   The compiled version is used for faster builds.
+ *   Location: robotlib/libraries/assimp (source), robotlib/libraries/assimp-install (compiled)
+ *
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * @author Faizan Ahmed
  * @date 2025-09-19
  */
