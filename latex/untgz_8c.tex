@@ -1,0 +1,456 @@
+\doxysection{Robot\+Lib/libraries/assimp/contrib/zlib/contrib/untgz/untgz.c File Reference}
+\hypertarget{untgz_8c}{}\label{untgz_8c}\index{RobotLib/libraries/assimp/contrib/zlib/contrib/untgz/untgz.c@{RobotLib/libraries/assimp/contrib/zlib/contrib/untgz/untgz.c}}
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include "{}zlib.\+h"{}}\newline
+{\ttfamily \#include $<$direct.\+h$>$}\newline
+{\ttfamily \#include $<$io.\+h$>$}\newline
+{\ttfamily \#include $<$utime.\+h$>$}\newline
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structtar__header}{tar\+\_\+header}}
+\item 
+union \mbox{\hyperlink{uniontar__buffer}{tar\+\_\+buffer}}
+\item 
+struct \mbox{\hyperlink{structattr__item}{attr\+\_\+item}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{untgz_8c_ab281a9968505af6a7fd8e1ab5d644315}{REGTYPE}}~\textquotesingle{}0\textquotesingle{}            /\texorpdfstring{$\ast$}{*} regular file \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_ae3da8143ed9aec1cc70676b0cfed43b9}{AREGTYPE}}~\textquotesingle{}\textbackslash{}0\textquotesingle{}           /\texorpdfstring{$\ast$}{*} regular file \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_abed033f8c958d678ca08d012280c035b}{LNKTYPE}}~\textquotesingle{}1\textquotesingle{}            /\texorpdfstring{$\ast$}{*} link \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_acc0fdf064ea6654c0b3d7b3387532b3a}{SYMTYPE}}~\textquotesingle{}2\textquotesingle{}            /\texorpdfstring{$\ast$}{*} reserved \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_a28dd96209b4a46bc54a1dcc6c2d7e509}{CHRTYPE}}~\textquotesingle{}3\textquotesingle{}            /\texorpdfstring{$\ast$}{*} character special \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_a0e5080c4d2f99d8b450c9641e7a2d782}{BLKTYPE}}~\textquotesingle{}4\textquotesingle{}            /\texorpdfstring{$\ast$}{*} block special \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_a0e3302f58f5dc2351bf9652780d67817}{DIRTYPE}}~\textquotesingle{}5\textquotesingle{}            /\texorpdfstring{$\ast$}{*} directory \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_a31210800d51897e555db2ab0fe3dd877}{FIFOTYPE}}~\textquotesingle{}6\textquotesingle{}            /\texorpdfstring{$\ast$}{*} FIFO special \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_a26cf8d896ecbc3cf464f476f15128bf4}{CONTTYPE}}~\textquotesingle{}7\textquotesingle{}            /\texorpdfstring{$\ast$}{*} reserved \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_a8041e7c58409d726544f56967b394e6d}{GNUTYPE\+\_\+\+DUMPDIR}}~\textquotesingle{}D\textquotesingle{}    /\texorpdfstring{$\ast$}{*} file names from dumped directory \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_a9913dd5ed1892bc3fb060bfcfc1dc4fc}{GNUTYPE\+\_\+\+LONGLINK}}~\textquotesingle{}K\textquotesingle{}    /\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} link name \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_ab4353486603b895a6ea0ae74720039a7}{GNUTYPE\+\_\+\+LONGNAME}}~\textquotesingle{}L\textquotesingle{}    /\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} file name \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_a7fdbdd9c450f35ed38b4a22b54e5fae7}{GNUTYPE\+\_\+\+MULTIVOL}}~\textquotesingle{}M\textquotesingle{}    /\texorpdfstring{$\ast$}{*} continuation of file from \mbox{\hyperlink{structanother}{another}} volume \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_a27dc05675119686354c0d815289ffb7d}{GNUTYPE\+\_\+\+NAMES}}~\textquotesingle{}\mbox{\hyperlink{crc32_8c_a0240ac851181b84ac374872dc5434ee4}{N}}\textquotesingle{}    /\texorpdfstring{$\ast$}{*} file name that does not fit into \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_c_make_files_23_830_85_2_compiler_id_c_2_c_make_c_compiler_id_8c_a0ddf1224851353fc92bfbff6f499fa97}{main}} hdr \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_ab1159037db4f083974b07159c000e39a}{GNUTYPE\+\_\+\+SPARSE}}~\textquotesingle{}S\textquotesingle{}    /\texorpdfstring{$\ast$}{*} sparse file \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_adb5b1bf66c87ecf1f5c929d297b4cbc9}{GNUTYPE\+\_\+\+VOLHDR}}~\textquotesingle{}V\textquotesingle{}    /\texorpdfstring{$\ast$}{*} tape/volume header \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{untgz_8c_afcf795f5a96fd55561abe69f56224630}{BLOCKSIZE}}~512
+\item 
+\#define \mbox{\hyperlink{untgz_8c_a6ef8405cfb025d60bec1616ad4602624}{SHORTNAMESIZE}}~100
+\item 
+\#define \mbox{\hyperlink{untgz_8c_a728a5b7916fcf21dc800a8ecddb524d4}{ISSPECIAL}}(c)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \mbox{\hyperlink{untgz_8c_ab1432394ab05d073e9852a52e864ddb2ad6db2e1b393ffbf362aa0b1208901716}{TGZ\+\_\+\+EXTRACT}}
+, \mbox{\hyperlink{untgz_8c_ab1432394ab05d073e9852a52e864ddb2a9ea35259f6251fb47f7ba7024cb157a2}{TGZ\+\_\+\+LIST}}
+, \mbox{\hyperlink{untgz_8c_ab1432394ab05d073e9852a52e864ddb2aaa64330800ed3192a730e9016503bfc1}{TGZ\+\_\+\+INVALID}}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{untgz_8c_aa9cb2671621bf8e7b86e70a02d3a1e9c}{TGZfname}} \mbox{\hyperlink{untgz_8c_a1201de5ba48e99f8a8bb23094ed38086}{OF}} ((\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}))
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a4700d4ed9d8db8b471c43cbcdd8c4665}{getoct}} \mbox{\hyperlink{untgz_8c_a03be57aae48cde85cf0aa8440765da2c}{OF}} ((char \texorpdfstring{$\ast$}{*}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}))
+\item 
+char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{untgz_8c_a05b4b77806d89359a3d2b253bee1635d}{strtime}} \mbox{\hyperlink{untgz_8c_a0b674f2d22c358f0ebd3bea7bca44d8a}{OF}} ((time\+\_\+t \texorpdfstring{$\ast$}{*}))
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a1f7f8d6380a6fa4fa8d91e416f5a781e}{setfiletime}} \mbox{\hyperlink{untgz_8c_ac40fa49d9470da3cd9605e6e0a5205ad}{OF}} ((char \texorpdfstring{$\ast$}{*}, time\+\_\+t))
+\item 
+void \mbox{\hyperlink{untgz_8c_ae2eaff67f0e304012ec2dc4aa47cb365}{push\+\_\+attr}} \mbox{\hyperlink{untgz_8c_aa359f11798ef6f8c971e0961013ec0fe}{OF}} ((struct \mbox{\hyperlink{structattr__item}{attr\+\_\+item}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}, char \texorpdfstring{$\ast$}{*}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, time\+\_\+t))
+\item 
+void \mbox{\hyperlink{untgz_8c_ab39911cfbd086317da5170752d9831c7}{restore\+\_\+attr}} \mbox{\hyperlink{untgz_8c_a02a8ad016dd6d501ecdc58c041a302c3}{OF}} ((struct \mbox{\hyperlink{structattr__item}{attr\+\_\+item}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}))
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_ae048f0becffca578df65f8c1fdc6bd01}{Expr\+Match}} \mbox{\hyperlink{untgz_8c_a713fd8088d247a35aa8dfd1a75a196ee}{OF}} ((char \texorpdfstring{$\ast$}{*}, char \texorpdfstring{$\ast$}{*}))
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a9c6519cd0cfaa546c03810d16b47fe95}{makedir}} \mbox{\hyperlink{untgz_8c_a4d5255d7c6a5f8466b0f86841cb84c02}{OF}} ((char \texorpdfstring{$\ast$}{*}))
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_ac2f730c538c61e5eccfbc9b41a180c8d}{matchname}} \mbox{\hyperlink{untgz_8c_a8158d7804cc0f3ce7a4f11f71998f988}{OF}} ((\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}, char \texorpdfstring{$\ast$}{*}))
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a4f188db970388538f26ba71c65fecc97}{tar}} \mbox{\hyperlink{untgz_8c_a435a1dfc3cc6e580cf37a1e5977487bb}{OF}} ((\mbox{\hyperlink{zlib_8h_a8e80bd9e2c359bc5bdabb2e97b4e62bf}{gz\+File}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}))
+\item 
+void \mbox{\hyperlink{untgz_8c_ac1f344e77a999d20853b986ba65fd421}{help}} \mbox{\hyperlink{untgz_8c_a81260c563dc194d1af53df81d4d96cc8}{OF}} ((\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}))
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_c_make_files_23_830_85_2_compiler_id_c_2_c_make_c_compiler_id_8c_a0ddf1224851353fc92bfbff6f499fa97}{main}} \mbox{\hyperlink{untgz_8c_af464bb5889cd7cd526b5f5876ce0c245}{OF}} ((\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}))
+\item 
+char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{untgz_8c_aa9cb2671621bf8e7b86e70a02d3a1e9c}{TGZfname}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}arcname)
+\item 
+void \mbox{\hyperlink{untgz_8c_a0a4b38e4ae7de091a53a5ccef1a3ad0b}{TGZnotfound}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}arcname)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a4700d4ed9d8db8b471c43cbcdd8c4665}{getoct}} (char \texorpdfstring{$\ast$}{*}p, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{_robot_lib_2libraries_2assimp_2samples_2_simple_textured_directx11_2_simple_textured_directx11_2main_8cpp_ad598a0e5734df551bb72c55719dd3f9c}{width}})
+\item 
+char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{untgz_8c_a05b4b77806d89359a3d2b253bee1635d}{strtime}} (time\+\_\+t \texorpdfstring{$\ast$}{*}t)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a1f7f8d6380a6fa4fa8d91e416f5a781e}{setfiletime}} (char \texorpdfstring{$\ast$}{*}fname, time\+\_\+t ftime)
+\item 
+void \mbox{\hyperlink{untgz_8c_ae2eaff67f0e304012ec2dc4aa47cb365}{push\+\_\+attr}} (struct \mbox{\hyperlink{structattr__item}{attr\+\_\+item}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}list, char \texorpdfstring{$\ast$}{*}fname, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}}, time\+\_\+t time)
+\item 
+void \mbox{\hyperlink{untgz_8c_ab39911cfbd086317da5170752d9831c7}{restore\+\_\+attr}} (struct \mbox{\hyperlink{structattr__item}{attr\+\_\+item}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}list)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_ae048f0becffca578df65f8c1fdc6bd01}{Expr\+Match}} (char \texorpdfstring{$\ast$}{*}string, char \texorpdfstring{$\ast$}{*}expr)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a9c6519cd0cfaa546c03810d16b47fe95}{makedir}} (char \texorpdfstring{$\ast$}{*}newdir)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_ac2f730c538c61e5eccfbc9b41a180c8d}{matchname}} (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} arg, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv, char \texorpdfstring{$\ast$}{*}fname)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a4f188db970388538f26ba71c65fecc97}{tar}} (\mbox{\hyperlink{zlib_8h_a8e80bd9e2c359bc5bdabb2e97b4e62bf}{gz\+File}} in, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} action, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} arg, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv)
+\item 
+void \mbox{\hyperlink{untgz_8c_ac1f344e77a999d20853b986ba65fd421}{help}} (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} exitval)
+\item 
+void \mbox{\hyperlink{untgz_8c_a4866b2d37ffc80c5ba705d3fcd1e0ecf}{error}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}msg)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a3c04138a5bfe5d72780bb7e82a18e627}{main}} (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{untgz_8c_acc6113e98e7cd24d9dcfa520749a5d3f}{prog}}
+\item 
+\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{untgz_8c_af91f1085bb79dd29812ae7697248ef83}{TGZsuffix}} \mbox{[}$\,$\mbox{]} = \{ "{}\textbackslash{}0"{}, "{}.tar"{}, "{}.tar.\+gz"{}, "{}.taz"{}, "{}.tgz"{}, NULL \}
+\end{DoxyCompactItemize}
+
+
+\label{doc-define-members}
+\Hypertarget{untgz_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{untgz_8c_ae3da8143ed9aec1cc70676b0cfed43b9}\index{untgz.c@{untgz.c}!AREGTYPE@{AREGTYPE}}
+\index{AREGTYPE@{AREGTYPE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{AREGTYPE}{AREGTYPE}}
+{\footnotesize\ttfamily \label{untgz_8c_ae3da8143ed9aec1cc70676b0cfed43b9} 
+\#define AREGTYPE~\textquotesingle{}\textbackslash{}0\textquotesingle{}           /\texorpdfstring{$\ast$}{*} regular file \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_a0e5080c4d2f99d8b450c9641e7a2d782}\index{untgz.c@{untgz.c}!BLKTYPE@{BLKTYPE}}
+\index{BLKTYPE@{BLKTYPE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{BLKTYPE}{BLKTYPE}}
+{\footnotesize\ttfamily \label{untgz_8c_a0e5080c4d2f99d8b450c9641e7a2d782} 
+\#define BLKTYPE~\textquotesingle{}4\textquotesingle{}            /\texorpdfstring{$\ast$}{*} block special \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_afcf795f5a96fd55561abe69f56224630}\index{untgz.c@{untgz.c}!BLOCKSIZE@{BLOCKSIZE}}
+\index{BLOCKSIZE@{BLOCKSIZE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{BLOCKSIZE}{BLOCKSIZE}}
+{\footnotesize\ttfamily \label{untgz_8c_afcf795f5a96fd55561abe69f56224630} 
+\#define BLOCKSIZE~512}
+
+\Hypertarget{untgz_8c_a28dd96209b4a46bc54a1dcc6c2d7e509}\index{untgz.c@{untgz.c}!CHRTYPE@{CHRTYPE}}
+\index{CHRTYPE@{CHRTYPE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{CHRTYPE}{CHRTYPE}}
+{\footnotesize\ttfamily \label{untgz_8c_a28dd96209b4a46bc54a1dcc6c2d7e509} 
+\#define CHRTYPE~\textquotesingle{}3\textquotesingle{}            /\texorpdfstring{$\ast$}{*} character special \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_a26cf8d896ecbc3cf464f476f15128bf4}\index{untgz.c@{untgz.c}!CONTTYPE@{CONTTYPE}}
+\index{CONTTYPE@{CONTTYPE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{CONTTYPE}{CONTTYPE}}
+{\footnotesize\ttfamily \label{untgz_8c_a26cf8d896ecbc3cf464f476f15128bf4} 
+\#define CONTTYPE~\textquotesingle{}7\textquotesingle{}            /\texorpdfstring{$\ast$}{*} reserved \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_a0e3302f58f5dc2351bf9652780d67817}\index{untgz.c@{untgz.c}!DIRTYPE@{DIRTYPE}}
+\index{DIRTYPE@{DIRTYPE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{DIRTYPE}{DIRTYPE}}
+{\footnotesize\ttfamily \label{untgz_8c_a0e3302f58f5dc2351bf9652780d67817} 
+\#define DIRTYPE~\textquotesingle{}5\textquotesingle{}            /\texorpdfstring{$\ast$}{*} directory \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_a31210800d51897e555db2ab0fe3dd877}\index{untgz.c@{untgz.c}!FIFOTYPE@{FIFOTYPE}}
+\index{FIFOTYPE@{FIFOTYPE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{FIFOTYPE}{FIFOTYPE}}
+{\footnotesize\ttfamily \label{untgz_8c_a31210800d51897e555db2ab0fe3dd877} 
+\#define FIFOTYPE~\textquotesingle{}6\textquotesingle{}            /\texorpdfstring{$\ast$}{*} FIFO special \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_a8041e7c58409d726544f56967b394e6d}\index{untgz.c@{untgz.c}!GNUTYPE\_DUMPDIR@{GNUTYPE\_DUMPDIR}}
+\index{GNUTYPE\_DUMPDIR@{GNUTYPE\_DUMPDIR}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{GNUTYPE\_DUMPDIR}{GNUTYPE\_DUMPDIR}}
+{\footnotesize\ttfamily \label{untgz_8c_a8041e7c58409d726544f56967b394e6d} 
+\#define GNUTYPE\+\_\+\+DUMPDIR~\textquotesingle{}D\textquotesingle{}    /\texorpdfstring{$\ast$}{*} file names from dumped directory \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_a9913dd5ed1892bc3fb060bfcfc1dc4fc}\index{untgz.c@{untgz.c}!GNUTYPE\_LONGLINK@{GNUTYPE\_LONGLINK}}
+\index{GNUTYPE\_LONGLINK@{GNUTYPE\_LONGLINK}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{GNUTYPE\_LONGLINK}{GNUTYPE\_LONGLINK}}
+{\footnotesize\ttfamily \label{untgz_8c_a9913dd5ed1892bc3fb060bfcfc1dc4fc} 
+\#define GNUTYPE\+\_\+\+LONGLINK~\textquotesingle{}K\textquotesingle{}    /\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} link name \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_ab4353486603b895a6ea0ae74720039a7}\index{untgz.c@{untgz.c}!GNUTYPE\_LONGNAME@{GNUTYPE\_LONGNAME}}
+\index{GNUTYPE\_LONGNAME@{GNUTYPE\_LONGNAME}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{GNUTYPE\_LONGNAME}{GNUTYPE\_LONGNAME}}
+{\footnotesize\ttfamily \label{untgz_8c_ab4353486603b895a6ea0ae74720039a7} 
+\#define GNUTYPE\+\_\+\+LONGNAME~\textquotesingle{}L\textquotesingle{}    /\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} file name \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_a7fdbdd9c450f35ed38b4a22b54e5fae7}\index{untgz.c@{untgz.c}!GNUTYPE\_MULTIVOL@{GNUTYPE\_MULTIVOL}}
+\index{GNUTYPE\_MULTIVOL@{GNUTYPE\_MULTIVOL}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{GNUTYPE\_MULTIVOL}{GNUTYPE\_MULTIVOL}}
+{\footnotesize\ttfamily \label{untgz_8c_a7fdbdd9c450f35ed38b4a22b54e5fae7} 
+\#define GNUTYPE\+\_\+\+MULTIVOL~\textquotesingle{}M\textquotesingle{}    /\texorpdfstring{$\ast$}{*} continuation of file from \mbox{\hyperlink{structanother}{another}} volume \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_a27dc05675119686354c0d815289ffb7d}\index{untgz.c@{untgz.c}!GNUTYPE\_NAMES@{GNUTYPE\_NAMES}}
+\index{GNUTYPE\_NAMES@{GNUTYPE\_NAMES}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{GNUTYPE\_NAMES}{GNUTYPE\_NAMES}}
+{\footnotesize\ttfamily \label{untgz_8c_a27dc05675119686354c0d815289ffb7d} 
+\#define GNUTYPE\+\_\+\+NAMES~\textquotesingle{}\mbox{\hyperlink{crc32_8c_a0240ac851181b84ac374872dc5434ee4}{N}}\textquotesingle{}    /\texorpdfstring{$\ast$}{*} file name that does not fit into \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_c_make_files_23_830_85_2_compiler_id_c_2_c_make_c_compiler_id_8c_a0ddf1224851353fc92bfbff6f499fa97}{main}} hdr \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_ab1159037db4f083974b07159c000e39a}\index{untgz.c@{untgz.c}!GNUTYPE\_SPARSE@{GNUTYPE\_SPARSE}}
+\index{GNUTYPE\_SPARSE@{GNUTYPE\_SPARSE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{GNUTYPE\_SPARSE}{GNUTYPE\_SPARSE}}
+{\footnotesize\ttfamily \label{untgz_8c_ab1159037db4f083974b07159c000e39a} 
+\#define GNUTYPE\+\_\+\+SPARSE~\textquotesingle{}S\textquotesingle{}    /\texorpdfstring{$\ast$}{*} sparse file \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_adb5b1bf66c87ecf1f5c929d297b4cbc9}\index{untgz.c@{untgz.c}!GNUTYPE\_VOLHDR@{GNUTYPE\_VOLHDR}}
+\index{GNUTYPE\_VOLHDR@{GNUTYPE\_VOLHDR}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{GNUTYPE\_VOLHDR}{GNUTYPE\_VOLHDR}}
+{\footnotesize\ttfamily \label{untgz_8c_adb5b1bf66c87ecf1f5c929d297b4cbc9} 
+\#define GNUTYPE\+\_\+\+VOLHDR~\textquotesingle{}V\textquotesingle{}    /\texorpdfstring{$\ast$}{*} tape/volume header \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_a728a5b7916fcf21dc800a8ecddb524d4}\index{untgz.c@{untgz.c}!ISSPECIAL@{ISSPECIAL}}
+\index{ISSPECIAL@{ISSPECIAL}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{ISSPECIAL}{ISSPECIAL}}
+{\footnotesize\ttfamily \label{untgz_8c_a728a5b7916fcf21dc800a8ecddb524d4} 
+\#define ISSPECIAL(\begin{DoxyParamCaption}\item[{}]{c}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(((c)\ ==\ \textcolor{charliteral}{'*'})\ ||\ ((c)\ ==\ \textcolor{charliteral}{'/'}))}
+
+\end{DoxyCode}
+\Hypertarget{untgz_8c_abed033f8c958d678ca08d012280c035b}\index{untgz.c@{untgz.c}!LNKTYPE@{LNKTYPE}}
+\index{LNKTYPE@{LNKTYPE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{LNKTYPE}{LNKTYPE}}
+{\footnotesize\ttfamily \label{untgz_8c_abed033f8c958d678ca08d012280c035b} 
+\#define LNKTYPE~\textquotesingle{}1\textquotesingle{}            /\texorpdfstring{$\ast$}{*} link \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_ab281a9968505af6a7fd8e1ab5d644315}\index{untgz.c@{untgz.c}!REGTYPE@{REGTYPE}}
+\index{REGTYPE@{REGTYPE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{REGTYPE}{REGTYPE}}
+{\footnotesize\ttfamily \label{untgz_8c_ab281a9968505af6a7fd8e1ab5d644315} 
+\#define REGTYPE~\textquotesingle{}0\textquotesingle{}            /\texorpdfstring{$\ast$}{*} regular file \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{untgz_8c_a6ef8405cfb025d60bec1616ad4602624}\index{untgz.c@{untgz.c}!SHORTNAMESIZE@{SHORTNAMESIZE}}
+\index{SHORTNAMESIZE@{SHORTNAMESIZE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{SHORTNAMESIZE}{SHORTNAMESIZE}}
+{\footnotesize\ttfamily \label{untgz_8c_a6ef8405cfb025d60bec1616ad4602624} 
+\#define SHORTNAMESIZE~100}
+
+\Hypertarget{untgz_8c_acc0fdf064ea6654c0b3d7b3387532b3a}\index{untgz.c@{untgz.c}!SYMTYPE@{SYMTYPE}}
+\index{SYMTYPE@{SYMTYPE}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{SYMTYPE}{SYMTYPE}}
+{\footnotesize\ttfamily \label{untgz_8c_acc0fdf064ea6654c0b3d7b3387532b3a} 
+\#define SYMTYPE~\textquotesingle{}2\textquotesingle{}            /\texorpdfstring{$\ast$}{*} reserved \texorpdfstring{$\ast$}{*}/}
+
+
+
+\label{doc-enum-members}
+\Hypertarget{untgz_8c_doc-enum-members}
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{untgz_8c_ab1432394ab05d073e9852a52e864ddb2}\doxysubsubsection{\texorpdfstring{anonymous enum}{anonymous enum}}
+{\footnotesize\ttfamily \label{untgz_8c_ab1432394ab05d073e9852a52e864ddb2} 
+anonymous enum}
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TGZ\_EXTRACT@{TGZ\_EXTRACT}!untgz.c@{untgz.c}}\index{untgz.c@{untgz.c}!TGZ\_EXTRACT@{TGZ\_EXTRACT}}}\Hypertarget{untgz_8c_ab1432394ab05d073e9852a52e864ddb2ad6db2e1b393ffbf362aa0b1208901716}\label{untgz_8c_ab1432394ab05d073e9852a52e864ddb2ad6db2e1b393ffbf362aa0b1208901716} 
+TGZ\+\_\+\+EXTRACT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TGZ\_LIST@{TGZ\_LIST}!untgz.c@{untgz.c}}\index{untgz.c@{untgz.c}!TGZ\_LIST@{TGZ\_LIST}}}\Hypertarget{untgz_8c_ab1432394ab05d073e9852a52e864ddb2a9ea35259f6251fb47f7ba7024cb157a2}\label{untgz_8c_ab1432394ab05d073e9852a52e864ddb2a9ea35259f6251fb47f7ba7024cb157a2} 
+TGZ\+\_\+\+LIST&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TGZ\_INVALID@{TGZ\_INVALID}!untgz.c@{untgz.c}}\index{untgz.c@{untgz.c}!TGZ\_INVALID@{TGZ\_INVALID}}}\Hypertarget{untgz_8c_ab1432394ab05d073e9852a52e864ddb2aaa64330800ed3192a730e9016503bfc1}\label{untgz_8c_ab1432394ab05d073e9852a52e864ddb2aaa64330800ed3192a730e9016503bfc1} 
+TGZ\+\_\+\+INVALID&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\label{doc-func-members}
+\Hypertarget{untgz_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{untgz_8c_a4866b2d37ffc80c5ba705d3fcd1e0ecf}\index{untgz.c@{untgz.c}!error@{error}}
+\index{error@{error}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{error()}{error()}}
+{\footnotesize\ttfamily \label{untgz_8c_a4866b2d37ffc80c5ba705d3fcd1e0ecf} 
+void error (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}}]{msg}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_ae048f0becffca578df65f8c1fdc6bd01}\index{untgz.c@{untgz.c}!ExprMatch@{ExprMatch}}
+\index{ExprMatch@{ExprMatch}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{ExprMatch()}{ExprMatch()}}
+{\footnotesize\ttfamily \label{untgz_8c_ae048f0becffca578df65f8c1fdc6bd01} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} Expr\+Match (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{string}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{expr}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a4700d4ed9d8db8b471c43cbcdd8c4665}\index{untgz.c@{untgz.c}!getoct@{getoct}}
+\index{getoct@{getoct}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{getoct()}{getoct()}}
+{\footnotesize\ttfamily \label{untgz_8c_a4700d4ed9d8db8b471c43cbcdd8c4665} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} getoct (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{p}{, }\item[{\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}}]{width}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_ac1f344e77a999d20853b986ba65fd421}\index{untgz.c@{untgz.c}!help@{help}}
+\index{help@{help}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{help()}{help()}}
+{\footnotesize\ttfamily \label{untgz_8c_ac1f344e77a999d20853b986ba65fd421} 
+void help (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}}]{exitval}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a3c04138a5bfe5d72780bb7e82a18e627}\index{untgz.c@{untgz.c}!main@{main}}
+\index{main@{main}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily \label{untgz_8c_a3c04138a5bfe5d72780bb7e82a18e627} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} main (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}}]{argc}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{argv}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a9c6519cd0cfaa546c03810d16b47fe95}\index{untgz.c@{untgz.c}!makedir@{makedir}}
+\index{makedir@{makedir}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{makedir()}{makedir()}}
+{\footnotesize\ttfamily \label{untgz_8c_a9c6519cd0cfaa546c03810d16b47fe95} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} makedir (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{newdir}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_ac2f730c538c61e5eccfbc9b41a180c8d}\index{untgz.c@{untgz.c}!matchname@{matchname}}
+\index{matchname@{matchname}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{matchname()}{matchname()}}
+{\footnotesize\ttfamily \label{untgz_8c_ac2f730c538c61e5eccfbc9b41a180c8d} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} matchname (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}}]{arg}{, }\item[{\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}}]{argc}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{argv}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{fname}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a4d5255d7c6a5f8466b0f86841cb84c02}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [1/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_a4d5255d7c6a5f8466b0f86841cb84c02} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a9c6519cd0cfaa546c03810d16b47fe95}{makedir}} OF (\begin{DoxyParamCaption}\item[{(char \texorpdfstring{$\ast$}{*})}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a713fd8088d247a35aa8dfd1a75a196ee}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [2/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_a713fd8088d247a35aa8dfd1a75a196ee} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_ae048f0becffca578df65f8c1fdc6bd01}{Expr\+Match}} OF (\begin{DoxyParamCaption}\item[{(char \texorpdfstring{$\ast$}{*}, char \texorpdfstring{$\ast$}{*})}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a03be57aae48cde85cf0aa8440765da2c}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [3/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_a03be57aae48cde85cf0aa8440765da2c} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a4700d4ed9d8db8b471c43cbcdd8c4665}{getoct}} OF (\begin{DoxyParamCaption}\item[{(char \texorpdfstring{$\ast$}{*}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}})}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_ac40fa49d9470da3cd9605e6e0a5205ad}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [4/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_ac40fa49d9470da3cd9605e6e0a5205ad} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a1f7f8d6380a6fa4fa8d91e416f5a781e}{setfiletime}} OF (\begin{DoxyParamCaption}\item[{(char \texorpdfstring{$\ast$}{*}, time\+\_\+t)}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a1201de5ba48e99f8a8bb23094ed38086}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [5/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_a1201de5ba48e99f8a8bb23094ed38086} 
+char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{untgz_8c_aa9cb2671621bf8e7b86e70a02d3a1e9c}{TGZfname}} OF (\begin{DoxyParamCaption}\item[{(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*})}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a435a1dfc3cc6e580cf37a1e5977487bb}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [6/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_a435a1dfc3cc6e580cf37a1e5977487bb} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_a4f188db970388538f26ba71c65fecc97}{tar}} OF (\begin{DoxyParamCaption}\item[{(\mbox{\hyperlink{zlib_8h_a8e80bd9e2c359bc5bdabb2e97b4e62bf}{gz\+File}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*})}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a81260c563dc194d1af53df81d4d96cc8}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [7/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_a81260c563dc194d1af53df81d4d96cc8} 
+void \mbox{\hyperlink{untgz_8c_ac1f344e77a999d20853b986ba65fd421}{help}} OF (\begin{DoxyParamCaption}\item[{(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}})}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_af464bb5889cd7cd526b5f5876ce0c245}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [8/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_af464bb5889cd7cd526b5f5876ce0c245} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_c_make_files_23_830_85_2_compiler_id_c_2_c_make_c_compiler_id_8c_a0ddf1224851353fc92bfbff6f499fa97}{main}} OF (\begin{DoxyParamCaption}\item[{(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*})}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a8158d7804cc0f3ce7a4f11f71998f988}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [9/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_a8158d7804cc0f3ce7a4f11f71998f988} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{untgz_8c_ac2f730c538c61e5eccfbc9b41a180c8d}{matchname}} OF (\begin{DoxyParamCaption}\item[{(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}, char \texorpdfstring{$\ast$}{*})}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a02a8ad016dd6d501ecdc58c041a302c3}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [10/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_a02a8ad016dd6d501ecdc58c041a302c3} 
+void \mbox{\hyperlink{untgz_8c_ab39911cfbd086317da5170752d9831c7}{restore\+\_\+attr}} OF (\begin{DoxyParamCaption}\item[{(struct \mbox{\hyperlink{structattr__item}{attr\+\_\+item}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*})}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_aa359f11798ef6f8c971e0961013ec0fe}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [11/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_aa359f11798ef6f8c971e0961013ec0fe} 
+void \mbox{\hyperlink{untgz_8c_ae2eaff67f0e304012ec2dc4aa47cb365}{push\+\_\+attr}} OF (\begin{DoxyParamCaption}\item[{(struct \mbox{\hyperlink{structattr__item}{attr\+\_\+item}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}, char \texorpdfstring{$\ast$}{*}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}, time\+\_\+t)}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a0b674f2d22c358f0ebd3bea7bca44d8a}\index{untgz.c@{untgz.c}!OF@{OF}}
+\index{OF@{OF}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{OF()}{OF()}\hspace{0.1cm}{\footnotesize\ttfamily [12/12]}}
+{\footnotesize\ttfamily \label{untgz_8c_a0b674f2d22c358f0ebd3bea7bca44d8a} 
+char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{untgz_8c_a05b4b77806d89359a3d2b253bee1635d}{strtime}} OF (\begin{DoxyParamCaption}\item[{(time\+\_\+t \texorpdfstring{$\ast$}{*})}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_ae2eaff67f0e304012ec2dc4aa47cb365}\index{untgz.c@{untgz.c}!push\_attr@{push\_attr}}
+\index{push\_attr@{push\_attr}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{push\_attr()}{push\_attr()}}
+{\footnotesize\ttfamily \label{untgz_8c_ae2eaff67f0e304012ec2dc4aa47cb365} 
+void push\+\_\+attr (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structattr__item}{attr\+\_\+item}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{list}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{fname}{, }\item[{\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}}]{mode}{, }\item[{time\+\_\+t}]{time}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_ab39911cfbd086317da5170752d9831c7}\index{untgz.c@{untgz.c}!restore\_attr@{restore\_attr}}
+\index{restore\_attr@{restore\_attr}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{restore\_attr()}{restore\_attr()}}
+{\footnotesize\ttfamily \label{untgz_8c_ab39911cfbd086317da5170752d9831c7} 
+void restore\+\_\+attr (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structattr__item}{attr\+\_\+item}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{list}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a1f7f8d6380a6fa4fa8d91e416f5a781e}\index{untgz.c@{untgz.c}!setfiletime@{setfiletime}}
+\index{setfiletime@{setfiletime}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{setfiletime()}{setfiletime()}}
+{\footnotesize\ttfamily \label{untgz_8c_a1f7f8d6380a6fa4fa8d91e416f5a781e} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} setfiletime (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{fname}{, }\item[{time\+\_\+t}]{ftime}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a05b4b77806d89359a3d2b253bee1635d}\index{untgz.c@{untgz.c}!strtime@{strtime}}
+\index{strtime@{strtime}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{strtime()}{strtime()}}
+{\footnotesize\ttfamily \label{untgz_8c_a05b4b77806d89359a3d2b253bee1635d} 
+char \texorpdfstring{$\ast$}{*} strtime (\begin{DoxyParamCaption}\item[{time\+\_\+t \texorpdfstring{$\ast$}{*}}]{t}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a4f188db970388538f26ba71c65fecc97}\index{untgz.c@{untgz.c}!tar@{tar}}
+\index{tar@{tar}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{tar()}{tar()}}
+{\footnotesize\ttfamily \label{untgz_8c_a4f188db970388538f26ba71c65fecc97} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} tar (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{zlib_8h_a8e80bd9e2c359bc5bdabb2e97b4e62bf}{gz\+File}}}]{in}{, }\item[{\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}}]{action}{, }\item[{\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}}]{arg}{, }\item[{\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}}]{argc}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{argv}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_aa9cb2671621bf8e7b86e70a02d3a1e9c}\index{untgz.c@{untgz.c}!TGZfname@{TGZfname}}
+\index{TGZfname@{TGZfname}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{TGZfname()}{TGZfname()}}
+{\footnotesize\ttfamily \label{untgz_8c_aa9cb2671621bf8e7b86e70a02d3a1e9c} 
+char \texorpdfstring{$\ast$}{*} TGZfname (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}}]{arcname}{}\end{DoxyParamCaption})}
+
+\Hypertarget{untgz_8c_a0a4b38e4ae7de091a53a5ccef1a3ad0b}\index{untgz.c@{untgz.c}!TGZnotfound@{TGZnotfound}}
+\index{TGZnotfound@{TGZnotfound}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{TGZnotfound()}{TGZnotfound()}}
+{\footnotesize\ttfamily \label{untgz_8c_a0a4b38e4ae7de091a53a5ccef1a3ad0b} 
+void TGZnotfound (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}}]{arcname}{}\end{DoxyParamCaption})}
+
+
+
+\label{doc-var-members}
+\Hypertarget{untgz_8c_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{untgz_8c_acc6113e98e7cd24d9dcfa520749a5d3f}\index{untgz.c@{untgz.c}!prog@{prog}}
+\index{prog@{prog}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{prog}{prog}}
+{\footnotesize\ttfamily \label{untgz_8c_acc6113e98e7cd24d9dcfa520749a5d3f} 
+char\texorpdfstring{$\ast$}{*} prog}
+
+\Hypertarget{untgz_8c_af91f1085bb79dd29812ae7697248ef83}\index{untgz.c@{untgz.c}!TGZsuffix@{TGZsuffix}}
+\index{TGZsuffix@{TGZsuffix}!untgz.c@{untgz.c}}
+\doxysubsubsection{\texorpdfstring{TGZsuffix}{TGZsuffix}}
+{\footnotesize\ttfamily \label{untgz_8c_af91f1085bb79dd29812ae7697248ef83} 
+\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char\texorpdfstring{$\ast$}{*} TGZsuffix\mbox{[}$\,$\mbox{]} = \{ "{}\textbackslash{}0"{}, "{}.tar"{}, "{}.tar.\+gz"{}, "{}.taz"{}, "{}.tgz"{}, NULL \}}
+

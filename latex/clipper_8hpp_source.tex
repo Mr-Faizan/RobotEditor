@@ -1,0 +1,412 @@
+\doxysection{clipper.\+hpp}
+\hypertarget{clipper_8hpp_source}{}\label{clipper_8hpp_source}\index{RobotLib/libraries/assimp/contrib/clipper/clipper.hpp@{RobotLib/libraries/assimp/contrib/clipper/clipper.hpp}}
+\mbox{\hyperlink{clipper_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*******************************************************************************}}
+\DoxyCodeLine{00002\ \textcolor{comment}{*\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00003\ \textcolor{comment}{*\ Author\ \ \ \ :\ \ Angus\ Johnson\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{*\ Version\ \ \ :\ \ 6.4.2\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00005\ \textcolor{comment}{*\ Date\ \ \ \ \ \ :\ \ 27\ February\ 2017\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{*\ Website\ \ \ :\ \ http://www.angusj.com\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00007\ \textcolor{comment}{*\ Copyright\ :\ \ Angus\ Johnson\ 2010-\/2017\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00008\ \textcolor{comment}{*\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00009\ \textcolor{comment}{*\ License:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00010\ \textcolor{comment}{*\ Use,\ modification\ \&\ distribution\ is\ subject\ to\ Boost\ Software\ License\ Ver\ 1.\ *}}
+\DoxyCodeLine{00011\ \textcolor{comment}{*\ http://www.boost.org/LICENSE\_1\_0.txt\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00012\ \textcolor{comment}{*\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00013\ \textcolor{comment}{*\ Attributions:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00014\ \textcolor{comment}{*\ The\ code\ in\ this\ library\ is\ an\ extension\ of\ Bala\ Vatti's\ clipping\ algorithm:\ *}}
+\DoxyCodeLine{00015\ \textcolor{comment}{*\ "{}A\ generic\ solution\ to\ polygon\ clipping"{}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00016\ \textcolor{comment}{*\ Communications\ of\ the\ ACM,\ Vol\ 35,\ Issue\ 7\ (July\ 1992)\ pp\ 56-\/63.\ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00017\ \textcolor{comment}{*\ http://portal.acm.org/citation.cfm?id=129906\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00018\ \textcolor{comment}{*\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00019\ \textcolor{comment}{*\ Computer\ graphics\ and\ geometric\ modeling:\ implementation\ and\ algorithms\ \ \ \ \ \ *}}
+\DoxyCodeLine{00020\ \textcolor{comment}{*\ By\ Max\ K.\ Agoston\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00021\ \textcolor{comment}{*\ Springer;\ 1\ edition\ (January\ 4,\ 2005)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00022\ \textcolor{comment}{*\ http://books.google.com/books?q=vatti+clipping+agoston\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00023\ \textcolor{comment}{*\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00024\ \textcolor{comment}{*\ See\ also:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00025\ \textcolor{comment}{*\ "{}Polygon\ Offsetting\ by\ Computing\ Winding\ Numbers"{}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00026\ \textcolor{comment}{*\ Paper\ no.\ DETC2005-\/85513\ pp.\ 565-\/575\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00027\ \textcolor{comment}{*\ ASME\ 2005\ International\ Design\ Engineering\ Technical\ Conferences\ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00028\ \textcolor{comment}{*\ and\ Computers\ and\ Information\ in\ Engineering\ Conference\ (IDETC/CIE2005)\ \ \ \ \ \ *}}
+\DoxyCodeLine{00029\ \textcolor{comment}{*\ September\ 24-\/28,\ 2005\ ,\ Long\ Beach,\ California,\ USA\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00030\ \textcolor{comment}{*\ http://www.me.berkeley.edu/\string~mcmains/pubs/DAC05OffsetPolygon.pdf\ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00031\ \textcolor{comment}{*\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00032\ \textcolor{comment}{*******************************************************************************/}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \textcolor{preprocessor}{\#ifndef\ clipper\_hpp}}
+\DoxyCodeLine{00035\ \textcolor{preprocessor}{\#define\ clipper\_hpp}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{preprocessor}{\#define\ CLIPPER\_VERSION\ "{}6.4.2"{}}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \textcolor{comment}{//use\_int32:\ When\ enabled\ 32bit\ ints\ are\ used\ instead\ of\ 64bit\ ints.\ This}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//improve\ performance\ but\ coordinate\ values\ are\ limited\ to\ the\ range\ +/-\/\ 46340}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\#define\ use\_int32}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{comment}{//use\_xyz:\ adds\ a\ Z\ member\ to\ IntPoint.\ Adds\ a\ minor\ cost\ to\ perfomance.}}
+\DoxyCodeLine{00044\ \textcolor{comment}{//\#define\ use\_xyz}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{comment}{//use\_lines:\ Enables\ line\ clipping.\ Adds\ a\ very\ minor\ cost\ to\ performance.}}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#define\ use\_lines}}
+\DoxyCodeLine{00048\ \ \ }
+\DoxyCodeLine{00049\ \textcolor{comment}{//use\_deprecated:\ Enables\ temporary\ support\ for\ the\ obsolete\ functions}}
+\DoxyCodeLine{00050\ \textcolor{comment}{//\#define\ use\_deprecated\ \ }}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#include\ <list>}}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#include\ <set>}}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#include\ <stdexcept>}}
+\DoxyCodeLine{00056\ \textcolor{preprocessor}{\#include\ <cstring>}}
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#include\ <cstdlib>}}
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\#include\ <ostream>}}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#include\ <functional>}}
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\#include\ <queue>}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_clipper_lib}{ClipperLib}}\ \{}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespace_clipper_lib_a3db4fddd50b81ba657107505821d7f46}{ClipType}}\ \{\ \mbox{\hyperlink{namespace_clipper_lib_a3db4fddd50b81ba657107505821d7f46a7ab04c0263f5c01a93330dc199a1ca42}{ctIntersection}},\ \mbox{\hyperlink{namespace_clipper_lib_a3db4fddd50b81ba657107505821d7f46abb57d8284f7bf1cd7b902eae5b93c310}{ctUnion}},\ \mbox{\hyperlink{namespace_clipper_lib_a3db4fddd50b81ba657107505821d7f46aef270504062ea1abce903af4f5be2eee}{ctDifference}},\ \mbox{\hyperlink{namespace_clipper_lib_a3db4fddd50b81ba657107505821d7f46a728726741bb2063fbb913073c5883dfe}{ctXor}}\ \};}
+\DoxyCodeLine{00065\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespace_clipper_lib_a50d662440e5e100070014ed91281e960}{PolyType}}\ \{\ \mbox{\hyperlink{namespace_clipper_lib_a50d662440e5e100070014ed91281e960a67607ff4c7ca5fca8302236ff9a575b6}{ptSubject}},\ \mbox{\hyperlink{namespace_clipper_lib_a50d662440e5e100070014ed91281e960a33152b07d096815ff64f4aeab67f0335}{ptClip}}\ \};}
+\DoxyCodeLine{00066\ \textcolor{comment}{//By\ far\ the\ most\ widely\ used\ winding\ rules\ for\ polygon\ filling\ are}}
+\DoxyCodeLine{00067\ \textcolor{comment}{//EvenOdd\ \&\ NonZero\ (GDI,\ GDI+,\ XLib,\ OpenGL,\ Cairo,\ AGG,\ Quartz,\ SVG,\ Gr32)}}
+\DoxyCodeLine{00068\ \textcolor{comment}{//Others\ rules\ include\ Positive,\ Negative\ and\ ABS\_GTR\_EQ\_TWO\ (only\ in\ OpenGL)}}
+\DoxyCodeLine{00069\ \textcolor{comment}{//see\ http://glprogramming.com/red/chapter11.html}}
+\DoxyCodeLine{00070\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ \{\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7acede4475518a377720537448c7b2df73}{pftEvenOdd}},\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7adbcce0eea52e627fc8ced2a93b7947ab}{pftNonZero}},\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7a681ce5d4d05aff1ae01842b970fe7fe8}{pftPositive}},\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7a02692db143e5586a360eb686c5d1b7c2}{pftNegative}}\ \};}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \textcolor{preprocessor}{\#ifdef\ use\_int32}}
+\DoxyCodeLine{00073\ \ \ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}};}
+\DoxyCodeLine{00074\ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ \textcolor{keyword}{const}\ loRange\ =\ 0x7FFF;}
+\DoxyCodeLine{00075\ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ \textcolor{keyword}{const}\ hiRange\ =\ 0x7FFF;}
+\DoxyCodeLine{00076\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00077\ \ \ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{signed}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}};}
+\DoxyCodeLine{00078\ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ \textcolor{keyword}{const}\ loRange\ =\ 0x3FFFFFFF;}
+\DoxyCodeLine{00079\ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ \textcolor{keyword}{const}\ hiRange\ =\ 0x3FFFFFFFFFFFFFFFLL;}
+\DoxyCodeLine{00080\ \ \ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{signed}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{namespace_clipper_lib_a7fd564bf34d174b6c96e07d01e5e7a0a}{long64}};\ \ \ \ \ \textcolor{comment}{//used\ by\ Int128\ class}}
+\DoxyCodeLine{00081\ \ \ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{namespace_clipper_lib_a031fec5e97eb7e08708f1cafa53a232d}{ulong64}};}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a819e71f9269e99f151a3a99c4283cd43}{IntPoint}}\ \{}
+\DoxyCodeLine{00086\ \ \ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a608d16d39c8762e6c3c0a688efb310b6}{X}};}
+\DoxyCodeLine{00087\ \ \ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a8445d190cd9013bb34d49b5a8a240425}{Y}};}
+\DoxyCodeLine{00088\ \textcolor{preprocessor}{\#ifdef\ use\_xyz}}
+\DoxyCodeLine{00089\ \ \ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ Z;}
+\DoxyCodeLine{00090\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a819e71f9269e99f151a3a99c4283cd43}{IntPoint}}(\mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ x\ =\ 0,\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ y\ =\ 0,\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ z\ =\ 0):\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a608d16d39c8762e6c3c0a688efb310b6}{X}}(x),\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a8445d190cd9013bb34d49b5a8a240425}{Y}}(y),\ Z(z)\ \{\};}
+\DoxyCodeLine{00091\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00092\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a819e71f9269e99f151a3a99c4283cd43}{IntPoint}}(\mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ x\ =\ 0,\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ y\ =\ 0):\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a608d16d39c8762e6c3c0a688efb310b6}{X}}(x),\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a8445d190cd9013bb34d49b5a8a240425}{Y}}(y)\ \{\};}
+\DoxyCodeLine{00093\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a6afef09ee09723a387e3046287e2635b}{operator==\ }}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a819e71f9269e99f151a3a99c4283cd43}{IntPoint}}\&\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a819e71f9269e99f151a3a99c4283cd43}{IntPoint}}\&\ b)}
+\DoxyCodeLine{00096\ \ \ \{}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.X\ ==\ b.\mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a608d16d39c8762e6c3c0a688efb310b6}{X}}\ \&\&\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Y\ ==\ b.\mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a8445d190cd9013bb34d49b5a8a240425}{Y}};}
+\DoxyCodeLine{00098\ \ \ \}}
+\DoxyCodeLine{00099\ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_aa37b2afb6cbc44cb9cd13ecc009decfb}{operator!=\ }}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a819e71f9269e99f151a3a99c4283cd43}{IntPoint}}\&\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a819e71f9269e99f151a3a99c4283cd43}{IntPoint}}\&\ b)}
+\DoxyCodeLine{00100\ \ \ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.X\ !=\ b.\mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a608d16d39c8762e6c3c0a688efb310b6}{X}}\ \ ||\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Y\ !=\ b.\mbox{\hyperlink{struct_clipper_lib_1_1_int_point_a8445d190cd9013bb34d49b5a8a240425}{Y}};\ }
+\DoxyCodeLine{00102\ \ \ \}}
+\DoxyCodeLine{00103\ \};}
+\DoxyCodeLine{00104\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \textcolor{keyword}{typedef}\ std::vector<\ IntPoint\ >\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}};}
+\DoxyCodeLine{00107\ \textcolor{keyword}{typedef}\ std::vector<\ Path\ >\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}};}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ \mbox{\hyperlink{namespace_clipper_lib_a2e9613a92f21ac827d5b7f8b5ade5795}{operator\ <<}}(\mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ poly,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point}{IntPoint}}\&\ p)\ \{poly.push\_back(p);\ \textcolor{keywordflow}{return}\ poly;\}}
+\DoxyCodeLine{00110\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ \mbox{\hyperlink{namespace_clipper_lib_a2e9613a92f21ac827d5b7f8b5ade5795}{operator\ <<}}(\mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ polys,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ p)\ \{polys.push\_back(p);\ \textcolor{keywordflow}{return}\ polys;\}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ std::ostream\&\ \mbox{\hyperlink{namespace_clipper_lib_a2e9613a92f21ac827d5b7f8b5ade5795}{operator\ <<}}(std::ostream\ \&s,\ \textcolor{keyword}{const}\ IntPoint\ \&p);}
+\DoxyCodeLine{00113\ std::ostream\&\ \mbox{\hyperlink{namespace_clipper_lib_a2e9613a92f21ac827d5b7f8b5ade5795}{operator\ <<}}(std::ostream\ \&s,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\ \&p);}
+\DoxyCodeLine{00114\ std::ostream\&\ \mbox{\hyperlink{namespace_clipper_lib_a2e9613a92f21ac827d5b7f8b5ade5795}{operator\ <<}}(std::ostream\ \&s,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\ \&p);}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_clipper_lib_1_1_double_point_a3ccbea6aaf488e0a2d8ac499d2676093}{DoublePoint}}}
+\DoxyCodeLine{00117\ \{}
+\DoxyCodeLine{00118\ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{struct_clipper_lib_1_1_double_point_a675837cc05f20447313789b82d84ad31}{X}};}
+\DoxyCodeLine{00119\ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{struct_clipper_lib_1_1_double_point_a49774a93540882d88448badf37034454}{Y}};}
+\DoxyCodeLine{00120\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_double_point_a3ccbea6aaf488e0a2d8ac499d2676093}{DoublePoint}}(\textcolor{keywordtype}{double}\ x\ =\ 0,\ \textcolor{keywordtype}{double}\ y\ =\ 0)\ :\ \mbox{\hyperlink{struct_clipper_lib_1_1_double_point_a675837cc05f20447313789b82d84ad31}{X}}(x),\ \mbox{\hyperlink{struct_clipper_lib_1_1_double_point_a49774a93540882d88448badf37034454}{Y}}(y)\ \{\}}
+\DoxyCodeLine{00121\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_double_point_afd33c9193b3cf11536936dc933b965a4}{DoublePoint}}(\mbox{\hyperlink{struct_clipper_lib_1_1_int_point}{IntPoint}}\ ip)\ :\ \mbox{\hyperlink{struct_clipper_lib_1_1_double_point_a675837cc05f20447313789b82d84ad31}{X}}((double)ip.\mbox{\hyperlink{struct_clipper_lib_1_1_double_point_a675837cc05f20447313789b82d84ad31}{X}}),\ \mbox{\hyperlink{struct_clipper_lib_1_1_double_point_a49774a93540882d88448badf37034454}{Y}}((double)ip.\mbox{\hyperlink{struct_clipper_lib_1_1_double_point_a49774a93540882d88448badf37034454}{Y}})\ \{\}}
+\DoxyCodeLine{00122\ \};}
+\DoxyCodeLine{00123\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \textcolor{preprocessor}{\#ifdef\ use\_xyz}}
+\DoxyCodeLine{00126\ \textcolor{keyword}{typedef}\ void\ (*ZFillCallback)(IntPoint\&\ e1bot,\ IntPoint\&\ e1top,\ IntPoint\&\ e2bot,\ IntPoint\&\ e2top,\ IntPoint\&\ pt);}
+\DoxyCodeLine{00127\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespace_clipper_lib_a322ee4b6e4480f648dad8c65c58b2804}{InitOptions}}\ \{\mbox{\hyperlink{namespace_clipper_lib_a322ee4b6e4480f648dad8c65c58b2804a019c42b227a89408692e98e9312baa77}{ioReverseSolution}}\ =\ 1,\ \mbox{\hyperlink{namespace_clipper_lib_a322ee4b6e4480f648dad8c65c58b2804ad2ab367f64cd3abcf737e04acb32b9f2}{ioStrictlySimple}}\ =\ 2,\ \mbox{\hyperlink{namespace_clipper_lib_a322ee4b6e4480f648dad8c65c58b2804a5ee1ca93ff35691b7b27ce0f1bc4a898}{ioPreserveCollinear}}\ =\ 4\};}
+\DoxyCodeLine{00130\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespace_clipper_lib_ab3880a3ca1b45df3ce93ac315a74c06e}{JoinType}}\ \{\mbox{\hyperlink{namespace_clipper_lib_ab3880a3ca1b45df3ce93ac315a74c06ea1e73eb6e6192fffb13033a0f4d4ac87f}{jtSquare}},\ \mbox{\hyperlink{namespace_clipper_lib_ab3880a3ca1b45df3ce93ac315a74c06ea7833a32073dc3f251ff8de93aa7b6388}{jtRound}},\ \mbox{\hyperlink{namespace_clipper_lib_ab3880a3ca1b45df3ce93ac315a74c06ea27005a0d1be936fb9409535949a1c2ce}{jtMiter}}\};}
+\DoxyCodeLine{00131\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespace_clipper_lib_abee78a365e96a6edf45e15f885568079}{EndType}}\ \{\mbox{\hyperlink{namespace_clipper_lib_abee78a365e96a6edf45e15f885568079abe139ce126eefdd24f9d947bd494404b}{etClosedPolygon}},\ \mbox{\hyperlink{namespace_clipper_lib_abee78a365e96a6edf45e15f885568079aa4b6951fbc935423f51f3acee30a4c5e}{etClosedLine}},\ \mbox{\hyperlink{namespace_clipper_lib_abee78a365e96a6edf45e15f885568079a4b95546b1ebb6771de89f131a566bc68}{etOpenButt}},\ \mbox{\hyperlink{namespace_clipper_lib_abee78a365e96a6edf45e15f885568079afea14e4c0b80da978d26774ca85b22f1}{etOpenSquare}},\ \mbox{\hyperlink{namespace_clipper_lib_abee78a365e96a6edf45e15f885568079a6fa667a6be8eb9bc0f7ef92fa8505609}{etOpenRound}}\};}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \textcolor{keyword}{class\ }PolyNode;}
+\DoxyCodeLine{00134\ \textcolor{keyword}{typedef}\ std::vector<\ PolyNode*\ >\ \mbox{\hyperlink{namespace_clipper_lib_ac9381bbff6b966df41b78667385b9c1e}{PolyNodes}};}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a12b3350e7ab93fb0002b2b4d7dcf13ba}{PolyNode}}\ }
+\DoxyCodeLine{00137\ \{\ }
+\DoxyCodeLine{00138\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00139\ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a12b3350e7ab93fb0002b2b4d7dcf13ba}{PolyNode}}();}
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_abca566308c95d19c72dee88217b23064}{\string~PolyNode}}()\{\};}
+\DoxyCodeLine{00141\ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a1d08b8a9499ff8cb89d5d63a12f881ea}{Contour}};}
+\DoxyCodeLine{00142\ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_ac9381bbff6b966df41b78667385b9c1e}{PolyNodes}}\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a7ac59aea508951a4c979bfca8913261d}{Childs}};}
+\DoxyCodeLine{00143\ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a12b3350e7ab93fb0002b2b4d7dcf13ba}{PolyNode}}*\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a9465bc02623316de2af3ab52c6f7041e}{Parent}};}
+\DoxyCodeLine{00144\ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a12b3350e7ab93fb0002b2b4d7dcf13ba}{PolyNode}}*\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_adbcb861001d8bfbd609c4ba4f4a19a58}{GetNext}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a0467801cae1b28ad8a4917b96e551536}{IsHole}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_ac9ade640af2515976d337b65e8e84776}{IsOpen}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a19128db6fb2aca66555231edaffa7ade}{ChildCount}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00148\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00149\ \ \ \ \ \textcolor{comment}{//PolyNode\&\ operator\ =(PolyNode\&\ other);\ }}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ Index;\ \textcolor{comment}{//node\ index\ in\ Parent.Childs}}
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{keywordtype}{bool}\ m\_IsOpen;}
+\DoxyCodeLine{00152\ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_ab3880a3ca1b45df3ce93ac315a74c06e}{JoinType}}\ m\_jointype;}
+\DoxyCodeLine{00153\ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_abee78a365e96a6edf45e15f885568079}{EndType}}\ m\_endtype;}
+\DoxyCodeLine{00154\ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a12b3350e7ab93fb0002b2b4d7dcf13ba}{PolyNode}}*\ GetNextSiblingUp()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordtype}{void}\ AddChild(\mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a12b3350e7ab93fb0002b2b4d7dcf13ba}{PolyNode}}\&\ child);}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a4d39a09ecdddeeb85930dd4554a54b3c}{Clipper}};\ \textcolor{comment}{//to\ access\ Index}}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_clipper_lib_1_1_poly_node_adadfb8ac9a17a5c8fb7b4f012075b975}{ClipperOffset}};\ }
+\DoxyCodeLine{00158\ \};}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_clipper_lib_1_1_poly_tree}{PolyTree}}:\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node_a12b3350e7ab93fb0002b2b4d7dcf13ba}{PolyNode}}}
+\DoxyCodeLine{00161\ \{\ }
+\DoxyCodeLine{00162\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00163\ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_poly_tree_a32f033bcc4b5f80b180fc87a6ff4ecd8}{\string~PolyTree}}()\{\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_tree_a8620ea631d478b3c43274ac084902ec4}{Clear}}();\ \};}
+\DoxyCodeLine{00164\ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node}{PolyNode}}*\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_tree_a8b88b8d6225281ee7d536902b0d04e9e}{GetFirst}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_tree_a8620ea631d478b3c43274ac084902ec4}{Clear}}();}
+\DoxyCodeLine{00166\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_tree_ad0d3c974bab5a30cc8c916da9fe14388}{Total}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00167\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00168\ \ \ \textcolor{comment}{//PolyTree\&\ operator\ =(PolyTree\&\ other);}}
+\DoxyCodeLine{00169\ \ \ \mbox{\hyperlink{namespace_clipper_lib_ac9381bbff6b966df41b78667385b9c1e}{PolyNodes}}\ AllNodes;}
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_clipper_lib_1_1_poly_tree_a4d39a09ecdddeeb85930dd4554a54b3c}{Clipper}};\ \textcolor{comment}{//to\ access\ AllNodes}}
+\DoxyCodeLine{00171\ \};}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespace_clipper_lib_a806a3d33d76bb9d4479d384f876ce8bd}{Orientation}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\ \&poly);}
+\DoxyCodeLine{00174\ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{namespace_clipper_lib_a4a96cc48117e1dba6cf51bbc2d91fe97}{Area}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\ \&poly);}
+\DoxyCodeLine{00175\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{namespace_clipper_lib_ac7314f2a1f45c627bac20e9ba2a68212}{PointInPolygon}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point}{IntPoint}}\ \&pt,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\ \&path);}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00177\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_af374cea59a991e49f36c3530efc45feb}{SimplifyPolygon}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\ \&in\_poly,\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\ \&out\_polys,\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ fillType\ =\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7acede4475518a377720537448c7b2df73}{pftEvenOdd}});}
+\DoxyCodeLine{00178\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_ac9ebbe437e4c08816bffeced6d001cf6}{SimplifyPolygons}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\ \&in\_polys,\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\ \&out\_polys,\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ fillType\ =\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7acede4475518a377720537448c7b2df73}{pftEvenOdd}});}
+\DoxyCodeLine{00179\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_ac9ebbe437e4c08816bffeced6d001cf6}{SimplifyPolygons}}(\mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\ \&polys,\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ fillType\ =\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7acede4475518a377720537448c7b2df73}{pftEvenOdd}});}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_a9246a3146ac112581e82be58e158be7b}{CleanPolygon}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ in\_poly,\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ out\_poly,\ \textcolor{keywordtype}{double}\ distance\ =\ 1.415);}
+\DoxyCodeLine{00182\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_a9246a3146ac112581e82be58e158be7b}{CleanPolygon}}(\mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ poly,\ \textcolor{keywordtype}{double}\ distance\ =\ 1.415);}
+\DoxyCodeLine{00183\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_a770cbc6ce4f16d02b8fe27c5abf6159c}{CleanPolygons}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ in\_polys,\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ out\_polys,\ \textcolor{keywordtype}{double}\ distance\ =\ 1.415);}
+\DoxyCodeLine{00184\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_a770cbc6ce4f16d02b8fe27c5abf6159c}{CleanPolygons}}(\mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ polys,\ \textcolor{keywordtype}{double}\ distance\ =\ 1.415);}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_ad12b5697c25579dce65d369a2e3cf608}{MinkowskiSum}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ pattern,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ path,\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ solution,\ \textcolor{keywordtype}{bool}\ pathIsClosed);}
+\DoxyCodeLine{00187\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_ad12b5697c25579dce65d369a2e3cf608}{MinkowskiSum}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ pattern,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ paths,\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ solution,\ \textcolor{keywordtype}{bool}\ pathIsClosed);}
+\DoxyCodeLine{00188\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_a76dac24102863220c7bc13be222a1dda}{MinkowskiDiff}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ poly1,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ poly2,\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ solution);}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_a3713b024b773e4e041f3de4595ff0f77}{PolyTreeToPaths}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_tree}{PolyTree}}\&\ polytree,\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ paths);}
+\DoxyCodeLine{00191\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_a83f3a341799f94dd6bd9649b319d85fa}{ClosedPathsFromPolyTree}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_clipper_lib_1_1_poly_tree}{PolyTree}}\&\ polytree,\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ paths);}
+\DoxyCodeLine{00192\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_aa8b0b36c4c1e8108f39b10e4fba81cc5}{OpenPathsFromPolyTree}}(\mbox{\hyperlink{class_clipper_lib_1_1_poly_tree}{PolyTree}}\&\ polytree,\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ paths);}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_ab6376320953c60093dc73462c74589e1}{ReversePath}}(\mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ p);}
+\DoxyCodeLine{00195\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_clipper_lib_ade103cad7caf2aa357b2d5410866ea62}{ReversePaths}}(\mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ p);}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_clipper_lib_1_1_int_rect}{IntRect}}\ \{\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_rect_a9bf519994ffc7d1d5752fb1e2411b4cd}{left}};\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_rect_a07154695bf2313182400f829ba07c3a9}{top}};\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_rect_a28c68b5f806a88a187a53f3956954e74}{right}};\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_rect_a9da9418de5faa7eba55e8ee98a13ea0e}{bottom}};\ \};}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00199\ \textcolor{comment}{//enums\ that\ are\ used\ internally\ ...}}
+\DoxyCodeLine{00200\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespace_clipper_lib_a0e8e5a1032917a06fbbf958f7a708f3f}{EdgeSide}}\ \{\ \mbox{\hyperlink{namespace_clipper_lib_a0e8e5a1032917a06fbbf958f7a708f3fae0e35c98eb9b5e1ea1fd643a474c2ab4}{esLeft}}\ =\ 1,\ \mbox{\hyperlink{namespace_clipper_lib_a0e8e5a1032917a06fbbf958f7a708f3fae755211893cad1da40ec2f0d2dbd9c32}{esRight}}\ =\ 2\};}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \textcolor{comment}{//forward\ declarations\ (for\ stuff\ used\ internally)\ ...}}
+\DoxyCodeLine{00203\ \textcolor{keyword}{struct\ }TEdge;}
+\DoxyCodeLine{00204\ \textcolor{keyword}{struct\ }IntersectNode;}
+\DoxyCodeLine{00205\ \textcolor{keyword}{struct\ }LocalMinimum;}
+\DoxyCodeLine{00206\ \textcolor{keyword}{struct\ }OutPt;}
+\DoxyCodeLine{00207\ \textcolor{keyword}{struct\ }OutRec;}
+\DoxyCodeLine{00208\ \textcolor{keyword}{struct\ }Join;}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \textcolor{keyword}{typedef}\ std::vector\ <\ OutRec*\ >\ \mbox{\hyperlink{namespace_clipper_lib_a955330d96f532e139adb1e52a82fcd43}{PolyOutList}};}
+\DoxyCodeLine{00211\ \textcolor{keyword}{typedef}\ std::vector\ <\ TEdge*\ >\ \mbox{\hyperlink{namespace_clipper_lib_a86ece3ad074061d6b3d18819b1fa4ed7}{EdgeList}};}
+\DoxyCodeLine{00212\ \textcolor{keyword}{typedef}\ std::vector\ <\ Join*\ >\ \mbox{\hyperlink{namespace_clipper_lib_a7e09990d21008cefa4e28e9056c654c4}{JoinList}};}
+\DoxyCodeLine{00213\ \textcolor{keyword}{typedef}\ std::vector\ <\ IntersectNode*\ >\ \mbox{\hyperlink{namespace_clipper_lib_aa619079161cda3de8197456767f54396}{IntersectList}};}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \textcolor{comment}{//ClipperBase\ is\ the\ ancestor\ to\ the\ Clipper\ class.\ It\ should\ not\ be}}
+\DoxyCodeLine{00218\ \textcolor{comment}{//instantiated\ directly.\ This\ class\ simply\ abstracts\ the\ conversion\ of\ sets\ of}}
+\DoxyCodeLine{00219\ \textcolor{comment}{//polygon\ coordinates\ into\ edge\ objects\ that\ are\ stored\ in\ a\ LocalMinima\ list.}}
+\DoxyCodeLine{00220\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_ab7144fc592427238c55ae81061e895a2}{ClipperBase}}}
+\DoxyCodeLine{00221\ \{}
+\DoxyCodeLine{00222\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00223\ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_ab7144fc592427238c55ae81061e895a2}{ClipperBase}}();}
+\DoxyCodeLine{00224\ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_ae73a6a12fb3e7e62b59d1ff38135b27c}{\string~ClipperBase}}();}
+\DoxyCodeLine{00225\ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a7545ac6e146894dc8416887eadd01dba}{AddPath}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\ \&pg,\ \mbox{\hyperlink{namespace_clipper_lib_a50d662440e5e100070014ed91281e960}{PolyType}}\ PolyTyp,\ \textcolor{keywordtype}{bool}\ Closed);}
+\DoxyCodeLine{00226\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a2395967b47fb9f3f5846e2bf56c18f67}{AddPaths}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\ \&ppg,\ \mbox{\hyperlink{namespace_clipper_lib_a50d662440e5e100070014ed91281e960}{PolyType}}\ PolyTyp,\ \textcolor{keywordtype}{bool}\ Closed);}
+\DoxyCodeLine{00227\ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a5690952fe8c2cb047025566405827821}{Clear}}();}
+\DoxyCodeLine{00228\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_int_rect}{IntRect}}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a5590a5454248ac3f6beeba7f9690f62e}{GetBounds}}();}
+\DoxyCodeLine{00229\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a95c47199aeb139b13059968bc6056f44}{PreserveCollinear}}()\ \{\textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_aad4ca0f2a16a6fb466036b36cc5ff638}{m\_PreserveCollinear}};\};}
+\DoxyCodeLine{00230\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_aa827cfffd9be40dba7d503a3da708b91}{PreserveCollinear}}(\textcolor{keywordtype}{bool}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{\mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_aad4ca0f2a16a6fb466036b36cc5ff638}{m\_PreserveCollinear}}\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};\};}
+\DoxyCodeLine{00231\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00232\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a311dbbec1454ab7965e363a0359f5ee4}{DisposeLocalMinimaList}}();}
+\DoxyCodeLine{00233\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}*\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a66f47d6317d1266200363ea06a457663}{AddBoundsToLML}}(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e,\ \textcolor{keywordtype}{bool}\ IsClosed);}
+\DoxyCodeLine{00234\ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a125febb065f23fc55dafffe8d185b642}{Reset}}();}
+\DoxyCodeLine{00235\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}*\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a292655c74a7e70a8b8829337c632bdf0}{ProcessBound}}(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}*\ E,\ \textcolor{keywordtype}{bool}\ IsClockwise);}
+\DoxyCodeLine{00236\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_ac22b052dbbc15b6e5e4304be72bd9ed0}{InsertScanbeam}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ Y);}
+\DoxyCodeLine{00237\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_acb0b72fccefe130d4dc2d3b114e4a2a6}{PopScanbeam}}(\mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ \&Y);}
+\DoxyCodeLine{00238\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_ae091022ac37f757ab489e9217d2e4934}{LocalMinimaPending}}();}
+\DoxyCodeLine{00239\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_aeaf9a35b1e38d1559f24ead2cf211854}{PopLocalMinima}}(\mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ Y,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_local_minimum}{LocalMinimum}}\ *\&locMin);}
+\DoxyCodeLine{00240\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}*\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_aca2ca824b655002903cecf47e9eff859}{CreateOutRec}}();}
+\DoxyCodeLine{00241\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a59e59d75571ee6db76c2b17f1e6d5496}{DisposeAllOutRecs}}();}
+\DoxyCodeLine{00242\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_ae55667f0f947cb12d401e3ed2d586937}{DisposeOutRec}}(PolyOutList::size\_type\ index);}
+\DoxyCodeLine{00243\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_ab265485204a9964a6c636d96960ac333}{SwapPositionsInAEL}}(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *edge1,\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *edge2);}
+\DoxyCodeLine{00244\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a92bfe6483a337205191d991e481cb56a}{DeleteFromAEL}}(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e);}
+\DoxyCodeLine{00245\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a3c67cc7874aa30704f4ee8ce69260c4a}{UpdateEdgeIntoAEL}}(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *\&e);}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00247\ \ \ \textcolor{keyword}{typedef}\ std::vector<LocalMinimum>\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_addb22572066d3983dcd5797c542df00b}{MinimaList}};}
+\DoxyCodeLine{00248\ \ \ MinimaList::iterator\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_ab6ed40f62810c0f894878c79d74afb36}{m\_CurrentLM}};}
+\DoxyCodeLine{00249\ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_addb22572066d3983dcd5797c542df00b}{MinimaList}}\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a970749dc12a20e980c932af040f8a8c5}{m\_MinimaList}};}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00251\ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_aea11d183617adc12d7ba2b84533f7f45}{m\_UseFullRange}};}
+\DoxyCodeLine{00252\ \ \ \mbox{\hyperlink{namespace_clipper_lib_a86ece3ad074061d6b3d18819b1fa4ed7}{EdgeList}}\ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a8bfc007c0c0afd4e9d252dac0ef5daa0}{m\_edges}};}
+\DoxyCodeLine{00253\ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_aad4ca0f2a16a6fb466036b36cc5ff638}{m\_PreserveCollinear}};}
+\DoxyCodeLine{00254\ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_aa2508f5b2a599294c359271506441fbd}{m\_HasOpenPaths}};}
+\DoxyCodeLine{00255\ \ \ \mbox{\hyperlink{namespace_clipper_lib_a955330d96f532e139adb1e52a82fcd43}{PolyOutList}}\ \ \ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_adf118fa61f0bd00de746b8dd2b01a2cb}{m\_PolyOuts}};}
+\DoxyCodeLine{00256\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ \ \ \ \ \ \ \ \ \ \ *\mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_afff39cdfe073a817d45e9e3ac12d68c1}{m\_ActiveEdges}};}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \ \ \textcolor{keyword}{typedef}\ std::priority\_queue<cInt>\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a517d04b2a0f0bae13a64a819b3bd429e}{ScanbeamList}};}
+\DoxyCodeLine{00259\ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a517d04b2a0f0bae13a64a819b3bd429e}{ScanbeamList}}\ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_a74dba851f53114c06257d407bbcc170e}{m\_Scanbeam}};}
+\DoxyCodeLine{00260\ \};}
+\DoxyCodeLine{00261\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_clipper_lib_1_1_clipper_adceb8536f6a80e8f115213dba9208427}{Clipper}}\ :\ \textcolor{keyword}{public}\ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_base_ab7144fc592427238c55ae81061e895a2}{ClipperBase}}}
+\DoxyCodeLine{00264\ \{}
+\DoxyCodeLine{00265\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00266\ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_adceb8536f6a80e8f115213dba9208427}{Clipper}}(\textcolor{keywordtype}{int}\ initOptions\ =\ 0);}
+\DoxyCodeLine{00267\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_a2e4a15e6f79a5f583b42c9701b839e01}{Execute}}(\mbox{\hyperlink{namespace_clipper_lib_a3db4fddd50b81ba657107505821d7f46}{ClipType}}\ clipType,}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\ \&solution,}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ fillType\ =\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7acede4475518a377720537448c7b2df73}{pftEvenOdd}});}
+\DoxyCodeLine{00270\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_a2e4a15e6f79a5f583b42c9701b839e01}{Execute}}(\mbox{\hyperlink{namespace_clipper_lib_a3db4fddd50b81ba657107505821d7f46}{ClipType}}\ clipType,}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\ \&solution,}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ subjFillType,}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ clipFillType);}
+\DoxyCodeLine{00274\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_a2e4a15e6f79a5f583b42c9701b839e01}{Execute}}(\mbox{\hyperlink{namespace_clipper_lib_a3db4fddd50b81ba657107505821d7f46}{ClipType}}\ clipType,}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_poly_tree}{PolyTree}}\ \&polytree,}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ fillType\ =\ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7acede4475518a377720537448c7b2df73}{pftEvenOdd}});}
+\DoxyCodeLine{00277\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_a2e4a15e6f79a5f583b42c9701b839e01}{Execute}}(\mbox{\hyperlink{namespace_clipper_lib_a3db4fddd50b81ba657107505821d7f46}{ClipType}}\ clipType,}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_poly_tree}{PolyTree}}\ \&polytree,}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ subjFillType,}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ clipFillType);}
+\DoxyCodeLine{00281\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_ad556ba9961f498de02d55dc95bc5a889}{ReverseSolution}}()\ \{\ \textcolor{keywordflow}{return}\ m\_ReverseOutput;\ \};}
+\DoxyCodeLine{00282\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_a44afc0c82a1d2607829b5fd21f7644ef}{ReverseSolution}}(\textcolor{keywordtype}{bool}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{m\_ReverseOutput\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};\};}
+\DoxyCodeLine{00283\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_a50eb4c514466ed37fd365769e0bcf67b}{StrictlySimple}}()\ \{\textcolor{keywordflow}{return}\ m\_StrictSimple;\};}
+\DoxyCodeLine{00284\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_a85aa82d75e0d7d1f380d2e96231d6aa3}{StrictlySimple}}(\textcolor{keywordtype}{bool}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{m\_StrictSimple\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};\};}
+\DoxyCodeLine{00285\ \ \ \textcolor{comment}{//set\ the\ callback\ function\ for\ z\ value\ filling\ on\ intersections\ (otherwise\ Z\ is\ 0)}}
+\DoxyCodeLine{00286\ \textcolor{preprocessor}{\#ifdef\ use\_xyz}}
+\DoxyCodeLine{00287\ \ \ \textcolor{keywordtype}{void}\ ZFillFunction(ZFillCallback\ zFillFunc);}
+\DoxyCodeLine{00288\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00289\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00290\ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_a3e8757e5f8a6ffcb7fd0f9630fde02d3}{ExecuteInternal}}();}
+\DoxyCodeLine{00291\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00292\ \ \ \mbox{\hyperlink{namespace_clipper_lib_a7e09990d21008cefa4e28e9056c654c4}{JoinList}}\ \ \ \ \ \ \ \ \ m\_Joins;}
+\DoxyCodeLine{00293\ \ \ \mbox{\hyperlink{namespace_clipper_lib_a7e09990d21008cefa4e28e9056c654c4}{JoinList}}\ \ \ \ \ \ \ \ \ m\_GhostJoins;}
+\DoxyCodeLine{00294\ \ \ \mbox{\hyperlink{namespace_clipper_lib_aa619079161cda3de8197456767f54396}{IntersectList}}\ \ \ \ m\_IntersectList;}
+\DoxyCodeLine{00295\ \ \ \mbox{\hyperlink{namespace_clipper_lib_a3db4fddd50b81ba657107505821d7f46}{ClipType}}\ \ \ \ \ \ \ \ \ m\_ClipType;}
+\DoxyCodeLine{00296\ \ \ \textcolor{keyword}{typedef}\ std::list<cInt>\ MaximaList;}
+\DoxyCodeLine{00297\ \ \ MaximaList\ \ \ \ \ \ \ m\_Maxima;}
+\DoxyCodeLine{00298\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ \ \ \ \ \ \ \ \ \ \ *m\_SortedEdges;}
+\DoxyCodeLine{00299\ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \ \ \ \ \ \ \ \ m\_ExecuteLocked;}
+\DoxyCodeLine{00300\ \ \ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ \ \ \ \ m\_ClipFillType;}
+\DoxyCodeLine{00301\ \ \ \mbox{\hyperlink{namespace_clipper_lib_a95a41ff8fa6b351d304829c267d638d7}{PolyFillType}}\ \ \ \ \ m\_SubjFillType;}
+\DoxyCodeLine{00302\ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \ \ \ \ \ \ \ \ m\_ReverseOutput;}
+\DoxyCodeLine{00303\ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \ \ \ \ \ \ \ \ m\_UsingPolyTree;\ }
+\DoxyCodeLine{00304\ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \ \ \ \ \ \ \ \ m\_StrictSimple;}
+\DoxyCodeLine{00305\ \textcolor{preprocessor}{\#ifdef\ use\_xyz}}
+\DoxyCodeLine{00306\ \ \ ZFillCallback\ \ \ m\_ZFill;\ \textcolor{comment}{//custom\ callback\ }}
+\DoxyCodeLine{00307\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00308\ \ \ \textcolor{keywordtype}{void}\ SetWindingCount(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\&\ edge);}
+\DoxyCodeLine{00309\ \ \ \textcolor{keywordtype}{bool}\ IsEvenOddFillType(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\&\ edge)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00310\ \ \ \textcolor{keywordtype}{bool}\ IsEvenOddAltFillType(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\&\ edge)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00311\ \ \ \textcolor{keywordtype}{void}\ InsertLocalMinimaIntoAEL(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ botY);}
+\DoxyCodeLine{00312\ \ \ \textcolor{keywordtype}{void}\ InsertEdgeIntoAEL(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *edge,\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}*\ startEdge);}
+\DoxyCodeLine{00313\ \ \ \textcolor{keywordtype}{void}\ AddEdgeToSEL(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *edge);}
+\DoxyCodeLine{00314\ \ \ \textcolor{keywordtype}{bool}\ PopEdgeFromSEL(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *\&edge);}
+\DoxyCodeLine{00315\ \ \ \textcolor{keywordtype}{void}\ CopyAELToSEL();}
+\DoxyCodeLine{00316\ \ \ \textcolor{keywordtype}{void}\ DeleteFromSEL(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e);}
+\DoxyCodeLine{00317\ \ \ \textcolor{keywordtype}{void}\ SwapPositionsInSEL(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *edge1,\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *edge2);}
+\DoxyCodeLine{00318\ \ \ \textcolor{keywordtype}{bool}\ IsContributing(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\&\ edge)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00319\ \ \ \textcolor{keywordtype}{bool}\ IsTopHorz(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ XPos);}
+\DoxyCodeLine{00320\ \ \ \textcolor{keywordtype}{void}\ DoMaxima(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e);}
+\DoxyCodeLine{00321\ \ \ \textcolor{keywordtype}{void}\ ProcessHorizontals();}
+\DoxyCodeLine{00322\ \ \ \textcolor{keywordtype}{void}\ ProcessHorizontal(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *horzEdge);}
+\DoxyCodeLine{00323\ \ \ \textcolor{keywordtype}{void}\ AddLocalMaxPoly(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e1,\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e2,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point}{IntPoint}}\ \&pt);}
+\DoxyCodeLine{00324\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_out_pt}{OutPt}}*\ AddLocalMinPoly(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e1,\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e2,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point}{IntPoint}}\ \&pt);}
+\DoxyCodeLine{00325\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}*\ GetOutRec(\textcolor{keywordtype}{int}\ idx);}
+\DoxyCodeLine{00326\ \ \ \textcolor{keywordtype}{void}\ AppendPolygon(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e1,\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e2);}
+\DoxyCodeLine{00327\ \ \ \textcolor{keywordtype}{void}\ IntersectEdges(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e1,\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e2,\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point}{IntPoint}}\ \&pt);}
+\DoxyCodeLine{00328\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_out_pt}{OutPt}}*\ AddOutPt(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point}{IntPoint}}\ \&pt);}
+\DoxyCodeLine{00329\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_out_pt}{OutPt}}*\ GetLastOutPt(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e);}
+\DoxyCodeLine{00330\ \ \ \textcolor{keywordtype}{bool}\ ProcessIntersections(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ topY);}
+\DoxyCodeLine{00331\ \ \ \textcolor{keywordtype}{void}\ BuildIntersectList(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ topY);}
+\DoxyCodeLine{00332\ \ \ \textcolor{keywordtype}{void}\ ProcessIntersectList();}
+\DoxyCodeLine{00333\ \ \ \textcolor{keywordtype}{void}\ ProcessEdgesAtTopOfScanbeam(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a7156730a24951629192d4831334bafaa}{cInt}}\ topY);}
+\DoxyCodeLine{00334\ \ \ \textcolor{keywordtype}{void}\ BuildResult(\mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ polys);}
+\DoxyCodeLine{00335\ \ \ \textcolor{keywordtype}{void}\ BuildResult2(\mbox{\hyperlink{class_clipper_lib_1_1_poly_tree}{PolyTree}}\&\ polytree);}
+\DoxyCodeLine{00336\ \ \ \textcolor{keywordtype}{void}\ SetHoleState(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e,\ \mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}\ *outrec);}
+\DoxyCodeLine{00337\ \ \ \textcolor{keywordtype}{void}\ DisposeIntersectNodes();}
+\DoxyCodeLine{00338\ \ \ \textcolor{keywordtype}{bool}\ FixupIntersectionOrder();}
+\DoxyCodeLine{00339\ \ \ \textcolor{keywordtype}{void}\ FixupOutPolygon(\mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}\ \&outrec);}
+\DoxyCodeLine{00340\ \ \ \textcolor{keywordtype}{void}\ FixupOutPolyline(\mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}\ \&outrec);}
+\DoxyCodeLine{00341\ \ \ \textcolor{keywordtype}{bool}\ IsHole(\mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\ *e);}
+\DoxyCodeLine{00342\ \ \ \textcolor{keywordtype}{bool}\ FindOwnerFromSplitRecs(\mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}\ \&outRec,\ \mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}\ *\&currOrfl);}
+\DoxyCodeLine{00343\ \ \ \textcolor{keywordtype}{void}\ FixHoleLinkage(\mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}\ \&outrec);}
+\DoxyCodeLine{00344\ \ \ \textcolor{keywordtype}{void}\ AddJoin(\mbox{\hyperlink{struct_clipper_lib_1_1_out_pt}{OutPt}}\ *op1,\ \mbox{\hyperlink{struct_clipper_lib_1_1_out_pt}{OutPt}}\ *op2,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point}{IntPoint}}\ offPt);}
+\DoxyCodeLine{00345\ \ \ \textcolor{keywordtype}{void}\ ClearJoins();}
+\DoxyCodeLine{00346\ \ \ \textcolor{keywordtype}{void}\ ClearGhostJoins();}
+\DoxyCodeLine{00347\ \ \ \textcolor{keywordtype}{void}\ AddGhostJoin(\mbox{\hyperlink{struct_clipper_lib_1_1_out_pt}{OutPt}}\ *op,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point}{IntPoint}}\ offPt);}
+\DoxyCodeLine{00348\ \ \ \textcolor{keywordtype}{bool}\ JoinPoints(\mbox{\hyperlink{struct_clipper_lib_1_1_join}{Join}}\ *j,\ \mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}*\ outRec1,\ \mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}*\ outRec2);}
+\DoxyCodeLine{00349\ \ \ \textcolor{keywordtype}{void}\ JoinCommonEdges();}
+\DoxyCodeLine{00350\ \ \ \textcolor{keywordtype}{void}\ DoSimplePolygons();}
+\DoxyCodeLine{00351\ \ \ \textcolor{keywordtype}{void}\ FixupFirstLefts1(\mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}*\ OldOutRec,\ \mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}*\ NewOutRec);}
+\DoxyCodeLine{00352\ \ \ \textcolor{keywordtype}{void}\ FixupFirstLefts2(\mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}*\ InnerOutRec,\ \mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}*\ OuterOutRec);}
+\DoxyCodeLine{00353\ \ \ \textcolor{keywordtype}{void}\ FixupFirstLefts3(\mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}*\ OldOutRec,\ \mbox{\hyperlink{struct_clipper_lib_1_1_out_rec}{OutRec}}*\ NewOutRec);}
+\DoxyCodeLine{00354\ \textcolor{preprocessor}{\#ifdef\ use\_xyz}}
+\DoxyCodeLine{00355\ \ \ \textcolor{keywordtype}{void}\ SetZ(\mbox{\hyperlink{struct_clipper_lib_1_1_int_point}{IntPoint}}\&\ pt,\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\&\ e1,\ \mbox{\hyperlink{struct_clipper_lib_1_1_t_edge}{TEdge}}\&\ e2);}
+\DoxyCodeLine{00356\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00357\ \};}
+\DoxyCodeLine{00358\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00359\ }
+\DoxyCodeLine{00360\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_clipper_lib_1_1_clipper_offset_a45b4750989901db0c3865c374abdfcdc}{ClipperOffset}}\ }
+\DoxyCodeLine{00361\ \{}
+\DoxyCodeLine{00362\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00363\ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_offset_a45b4750989901db0c3865c374abdfcdc}{ClipperOffset}}(\textcolor{keywordtype}{double}\ miterLimit\ =\ 2.0,\ \textcolor{keywordtype}{double}\ roundPrecision\ =\ 0.25);}
+\DoxyCodeLine{00364\ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_offset_a05b2d8d13e1148db74b681203a6ea76d}{\string~ClipperOffset}}();}
+\DoxyCodeLine{00365\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_offset_a0cd68e3690072f510924a5b25291043b}{AddPath}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\&\ path,\ \mbox{\hyperlink{namespace_clipper_lib_ab3880a3ca1b45df3ce93ac315a74c06e}{JoinType}}\ joinType,\ \mbox{\hyperlink{namespace_clipper_lib_abee78a365e96a6edf45e15f885568079}{EndType}}\ endType);}
+\DoxyCodeLine{00366\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_offset_a18b35198f6370d76885af995ee2f16cb}{AddPaths}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ paths,\ \mbox{\hyperlink{namespace_clipper_lib_ab3880a3ca1b45df3ce93ac315a74c06e}{JoinType}}\ joinType,\ \mbox{\hyperlink{namespace_clipper_lib_abee78a365e96a6edf45e15f885568079}{EndType}}\ endType);}
+\DoxyCodeLine{00367\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_offset_ac591b25e483a52c99c3190a256ad4589}{Execute}}(\mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\&\ solution,\ \textcolor{keywordtype}{double}\ delta);}
+\DoxyCodeLine{00368\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_offset_ac591b25e483a52c99c3190a256ad4589}{Execute}}(\mbox{\hyperlink{class_clipper_lib_1_1_poly_tree}{PolyTree}}\&\ solution,\ \textcolor{keywordtype}{double}\ delta);}
+\DoxyCodeLine{00369\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_offset_ab444433587b6a3f6c89655938d889c7d}{Clear}}();}
+\DoxyCodeLine{00370\ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_offset_a36b3bf4571e5b831edd584cbcb179246}{MiterLimit}};}
+\DoxyCodeLine{00371\ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{class_clipper_lib_1_1_clipper_offset_a6c1735720b06e6b92dc25891014b2a92}{ArcTolerance}};}
+\DoxyCodeLine{00372\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00373\ \ \ \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Paths}}\ m\_destPolys;}
+\DoxyCodeLine{00374\ \ \ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\ m\_srcPoly;}
+\DoxyCodeLine{00375\ \ \ \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Path}}\ m\_destPoly;}
+\DoxyCodeLine{00376\ \ \ std::vector<DoublePoint>\ m\_normals;}
+\DoxyCodeLine{00377\ \ \ \textcolor{keywordtype}{double}\ m\_delta,\ m\_sinA,\ m\_sin,\ m\_cos;}
+\DoxyCodeLine{00378\ \ \ \textcolor{keywordtype}{double}\ m\_miterLim,\ m\_StepsPerRad;}
+\DoxyCodeLine{00379\ \ \ \mbox{\hyperlink{struct_clipper_lib_1_1_int_point}{IntPoint}}\ m\_lowest;}
+\DoxyCodeLine{00380\ \ \ \mbox{\hyperlink{class_clipper_lib_1_1_poly_node}{PolyNode}}\ m\_polyNodes;}
+\DoxyCodeLine{00381\ }
+\DoxyCodeLine{00382\ \ \ \textcolor{keywordtype}{void}\ FixOrientations();}
+\DoxyCodeLine{00383\ \ \ \textcolor{keywordtype}{void}\ DoOffset(\textcolor{keywordtype}{double}\ delta);}
+\DoxyCodeLine{00384\ \ \ \textcolor{keywordtype}{void}\ OffsetPoint(\textcolor{keywordtype}{int}\ j,\ \textcolor{keywordtype}{int}\&\ k,\ \mbox{\hyperlink{namespace_clipper_lib_ab3880a3ca1b45df3ce93ac315a74c06e}{JoinType}}\ jointype);}
+\DoxyCodeLine{00385\ \ \ \textcolor{keywordtype}{void}\ DoSquare(\textcolor{keywordtype}{int}\ j,\ \textcolor{keywordtype}{int}\ k);}
+\DoxyCodeLine{00386\ \ \ \textcolor{keywordtype}{void}\ DoMiter(\textcolor{keywordtype}{int}\ j,\ \textcolor{keywordtype}{int}\ k,\ \textcolor{keywordtype}{double}\ r);}
+\DoxyCodeLine{00387\ \ \ \textcolor{keywordtype}{void}\ DoRound(\textcolor{keywordtype}{int}\ j,\ \textcolor{keywordtype}{int}\ k);}
+\DoxyCodeLine{00388\ \};}
+\DoxyCodeLine{00389\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_clipper_lib_1_1clipper_exception_a7d44b32d06cd870500355667f6e0d6ed}{clipperException}}\ :\ \textcolor{keyword}{public}\ std::exception}
+\DoxyCodeLine{00392\ \{}
+\DoxyCodeLine{00393\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00394\ \ \ \ \ \mbox{\hyperlink{class_clipper_lib_1_1clipper_exception_a7d44b32d06cd870500355667f6e0d6ed}{clipperException}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ description):\ m\_descr(description)\ \{\}}
+\DoxyCodeLine{00395\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{class_clipper_lib_1_1clipper_exception_ae64ee27d7b74c6f4f62aaf466bfc9c19}{\string~clipperException}}()\ throw()\ \{\}}
+\DoxyCodeLine{00396\ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{class_clipper_lib_1_1clipper_exception_a466e8a96cdb9dcf41fe9a54842639f12}{what}}()\ \textcolor{keyword}{const}\ throw()\ \{\textcolor{keywordflow}{return}\ m\_descr.c\_str();\}}
+\DoxyCodeLine{00397\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00398\ \ \ \ \ std::string\ m\_descr;}
+\DoxyCodeLine{00399\ \};}
+\DoxyCodeLine{00400\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00401\ }
+\DoxyCodeLine{00402\ \}\ \textcolor{comment}{//ClipperLib\ namespace}}
+\DoxyCodeLine{00403\ }
+\DoxyCodeLine{00404\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//clipper\_hpp}}
+\DoxyCodeLine{00405\ }
+\DoxyCodeLine{00406\ }
+
+\end{DoxyCode}

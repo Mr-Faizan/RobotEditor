@@ -1,0 +1,212 @@
+\doxysection{Blender\+Tessellator.\+h}
+\hypertarget{_blender_tessellator_8h_source}{}\label{_blender_tessellator_8h_source}\index{RobotLib/libraries/assimp/code/AssetLib/Blender/BlenderTessellator.h@{RobotLib/libraries/assimp/code/AssetLib/Blender/BlenderTessellator.h}}
+\mbox{\hyperlink{_blender_tessellator_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00011\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ following\ disclaimer.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00028\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00029\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00030\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00031\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00032\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00033\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00034\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00035\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00037\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{}}
+\DoxyCodeLine{00039\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#ifndef\ INCLUDED\_AI\_BLEND\_TESSELLATOR\_H}}
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#define\ INCLUDED\_AI\_BLEND\_TESSELLATOR\_H}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{comment}{//\ Use\ these\ to\ toggle\ between\ GLU\ Tessellate\ or\ poly2tri}}
+\DoxyCodeLine{00049\ \textcolor{comment}{//\ Note\ (acg)\ keep\ GLU\ Tessellate\ disabled\ by\ default\ -\/\ if\ it\ is\ turned\ on,}}
+\DoxyCodeLine{00050\ \textcolor{comment}{//\ assimp\ needs\ to\ be\ linked\ against\ GLU,\ which\ is\ currently\ not\ yet}}
+\DoxyCodeLine{00051\ \textcolor{comment}{//\ made\ configurable\ in\ CMake\ and\ potentially\ not\ wanted\ by\ most\ users}}
+\DoxyCodeLine{00052\ \textcolor{comment}{//\ as\ it\ requires\ a\ Gl\ environment.}}
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#ifndef\ ASSIMP\_BLEND\_WITH\_GLU\_TESSELLATE}}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#\ \ \ define\ ASSIMP\_BLEND\_WITH\_GLU\_TESSELLATE\ 0}}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#ifndef\ ASSIMP\_BLEND\_WITH\_POLY\_2\_TRI}}
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\#\ \ \ define\ ASSIMP\_BLEND\_WITH\_POLY\_2\_TRI\ 1}}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#include\ <assimp/LogAux.h>}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{\#if\ ASSIMP\_BLEND\_WITH\_GLU\_TESSELLATE}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \textcolor{preprocessor}{\#if\ defined(\ WIN32\ )\ ||\ defined(\ \_WIN32\ )\ ||\ defined(\ \_MSC\_VER\ )}}
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\#include\ <windows.h>}}
+\DoxyCodeLine{00067\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00068\ \textcolor{preprocessor}{\#include\ <GL/glu.h>}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}}
+\DoxyCodeLine{00071\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keyword}{class\ }BlenderBMeshConverter;}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{comment}{//\ TinyFormatter.h}}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keyword}{namespace\ }Formatter}
+\DoxyCodeLine{00076\ \ \ \ \ \{}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <\ \textcolor{keyword}{typename}\ T,\textcolor{keyword}{typename}\ TR,\ \textcolor{keyword}{typename}\ A\ >\ \textcolor{keyword}{class\ }basic\_formatter;}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{class\ }basic\_formatter<\ char,\ \mbox{\hyperlink{namespacestd}{std}}::char\_traits<\ char\ >,\ std::allocator<\ char\ >\ >\ \mbox{\hyperlink{namespace_assimp_1_1_formatter_a364b1b387e088b406e05cd53e7c96193}{format}};}
+\DoxyCodeLine{00079\ \ \ \ \ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{comment}{//\ BlenderScene.h}}
+\DoxyCodeLine{00082\ \ \ \ \ namespace\ Blender}
+\DoxyCodeLine{00083\ \ \ \ \ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }MLoop;}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }MVert;}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }VertexGL}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \ \ \ \ GLdouble\ X;}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ GLdouble\ Y;}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ GLdouble\ Z;}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index;}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ magic;}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ VertexGL(\ GLdouble\ X,\ GLdouble\ Y,\ GLdouble\ Z,\ \textcolor{keywordtype}{int}\ index,\ \textcolor{keywordtype}{int}\ magic\ ):\ X(\ X\ ),\ Y(\ Y\ ),\ Z(\ Z\ ),\ index(\ index\ ),\ magic(\ magic\ )\ \{\ \}}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }DrawCallGL}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ GLenum\ drawMode;}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ baseVertex;}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ vertexCount;}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \ \ \ \ DrawCallGL(\ GLenum\ drawMode,\ \textcolor{keywordtype}{int}\ baseVertex\ ):\ drawMode(\ drawMode\ ),\ baseVertex(\ baseVertex\ ),\ vertexCount(\ 0\ )\ \{\ \}}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }TessDataGL}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<\ DrawCallGL\ >\ drawCalls;}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<\ VertexGL\ >\ vertices;}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00112\ \ \ \ \ \}}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keyword}{class\ }BlenderTessellatorGL:\ \textcolor{keyword}{public}\ LogFunctions<\ BlenderTessellatorGL\ >}
+\DoxyCodeLine{00115\ \ \ \ \ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ BlenderTessellatorGL(\ BlenderBMeshConverter\&\ converter\ );}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \string~BlenderTessellatorGL(\ );}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ Tessellate(\ \textcolor{keyword}{const}\ Blender::MLoop*\ polyLoop,\ \textcolor{keywordtype}{int}\ vertexCount,\ \textcolor{keyword}{const}\ std::vector<\ Blender::MVert\ >\&\ vertices\ );}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ AssertVertexCount(\ \textcolor{keywordtype}{int}\ vertexCount\ );}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ GenerateLoopVerts(\ std::vector<\ Blender::VertexGL\ >\&\ polyLoopGL,\ \textcolor{keyword}{const}\ Blender::MLoop*\ polyLoop,\ \textcolor{keywordtype}{int}\ vertexCount,\ \textcolor{keyword}{const}\ std::vector<\ Blender::MVert\ >\&\ vertices\ );}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ Tesssellate(\ std::vector<\ Blender::VertexGL\ >\&\ polyLoopGL,\ Blender::TessDataGL\&\ tessData\ );}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ TriangulateDrawCalls(\ \textcolor{keyword}{const}\ Blender::TessDataGL\&\ tessData\ );}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ MakeFacesFromTris(\ \textcolor{keyword}{const}\ Blender::VertexGL*\ vertices,\ \textcolor{keywordtype}{int}\ vertexCount\ );}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ MakeFacesFromTriStrip(\ \textcolor{keyword}{const}\ Blender::VertexGL*\ vertices,\ \textcolor{keywordtype}{int}\ vertexCount\ );}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ MakeFacesFromTriFan(\ \textcolor{keyword}{const}\ Blender::VertexGL*\ vertices,\ \textcolor{keywordtype}{int}\ vertexCount\ );}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ TessellateBegin(\ GLenum\ drawModeGL,\ \textcolor{keywordtype}{void}*\ userData\ );}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ TessellateEnd(\ \textcolor{keywordtype}{void}*\ userData\ );}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ TessellateVertex(\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ vtxData,\ \textcolor{keywordtype}{void}*\ userData\ );}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ TessellateCombine(\ \textcolor{keyword}{const}\ GLdouble\ intersection[\ 3\ ],\ \textcolor{keyword}{const}\ GLdouble*\ [\ 4\ ],\ \textcolor{keyword}{const}\ GLfloat\ [\ 4\ ],\ GLdouble**\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},\ \textcolor{keywordtype}{void}*\ userData\ );}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ TessellateEdgeFlag(\ GLboolean\ edgeFlag,\ \textcolor{keywordtype}{void}*\ userData\ );}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ TessellateError(\ GLenum\ errorCode,\ \textcolor{keywordtype}{void}*\ userData\ );}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ BlenderBMeshConverter*\ converter;}
+\DoxyCodeLine{00139\ \ \ \ \ \};}
+\DoxyCodeLine{00140\ \}\ \textcolor{comment}{//\ end\ of\ namespace\ Assimp}}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ ASSIMP\_BLEND\_WITH\_GLU\_TESSELLATE}}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \textcolor{preprocessor}{\#if\ ASSIMP\_BLEND\_WITH\_POLY\_2\_TRI}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{poly2tri_8h}{contrib/poly2tri/poly2tri/poly2tri.h}}"{}}}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}}
+\DoxyCodeLine{00149\ \{}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keyword}{class\ }BlenderBMeshConverter;}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{comment}{//\ TinyFormatter.h}}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keyword}{namespace\ }Formatter}
+\DoxyCodeLine{00154\ \ \ \ \ \{}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <\ \textcolor{keyword}{typename}\ T,\textcolor{keyword}{typename}\ TR,\ \textcolor{keyword}{typename}\ A\ >\ \textcolor{keyword}{class\ }basic\_formatter;}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{class\ }basic\_formatter<\ char,\ \mbox{\hyperlink{namespacestd}{std}}::char\_traits<\ char\ >,\ std::allocator<\ char\ >\ >\ \mbox{\hyperlink{namespace_assimp_1_1_formatter_a364b1b387e088b406e05cd53e7c96193}{format}};}
+\DoxyCodeLine{00157\ \ \ \ \ \}}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{comment}{//\ BlenderScene.h}}
+\DoxyCodeLine{00160\ \ \ \ \ namespace\ Blender}
+\DoxyCodeLine{00161\ \ \ \ \ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }MLoop;}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }MVert;}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_assimp_1_1_blender_1_1_point_p2_t}{PointP2T}}}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_point_p2_t_a496ec2ad1a72b8cbeb76b5b60286ebbc}{point3D}};}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structp2t_1_1_point}{p2t::Point}}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_point_p2_t_af37c9a8398a17a07121573d2ff608a0b}{point2D}};}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_point_p2_t_a93b81306d9ed6ab60c98f889dfb6648a}{magic}};}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_point_p2_t_a2f798810533e378959c3cc266d947749}{index}};}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_assimp_1_1_blender_1_1_plane_p2_t}{PlaneP2T}}}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_plane_p2_t_af5799e8bc296ad3c212f7201f03e83e3}{centre}};}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_plane_p2_t_a36ac8357fa796c5cff970c18b9559592}{normal}};}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00178\ \ \ \ \ \}}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_assimp_1_1_blender_tessellator_p2_t_a1a952bff33e39aa00ed610abf1bf698a}{BlenderTessellatorP2T}}:\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_assimp_1_1_log_functions}{LogFunctions}}<\ BlenderTessellatorP2T\ >}
+\DoxyCodeLine{00181\ \ \ \ \ \{}
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_blender_tessellator_p2_t_a1a952bff33e39aa00ed610abf1bf698a}{BlenderTessellatorP2T}}(\ \mbox{\hyperlink{class_assimp_1_1_blender_b_mesh_converter}{BlenderBMeshConverter}}\&\ converter\ );}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_blender_tessellator_p2_t_a9e63f054450e989b646f6e72f26f0280}{\string~BlenderTessellatorP2T}}(\ )\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_blender_tessellator_p2_t_a165d00aa9b2135fc0f0db4eb8b608abc}{Tessellate}}(\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_m_loop}{Blender::MLoop}}*\ polyLoop,\ \textcolor{keywordtype}{int}\ vertexCount,\ \textcolor{keyword}{const}\ std::vector<\ Blender::MVert\ >\&\ vertices\ );}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ AssertVertexCount(\ \textcolor{keywordtype}{int}\ vertexCount\ );}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ Copy3DVertices(\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_m_loop}{Blender::MLoop}}*\ polyLoop,\ \textcolor{keywordtype}{int}\ vertexCount,\ \textcolor{keyword}{const}\ std::vector<\ Blender::MVert\ >\&\ vertices,\ std::vector<\ Blender::PointP2T\ >\&\ targetVertices\ )\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_matrix4x4}{aiMatrix4x4}}\ GeneratePointTransformMatrix(\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_plane_p2_t}{Blender::PlaneP2T}}\&\ plane\ )\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ TransformAndFlattenVectices(\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_matrix4x4}{aiMatrix4x4}}\&\ transform,\ std::vector<\ Blender::PointP2T\ >\&\ vertices\ )\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ ReferencePoints(\ std::vector<\ Blender::PointP2T\ >\&\ points,\ std::vector<\ p2t::Point*\ >\&\ pointRefs\ )\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_point_p2_t}{Blender::PointP2T}}\&\ GetActualPointStructure(\ \mbox{\hyperlink{structp2t_1_1_point}{p2t::Point}}\&\ point\ )\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ MakeFacesFromTriangles(\ std::vector<\ p2t::Triangle*\ >\&\ triangles\ )\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Adapted\ from:\ http://missingbytes.blogspot.co.uk/2012/06/fitting-\/plane-\/to-\/point-\/cloud.html}}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ FindLargestMatrixElem(\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_matrix3x3}{aiMatrix3x3}}\&\ mtx\ )\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_matrix3x3}{aiMatrix3x3}}\ ScaleMatrix(\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_matrix3x3}{aiMatrix3x3}}\&\ mtx,\ \textcolor{keywordtype}{float}\ scale\ )\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ GetEigenVectorFromLargestEigenValue(\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_matrix3x3}{aiMatrix3x3}}\&\ mtx\ )\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_plane_p2_t}{Blender::PlaneP2T}}\ FindLLSQPlane(\ \textcolor{keyword}{const}\ std::vector<\ Blender::PointP2T\ >\&\ points\ )\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00202\ }
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_blender_b_mesh_converter}{BlenderBMeshConverter}}*\ converter;}
+\DoxyCodeLine{00204\ \ \ \ \ \};}
+\DoxyCodeLine{00205\ \}\ \textcolor{comment}{//\ end\ of\ namespace\ Assimp}}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00207\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ ASSIMP\_BLEND\_WITH\_POLY\_2\_TRI}}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ INCLUDED\_AI\_BLEND\_TESSELLATOR\_H}}
+
+\end{DoxyCode}

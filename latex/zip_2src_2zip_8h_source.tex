@@ -1,0 +1,188 @@
+\doxysection{zip.\+h}
+\hypertarget{zip_2src_2zip_8h_source}{}\label{zip_2src_2zip_8h_source}\index{RobotLib/libraries/assimp/contrib/zip/src/zip.h@{RobotLib/libraries/assimp/contrib/zip/src/zip.h}}
+\mbox{\hyperlink{zip_2src_2zip_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ THE\ SOFTWARE\ IS\ PROVIDED\ "{}AS\ IS"{},\ WITHOUT\ WARRANTY\ OF\ ANY\ KIND,}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ EXPRESS\ OR\ IMPLIED,\ INCLUDING\ BUT\ NOT\ LIMITED\ TO\ THE\ WARRANTIES\ OF}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ MERCHANTABILITY,\ FITNESS\ FOR\ A\ PARTICULAR\ PURPOSE\ AND\ NONINFRINGEMENT.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ IN\ NO\ EVENT\ SHALL\ THE\ AUTHORS\ BE\ LIABLE\ FOR\ ANY\ CLAIM,\ DAMAGES\ OR}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ OTHER\ LIABILITY,\ WHETHER\ IN\ AN\ ACTION\ OF\ CONTRACT,\ TORT\ OR\ OTHERWISE,}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ ARISING\ FROM,\ OUT\ OF\ OR\ IN\ CONNECTION\ WITH\ THE\ SOFTWARE\ OR\ THE\ USE\ OR}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *\ OTHER\ DEALINGS\ IN\ THE\ SOFTWARE.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#ifndef\ ZIP\_H}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#define\ ZIP\_H}}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{stdint_8h}{stdint.h}}>}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ <sys/types.h>}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#ifndef\ ZIP\_SHARED}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#define\ ZIP\_EXPORT}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#ifdef\ ZIP\_BUILD\_SHARED}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#define\ ZIP\_EXPORT\ \_\_declspec(dllexport)}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#define\ ZIP\_EXPORT\ \_\_declspec(dllimport)}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#define\ ZIP\_EXPORT\ \_\_attribute\_\_((visibility("{}default"{})))}}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00034\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{00035\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{preprocessor}{\#if\ !defined(\_POSIX\_C\_SOURCE)\ \&\&\ defined(\_MSC\_VER)}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ 64-\/bit\ Windows\ is\ the\ only\ mainstream\ platform}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ where\ sizeof(long)\ !=\ sizeof(void*)}}
+\DoxyCodeLine{00040\ \textcolor{preprocessor}{\#ifdef\ \_WIN64}}
+\DoxyCodeLine{00041\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ ssize\_t;\ \textcolor{comment}{/*\ byte\ count\ or\ error\ */}}
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00043\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{long}\ ssize\_t;\ \textcolor{comment}{/*\ byte\ count\ or\ error\ */}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#define\ ZIP\_DEFAULT\_COMPRESSION\_LEVEL\ 6}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\#define\ ZIP\_ENOINIT\ -\/1\ \ \ \ \ \ }\textcolor{comment}{//\ not\ initialized}}
+\DoxyCodeLine{00067\ \textcolor{preprocessor}{\#define\ ZIP\_EINVENTNAME\ -\/2\ \ }\textcolor{comment}{//\ invalid\ entry\ name}}
+\DoxyCodeLine{00068\ \textcolor{preprocessor}{\#define\ ZIP\_ENOENT\ -\/3\ \ \ \ \ \ \ }\textcolor{comment}{//\ entry\ not\ found}}
+\DoxyCodeLine{00069\ \textcolor{preprocessor}{\#define\ ZIP\_EINVMODE\ -\/4\ \ \ \ \ }\textcolor{comment}{//\ invalid\ zip\ mode}}
+\DoxyCodeLine{00070\ \textcolor{preprocessor}{\#define\ ZIP\_EINVLVL\ -\/5\ \ \ \ \ \ }\textcolor{comment}{//\ invalid\ compression\ level}}
+\DoxyCodeLine{00071\ \textcolor{preprocessor}{\#define\ ZIP\_ENOSUP64\ -\/6\ \ \ \ \ }\textcolor{comment}{//\ no\ zip\ 64\ support}}
+\DoxyCodeLine{00072\ \textcolor{preprocessor}{\#define\ ZIP\_EMEMSET\ -\/7\ \ \ \ \ \ }\textcolor{comment}{//\ memset\ error}}
+\DoxyCodeLine{00073\ \textcolor{preprocessor}{\#define\ ZIP\_EWRTENT\ -\/8\ \ \ \ \ \ }\textcolor{comment}{//\ cannot\ write\ data\ to\ entry}}
+\DoxyCodeLine{00074\ \textcolor{preprocessor}{\#define\ ZIP\_ETDEFLINIT\ -\/9\ \ \ }\textcolor{comment}{//\ cannot\ initialize\ tdefl\ compressor}}
+\DoxyCodeLine{00075\ \textcolor{preprocessor}{\#define\ ZIP\_EINVIDX\ -\/10\ \ \ \ \ }\textcolor{comment}{//\ invalid\ index}}
+\DoxyCodeLine{00076\ \textcolor{preprocessor}{\#define\ ZIP\_ENOHDR\ -\/11\ \ \ \ \ \ }\textcolor{comment}{//\ header\ not\ found}}
+\DoxyCodeLine{00077\ \textcolor{preprocessor}{\#define\ ZIP\_ETDEFLBUF\ -\/12\ \ \ }\textcolor{comment}{//\ cannot\ flush\ tdefl\ buffer}}
+\DoxyCodeLine{00078\ \textcolor{preprocessor}{\#define\ ZIP\_ECRTHDR\ -\/13\ \ \ \ \ }\textcolor{comment}{//\ cannot\ create\ entry\ header}}
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\#define\ ZIP\_EWRTHDR\ -\/14\ \ \ \ \ }\textcolor{comment}{//\ cannot\ write\ entry\ header}}
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\#define\ ZIP\_EWRTDIR\ -\/15\ \ \ \ \ }\textcolor{comment}{//\ cannot\ write\ to\ central\ dir}}
+\DoxyCodeLine{00081\ \textcolor{preprocessor}{\#define\ ZIP\_EOPNFILE\ -\/16\ \ \ \ }\textcolor{comment}{//\ cannot\ open\ file}}
+\DoxyCodeLine{00082\ \textcolor{preprocessor}{\#define\ ZIP\_EINVENTTYPE\ -\/17\ }\textcolor{comment}{//\ invalid\ entry\ type}}
+\DoxyCodeLine{00083\ \textcolor{preprocessor}{\#define\ ZIP\_EMEMNOALLOC\ -\/18\ }\textcolor{comment}{//\ extracting\ data\ using\ no\ memory\ allocation}}
+\DoxyCodeLine{00084\ \textcolor{preprocessor}{\#define\ ZIP\_ENOFILE\ -\/19\ \ \ \ \ }\textcolor{comment}{//\ file\ not\ found}}
+\DoxyCodeLine{00085\ \textcolor{preprocessor}{\#define\ ZIP\_ENOPERM\ -\/20\ \ \ \ \ }\textcolor{comment}{//\ no\ permission}}
+\DoxyCodeLine{00086\ \textcolor{preprocessor}{\#define\ ZIP\_EOOMEM\ -\/21\ \ \ \ \ \ }\textcolor{comment}{//\ out\ of\ memory}}
+\DoxyCodeLine{00087\ \textcolor{preprocessor}{\#define\ ZIP\_EINVZIPNAME\ -\/22\ }\textcolor{comment}{//\ invalid\ zip\ archive\ name}}
+\DoxyCodeLine{00088\ \textcolor{preprocessor}{\#define\ ZIP\_EMKDIR\ -\/23\ \ \ \ \ \ }\textcolor{comment}{//\ make\ dir\ error}}
+\DoxyCodeLine{00089\ \textcolor{preprocessor}{\#define\ ZIP\_ESYMLINK\ -\/24\ \ \ \ }\textcolor{comment}{//\ symlink\ error}}
+\DoxyCodeLine{00090\ \textcolor{preprocessor}{\#define\ ZIP\_ECLSZIP\ -\/25\ \ \ \ \ }\textcolor{comment}{//\ close\ archive\ error}}
+\DoxyCodeLine{00091\ \textcolor{preprocessor}{\#define\ ZIP\_ECAPSIZE\ -\/26\ \ \ \ }\textcolor{comment}{//\ capacity\ size\ too\ small}}
+\DoxyCodeLine{00092\ \textcolor{preprocessor}{\#define\ ZIP\_EFSEEK\ -\/27\ \ \ \ \ \ }\textcolor{comment}{//\ fseek\ error}}
+\DoxyCodeLine{00093\ \textcolor{preprocessor}{\#define\ ZIP\_EFREAD\ -\/28\ \ \ \ \ \ }\textcolor{comment}{//\ fread\ error}}
+\DoxyCodeLine{00094\ \textcolor{preprocessor}{\#define\ ZIP\_EFWRITE\ -\/29\ \ \ \ \ }\textcolor{comment}{//\ fwrite\ error}}
+\DoxyCodeLine{00095\ \textcolor{preprocessor}{\#define\ ZIP\_ERINIT\ -\/30\ \ \ \ \ \ }\textcolor{comment}{//\ cannot\ initialize\ reader}}
+\DoxyCodeLine{00096\ \textcolor{preprocessor}{\#define\ ZIP\_EWINIT\ -\/31\ \ \ \ \ \ }\textcolor{comment}{//\ cannot\ initialize\ writer}}
+\DoxyCodeLine{00097\ \textcolor{preprocessor}{\#define\ ZIP\_EWRINIT\ -\/32\ \ \ \ \ }\textcolor{comment}{//\ cannot\ initialize\ writer\ from\ reader}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00105\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{group__zip_gabca67f23df63c3265f11bb473fe56ba6}{zip\_strerror}}(\textcolor{keywordtype}{int}\ errnum);}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00113\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structzip__t}{zip\_t}};}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00127\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structzip__t}{zip\_t}}\ *\mbox{\hyperlink{group__zip_gaf7f71c814c1de662928f663d8fc242c8}{zip\_open}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *zipname,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structzip__t_a95f8b4b0c8d33d3e198dccc8f3f17114}{level}},}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}});}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00144\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structzip__t}{zip\_t}}\ *}
+\DoxyCodeLine{00145\ \mbox{\hyperlink{group__zip_gad7b5a0f33e198f52f5a137343d77d715}{zip\_openwitherror}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *zipname,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structzip__t_a95f8b4b0c8d33d3e198dccc8f3f17114}{level}},\ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}},\ \textcolor{keywordtype}{int}\ *errnum);}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00152\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{group__zip_ga18da9bcc4326509f96050d0dd6b6482e}{zip\_close}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00162\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_gaf0a38c5997380355410de49c6786a2a9}{zip\_is64}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00176\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_gaba60649fe4e59118ba506a730b17474c}{zip\_entry\_open}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *entryname);}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00190\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_ga97f7b6c25da5d247b44213c5d45d6c9a}{zip\_entry\_opencasesensitive}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *entryname);}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00203\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_gaa1c8e1a136051e58b6fe1b68822ce768}{zip\_entry\_openbyindex}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,\ \textcolor{keywordtype}{size\_t}\ index);}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00212\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_gac8fdc5350deeadd9cc5c6bd9f84901bb}{zip\_entry\_close}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00228\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{group__zip_ga10f4810d437de3e317076d8c3c6d2be6}{zip\_entry\_name}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00237\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ ssize\_t\ \mbox{\hyperlink{group__zip_gacbbcd6a7f2173e7c1b4912bd27d06a0f}{zip\_entry\_index}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00247\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_gae5afe92ebf355feb475cb50bc9130ef3}{zip\_entry\_isdir}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00257\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{group__zip_ga2c0ec10ec274baf6b4f8ff9e18ba58dc}{zip\_entry\_size}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00266\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{group__zip_ga5be3c8e6d8aa097e717b876843e5497e}{zip\_entry\_uncomp\_size}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00275\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{group__zip_ga474c0b38401cd4412a141c5d4b8cfe27}{zip\_entry\_comp\_size}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00284\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_gade666c9e0ca75bc5c8d65df68ed86481}{zip\_entry\_crc32}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00285\ }
+\DoxyCodeLine{00294\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{group__zip_ga1a7b1dbf37071d77dcd4dce854da6f74}{zip\_entry\_dir\_offset}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00295\ }
+\DoxyCodeLine{00303\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{group__zip_ga2e0612764e3179069f7a6118ab90a3f9}{zip\_entry\_header\_offset}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00304\ }
+\DoxyCodeLine{00314\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_ga9fae1f73698c8b46f745436584330cd5}{zip\_entry\_write}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufsize);}
+\DoxyCodeLine{00316\ }
+\DoxyCodeLine{00325\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_gacb2edb8c1e27b96e48613b973eea69b4}{zip\_entry\_fwrite}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}});}
+\DoxyCodeLine{00326\ }
+\DoxyCodeLine{00342\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ ssize\_t\ \mbox{\hyperlink{group__zip_ga9b426a78dd024c0cb88909ba9a4dc489}{zip\_entry\_read}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,\ \textcolor{keywordtype}{void}\ **\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ *bufsize);}
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00362\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ ssize\_t\ \mbox{\hyperlink{group__zip_ga1685ef216c9aaf0b449458341289d6fa}{zip\_entry\_noallocread}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,\ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},}
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufsize);}
+\DoxyCodeLine{00364\ }
+\DoxyCodeLine{00373\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_gab8375d353a506b53c8780293747ffc40}{zip\_entry\_fread}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}});}
+\DoxyCodeLine{00374\ }
+\DoxyCodeLine{00385\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}}
+\DoxyCodeLine{00386\ \mbox{\hyperlink{group__zip_ga69d0a3a0627dbe8a005eb1f7f56edf85}{zip\_entry\_extract}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ (*on\_extract)(\textcolor{keywordtype}{void}\ *arg,\ uint64\_t\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}},}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}},\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}}),}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ *arg);}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00399\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ ssize\_t\ \mbox{\hyperlink{group__zip_ga53f8de08f91e99c956dac71535206053}{zip\_entries\_total}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00400\ }
+\DoxyCodeLine{00409\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ ssize\_t\ \mbox{\hyperlink{group__zip_ga5f735efb9f8998b2e5015dc6a84de758}{zip\_entries\_delete}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *\textcolor{keyword}{const}\ entries[],\ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{00411\ }
+\DoxyCodeLine{00420\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ ssize\_t\ \mbox{\hyperlink{group__zip_ga0a8b9fb9802d01ebc2496c3e9e0ea412}{zip\_entries\_deletebyindex}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ entries[],}
+\DoxyCodeLine{00422\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{00423\ }
+\DoxyCodeLine{00441\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}}
+\DoxyCodeLine{00442\ \mbox{\hyperlink{group__zip_ga47d4ec8b8d89f34757fee26ede777e74}{zip\_stream\_extract}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}},\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}},\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *dir,}
+\DoxyCodeLine{00443\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ (*on\_extract)(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},\ \textcolor{keywordtype}{void}\ *arg),}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ *arg);}
+\DoxyCodeLine{00445\ }
+\DoxyCodeLine{00459\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structzip__t}{zip\_t}}\ *\mbox{\hyperlink{group__zip_ga1b68c8f0924181831b7f67726059a75c}{zip\_stream\_open}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}},\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}},}
+\DoxyCodeLine{00460\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structzip__t_a95f8b4b0c8d33d3e198dccc8f3f17114}{level}},\ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}});}
+\DoxyCodeLine{00461\ }
+\DoxyCodeLine{00477\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structzip__t}{zip\_t}}\ *\mbox{\hyperlink{group__zip_ga0b1c0ae08f91efa7aca038be3d45e2cd}{zip\_stream\_openwitherror}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}},}
+\DoxyCodeLine{00478\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structzip__t_a95f8b4b0c8d33d3e198dccc8f3f17114}{level}},}
+\DoxyCodeLine{00479\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}},}
+\DoxyCodeLine{00480\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *errnum);}
+\DoxyCodeLine{00481\ }
+\DoxyCodeLine{00491\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ ssize\_t\ \mbox{\hyperlink{group__zip_ga9806b3ee559c5bf6bc65638a0810ce26}{zip\_stream\_copy}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip,\ \textcolor{keywordtype}{void}\ **\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},}
+\DoxyCodeLine{00492\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ *bufsize);}
+\DoxyCodeLine{00493\ }
+\DoxyCodeLine{00501\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{group__zip_ga5d8456654e380faa9dfa7cc0706bbf93}{zip\_stream\_close}}(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structzip__t}{zip\_t}}\ *zip);}
+\DoxyCodeLine{00502\ }
+\DoxyCodeLine{00512\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_gaf6cf03503fd7e52234dd4a7d1046064c}{zip\_create}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *zipname,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *filenames[],}
+\DoxyCodeLine{00513\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{00514\ }
+\DoxyCodeLine{00531\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zip_2src_2zip_8h_ad2db464b9d20ca413a4a61a2d27e5936}{ZIP\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{group__zip_gae16630490401652bfae19d5d0f3c141e}{zip\_extract}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *zipname,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *dir,}
+\DoxyCodeLine{00532\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ (*on\_extract\_entry)(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00533\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ *arg),}
+\DoxyCodeLine{00534\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ *arg);}
+\DoxyCodeLine{00536\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00537\ \}}
+\DoxyCodeLine{00538\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00539\ }
+\DoxyCodeLine{00540\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

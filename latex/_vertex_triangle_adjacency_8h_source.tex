@@ -1,0 +1,97 @@
+\doxysection{Vertex\+Triangle\+Adjacency.\+h}
+\hypertarget{_vertex_triangle_adjacency_8h_source}{}\label{_vertex_triangle_adjacency_8h_source}\index{RobotLib/libraries/assimp/code/Common/VertexTriangleAdjacency.h@{RobotLib/libraries/assimp/code/Common/VertexTriangleAdjacency.h}}
+\mbox{\hyperlink{_vertex_triangle_adjacency_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{}}
+\DoxyCodeLine{00008\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00012\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ \ following\ disclaimer.}}
+\DoxyCodeLine{00017\ \textcolor{comment}{}}
+\DoxyCodeLine{00018\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ \ materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{}}
+\DoxyCodeLine{00023\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00027\ \textcolor{comment}{}}
+\DoxyCodeLine{00028\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00029\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00030\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00031\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00032\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00033\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00034\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00035\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00036\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00037\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00038\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00039\ \textcolor{comment}{}}
+\DoxyCodeLine{00040\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00041\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#ifndef\ AI\_VTADJACENCY\_H\_INC}}
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#define\ AI\_VTADJACENCY\_H\_INC}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_base_process_8h}{BaseProcess.h}}"{}}}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#include\ <assimp/types.h>}}
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#include\ <assimp/ai\_assert.h>}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_mesh}{aiMesh}};}
+\DoxyCodeLine{00052\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_face}{aiFace}};}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \ \ \ \{}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00062\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00063\ \textcolor{keyword}{class\ }\mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a7d617d307e656cb6ff315ba71ff958d4}{ASSIMP\_API}}\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_a68ee4678c25fe13b4c4c5c9cd64ebb7b}{VertexTriangleAdjacency}}\ \{}
+\DoxyCodeLine{00064\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00074\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_a68ee4678c25fe13b4c4c5c9cd64ebb7b}{VertexTriangleAdjacency}}(\mbox{\hyperlink{structai_face}{aiFace}}*\ pcFaces,\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ iNumFaces,}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ iNumVertices\ =\ 0,}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ bComputeNumTriangles\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_a68ee4678c25fe13b4c4c5c9cd64ebb7b}{\string~VertexTriangleAdjacency}}();}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}*\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_ab95d64abcaa628554c8805cb28c3670f}{GetAdjacentTriangles}}(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ iVertIndex)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2ai__assert_8h_a8cda16916af68d32c6add71ef3bb7af3}{ai\_assert}}(iVertIndex\ <\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_a910fc14db49e54b35eba9d4bd99c86f4}{mNumVertices}});}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \&\mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_a9cd119269d6c1f74dceb19fec8847f07}{mAdjacencyTable}}[\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_a3fbbefa87fbbe4d55d4982e1cd32a9d0}{mOffsetTable}}[iVertIndex]];}
+\DoxyCodeLine{00089\ \ \ \ \ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\&\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_ad388358eab5fb510d3304710d066b953}{GetNumTrianglesPtr}}(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ iVertIndex)\ \{}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2ai__assert_8h_a8cda16916af68d32c6add71ef3bb7af3}{ai\_assert}}(\ iVertIndex\ <\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_a910fc14db49e54b35eba9d4bd99c86f4}{mNumVertices}}\ );}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2ai__assert_8h_a8cda16916af68d32c6add71ef3bb7af3}{ai\_assert}}(\ \textcolor{keyword}{nullptr}\ !=\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_ac358d030371beb7e2e5bcb38860a0e15}{mLiveTriangles}}\ );}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_ac358d030371beb7e2e5bcb38860a0e15}{mLiveTriangles}}[iVertIndex];}
+\DoxyCodeLine{00100\ \ \ \ \ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}*\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_a3fbbefa87fbbe4d55d4982e1cd32a9d0}{mOffsetTable}};}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}*\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_a9cd119269d6c1f74dceb19fec8847f07}{mAdjacencyTable}};}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}*\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_ac358d030371beb7e2e5bcb38860a0e15}{mLiveTriangles}};}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_assimp_1_1_vertex_triangle_adjacency_a910fc14db49e54b35eba9d4bd99c86f4}{mNumVertices}};}
+\DoxyCodeLine{00113\ \};}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \}\ }
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ !!\ AI\_VTADJACENCY\_H\_INC}}
+
+\end{DoxyCode}

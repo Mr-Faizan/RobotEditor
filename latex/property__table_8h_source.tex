@@ -1,0 +1,249 @@
+\doxysection{property\+\_\+table.\+h}
+\hypertarget{property__table_8h_source}{}\label{property__table_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/metadata/property\_table.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/metadata/property\_table.h}}
+\mbox{\hyperlink{property__table_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2022\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_METADATA\_PROPERTY\_TABLE\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_METADATA\_PROPERTY\_TABLE\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ Describes\ a\ property\ table\ as\ defined\ in\ the\ EXT\_structural\_metadata\ glTF}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ extension,\ including\ property\ table\ schema\ and\ table\ properties\ (columns).}}
+\DoxyCodeLine{00030\ \textcolor{keyword}{class\ }PropertyTable\ \{}
+\DoxyCodeLine{00031\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00032\ \ \ \textcolor{comment}{//\ Describes\ property\ table\ schema\ in\ the\ form\ of\ a\ JSON\ object.}}
+\DoxyCodeLine{00033\ \ \ \textcolor{keyword}{struct\ }Schema\ \{}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{comment}{//\ JSON\ object\ of\ the\ schema.}}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{comment}{//\ TODO(vytyaz):\ Consider\ using\ a\ third\_party/json\ library.\ Currently\ there}}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//\ is\ a\ conflict\ between\ Filament's\ assert\_invariant()\ macro\ and\ JSON}}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{comment}{//\ library's\ assert\_invariant()\ method\ that\ causes\ compile\ errors\ in\ Draco}}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{comment}{//\ visualization\ library.}}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keyword}{class\ }Object\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \textcolor{keyword}{enum}\ \mbox{\hyperlink{rapidjson_8h_a1d1cfd8ffb84e947f82999c682b666a7}{Type}}\ \{\ OBJECT,\ ARRAY,\ \mbox{\hyperlink{namespace_assimp_1_1_s_t_e_p_1_1_e_x_p_r_e_s_s_a8c62e41e1e2c296b8e907b3ae07dc03f}{STRING}},\ \mbox{\hyperlink{namespace_assimp_1_1_s_t_e_p_1_1_e_x_p_r_e_s_s_a5c451632b0759452d92bc1c1ca87f973}{INTEGER}},\ \mbox{\hyperlink{namespace_assimp_1_1_s_t_e_p_1_1_e_x_p_r_e_s_s_a27a0c576f888f6b9c174fe03f9abab5c}{BOOLEAN}}\ \};}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \textcolor{comment}{//\ Constructors.}}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ Object()\ :\ Object(\textcolor{stringliteral}{"{}"{}})\ \{\}}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \textcolor{keyword}{explicit}\ Object(\textcolor{keyword}{const}\ std::string\&\ name)}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \ \ :\ name\_(\mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a121de9e28240c888f0e81487b195bf88}{name}}),\ type\_(OBJECT),\ integer\_(0),\ boolean\_(false)\ \{\}}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ Object(\textcolor{keyword}{const}\ std::string\&\ name,\ \textcolor{keyword}{const}\ std::string\&\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ :\ Object(\mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a121de9e28240c888f0e81487b195bf88}{name}})\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ SetString(\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ Object(\textcolor{keyword}{const}\ std::string\&\ name,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ :\ Object(\mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a121de9e28240c888f0e81487b195bf88}{name}})\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ SetString(\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ Object(\textcolor{keyword}{const}\ std::string\&\ name,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ :\ Object(\mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a121de9e28240c888f0e81487b195bf88}{name}})\ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ SetInteger(\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ Object(\textcolor{keyword}{const}\ std::string\&\ name,\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ :\ Object(\mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a121de9e28240c888f0e81487b195bf88}{name}})\ \{}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ SetBoolean(\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \textcolor{comment}{//\ Methods\ for\ comparing\ two\ objects.}}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_a4fe1c9b8096b3c21d3dd1e19c3eff59f}{operator==}}(\textcolor{keyword}{const}\ Object\&\ other)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_ac45cd9ddda9dd7a4682f0c57f4077fc1}{operator!=}}(\textcolor{keyword}{const}\ Object\&\ other)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ !(*\textcolor{keyword}{this}\ ==\ other);\ \}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \textcolor{comment}{//\ Method\ for\ copying\ the\ object.}}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a36c6bee907ea7cf3070444e1f3db3413}{Copy}}(\textcolor{keyword}{const}\ Object\&\ src);}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \textcolor{comment}{//\ Methods\ for\ getting\ object\ name\ and\ type.}}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\&\ GetName()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ name\_;\ \}}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \mbox{\hyperlink{rapidjson_8h_a1d1cfd8ffb84e947f82999c682b666a7}{Type}}\ \mbox{\hyperlink{namespacestructsgen_a3f7975c961cb957d4f7ed46df4e73178}{GetType}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ type\_;\ \}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \textcolor{comment}{//\ Methods\ for\ getting\ object\ value.}}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<Object>\&\ GetObjects()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ objects\_;\ \}}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<Object>\&\ GetArray()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ array\_;\ \}}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\&\ GetString()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ string\_;\ \}}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ GetInteger()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ integer\_;\ \}}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ GetBoolean()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ boolean\_;\ \}}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \textcolor{comment}{//\ Methods\ for\ setting\ object\ value.}}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ std::vector<Object>\&\ SetObjects()\ \{}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ type\_\ =\ OBJECT;}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ objects\_;}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ std::vector<Object>\&\ SetArray()\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ type\_\ =\ ARRAY;}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ array\_;}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ SetString(\textcolor{keyword}{const}\ std::string\&\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ type\_\ =\ \mbox{\hyperlink{namespace_assimp_1_1_s_t_e_p_1_1_e_x_p_r_e_s_s_a8c62e41e1e2c296b8e907b3ae07dc03f}{STRING}};}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ string\_\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ SetInteger(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ type\_\ =\ \mbox{\hyperlink{namespace_assimp_1_1_s_t_e_p_1_1_e_x_p_r_e_s_s_a5c451632b0759452d92bc1c1ca87f973}{INTEGER}};}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ integer\_\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ SetBoolean(\textcolor{keywordtype}{bool}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ type\_\ =\ \mbox{\hyperlink{namespace_assimp_1_1_s_t_e_p_1_1_e_x_p_r_e_s_s_a27a0c576f888f6b9c174fe03f9abab5c}{BOOLEAN}};}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ boolean\_\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ std::string\ name\_;}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \mbox{\hyperlink{rapidjson_8h_a1d1cfd8ffb84e947f82999c682b666a7}{Type}}\ type\_;}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ std::vector<Object>\ objects\_;}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ std::vector<Object>\ array\_;}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ std::string\ string\_;}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ integer\_;}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ boolean\_;}
+\DoxyCodeLine{00108\ \ \ \ \ \};}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{comment}{//\ Valid\ schema\ top-\/level\ JSON\ object\ name\ is\ "{}schema"{}.}}
+\DoxyCodeLine{00111\ \ \ \ \ Schema()\ :\ \mbox{\hyperlink{dhcalculator_8h_ab701e3ac61a85b337ec5c1abaad6742d}{json}}(\textcolor{stringliteral}{"{}schema"{}})\ \{\}}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{comment}{//\ Methods\ for\ comparing\ two\ schemas.}}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_a4fe1c9b8096b3c21d3dd1e19c3eff59f}{operator==}}(\textcolor{keyword}{const}\ Schema\&\ other)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{dhcalculator_8h_ab701e3ac61a85b337ec5c1abaad6742d}{json}}\ ==\ other.json;\ \}}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_ac45cd9ddda9dd7a4682f0c57f4077fc1}{operator!=}}(\textcolor{keyword}{const}\ Schema\&\ other)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ !(*\textcolor{keyword}{this}\ ==\ other);\ \}}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{comment}{//\ Valid\ schema\ top-\/level\ JSON\ object\ is\ required\ to\ have\ child\ objects.}}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordtype}{bool}\ Empty()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{dhcalculator_8h_ab701e3ac61a85b337ec5c1abaad6742d}{json}}.GetObjects().empty();\ \}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{comment}{//\ Top-\/level\ JSON\ object\ of\ the\ schema.}}
+\DoxyCodeLine{00121\ \ \ \ \ Object\ \mbox{\hyperlink{dhcalculator_8h_ab701e3ac61a85b337ec5c1abaad6742d}{json}};}
+\DoxyCodeLine{00122\ \ \ \};}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \textcolor{comment}{//\ Describes\ a\ property\ (column)\ of\ a\ property\ table.}}
+\DoxyCodeLine{00125\ \ \ \textcolor{keyword}{class\ }Property\ \{}
+\DoxyCodeLine{00126\ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{comment}{//\ Describes\ glTF\ buffer\ view\ data.}}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keyword}{struct\ }Data\ \{}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \textcolor{comment}{//\ Methods\ for\ comparing\ two\ data\ objects.}}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_a4fe1c9b8096b3c21d3dd1e19c3eff59f}{operator==}}(\textcolor{keyword}{const}\ Data\&\ other)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_ac45cd9ddda9dd7a4682f0c57f4077fc1}{operator!=}}(\textcolor{keyword}{const}\ Data\&\ other)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ !(*\textcolor{keyword}{this}\ ==\ other);\ \}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \textcolor{comment}{//\ Buffer\ view\ data.}}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ std::vector<uint8\_t>\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}};}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \textcolor{comment}{//\ Data\ target\ corresponds\ to\ the\ target\ property\ of\ the\ glTF\ bufferView}}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \textcolor{comment}{//\ object\ and\ classifies\ the\ type\ or\ nature\ of\ the\ data.}}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ target\ =\ 0;}
+\DoxyCodeLine{00139\ \ \ \ \ \};}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{comment}{//\ Describes\ offsets\ of\ the\ entries\ in\ property\ data\ when\ the\ data}}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{comment}{//\ represents\ an\ array\ of\ strings\ or\ an\ array\ of\ variable-\/length\ number}}
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{comment}{//\ arrays.}}
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keyword}{struct\ }Offsets\ \{}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \textcolor{comment}{//\ Methods\ for\ comparing\ two\ offsets.}}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_a4fe1c9b8096b3c21d3dd1e19c3eff59f}{operator==}}(\textcolor{keyword}{const}\ Offsets\&\ other)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_ac45cd9ddda9dd7a4682f0c57f4077fc1}{operator!=}}(\textcolor{keyword}{const}\ Offsets\&\ other)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ !(*\textcolor{keyword}{this}\ ==\ other);\ \}}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \textcolor{comment}{//\ Data\ containing\ the\ offset\ entries.}}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ Data\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}};}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \textcolor{comment}{//\ Data\ type\ of\ the\ offset\ entries.}}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ std::string\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a0b934232cabd06f3c163d3ee2413edf5}{type}};}
+\DoxyCodeLine{00154\ \ \ \ \ \};}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{comment}{//\ Creates\ an\ empty\ property.}}
+\DoxyCodeLine{00157\ \ \ \ \ Property();}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{comment}{//\ Methods\ for\ comparing\ two\ properties.}}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_a4fe1c9b8096b3c21d3dd1e19c3eff59f}{operator==}}(\textcolor{keyword}{const}\ Property\&\ other)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_ac45cd9ddda9dd7a4682f0c57f4077fc1}{operator!=}}(\textcolor{keyword}{const}\ Property\&\ other)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ !(*\textcolor{keyword}{this}\ ==\ other);\ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{comment}{//\ Copies\ all\ data\ from\ |src|\ property.}}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a36c6bee907ea7cf3070444e1f3db3413}{Copy}}(\textcolor{keyword}{const}\ Property\&\ src);}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \ \ \textcolor{comment}{//\ Name\ of\ this\ property.}}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keywordtype}{void}\ SetName(\textcolor{keyword}{const}\ std::string\&\ name);}
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keyword}{const}\ std::string\&\ GetName()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{comment}{//\ Property\ data\ stores\ one\ table\ column\ worth\ of\ data.\ For\ example,\ when}}
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{comment}{//\ the\ data\ of\ type\ UINT8\ is\ [11,\ 22]\ then\ the\ property\ values\ are\ 11\ and\ 22}}
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{comment}{//\ for\ the\ first\ and\ second\ table\ rows.\ See\ EXT\_structural\_metadata\ glTF}}
+\DoxyCodeLine{00173\ \ \ \ \ \textcolor{comment}{//\ extension\ documentation\ for\ more\ details.}}
+\DoxyCodeLine{00174\ \ \ \ \ Data\&\ GetData();}
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keyword}{const}\ Data\&\ GetData()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{comment}{//\ Array\ offsets\ are\ used\ when\ property\ data\ contains\ a\ variable-\/length}}
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{comment}{//\ number\ arrays.\ For\ example,\ when\ the\ data\ is\ [0,\ 1,\ 2,\ 3,\ 4]\ and\ the}}
+\DoxyCodeLine{00179\ \ \ \ \ \textcolor{comment}{//\ array\ offsets\ are\ [0,\ 2,\ 5]\ for\ a\ two-\/row\ table,\ then\ the\ property\ value}}
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{comment}{//\ arrays\ are\ [0,\ 1]\ and\ [2,\ 3,\ 4]\ for\ the\ first\ and\ second\ table\ rows,}}
+\DoxyCodeLine{00181\ \ \ \ \ \textcolor{comment}{//\ respectively.\ See\ EXT\_structural\_metadata\ glTF\ extension\ documentation}}
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{comment}{//\ for\ more\ details.}}
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{keyword}{const}\ Offsets\&\ GetArrayOffsets()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00184\ \ \ \ \ Offsets\&\ GetArrayOffsets();}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \ \ \ \ \textcolor{comment}{//\ String\ offsets\ are\ used\ when\ property\ data\ contains\ strings.\ For\ example,}}
+\DoxyCodeLine{00187\ \ \ \ \ \textcolor{comment}{//\ when\ the\ data\ is\ "{}SeaLand"{}\ and\ the\ array\ offsets\ are\ [0,\ 3,\ 7]\ for\ a}}
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{comment}{//\ two-\/row\ table,\ then\ the\ property\ strings\ are\ "{}Sea"{}\ \ and\ "{}Land"{}\ for\ the}}
+\DoxyCodeLine{00189\ \ \ \ \ \textcolor{comment}{//\ first\ and\ second\ table\ rows,\ respectively.\ See\ EXT\_structural\_metadata}}
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{comment}{//\ glTF\ extension\ documentation\ for\ more\ details.}}
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{keyword}{const}\ Offsets\&\ GetStringOffsets()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00192\ \ \ \ \ Offsets\&\ GetStringOffsets();}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00195\ \ \ \ \ std::string\ name\_;}
+\DoxyCodeLine{00196\ \ \ \ \ Data\ data\_;}
+\DoxyCodeLine{00197\ \ \ \ \ Offsets\ array\_offsets\_;}
+\DoxyCodeLine{00198\ \ \ \ \ Offsets\ string\_offsets\_;}
+\DoxyCodeLine{00199\ \ \ \ \ \textcolor{comment}{//\ TODO(vytyaz):\ Support\ property\ value\ modifiers\ min,\ max,\ offset,\ scale.}}
+\DoxyCodeLine{00200\ \ \ \};}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \textcolor{comment}{//\ Creates\ an\ empty\ property\ table.}}
+\DoxyCodeLine{00203\ \ \ PropertyTable();}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \ \ \textcolor{comment}{//\ Methods\ for\ comparing\ two\ property\ tables.}}
+\DoxyCodeLine{00206\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_a4fe1c9b8096b3c21d3dd1e19c3eff59f}{operator==}}(\textcolor{keyword}{const}\ PropertyTable\&\ other)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00207\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_ac45cd9ddda9dd7a4682f0c57f4077fc1}{operator!=}}(\textcolor{keyword}{const}\ PropertyTable\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00208\ \ \ \ \ \textcolor{keywordflow}{return}\ !(*\textcolor{keyword}{this}\ ==\ other);}
+\DoxyCodeLine{00209\ \ \ \}}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ \textcolor{comment}{//\ Copies\ all\ data\ from\ |src|\ property\ table.}}
+\DoxyCodeLine{00212\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a36c6bee907ea7cf3070444e1f3db3413}{Copy}}(\textcolor{keyword}{const}\ PropertyTable\&\ src);}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ \textcolor{comment}{//\ Name\ of\ this\ property\ table.}}
+\DoxyCodeLine{00215\ \ \ \textcolor{keywordtype}{void}\ SetName(\textcolor{keyword}{const}\ std::string\&\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00216\ \ \ \textcolor{keyword}{const}\ std::string\&\ GetName()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00218\ \ \ \textcolor{comment}{//\ Class\ of\ this\ property\ table.}}
+\DoxyCodeLine{00219\ \ \ \textcolor{keywordtype}{void}\ SetClass(\textcolor{keyword}{const}\ std::string\&\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00220\ \ \ \textcolor{keyword}{const}\ std::string\&\ GetClass()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \textcolor{comment}{//\ Number\ of\ rows\ in\ this\ property\ table.}}
+\DoxyCodeLine{00223\ \ \ \textcolor{keywordtype}{void}\ SetCount(\textcolor{keywordtype}{int}\ count);}
+\DoxyCodeLine{00224\ \ \ \textcolor{keywordtype}{int}\ GetCount()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \ \ \textcolor{comment}{//\ Table\ properties\ (columns).}}
+\DoxyCodeLine{00227\ \ \ \textcolor{keywordtype}{int}\ AddProperty(std::unique\_ptr<Property>\ property);}
+\DoxyCodeLine{00228\ \ \ \textcolor{keywordtype}{int}\ NumProperties()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00229\ \ \ \textcolor{keyword}{const}\ Property\&\ GetProperty(\textcolor{keywordtype}{int}\ index)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00230\ \ \ Property\&\ GetProperty(\textcolor{keywordtype}{int}\ index);}
+\DoxyCodeLine{00231\ \ \ \textcolor{keywordtype}{void}\ RemoveProperty(\textcolor{keywordtype}{int}\ index);}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00234\ \ \ std::string\ name\_;}
+\DoxyCodeLine{00235\ \ \ std::string\ class\_;}
+\DoxyCodeLine{00236\ \ \ \textcolor{keywordtype}{int}\ count\_;}
+\DoxyCodeLine{00237\ \ \ std::vector<std::unique\_ptr<Property>>\ properties\_;}
+\DoxyCodeLine{00238\ \};}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00240\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00243\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_METADATA\_PROPERTY\_TABLE\_H\_}}
+
+\end{DoxyCode}

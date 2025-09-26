@@ -1,0 +1,522 @@
+\doxysection{gl\+TFCommon.\+h}
+\hypertarget{gl_t_f_common_8h_source}{}\label{gl_t_f_common_8h_source}\index{RobotLib/libraries/assimp/code/AssetLib/glTF/glTFCommon.h@{RobotLib/libraries/assimp/code/AssetLib/glTF/glTFCommon.h}}
+\mbox{\hyperlink{gl_t_f_common_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00011\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00014\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00015\ \textcolor{comment}{following\ disclaimer.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00018\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00019\ \textcolor{comment}{following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00020\ \textcolor{comment}{materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00023\ \textcolor{comment}{contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00024\ \textcolor{comment}{derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00025\ \textcolor{comment}{written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00028\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00029\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00030\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00031\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00032\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00033\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00034\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00035\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00037\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{}}
+\DoxyCodeLine{00039\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#ifndef\ AI\_GLFTCOMMON\_H\_INC}}
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\#define\ AI\_GLFTCOMMON\_H\_INC}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#ifndef\ ASSIMP\_BUILD\_NO\_GLTF\_IMPORTER}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#include\ <assimp/Exceptional.h>}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#include\ <list>}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#include\ <stdexcept>}}
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{document_8h}{rapidjson/document.h}}>}}
+\DoxyCodeLine{00056\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{en_8h}{rapidjson/error/en.h}}>}}
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{rapidjson_8h}{rapidjson/rapidjson.h}}>}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \textcolor{comment}{//\ clang-\/format\ off}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#ifdef\ ASSIMP\_API}}
+\DoxyCodeLine{00062\ \textcolor{preprocessor}{\#\ \ \ include\ <assimp/ByteSwapper.h>}}
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{\#\ \ \ include\ <assimp/DefaultIOSystem.h>}}
+\DoxyCodeLine{00064\ \textcolor{preprocessor}{\#\ \ \ include\ <memory>}}
+\DoxyCodeLine{00065\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\#\ \ \ include\ <memory>}}
+\DoxyCodeLine{00067\ \textcolor{preprocessor}{\#\ \ \ define\ AI\_SWAP4(p)}}
+\DoxyCodeLine{00068\ \textcolor{preprocessor}{\#\ \ \ define\ ai\_assert}}
+\DoxyCodeLine{00069\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \textcolor{preprocessor}{\#if\ \_MSC\_VER\ >\ 1500\ ||\ (defined\ \_\_GNUC\_\_\_)}}
+\DoxyCodeLine{00072\ \textcolor{preprocessor}{\#\ \ \ define\ ASSIMP\_GLTF\_USE\_UNORDERED\_MULTIMAP}}
+\DoxyCodeLine{00073\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00074\ \textcolor{preprocessor}{\#\ \ \ define\ gltf\_unordered\_map\ map}}
+\DoxyCodeLine{00075\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \textcolor{preprocessor}{\#ifdef\ ASSIMP\_GLTF\_USE\_UNORDERED\_MULTIMAP}}
+\DoxyCodeLine{00078\ \textcolor{preprocessor}{\#\ \ \ include\ <unordered\_map>}}
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\#\ \ \ if\ defined(\_MSC\_VER)\ \&\&\ \_MSC\_VER\ <=\ 1600}}
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\#\ \ \ \ \ \ \ define\ gltf\_unordered\_map\ tr1::unordered\_map}}
+\DoxyCodeLine{00081\ \textcolor{preprocessor}{\#\ \ \ else}}
+\DoxyCodeLine{00082\ \textcolor{preprocessor}{\#\ \ \ \ \ \ \ define\ gltf\_unordered\_map\ unordered\_map}}
+\DoxyCodeLine{00083\ \textcolor{preprocessor}{\#\ \ \ endif}}
+\DoxyCodeLine{00084\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00085\ \textcolor{comment}{//\ clang-\/format\ on}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacegl_t_f_common}{glTFCommon}}\ \{}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \textcolor{keyword}{using\ }rapidjson::Document;}
+\DoxyCodeLine{00091\ \textcolor{keyword}{using\ }rapidjson::Value;}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \textcolor{preprocessor}{\#ifdef\ ASSIMP\_API}}
+\DoxyCodeLine{00094\ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_i_o_stream}{Assimp::IOStream}};}
+\DoxyCodeLine{00095\ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_i_o_system}{Assimp::IOSystem}};}
+\DoxyCodeLine{00096\ \textcolor{keyword}{using\ }std::shared\_ptr;}
+\DoxyCodeLine{00097\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00098\ \textcolor{keyword}{using\ }std::shared\_ptr;}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \textcolor{keyword}{typedef}\ std::runtime\_error\ \mbox{\hyperlink{namespacegl_t_f_common_ac943b667539fee11ae1316e512d49ddc}{DeadlyImportError}};}
+\DoxyCodeLine{00101\ \textcolor{keyword}{typedef}\ std::runtime\_error\ \mbox{\hyperlink{namespacegl_t_f_common_a4ed10009c877ac37deb88ce40d81c208}{DeadlyExportError}};}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespacegl_t_f_common_a9885d778fc7155909baffe556f75eba5}{aiOrigin}}\ \{}
+\DoxyCodeLine{00104\ \ \ \ \ \mbox{\hyperlink{namespacegl_t_f_common_a9885d778fc7155909baffe556f75eba5a022ac805c7fdc087ef4c831ef45082ae}{aiOrigin\_SET}}\ =\ 0,}
+\DoxyCodeLine{00105\ \ \ \ \ \mbox{\hyperlink{namespacegl_t_f_common_a9885d778fc7155909baffe556f75eba5a30c3a1c19342d364dd34204dc50b669f}{aiOrigin\_CUR}}\ =\ 1,}
+\DoxyCodeLine{00106\ \ \ \ \ \mbox{\hyperlink{namespacegl_t_f_common_a9885d778fc7155909baffe556f75eba5a0cd647b413575d7683dc158c8a856938}{aiOrigin\_END}}\ =\ 2}
+\DoxyCodeLine{00107\ \};}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \textcolor{keyword}{class\ }IOSystem;}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classgl_t_f2_1_1_i_o_stream_afcb3f98391a41833c8c9714c62625a88}{IOStream}}\ \{}
+\DoxyCodeLine{00112\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00113\ \ \ \ \ \mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream_afcb3f98391a41833c8c9714c62625a88}{IOStream}}(FILE\ *file)\ :}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \ \ \ \ f(file)\ \{\}}
+\DoxyCodeLine{00115\ \ \ \ \ \mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream_aea732ce89eb7e71fa042d93c6f2a3636}{\string~IOStream}}()\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ fclose(f);}
+\DoxyCodeLine{00117\ \ \ \ \ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream_a35acd7a13a59599710bb09320484052c}{Read}}(\textcolor{keywordtype}{void}\ *b,\ \textcolor{keywordtype}{size\_t}\ sz,\ \textcolor{keywordtype}{size\_t}\ n)\ \{\ \textcolor{keywordflow}{return}\ fread(b,\ sz,\ n,\ f);\ \}}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream_a90acee9e3d66534c06fcb99cb64eebe5}{Write}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *b,\ \textcolor{keywordtype}{size\_t}\ sz,\ \textcolor{keywordtype}{size\_t}\ n)\ \{\ \textcolor{keywordflow}{return}\ fwrite(b,\ sz,\ n,\ f);\ \}}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream_af80cd98ea97c1c78afbd448020aab316}{Seek}}(\textcolor{keywordtype}{size\_t}\ off,\ \mbox{\hyperlink{namespacegl_t_f_common_a9885d778fc7155909baffe556f75eba5}{aiOrigin}}\ orig)\ \{\ \textcolor{keywordflow}{return}\ fseek(f,\ off,\ \textcolor{keywordtype}{int}(orig));\ \}}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream_af58772b6ce04959c2e483b95576db7c0}{Tell}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ ftell(f);\ \}}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream_aec128e2b3b05ae61c32ce7f2b5ed5ae3}{FileSize}}()\ \{}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ p\ =\ \mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream_af58772b6ce04959c2e483b95576db7c0}{Tell}}(),\ len\ =\ (\mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream_af80cd98ea97c1c78afbd448020aab316}{Seek}}(0,\ \mbox{\hyperlink{namespacegl_t_f_common_a9885d778fc7155909baffe556f75eba5a0cd647b413575d7683dc158c8a856938}{aiOrigin\_END}}),\ \mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream_af58772b6ce04959c2e483b95576db7c0}{Tell}}());}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ size\_t((\mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream_af80cd98ea97c1c78afbd448020aab316}{Seek}}(p,\ \mbox{\hyperlink{namespacegl_t_f_common_a9885d778fc7155909baffe556f75eba5a022ac805c7fdc087ef4c831ef45082ae}{aiOrigin\_SET}}),\ len));}
+\DoxyCodeLine{00127\ \ \ \ \ \}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00130\ \ \ \ \ FILE\ *f;}
+\DoxyCodeLine{00131\ \};}
+\DoxyCodeLine{00132\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \textcolor{comment}{//\ Vec/matrix\ types,\ as\ raw\ float\ arrays}}
+\DoxyCodeLine{00135\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{namespacegl_t_f_common_aae8603995c536bc7fd7b35cbaf4897a3}{float}}(vec3)[3];}
+\DoxyCodeLine{00136\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{namespacegl_t_f_common_aae8603995c536bc7fd7b35cbaf4897a3}{float}}(vec4)[4];}
+\DoxyCodeLine{00137\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{namespacegl_t_f_common_aae8603995c536bc7fd7b35cbaf4897a3}{float}}(mat4)[16];}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_common_a2b5d06d14db27fee42b901da78df4324}{CopyValue}}(\textcolor{keyword}{const}\ glTFCommon::vec3\ \&v,\ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.r\ =\ v[0];}
+\DoxyCodeLine{00141\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.g\ =\ v[1];}
+\DoxyCodeLine{00142\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.b\ =\ v[2];}
+\DoxyCodeLine{00143\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.a\ =\ 1.0;}
+\DoxyCodeLine{00144\ \}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_common_a2b5d06d14db27fee42b901da78df4324}{CopyValue}}(\textcolor{keyword}{const}\ glTFCommon::vec4\ \&v,\ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00147\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.r\ =\ v[0];}
+\DoxyCodeLine{00148\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.g\ =\ v[1];}
+\DoxyCodeLine{00149\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.b\ =\ v[2];}
+\DoxyCodeLine{00150\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.a\ =\ v[3];}
+\DoxyCodeLine{00151\ \}}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_common_a2b5d06d14db27fee42b901da78df4324}{CopyValue}}(\textcolor{keyword}{const}\ glTFCommon::vec4\ \&v,\ \mbox{\hyperlink{structai_color3_d}{aiColor3D}}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.r\ =\ v[0];}
+\DoxyCodeLine{00155\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.g\ =\ v[1];}
+\DoxyCodeLine{00156\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.b\ =\ v[2];}
+\DoxyCodeLine{00157\ \}}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_common_a2b5d06d14db27fee42b901da78df4324}{CopyValue}}(\textcolor{keyword}{const}\ glTFCommon::vec3\ \&v,\ \mbox{\hyperlink{structai_color3_d}{aiColor3D}}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00160\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.r\ =\ v[0];}
+\DoxyCodeLine{00161\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.g\ =\ v[1];}
+\DoxyCodeLine{00162\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.b\ =\ v[2];}
+\DoxyCodeLine{00163\ \}}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_common_a2b5d06d14db27fee42b901da78df4324}{CopyValue}}(\textcolor{keyword}{const}\ glTFCommon::vec3\ \&v,\ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00166\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.x\ =\ v[0];}
+\DoxyCodeLine{00167\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.y\ =\ v[1];}
+\DoxyCodeLine{00168\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.z\ =\ v[2];}
+\DoxyCodeLine{00169\ \}}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_common_a2b5d06d14db27fee42b901da78df4324}{CopyValue}}(\textcolor{keyword}{const}\ glTFCommon::vec4\ \&v,\ \mbox{\hyperlink{structai_quaternion}{aiQuaternion}}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00172\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.x\ =\ v[0];}
+\DoxyCodeLine{00173\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.y\ =\ v[1];}
+\DoxyCodeLine{00174\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.z\ =\ v[2];}
+\DoxyCodeLine{00175\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.w\ =\ v[3];}
+\DoxyCodeLine{00176\ \}}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_common_a2b5d06d14db27fee42b901da78df4324}{CopyValue}}(\textcolor{keyword}{const}\ glTFCommon::mat4\ \&v,\ \mbox{\hyperlink{structai_matrix4x4}{aiMatrix4x4}}\ \&o)\ \{}
+\DoxyCodeLine{00179\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_a719e76cb6dd33a62946227fbcf61eb44}{a1}}\ =\ v[0];}
+\DoxyCodeLine{00180\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_acbc8a0e50a085e4274e2adbbcbd3f019}{b1}}\ =\ v[1];}
+\DoxyCodeLine{00181\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_a3a083e56eb0bb6b12bf454973d921577}{c1}}\ =\ v[2];}
+\DoxyCodeLine{00182\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_a399b7ec1d410283d5ee5651208f5f8b8}{d1}}\ =\ v[3];}
+\DoxyCodeLine{00183\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_a7fae14324c689c408246454d0095155e}{a2}}\ =\ v[4];}
+\DoxyCodeLine{00184\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_aa0aec7d2d88a0530c3b2ad973def70f1}{b2}}\ =\ v[5];}
+\DoxyCodeLine{00185\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_a7ddeedf0003bc42f417548953015d207}{c2}}\ =\ v[6];}
+\DoxyCodeLine{00186\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_a7e9425aa2d96cfb57a5cf5b016b6d61a}{d2}}\ =\ v[7];}
+\DoxyCodeLine{00187\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_a4755f5a65791f3193effa9079696a429}{a3}}\ =\ v[8];}
+\DoxyCodeLine{00188\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_ada608ca1c50de417ee1e9a251436fdbc}{b3}}\ =\ v[9];}
+\DoxyCodeLine{00189\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_aeb4599fff48b5238fe8a8b0483738d32}{c3}}\ =\ v[10];}
+\DoxyCodeLine{00190\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_afa2a9f0af28baa983bbaace4bec8a7b8}{d3}}\ =\ v[11];}
+\DoxyCodeLine{00191\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_abcdea001a341f9fcb2dd82635f12e8f6}{a4}}\ =\ v[12];}
+\DoxyCodeLine{00192\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_a25e513c4d4d5da5e3ab8abf10a1bc5c3}{b4}}\ =\ v[13];}
+\DoxyCodeLine{00193\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_a8bf3c2c2d95a4b7100eb111f66c4b1b0}{c4}}\ =\ v[14];}
+\DoxyCodeLine{00194\ \ \ \ \ o.\mbox{\hyperlink{structai_matrix4x4_a6dac85b6dd1f54a22124d6bdde81e857}{d4}}\ =\ v[15];}
+\DoxyCodeLine{00195\ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \textcolor{preprocessor}{\#if\ \_MSC\_VER}}
+\DoxyCodeLine{00198\ \textcolor{preprocessor}{\#\ \ \ \ pragma\ warning(push)}}
+\DoxyCodeLine{00199\ \textcolor{preprocessor}{\#\ \ \ \ pragma\ warning(disable\ :\ 4310)}}
+\DoxyCodeLine{00200\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ \_MSC\_VER}}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \textcolor{keyword}{inline}\ std::string\ \mbox{\hyperlink{namespacegl_t_f_common_afb845b5dd3a817a95500895da7239255}{getCurrentAssetDir}}(\textcolor{keyword}{const}\ std::string\ \&pFile)\ \{}
+\DoxyCodeLine{00203\ \ \ \ \ \textcolor{keywordtype}{int}\ pos\ =\ std::max(\textcolor{keywordtype}{int}(pFile.rfind(\textcolor{charliteral}{'/'})),\ \textcolor{keywordtype}{int}(pFile.rfind(\textcolor{charliteral}{'\(\backslash\)\(\backslash\)'})));}
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{keywordflow}{if}\ (pos\ ==\ \textcolor{keywordtype}{int}(std::string::npos))\ \{}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::string();}
+\DoxyCodeLine{00206\ \ \ \ \ \}}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00208\ \ \ \ \ \textcolor{keywordflow}{return}\ pFile.substr(0,\ pos\ +\ 1);}
+\DoxyCodeLine{00209\ \}}
+\DoxyCodeLine{00210\ \textcolor{preprocessor}{\#if\ \_MSC\_VER}}
+\DoxyCodeLine{00211\ \textcolor{preprocessor}{\#\ \ \ \ pragma\ warning(pop)}}
+\DoxyCodeLine{00212\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ \_MSC\_VER}}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \textcolor{keyword}{namespace\ }Util\ \{}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_common_1_1_util_a0de5425abd871714db59667f7e6cf53e}{EncodeBase64}}(\textcolor{keyword}{const}\ uint8\_t\ *in,\ \textcolor{keywordtype}{size\_t}\ inLength,\ std::string\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}});}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00218\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{namespacegl_t_f_common_1_1_util_a993f90143ad0b86d5ec5b71acfc3c8de}{DecodeBase64}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{size\_t}\ inLength,\ uint8\_t\ *\&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}});}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00220\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{namespacegl_t_f_common_1_1_util_a993f90143ad0b86d5ec5b71acfc3c8de}{DecodeBase64}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *in,\ uint8\_t\ *\&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00221\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacegl_t_f_common_1_1_util_a993f90143ad0b86d5ec5b71acfc3c8de}{DecodeBase64}}(in,\ strlen(in),\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}});}
+\DoxyCodeLine{00222\ \}}
+\DoxyCodeLine{00223\ }
+\DoxyCodeLine{00224\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgl_t_f_common_1_1_util_1_1_data_u_r_i}{DataURI}}\ \{}
+\DoxyCodeLine{00225\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{structgl_t_f_common_1_1_util_1_1_data_u_r_i_a5c90535e4b04378eec9d43a136f6c70f}{mediaType}};}
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{structgl_t_f_common_1_1_util_1_1_data_u_r_i_ae8a5919ec303d9055263e1e495aae092}{charset}};}
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgl_t_f_common_1_1_util_1_1_data_u_r_i_a6ee33d11f41fd66be4b050360674790e}{base64}};}
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{structgl_t_f_common_1_1_util_1_1_data_u_r_i_a61ced58e2594f195696576e33e503a4e}{data}};}
+\DoxyCodeLine{00229\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structgl_t_f_common_1_1_util_1_1_data_u_r_i_adf4fbde42b89d1129821c5235b42225d}{dataLength}};}
+\DoxyCodeLine{00230\ \};}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00233\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespacegl_t_f_common_1_1_util_a3bc75be701cd5dbb48ed1363f332df59}{ParseDataURI}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *const\_uri,\ \textcolor{keywordtype}{size\_t}\ uriLen,\ \mbox{\hyperlink{structgl_t_f_common_1_1_util_1_1_data_u_r_i}{DataURI}}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}});}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00235\ \}\ \textcolor{comment}{//\ namespace\ Util}}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00237\ \textcolor{preprocessor}{\#define\ CHECK\_EXT(EXT)\ \(\backslash\)}}
+\DoxyCodeLine{00238\ \textcolor{preprocessor}{\ \ \ \ if\ (exts.find(\#EXT)\ !=\ exts.end())\ extensionsUsed.EXT\ =\ true;}}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00241\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00242\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgl_t_f2_1_1_nullable_a41b11b4ab1fb58ea404360dabf60fe8a}{Nullable}}\ \{}
+\DoxyCodeLine{00243\ \ \ \ \ T\ \mbox{\hyperlink{structgl_t_f_common_1_1_nullable_a6e9c8c8e8aa1b602786e2bcb4c2c7008}{value}};}
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgl_t_f_common_1_1_nullable_a3c330b51149e37f9586784d307d84304}{isPresent}};}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00246\ \ \ \ \ \mbox{\hyperlink{structgl_t_f_common_1_1_nullable_a41b11b4ab1fb58ea404360dabf60fe8a}{Nullable}}()\ :}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgl_t_f_common_1_1_nullable_a3c330b51149e37f9586784d307d84304}{isPresent}}(false)\ \{\}}
+\DoxyCodeLine{00248\ \ \ \ \ \mbox{\hyperlink{structgl_t_f_common_1_1_nullable_a623a0213ab98e2673eb8cb8cafe6e9f1}{Nullable}}(T\ \&val)\ :}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgl_t_f_common_1_1_nullable_a6e9c8c8e8aa1b602786e2bcb4c2c7008}{value}}(val),}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgl_t_f_common_1_1_nullable_a3c330b51149e37f9586784d307d84304}{isPresent}}(true)\ \{\}}
+\DoxyCodeLine{00251\ \};}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00255\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00256\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classgl_t_f2_1_1_ref_a401024a561d7e0e97656797860aa0bc9}{Ref}}\ \{}
+\DoxyCodeLine{00257\ \ \ \ \ std::vector<T\ *>\ *vector;}
+\DoxyCodeLine{00258\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ index;}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00261\ \ \ \ \ \mbox{\hyperlink{classgl_t_f_common_1_1_ref_a401024a561d7e0e97656797860aa0bc9}{Ref}}()\ :}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \ \ \ \ \ \ vector(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \ \ \ \ \ \ index(0)\ \{\}}
+\DoxyCodeLine{00264\ \ \ \ \ \mbox{\hyperlink{classgl_t_f_common_1_1_ref_a022e4da3ab68ae6ce6345d594521114f}{Ref}}(std::vector<T\ *>\ \&vec,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ idx)\ :}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \ \ \ \ vector(\&vec),}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ \ \ \ \ index(idx)\ \{\}}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classgl_t_f_common_1_1_ref_a0818eb6a488c3eed4e9605eb3a3eb60a}{GetIndex}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ index;\ \}}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00270\ \ \ \ \ \textcolor{keyword}{operator}\ bool()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ vector\ !=\ \textcolor{keyword}{nullptr}\ \&\&\ index\ <\ vector-\/>size();\ \}}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00272\ \ \ \ \ T\ *\mbox{\hyperlink{classgl_t_f_common_1_1_ref_ab3e8544d5e7813d7c3aff1bbec676d46}{operator-\/>}}()\ \{\ \textcolor{keywordflow}{return}\ (*vector)[index];\ \}}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00274\ \ \ \ \ T\ \&\mbox{\hyperlink{classgl_t_f_common_1_1_ref_a210435cbe69ea968d33f19d0589972ae}{operator*}}()\ \{\ \textcolor{keywordflow}{return}\ *((*vector)[index]);\ \}}
+\DoxyCodeLine{00275\ \};}
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00277\ \textcolor{comment}{//}}
+\DoxyCodeLine{00278\ \textcolor{comment}{//\ JSON\ Value\ reading\ helpers}}
+\DoxyCodeLine{00279\ \textcolor{comment}{//}}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00281\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00282\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgl_t_f_common_1_1_read_helper}{ReadHelper}}\ \{}
+\DoxyCodeLine{00283\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_a0666fc72041fa8fffc03fdcb3740cf42}{Read}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ T\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00284\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ val.IsInt()\ ?\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(val.GetInt()),\ true\ :\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00285\ \ \ \ \ \}}
+\DoxyCodeLine{00286\ \};}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \textcolor{keyword}{template}\ <>}
+\DoxyCodeLine{00289\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgl_t_f_common_1_1_read_helper}{ReadHelper}}<bool>\ \{}
+\DoxyCodeLine{00290\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_3_01bool_01_4_a0a7ee26aa09ef870842746645dfa8e50}{Read}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keywordtype}{bool}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ val.IsBool()\ ?\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ val.GetBool(),\ true\ :\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00292\ \ \ \ \ \}}
+\DoxyCodeLine{00293\ \};}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ \textcolor{keyword}{template}\ <>}
+\DoxyCodeLine{00296\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgl_t_f_common_1_1_read_helper}{ReadHelper}}<\mbox{\hyperlink{namespacegl_t_f_common_aae8603995c536bc7fd7b35cbaf4897a3}{float}}>\ \{}
+\DoxyCodeLine{00297\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_3_01float_01_4_a9ae51fdd08b3052761c709a27e2d872e}{Read}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keywordtype}{float}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ val.IsNumber()\ ?\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(val.GetDouble()),\ true\ :\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00299\ \ \ \ \ \}}
+\DoxyCodeLine{00300\ \};}
+\DoxyCodeLine{00301\ }
+\DoxyCodeLine{00302\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ N>}
+\DoxyCodeLine{00303\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgl_t_f_common_1_1_read_helper}{ReadHelper}}<\mbox{\hyperlink{namespacegl_t_f_common_aae8603995c536bc7fd7b35cbaf4897a3}{float}}[\mbox{\hyperlink{crc32_8c_a0240ac851181b84ac374872dc5434ee4}{N}}]>\ \{}
+\DoxyCodeLine{00304\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_3_01float_0f_n_0e_4_aafd474a018c8f15e04256e591a0be1bf}{Read}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keywordtype}{float}\ (\&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})[\mbox{\hyperlink{crc32_8c_a0240ac851181b84ac374872dc5434ee4}{N}}])\ \{}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!val.IsArray()\ ||\ val.Size()\ !=\ \mbox{\hyperlink{crc32_8c_a0240ac851181b84ac374872dc5434ee4}{N}})\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{crc32_8c_a0240ac851181b84ac374872dc5434ee4}{N}};\ ++i)\ \{}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (val[i].IsNumber())}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}[i]\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(val[i].GetDouble());}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00311\ \ \ \ \ \}}
+\DoxyCodeLine{00312\ \};}
+\DoxyCodeLine{00313\ }
+\DoxyCodeLine{00314\ \textcolor{keyword}{template}\ <>}
+\DoxyCodeLine{00315\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgl_t_f_common_1_1_read_helper}{ReadHelper}}<\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ char\ *>\ \{}
+\DoxyCodeLine{00316\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_3_01const_01char_01_5_01_4_aa0b669e3b353932b782bba09b4429d28}{Read}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ val.IsString()\ ?\ (\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ val.GetString(),\ \textcolor{keyword}{true})\ :\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00318\ \ \ \ \ \}}
+\DoxyCodeLine{00319\ \};}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00321\ \textcolor{keyword}{template}\ <>}
+\DoxyCodeLine{00322\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgl_t_f_common_1_1_read_helper}{ReadHelper}}<\mbox{\hyperlink{namespacestd}{std}}::string>\ \{}
+\DoxyCodeLine{00323\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_3_01std_1_1string_01_4_a22e9414aaf8529ffaafe151adda5212c}{Read}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ std::string\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ val.IsString()\ ?\ (\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ std::string(val.GetString(),\ val.GetStringLength()),\ \textcolor{keyword}{true})\ :\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00325\ \ \ \ \ \}}
+\DoxyCodeLine{00326\ \};}
+\DoxyCodeLine{00327\ }
+\DoxyCodeLine{00328\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00329\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgl_t_f_common_1_1_read_helper}{ReadHelper}}<\mbox{\hyperlink{structgl_t_f_common_1_1_nullable}{Nullable}}<T>>\ \{}
+\DoxyCodeLine{00330\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_3_01_nullable_3_01_t_01_4_01_4_a46a56f64d644751ef61c36f600811a4c}{Read}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \mbox{\hyperlink{structgl_t_f_common_1_1_nullable}{Nullable<T>}}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.isPresent\ =\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_a0666fc72041fa8fffc03fdcb3740cf42}{ReadHelper<T>::Read}}(val,\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}.value);}
+\DoxyCodeLine{00332\ \ \ \ \ \}}
+\DoxyCodeLine{00333\ \};}
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00335\ \textcolor{keyword}{template}\ <>}
+\DoxyCodeLine{00336\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgl_t_f_common_1_1_read_helper}{ReadHelper}}<uint64\_t>\ \{}
+\DoxyCodeLine{00337\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_3_01uint64__t_01_4_a85e91f2323102b164bb0ead573a2e91b}{Read}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ uint64\_t\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ val.IsUint64()\ ?\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ val.GetUint64(),\ true\ :\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00339\ \ \ \ \ \}}
+\DoxyCodeLine{00340\ \};}
+\DoxyCodeLine{00341\ }
+\DoxyCodeLine{00342\ \textcolor{keyword}{template}\ <>}
+\DoxyCodeLine{00343\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgl_t_f_common_1_1_read_helper}{ReadHelper}}<int64\_t>\ \{}
+\DoxyCodeLine{00344\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_3_01int64__t_01_4_a3f44b2769d8b09c833a51431fc1aaf98}{Read}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ int64\_t\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ val.IsInt64()\ ?\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ val.GetInt64(),\ true\ :\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00346\ \ \ \ \ \}}
+\DoxyCodeLine{00347\ \};}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00350\ \textcolor{keyword}{inline}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ ReadValue(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ T\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_a0666fc72041fa8fffc03fdcb3740cf42}{ReadHelper<T>::Read}}(val,\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}});}
+\DoxyCodeLine{00352\ \}}
+\DoxyCodeLine{00353\ }
+\DoxyCodeLine{00354\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00355\ \textcolor{keyword}{inline}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ ReadMember(\mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\ \&obj,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\textcolor{keywordtype}{id},\ T\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{}
+\DoxyCodeLine{00356\ \ \ \ \ \textcolor{keywordflow}{if}\ (!obj.IsObject())\ \{}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00358\ \ \ \ \ \}}
+\DoxyCodeLine{00359\ \ \ \ \ \mbox{\hyperlink{class_generic_value_a349b8faae61edc42b4289726820be439}{Value::MemberIterator}}\ it\ =\ obj.FindMember(\textcolor{keywordtype}{id});}
+\DoxyCodeLine{00360\ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ !=\ obj.MemberEnd())\ \{}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgl_t_f_common_1_1_read_helper_a0666fc72041fa8fffc03fdcb3740cf42}{ReadHelper<T>::Read}}(it-\/>value,\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}});}
+\DoxyCodeLine{00362\ \ \ \ \ \}}
+\DoxyCodeLine{00363\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00364\ \}}
+\DoxyCodeLine{00365\ }
+\DoxyCodeLine{00366\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00367\ \textcolor{keyword}{inline}\ \textcolor{keyword}{static}\ T\ MemberOrDefault(\mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\ \&obj,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\textcolor{keywordtype}{id},\ T\ \mbox{\hyperlink{pointer_8h_a3db30c1795eb39d4452f8698f4a67f05}{defaultValue}})\ \{}
+\DoxyCodeLine{00368\ \ \ \ \ T\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}};}
+\DoxyCodeLine{00369\ \ \ \ \ \textcolor{keywordflow}{return}\ ReadMember(obj,\ \textcolor{keywordtype}{id},\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ ?\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ :\ \mbox{\hyperlink{pointer_8h_a3db30c1795eb39d4452f8698f4a67f05}{defaultValue}};}
+\DoxyCodeLine{00370\ \}}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_ae42c62866e5b3361c3c2f5d03e013dbb}{FindMember}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\textcolor{keywordtype}{id})\ \{}
+\DoxyCodeLine{00373\ \ \ \ \ \textcolor{keywordflow}{if}\ (!val.IsObject())\ \{}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00375\ \ \ \ \ \}}
+\DoxyCodeLine{00376\ \ \ \ \ \mbox{\hyperlink{class_generic_value_a349b8faae61edc42b4289726820be439}{Value::MemberIterator}}\ it\ =\ val.FindMember(\textcolor{keywordtype}{id});}
+\DoxyCodeLine{00377\ \ \ \ \ \textcolor{keywordflow}{return}\ (it\ !=\ val.MemberEnd())\ ?\ \&it-\/>value\ :\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00378\ \}}
+\DoxyCodeLine{00379\ }
+\DoxyCodeLine{00380\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ N>}
+\DoxyCodeLine{00381\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_common_a13bcac80191f8c29113e11e1ddf13c3a}{throwUnexpectedTypeError}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ (\&expectedTypeName)[\mbox{\hyperlink{crc32_8c_a0240ac851181b84ac374872dc5434ee4}{N}}],\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *memberId,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *context,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *extraContext)\ \{}
+\DoxyCodeLine{00382\ \ \ \ \ std::string\ fullContext\ =\ context;}
+\DoxyCodeLine{00383\ \ \ \ \ \textcolor{keywordflow}{if}\ (extraContext\ \&\&\ (strlen(extraContext)\ >\ 0))\ \{}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \ \ fullContext\ =\ fullContext\ +\ \textcolor{stringliteral}{"{}\ ("{}}\ +\ extraContext\ +\ \textcolor{stringliteral}{"{})"{}};}
+\DoxyCodeLine{00385\ \ \ \ \ \}}
+\DoxyCodeLine{00386\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_ac943b667539fee11ae1316e512d49ddc}{DeadlyImportError}}(\textcolor{stringliteral}{"{}Member\ \(\backslash\)"{}"{}},\ memberId,\ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ was\ not\ of\ type\ \(\backslash\)"{}"{}},\ expectedTypeName,\ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ when\ reading\ "{}},\ fullContext);}
+\DoxyCodeLine{00387\ \}}
+\DoxyCodeLine{00388\ }
+\DoxyCodeLine{00389\ \textcolor{comment}{//\ Look-\/up\ functions\ with\ type\ checks.\ Context\ and\ extra\ context\ help\ the\ user\ identify\ the\ problem\ if\ there's\ an\ error.}}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_aea30069c714cdc1b3788898b18dbd985}{FindStringInContext}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *memberId,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *context,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *extraContext\ =\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00392\ \ \ \ \ \textcolor{keywordflow}{if}\ (!val.IsObject())\ \{}
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00394\ \ \ \ \ \}}
+\DoxyCodeLine{00395\ \ \ \ \ \mbox{\hyperlink{class_generic_value_a349b8faae61edc42b4289726820be439}{Value::MemberIterator}}\ it\ =\ val.FindMember(memberId);}
+\DoxyCodeLine{00396\ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ ==\ val.MemberEnd())\ \{}
+\DoxyCodeLine{00397\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00398\ \ \ \ \ \}}
+\DoxyCodeLine{00399\ \ \ \ \ \textcolor{keywordflow}{if}\ (!it-\/>value.IsString())\ \{}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacegl_t_f_common_a13bcac80191f8c29113e11e1ddf13c3a}{throwUnexpectedTypeError}}(\textcolor{stringliteral}{"{}string"{}},\ memberId,\ context,\ extraContext);}
+\DoxyCodeLine{00401\ \ \ \ \ \}}
+\DoxyCodeLine{00402\ \ \ \ \ \textcolor{keywordflow}{return}\ \&it-\/>value;}
+\DoxyCodeLine{00403\ \}}
+\DoxyCodeLine{00404\ }
+\DoxyCodeLine{00405\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_a5f4c540e98fa2b2186cb45b418c49b3f}{FindNumberInContext}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *memberId,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *context,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *extraContext\ =\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00406\ \ \ \ \ \textcolor{keywordflow}{if}\ (!val.IsObject())\ \{}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00408\ \ \ \ \ \}}
+\DoxyCodeLine{00409\ \ \ \ \ \mbox{\hyperlink{class_generic_value_a349b8faae61edc42b4289726820be439}{Value::MemberIterator}}\ it\ =\ val.FindMember(memberId);}
+\DoxyCodeLine{00410\ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ ==\ val.MemberEnd())\ \{}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00412\ \ \ \ \ \}}
+\DoxyCodeLine{00413\ \ \ \ \ \textcolor{keywordflow}{if}\ (!it-\/>value.IsNumber())\ \{}
+\DoxyCodeLine{00414\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacegl_t_f_common_a13bcac80191f8c29113e11e1ddf13c3a}{throwUnexpectedTypeError}}(\textcolor{stringliteral}{"{}number"{}},\ memberId,\ context,\ extraContext);}
+\DoxyCodeLine{00415\ \ \ \ \ \}}
+\DoxyCodeLine{00416\ \ \ \ \ \textcolor{keywordflow}{return}\ \&it-\/>value;}
+\DoxyCodeLine{00417\ \}}
+\DoxyCodeLine{00418\ }
+\DoxyCodeLine{00419\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_a19652e1ba1d9bd5ec8ecfb6cd7c26c4b}{FindUIntInContext}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *memberId,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *context,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *extraContext\ =\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00420\ \ \ \ \ \textcolor{keywordflow}{if}\ (!val.IsObject())\ \{}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00422\ \ \ \ \ \}}
+\DoxyCodeLine{00423\ \ \ \ \ \mbox{\hyperlink{class_generic_value_a349b8faae61edc42b4289726820be439}{Value::MemberIterator}}\ it\ =\ val.FindMember(memberId);}
+\DoxyCodeLine{00424\ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ ==\ val.MemberEnd())\ \{}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00426\ \ \ \ \ \}}
+\DoxyCodeLine{00427\ \ \ \ \ \textcolor{keywordflow}{if}\ (!it-\/>value.IsUint())\ \{}
+\DoxyCodeLine{00428\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacegl_t_f_common_a13bcac80191f8c29113e11e1ddf13c3a}{throwUnexpectedTypeError}}(\textcolor{stringliteral}{"{}uint"{}},\ memberId,\ context,\ extraContext);}
+\DoxyCodeLine{00429\ \ \ \ \ \}}
+\DoxyCodeLine{00430\ \ \ \ \ \textcolor{keywordflow}{return}\ \&it-\/>value;}
+\DoxyCodeLine{00431\ \}}
+\DoxyCodeLine{00432\ }
+\DoxyCodeLine{00433\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_ac61cc29295c452acbbe7fed7d762209b}{FindArrayInContext}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *memberId,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *context,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *extraContext\ =\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00434\ \ \ \ \ \textcolor{keywordflow}{if}\ (!val.IsObject())\ \{}
+\DoxyCodeLine{00435\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00436\ \ \ \ \ \}}
+\DoxyCodeLine{00437\ \ \ \ \ \mbox{\hyperlink{class_generic_value_a349b8faae61edc42b4289726820be439}{Value::MemberIterator}}\ it\ =\ val.FindMember(memberId);}
+\DoxyCodeLine{00438\ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ ==\ val.MemberEnd())\ \{}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00440\ \ \ \ \ \}}
+\DoxyCodeLine{00441\ \ \ \ \ \textcolor{keywordflow}{if}\ (!it-\/>value.IsArray())\ \{}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacegl_t_f_common_a13bcac80191f8c29113e11e1ddf13c3a}{throwUnexpectedTypeError}}(\textcolor{stringliteral}{"{}array"{}},\ memberId,\ context,\ extraContext);}
+\DoxyCodeLine{00443\ \ \ \ \ \}}
+\DoxyCodeLine{00444\ \ \ \ \ \textcolor{keywordflow}{return}\ \&it-\/>value;}
+\DoxyCodeLine{00445\ \}}
+\DoxyCodeLine{00446\ }
+\DoxyCodeLine{00447\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_aafb32c802777a624f3be6186297b592c}{FindObjectInContext}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *memberId,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *context,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *extraContext\ =\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00448\ \ \ \ \ \textcolor{keywordflow}{if}\ (!val.IsObject())\ \{}
+\DoxyCodeLine{00449\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00450\ \ \ \ \ \}}
+\DoxyCodeLine{00451\ \ \ \ \ \mbox{\hyperlink{class_generic_value_a349b8faae61edc42b4289726820be439}{Value::MemberIterator}}\ it\ =\ val.FindMember(memberId);}
+\DoxyCodeLine{00452\ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ ==\ val.MemberEnd())\ \{}
+\DoxyCodeLine{00453\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00454\ \ \ \ \ \}}
+\DoxyCodeLine{00455\ \ \ \ \ \textcolor{keywordflow}{if}\ (!it-\/>value.IsObject())\ \{}
+\DoxyCodeLine{00456\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacegl_t_f_common_a13bcac80191f8c29113e11e1ddf13c3a}{throwUnexpectedTypeError}}(\textcolor{stringliteral}{"{}object"{}},\ memberId,\ context,\ extraContext);}
+\DoxyCodeLine{00457\ \ \ \ \ \}}
+\DoxyCodeLine{00458\ \ \ \ \ \textcolor{keywordflow}{return}\ \&it-\/>value;}
+\DoxyCodeLine{00459\ \}}
+\DoxyCodeLine{00460\ }
+\DoxyCodeLine{00461\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_ab4421757aa9049f24fa360f043d3ce4e}{FindExtensionInContext}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *extensionId,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *context,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *extraContext\ =\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00462\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_value}{Value}}\ *extensionList\ =\ \mbox{\hyperlink{namespacegl_t_f_common_aafb32c802777a624f3be6186297b592c}{FindObjectInContext}}(val,\ \textcolor{stringliteral}{"{}extensions"{}},\ context,\ extraContext))\ \{}
+\DoxyCodeLine{00463\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_value}{Value}}\ *extension\ =\ \mbox{\hyperlink{namespacegl_t_f_common_aafb32c802777a624f3be6186297b592c}{FindObjectInContext}}(*extensionList,\ extensionId,\ context,\ extraContext))\ \{}
+\DoxyCodeLine{00464\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ extension;}
+\DoxyCodeLine{00465\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00466\ \ \ \ \ \}}
+\DoxyCodeLine{00467\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00468\ \}}
+\DoxyCodeLine{00469\ }
+\DoxyCodeLine{00470\ \textcolor{comment}{//\ Overloads\ when\ the\ value\ is\ the\ document.}}
+\DoxyCodeLine{00471\ }
+\DoxyCodeLine{00472\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_aaf82f3f943fd0b102a6f7ed3c2a52455}{FindString}}(\mbox{\hyperlink{document_8h_ac6ea5b168e3fe8c7fa532450fc9391f7}{Document}}\ \&doc,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *memberId)\ \{}
+\DoxyCodeLine{00473\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacegl_t_f_common_aea30069c714cdc1b3788898b18dbd985}{FindStringInContext}}(doc,\ memberId,\ \textcolor{stringliteral}{"{}the\ document"{}});}
+\DoxyCodeLine{00474\ \}}
+\DoxyCodeLine{00475\ }
+\DoxyCodeLine{00476\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_ae6f93a5a16e507dd243fc1d5c4140928}{FindNumber}}(\mbox{\hyperlink{document_8h_ac6ea5b168e3fe8c7fa532450fc9391f7}{Document}}\ \&doc,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *memberId)\ \{}
+\DoxyCodeLine{00477\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacegl_t_f_common_a5f4c540e98fa2b2186cb45b418c49b3f}{FindNumberInContext}}(doc,\ memberId,\ \textcolor{stringliteral}{"{}the\ document"{}});}
+\DoxyCodeLine{00478\ \}}
+\DoxyCodeLine{00479\ }
+\DoxyCodeLine{00480\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_a73864af4740aadf6f9895ee9f5744ab9}{FindUInt}}(\mbox{\hyperlink{document_8h_ac6ea5b168e3fe8c7fa532450fc9391f7}{Document}}\ \&doc,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *memberId)\ \{}
+\DoxyCodeLine{00481\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacegl_t_f_common_a19652e1ba1d9bd5ec8ecfb6cd7c26c4b}{FindUIntInContext}}(doc,\ memberId,\ \textcolor{stringliteral}{"{}the\ document"{}});}
+\DoxyCodeLine{00482\ \}}
+\DoxyCodeLine{00483\ }
+\DoxyCodeLine{00484\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_ad381d1d227cc641c8141e5701c09c7bb}{FindArray}}(\mbox{\hyperlink{document_8h_ac6ea5b168e3fe8c7fa532450fc9391f7}{Document}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *memberId)\ \{}
+\DoxyCodeLine{00485\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacegl_t_f_common_ac61cc29295c452acbbe7fed7d762209b}{FindArrayInContext}}(val,\ memberId,\ \textcolor{stringliteral}{"{}the\ document"{}});}
+\DoxyCodeLine{00486\ \}}
+\DoxyCodeLine{00487\ }
+\DoxyCodeLine{00488\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_a3af2e37e2f400f1a9c4e0489a68e7f65}{FindObject}}(\mbox{\hyperlink{document_8h_ac6ea5b168e3fe8c7fa532450fc9391f7}{Document}}\ \&doc,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *memberId)\ \{}
+\DoxyCodeLine{00489\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacegl_t_f_common_aafb32c802777a624f3be6186297b592c}{FindObjectInContext}}(doc,\ memberId,\ \textcolor{stringliteral}{"{}the\ document"{}});}
+\DoxyCodeLine{00490\ \}}
+\DoxyCodeLine{00491\ }
+\DoxyCodeLine{00492\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_a212905ec9dfa99a351353b955a888812}{FindExtension}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *extensionId)\ \{}
+\DoxyCodeLine{00493\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacegl_t_f_common_ab4421757aa9049f24fa360f043d3ce4e}{FindExtensionInContext}}(val,\ extensionId,\ \textcolor{stringliteral}{"{}the\ document"{}});}
+\DoxyCodeLine{00494\ \}}
+\DoxyCodeLine{00495\ }
+\DoxyCodeLine{00496\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_aaf82f3f943fd0b102a6f7ed3c2a52455}{FindString}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\textcolor{keywordtype}{id})\ \{}
+\DoxyCodeLine{00497\ \ \ \ \ \mbox{\hyperlink{class_generic_value_a349b8faae61edc42b4289726820be439}{Value::MemberIterator}}\ it\ =\ val.FindMember(\textcolor{keywordtype}{id});}
+\DoxyCodeLine{00498\ \ \ \ \ \textcolor{keywordflow}{return}\ (it\ !=\ val.MemberEnd()\ \&\&\ it-\/>value.IsString())\ ?\ \&it-\/>value\ :\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00499\ \}}
+\DoxyCodeLine{00500\ }
+\DoxyCodeLine{00501\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_a3af2e37e2f400f1a9c4e0489a68e7f65}{FindObject}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\textcolor{keywordtype}{id})\ \{}
+\DoxyCodeLine{00502\ \ \ \ \ \mbox{\hyperlink{class_generic_value_a349b8faae61edc42b4289726820be439}{Value::MemberIterator}}\ it\ =\ val.FindMember(\textcolor{keywordtype}{id});}
+\DoxyCodeLine{00503\ \ \ \ \ \textcolor{keywordflow}{return}\ (it\ !=\ val.MemberEnd()\ \&\&\ it-\/>value.IsObject())\ ?\ \&it-\/>value\ :\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00504\ \}}
+\DoxyCodeLine{00505\ }
+\DoxyCodeLine{00506\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_ad381d1d227cc641c8141e5701c09c7bb}{FindArray}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\textcolor{keywordtype}{id})\ \{}
+\DoxyCodeLine{00507\ \ \ \ \ \mbox{\hyperlink{class_generic_value_a349b8faae61edc42b4289726820be439}{Value::MemberIterator}}\ it\ =\ val.FindMember(\textcolor{keywordtype}{id});}
+\DoxyCodeLine{00508\ \ \ \ \ \textcolor{keywordflow}{return}\ (it\ !=\ val.MemberEnd()\ \&\&\ it-\/>value.IsArray())\ ?\ \&it-\/>value\ :\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00509\ \}}
+\DoxyCodeLine{00510\ }
+\DoxyCodeLine{00511\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_value}{Value}}\ *\mbox{\hyperlink{namespacegl_t_f_common_ae6f93a5a16e507dd243fc1d5c4140928}{FindNumber}}(\mbox{\hyperlink{class_value}{Value}}\ \&val,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\textcolor{keywordtype}{id})\ \{}
+\DoxyCodeLine{00512\ \ \ \ \ \mbox{\hyperlink{class_generic_value_a349b8faae61edc42b4289726820be439}{Value::MemberIterator}}\ it\ =\ val.FindMember(\textcolor{keywordtype}{id});}
+\DoxyCodeLine{00513\ \ \ \ \ \textcolor{keywordflow}{return}\ (it\ !=\ val.MemberEnd()\ \&\&\ it-\/>value.IsNumber())\ ?\ \&it-\/>value\ :\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00514\ \}}
+\DoxyCodeLine{00515\ }
+\DoxyCodeLine{00516\ \}\ \textcolor{comment}{//\ namespace\ glTFCommon}}
+\DoxyCodeLine{00517\ }
+\DoxyCodeLine{00518\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ ASSIMP\_BUILD\_NO\_GLTF\_IMPORTER}}
+\DoxyCodeLine{00519\ }
+\DoxyCodeLine{00520\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ AI\_GLFTCOMMON\_H\_INC}}
+
+\end{DoxyCode}

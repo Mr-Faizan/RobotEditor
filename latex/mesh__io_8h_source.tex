@@ -1,0 +1,113 @@
+\doxysection{mesh\+\_\+io.\+h}
+\hypertarget{mesh__io_8h_source}{}\label{mesh__io_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/io/mesh\_io.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/io/mesh\_io.h}}
+\mbox{\hyperlink{mesh__io_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_IO\_MESH\_IO\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_IO\_MESH\_IO\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{compression__shared_8h}{draco/compression/config/compression\_shared.h}}"{}}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{decode_8h}{draco/compression/decode.h}}"{}}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{expert__encode_8h}{draco/compression/expert\_encode.h}}"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{options_8h}{draco/core/options.h}}"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ OutStreamT>}
+\DoxyCodeLine{00026\ OutStreamT\ \mbox{\hyperlink{namespacedraco_a872017637f44e2fc3199ed0a4400a29d}{WriteMeshIntoStream}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh}{Mesh}}\ *mesh,\ OutStreamT\ \&\&os,}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_a947cc29d588731ebd298f188b7b4cc60}{MeshEncoderMethod}}\ method,}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_ab66b946bef87fd44eecee018c9ce9dd3}{EncoderOptions}}\ \&options)\ \{}
+\DoxyCodeLine{00029\ \ \ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ buffer;}
+\DoxyCodeLine{00030\ \ \ \mbox{\hyperlink{namespacedraco_ab66b946bef87fd44eecee018c9ce9dd3}{EncoderOptions}}\ local\_options\ =\ options;}
+\DoxyCodeLine{00031\ \ \ \mbox{\hyperlink{classdraco_1_1_expert_encoder}{ExpertEncoder}}\ encoder(*mesh);}
+\DoxyCodeLine{00032\ \ \ encoder.\mbox{\hyperlink{classdraco_1_1_expert_encoder_abfb9b5a6fc0fd4d362dddb1134902a9e}{Reset}}(local\_options);}
+\DoxyCodeLine{00033\ \ \ encoder.\mbox{\hyperlink{classdraco_1_1_expert_encoder_a8a7e07c81d1f97c16487b20f04345742}{SetEncodingMethod}}(method);}
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordflow}{if}\ (!encoder.\mbox{\hyperlink{classdraco_1_1_expert_encoder_a171df2b83313c0d181464fe579c1dc48}{EncodeToBuffer}}(\&buffer).\mbox{\hyperlink{classdraco_1_1_status_ae41bfd7897444f6ecde6bc507cefe67d}{ok}}())\ \{}
+\DoxyCodeLine{00035\ \ \ \ \ os.setstate(std::ios\_base::badbit);}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keywordflow}{return}\ os;}
+\DoxyCodeLine{00037\ \ \ \}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ os.write(\textcolor{keyword}{static\_cast<}\textcolor{keyword}{const\ }\textcolor{keywordtype}{char}\ *\textcolor{keyword}{>}(buffer.data()),\ buffer.size());}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \textcolor{keywordflow}{return}\ os;}
+\DoxyCodeLine{00042\ \}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ OutStreamT>}
+\DoxyCodeLine{00045\ OutStreamT\ \mbox{\hyperlink{namespacedraco_a872017637f44e2fc3199ed0a4400a29d}{WriteMeshIntoStream}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh}{Mesh}}\ *mesh,\ OutStreamT\ \&\&os,}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_a947cc29d588731ebd298f188b7b4cc60}{MeshEncoderMethod}}\ method)\ \{}
+\DoxyCodeLine{00047\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_ab66b946bef87fd44eecee018c9ce9dd3}{EncoderOptions}}\ options\ =\ \mbox{\hyperlink{classdraco_1_1_encoder_options_base_a63c5a94b611a68b0f177967f3a3bbf14}{EncoderOptions::CreateDefaultOptions}}();}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_a872017637f44e2fc3199ed0a4400a29d}{WriteMeshIntoStream}}(mesh,\ os,\ method,\ options);}
+\DoxyCodeLine{00049\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ OutStreamT>}
+\DoxyCodeLine{00052\ OutStreamT\ \&\mbox{\hyperlink{namespacedraco_a872017637f44e2fc3199ed0a4400a29d}{WriteMeshIntoStream}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh}{Mesh}}\ *mesh,\ OutStreamT\ \&\&os)\ \{}
+\DoxyCodeLine{00053\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_a872017637f44e2fc3199ed0a4400a29d}{WriteMeshIntoStream}}(mesh,\ os,\ \mbox{\hyperlink{namespacedraco_a947cc29d588731ebd298f188b7b4cc60ae1975ecdb857c98ba42349f1cf2eaf7b}{MESH\_EDGEBREAKER\_ENCODING}});}
+\DoxyCodeLine{00054\ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ InStreamT>}
+\DoxyCodeLine{00057\ InStreamT\ \&\mbox{\hyperlink{namespacedraco_a7833d1b6d65d2495e0302586bf5a88e3}{ReadMeshFromStream}}(std::unique\_ptr<Mesh>\ *mesh,\ InStreamT\ \&\&is)\ \{}
+\DoxyCodeLine{00058\ \ \ \textcolor{comment}{//\ Determine\ size\ of\ stream\ and\ write\ into\ a\ vector}}
+\DoxyCodeLine{00059\ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ start\_pos\ =\ is.tellg();}
+\DoxyCodeLine{00060\ \ \ is.seekg(0,\ std::ios::end);}
+\DoxyCodeLine{00061\ \ \ \textcolor{keyword}{const}\ std::streampos\ is\_size\ =\ is.tellg()\ -\/\ start\_pos;}
+\DoxyCodeLine{00062\ \ \ is.seekg(start\_pos);}
+\DoxyCodeLine{00063\ \ \ std::vector<char>\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}(is\_size);}
+\DoxyCodeLine{00064\ \ \ is.read(\&\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}[0],\ is\_size);}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ Create\ a\ mesh\ from\ that\ data.}}
+\DoxyCodeLine{00067\ \ \ \mbox{\hyperlink{classdraco_1_1_decoder_buffer}{DecoderBuffer}}\ buffer;}
+\DoxyCodeLine{00068\ \ \ buffer.\mbox{\hyperlink{classdraco_1_1_decoder_buffer_aefd07f807b12270ffb8b1d943651a251}{Init}}(\&\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}[0],\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}.size());}
+\DoxyCodeLine{00069\ \ \ \mbox{\hyperlink{classdraco_1_1_decoder}{Decoder}}\ decoder;}
+\DoxyCodeLine{00070\ \ \ \textcolor{keyword}{auto}\ statusor\ =\ decoder.\mbox{\hyperlink{classdraco_1_1_decoder_a8c8a283e042af356dda79a6904cb2064}{DecodeMeshFromBuffer}}(\&buffer);}
+\DoxyCodeLine{00071\ \ \ *mesh\ =\ std::move(statusor).value();}
+\DoxyCodeLine{00072\ \ \ \textcolor{keywordflow}{if}\ (!statusor.ok()\ ||\ *mesh\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ is.setstate(std::ios\_base::badbit);}
+\DoxyCodeLine{00074\ \ \ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \textcolor{keywordflow}{return}\ is;}
+\DoxyCodeLine{00077\ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \textcolor{comment}{//\ Reads\ a\ mesh\ from\ a\ file.\ The\ function\ automatically\ chooses\ the\ correct}}
+\DoxyCodeLine{00080\ \textcolor{comment}{//\ decoder\ based\ on\ the\ extension\ of\ the\ files.\ Currently,\ .obj\ and\ .ply\ files}}
+\DoxyCodeLine{00081\ \textcolor{comment}{//\ are\ supported.\ Other\ file\ extensions\ are\ processed\ by\ the\ default}}
+\DoxyCodeLine{00082\ \textcolor{comment}{//\ draco::MeshDecoder.}}
+\DoxyCodeLine{00083\ \textcolor{comment}{//\ Returns\ nullptr\ with\ an\ error\ status\ if\ the\ decoding\ failed.}}
+\DoxyCodeLine{00084\ StatusOr<std::unique\_ptr<Mesh>>\ \mbox{\hyperlink{namespacedraco_a22a900277c3ae638628577d35b32c002}{ReadMeshFromFile}}(\textcolor{keyword}{const}\ std::string\ \&file\_name);}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \textcolor{comment}{//\ Reads\ a\ mesh\ from\ a\ file.\ The\ function\ does\ the\ same\ thing\ as\ the\ previous}}
+\DoxyCodeLine{00087\ \textcolor{comment}{//\ one\ except\ using\ metadata\ to\ encode\ additional\ information\ when}}
+\DoxyCodeLine{00088\ \textcolor{comment}{//\ |use\_metadata|\ is\ set\ to\ true.}}
+\DoxyCodeLine{00089\ \textcolor{comment}{//\ Returns\ nullptr\ with\ an\ error\ status\ if\ the\ decoding\ failed.}}
+\DoxyCodeLine{00090\ StatusOr<std::unique\_ptr<Mesh>>\ \mbox{\hyperlink{namespacedraco_a22a900277c3ae638628577d35b32c002}{ReadMeshFromFile}}(\textcolor{keyword}{const}\ std::string\ \&file\_name,}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ use\_metadata);}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \textcolor{comment}{//\ Reads\ a\ mesh\ from\ a\ file.\ Reading\ is\ configured\ with\ |options|:}}
+\DoxyCodeLine{00094\ \textcolor{comment}{//\ use\_metadata\ \ :\ Read\ obj\ file\ info\ like\ material\ names\ and\ object\ names\ into}}
+\DoxyCodeLine{00095\ \textcolor{comment}{//\ metadata.\ Default\ is\ false.}}
+\DoxyCodeLine{00096\ \textcolor{comment}{//\ The\ second\ form\ returns\ the\ files\ associated\ with\ the\ mesh\ via\ the}}
+\DoxyCodeLine{00097\ \textcolor{comment}{//\ |mesh\_files|\ argument.}}
+\DoxyCodeLine{00098\ \textcolor{comment}{//\ Returns\ nullptr\ with\ an\ error\ status\ if\ the\ decoding\ failed.}}
+\DoxyCodeLine{00099\ StatusOr<std::unique\_ptr<Mesh>>\ \mbox{\hyperlink{namespacedraco_a22a900277c3ae638628577d35b32c002}{ReadMeshFromFile}}(\textcolor{keyword}{const}\ std::string\ \&file\_name,}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ Options\ \&options);}
+\DoxyCodeLine{00101\ StatusOr<std::unique\_ptr<Mesh>>\ \mbox{\hyperlink{namespacedraco_a22a900277c3ae638628577d35b32c002}{ReadMeshFromFile}}(}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&file\_name,\ \textcolor{keyword}{const}\ Options\ \&options,}
+\DoxyCodeLine{00103\ \ \ \ \ std::vector<std::string>\ *mesh\_files);}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_IO\_MESH\_IO\_H\_}}
+
+\end{DoxyCode}

@@ -1,0 +1,88 @@
+\doxysection{Stack\+Allocator.\+inl}
+\hypertarget{_stack_allocator_8inl_source}{}\label{_stack_allocator_8inl_source}\index{RobotLib/libraries/assimp/code/Common/StackAllocator.inl@{RobotLib/libraries/assimp/code/Common/StackAllocator.inl}}
+\mbox{\hyperlink{_stack_allocator_8inl}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00011\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ following\ disclaimer.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00028\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00029\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00030\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00031\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00032\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00033\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00034\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00035\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00037\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{}}
+\DoxyCodeLine{00039\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_stack_allocator_8h}{StackAllocator.h}}"{}}}
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#include\ <assimp/ai\_assert.h>}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{keyword}{using\ namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}};}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_assimp_1_1_stack_allocator_aa23513f7c29f3371d187ce94c1bfbd4c}{StackAllocator::StackAllocator}}()\ :\ m\_storageBlocks()\ \{\}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_assimp_1_1_stack_allocator_a063ce9b29589c8269814c22275c884e4}{StackAllocator::\string~StackAllocator}}()\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_stack_allocator_a19d3a2030d353e351b83048b3b101d80}{FreeAll}}();}
+\DoxyCodeLine{00052\ \}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{class_assimp_1_1_stack_allocator_abafb2f937572eb43d803ca6fb7be5dd6}{StackAllocator::Allocate}}(\textcolor{keywordtype}{size\_t}\ byteSize)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_subIndex\ +\ byteSize\ >\ m\_blockAllocationSize)\ \textcolor{comment}{//\ start\ a\ new\ block}}
+\DoxyCodeLine{00056\ \ \ \ \ \{}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ double\ block\ size\ every\ time,\ up\ to\ maximum\ of\ g\_maxBytesPerBlock.}}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Block\ size\ must\ be\ at\ least\ as\ large\ as\ byteSize,\ but\ we\ want\ to\ use\ this\ for\ small\ allocations\ anyway.}}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ m\_blockAllocationSize\ =\ std::max<std::size\_t>(std::min<std::size\_t>(m\_blockAllocationSize\ *\ 2,\ g\_maxBytesPerBlock),\ byteSize);}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}\ =\ \textcolor{keyword}{new}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}[m\_blockAllocationSize];}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ m\_storageBlocks.emplace\_back(\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}});}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ m\_subIndex\ =\ byteSize;}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}};}
+\DoxyCodeLine{00064\ \ \ \ \ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}\ =\ m\_storageBlocks.back();}
+\DoxyCodeLine{00067\ \ \ \ \ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}\ +=\ m\_subIndex;}
+\DoxyCodeLine{00068\ \ \ \ \ m\_subIndex\ +=\ byteSize;}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}};}
+\DoxyCodeLine{00071\ \}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_stack_allocator_a19d3a2030d353e351b83048b3b101d80}{StackAllocator::FreeAll}}()\ \{}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ m\_storageBlocks.size();\ i++)\ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_storageBlocks[i];}
+\DoxyCodeLine{00076\ \ \ \ \ \}}
+\DoxyCodeLine{00077\ \ \ \ \ std::vector<uint8\_t\ *>\ empty;}
+\DoxyCodeLine{00078\ \ \ \ \ m\_storageBlocks.swap(empty);}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//\ start\ over:}}
+\DoxyCodeLine{00080\ \ \ \ \ m\_blockAllocationSize\ =\ g\_startBytesPerBlock;}
+\DoxyCodeLine{00081\ \ \ \ \ m\_subIndex\ =\ g\_maxBytesPerBlock;}
+\DoxyCodeLine{00082\ \}}
+
+\end{DoxyCode}

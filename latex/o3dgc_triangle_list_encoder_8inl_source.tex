@@ -1,0 +1,725 @@
+\doxysection{o3dgc\+Triangle\+List\+Encoder.\+inl}
+\hypertarget{o3dgc_triangle_list_encoder_8inl_source}{}\label{o3dgc_triangle_list_encoder_8inl_source}\index{RobotLib/libraries/assimp/contrib/Open3DGC/o3dgcTriangleListEncoder.inl@{RobotLib/libraries/assimp/contrib/Open3DGC/o3dgcTriangleListEncoder.inl}}
+\mbox{\hyperlink{o3dgc_triangle_list_encoder_8inl}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Copyright\ (c)\ 2013\ Khaled\ Mammou\ -\/\ Advanced\ Micro\ Devices,\ Inc.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{}}
+\DoxyCodeLine{00004\ \textcolor{comment}{Permission\ is\ hereby\ granted,\ free\ of\ charge,\ to\ any\ person\ obtaining\ a\ copy}}
+\DoxyCodeLine{00005\ \textcolor{comment}{of\ this\ software\ and\ associated\ documentation\ files\ (the\ "{}Software"{}),\ to\ deal}}
+\DoxyCodeLine{00006\ \textcolor{comment}{in\ the\ Software\ without\ restriction,\ including\ without\ limitation\ the\ rights}}
+\DoxyCodeLine{00007\ \textcolor{comment}{to\ use,\ copy,\ modify,\ merge,\ publish,\ distribute,\ sublicense,\ and/or\ sell}}
+\DoxyCodeLine{00008\ \textcolor{comment}{copies\ of\ the\ Software,\ and\ to\ permit\ persons\ to\ whom\ the\ Software\ is}}
+\DoxyCodeLine{00009\ \textcolor{comment}{furnished\ to\ do\ so,\ subject\ to\ the\ following\ conditions:}}
+\DoxyCodeLine{00010\ \textcolor{comment}{}}
+\DoxyCodeLine{00011\ \textcolor{comment}{The\ above\ copyright\ notice\ and\ this\ permission\ notice\ shall\ be\ included\ in}}
+\DoxyCodeLine{00012\ \textcolor{comment}{all\ copies\ or\ substantial\ portions\ of\ the\ Software.}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{THE\ SOFTWARE\ IS\ PROVIDED\ "{}AS\ IS"{},\ WITHOUT\ WARRANTY\ OF\ ANY\ KIND,\ EXPRESS\ OR}}
+\DoxyCodeLine{00015\ \textcolor{comment}{IMPLIED,\ INCLUDING\ BUT\ NOT\ LIMITED\ TO\ THE\ WARRANTIES\ OF\ MERCHANTABILITY,}}
+\DoxyCodeLine{00016\ \textcolor{comment}{FITNESS\ FOR\ A\ PARTICULAR\ PURPOSE\ AND\ NONINFRINGEMENT.\ IN\ NO\ EVENT\ SHALL\ THE}}
+\DoxyCodeLine{00017\ \textcolor{comment}{AUTHORS\ OR\ COPYRIGHT\ HOLDERS\ BE\ LIABLE\ FOR\ ANY\ CLAIM,\ DAMAGES\ OR\ OTHER}}
+\DoxyCodeLine{00018\ \textcolor{comment}{LIABILITY,\ WHETHER\ IN\ AN\ ACTION\ OF\ CONTRACT,\ TORT\ OR\ OTHERWISE,\ ARISING\ FROM,}}
+\DoxyCodeLine{00019\ \textcolor{comment}{OUT\ OF\ OR\ IN\ CONNECTION\ WITH\ THE\ SOFTWARE\ OR\ THE\ USE\ OR\ OTHER\ DEALINGS\ IN}}
+\DoxyCodeLine{00020\ \textcolor{comment}{THE\ SOFTWARE.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#ifndef\ O3DGC\_TRIANGLE\_LIST\_ENCODER\_INL}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#define\ O3DGC\_TRIANGLE\_LIST\_ENCODER\_INL}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespaceo3dgc}{o3dgc}}}
+\DoxyCodeLine{00028\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{comment}{//\ extract\ opposite\ edge}}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespaceo3dgc_ae523e611e4ee56cf322f833cbe6519a4}{CompueOppositeEdge}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ focusVertex,\ }
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ T\ *\ triangle,}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \&\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},\ \textcolor{keywordtype}{long}\ \&\ b)}
+\DoxyCodeLine{00034\ \ \ \ \ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((\textcolor{keywordtype}{long})\ triangle[0]\ ==\ focusVertex)}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}\ =\ triangle[1];}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ b\ =\ triangle[2];}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ ((\textcolor{keywordtype}{long})\ triangle[1]\ ==\ focusVertex)}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}\ =\ triangle[2];}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ b\ =\ triangle[0];}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}\ =\ triangle[0];}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \ \ \ \ b\ =\ triangle[1];}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00050\ \ \ \ \ \}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespaceo3dgc_a22095492d8b50c7b009792542c8a1061}{IsCase0}}(\textcolor{keywordtype}{long}\ degree,\ \textcolor{keywordtype}{long}\ numIndices,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ ops,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ indices)}
+\DoxyCodeLine{00052\ \ \ \ \ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 1000001\ vertices:\ -\/1\ -\/2}}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((numIndices\ !=\ 2)\ ||\ (degree\ <\ 2))\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((indices[0]\ !=\ -\/1)\ ||(indices[1]\ !=\ -\/2)\ ||\ }
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ (ops[0]\ !=\ 1)\ \ \ \ \ \ \ ||(ops[degree-\/1]\ !=\ 1)\ \ )\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ u\ =\ 1;\ u\ <\ degree-\/1;\ u++)\ \{}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ops[u]\ !=\ 0)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00063\ \ \ \ \ \}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespaceo3dgc_a9659e8be1e069177ccdcc8b1dd7f7a0c}{IsCase1}}(\textcolor{keywordtype}{long}\ degree,\ \textcolor{keywordtype}{long}\ numIndices,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ ops,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ indices)}
+\DoxyCodeLine{00065\ \ \ \ \ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 1xxxxxx1\ indices:\ -\/1\ x\ x\ x\ x\ x\ -\/2}}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((degree\ <\ 2)\ ||\ (numIndices\ <\ 1))}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((indices[0]\ !=\ -\/1)\ ||(indices[numIndices-\/1]\ !=\ -\/2)\ ||\ }
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ (ops[0]\ !=\ 1)\ \ \ \ \ \ \ ||(ops[degree-\/1]\ !=\ 1)\ \ )\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00074\ \ \ \ \ \}}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespaceo3dgc_a31a9d75ff485cb51904223c56d5bdbfc}{IsCase2}}(\textcolor{keywordtype}{long}\ degree,\ \textcolor{keywordtype}{long}\ numIndices,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ ops,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ indices)}
+\DoxyCodeLine{00076\ \ \ \ \ \{}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 00000001\ indices:\ -\/1}}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((degree\ <\ 2)\ ||\ (numIndices!=\ 1))}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((indices[0]\ !=\ -\/1)\ ||\ (ops[degree-\/1]\ !=\ 1)\ \ )\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ u\ =\ 0;\ u\ <\ degree-\/1;\ u++)\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ops[u]\ !=\ 0)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00087\ \ \ \ \ \}}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespaceo3dgc_a94a688e21e7bfe04ccc5b21174cd1434}{IsCase3}}(\textcolor{keywordtype}{long}\ degree,\ \textcolor{keywordtype}{long}\ numIndices,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ ops,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ indices)}
+\DoxyCodeLine{00089\ \ \ \ \ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 00000001\ indices:\ -\/2}}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((degree\ <\ 2)\ ||\ (numIndices!=\ 1))}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((indices[0]\ !=\ -\/2)\ ||\ (ops[degree-\/1]\ !=\ 1)\ \ )\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ u\ =\ 0;\ u\ <\ degree-\/1;\ u++)\ \{}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ops[u]\ !=\ 0)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00100\ \ \ \ \ \}}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespaceo3dgc_adb6fe8131c32afe5ae20b7cbfb94292d}{IsCase4}}(\textcolor{keywordtype}{long}\ degree,\ \textcolor{keywordtype}{long}\ numIndices,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ ops,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ indices)}
+\DoxyCodeLine{00102\ \ \ \ \ \{}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 10000000\ indices:\ -\/1}}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((degree\ <\ 2)\ ||\ (numIndices!=\ 1))\ }
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((indices[0]\ !=\ -\/1)\ ||\ (ops[0]\ !=\ 1)\ \ )\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ u\ =\ 1;\ u\ <\ degree;\ u++)\ }
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ops[u]\ !=\ 0)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00114\ \ \ \ \ \}}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespaceo3dgc_a00417401ee6e62dc7bfcf10454857da2}{IsCase5}}(\textcolor{keywordtype}{long}\ degree,\ \textcolor{keywordtype}{long}\ numIndices,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ ops,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ indices)}
+\DoxyCodeLine{00116\ \ \ \ \ \{}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 10000000\ indices:\ -\/2}}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((degree\ <\ 2)\ ||\ (numIndices!=\ 1))\ }
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((indices[0]\ !=\ -\/2)\ ||\ (ops[0]\ !=\ 1)\ \ )\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ u\ =\ 1;\ u\ <\ degree;\ u++)\ \{}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ops[u]\ !=\ 0)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00127\ \ \ \ \ \}}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespaceo3dgc_a0a5d60bd161b7cb122b8514da44dbb73}{IsCase6}}(\textcolor{keywordtype}{long}\ degree,\ \textcolor{keywordtype}{long}\ numIndices,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ ops,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ \textcolor{comment}{/*indices*/})}
+\DoxyCodeLine{00129\ \ \ \ \ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 0000000\ indices:\ }}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (numIndices!=\ 0)\ }
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ u\ =\ 0;\ u\ <\ degree;\ u++)\ }
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ops[u]\ !=\ 0)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00140\ \ \ \ \ \}}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespaceo3dgc_a7b7cbfaaddb0e13034804ff07fee65a2}{IsCase7}}(\textcolor{keywordtype}{long}\ degree,\ \textcolor{keywordtype}{long}\ numIndices,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ ops,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ indices)}
+\DoxyCodeLine{00142\ \ \ \ \ \{}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 1000001\ indices:\ -\/2\ -\/1}}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((numIndices!=\ 2)\ ||\ (degree\ <\ 2))\ }
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((indices[0]\ !=\ -\/2)\ ||(indices[1]\ !=\ -\/1)\ ||\ }
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \ \ \ \ (ops[0]\ !=\ 1)\ \ \ \ \ \ ||(ops[degree-\/1]\ !=\ 1)\ \ )\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ u\ =\ 1;\ u\ <\ degree-\/1;\ u++)\ }
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ops[u]\ !=\ 0)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00155\ \ \ \ \ \}}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespaceo3dgc_a3e7f03cb99107d60b9701c12d7bd79e0}{IsCase8}}(\textcolor{keywordtype}{long}\ degree,\ \textcolor{keywordtype}{long}\ numIndices,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ ops,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ indices)}
+\DoxyCodeLine{00157\ \ \ \ \ \{}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 1xxxxxx1\ indices:\ -\/1\ x\ x\ x\ x\ x\ -\/2}}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((degree\ <\ 2)\ ||\ (numIndices\ <\ 1))\ }
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((indices[0]\ !=\ -\/2)\ ||(indices[numIndices-\/1]\ !=\ -\/1)\ ||\ }
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ \ \ (ops[0]\ !=\ 1)\ \ \ \ \ \ ||(ops[degree-\/1]\ !=\ 1)\ \ )\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00166\ \ \ \ \ \}}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00168\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_triangle_list_encoder_a0d2a886a4a3fff9ebb90b4e89b730a8f}{TriangleListEncoder<T>::TriangleListEncoder}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{00169\ \ \ \ \ \{}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ m\_vtags\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ m\_ttags\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ m\_tmap\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ m\_vmap\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ m\_count\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ m\_invVMap\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ m\_invTMap\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ m\_nonConqueredTriangles\ \ \ =\ 0;}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ m\_nonConqueredEdges\ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ m\_visitedVertices\ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ m\_visitedVerticesValence\ \ =\ 0;}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ m\_vertexCount\ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ m\_triangleCount\ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ m\_maxNumVertices\ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ m\_maxNumTriangles\ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ m\_numTriangles\ \ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ m\_numVertices\ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ m\_triangles\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ m\_maxSizeVertexToTriangle\ =\ 0;}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ m\_streamType\ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{namespaceo3dgc_af119b34bfeca20f6d37811fa20a13b04a01d315c29afdb98f3ff78a51e38b338e}{O3DGC\_STREAM\_TYPE\_UNKOWN}};}
+\DoxyCodeLine{00190\ \ \ \ \ \}}
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00192\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_triangle_list_encoder_afddb9cb0af0f55892249493888e3bfc6}{TriangleListEncoder<T>::\string~TriangleListEncoder}}()}
+\DoxyCodeLine{00193\ \ \ \ \ \{}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_vtags;}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_vmap;}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_invVMap;}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_invTMap;}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_visitedVerticesValence;}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_visitedVertices;}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_ttags;}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_tmap;}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_count;}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_nonConqueredTriangles;}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_nonConqueredEdges;}
+\DoxyCodeLine{00205\ \ \ \ \ \}}
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00207\ \ \ \ \ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5d}{O3DGCErrorCode}}\ TriangleListEncoder<T>::Init(\textcolor{keyword}{const}\ T\ *\ \textcolor{keyword}{const}\ triangles,\ }
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ numTriangles,\ }
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ numVertices)}
+\DoxyCodeLine{00210\ \ \ \ \ \{}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ assert(numVertices\ \ >\ 0);}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ assert(numTriangles\ >\ 0);}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ m\_numTriangles\ \ =\ numTriangles;}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \ \ m\_numVertices\ \ \ =\ numVertices;}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ m\_triangles\ \ \ \ \ =\ triangles;}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ m\_vertexCount\ \ \ =\ 0;}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ m\_triangleCount\ =\ 0;}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \ (m\_numVertices\ >\ m\_maxNumVertices)}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_vtags;}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_vmap;}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_invVMap;}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_visitedVerticesValence;}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_visitedVertices;}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \ \ \ \ m\_maxNumVertices\ \ \ \ \ \ \ \ \ =\ m\_numVertices;}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \ \ \ \ m\_vtags\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{long}\ [m\_numVertices];}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \ \ \ \ m\_vmap\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{long}\ [m\_numVertices];}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ \ \ \ \ m\_invVMap\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{long}\ [m\_numVertices];}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \ \ \ \ \ \ m\_visitedVerticesValence\ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{long}\ [m\_numVertices];}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \ \ \ \ \ \ m\_visitedVertices\ \ \ \ \ \ \ \ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{long}\ [m\_numVertices];}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \ (m\_numTriangles\ >\ m\_maxNumTriangles)}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_ttags;}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_tmap;}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_invTMap;}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_nonConqueredTriangles;}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_nonConqueredEdges;}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\ m\_count;}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \ \ \ \ m\_maxNumTriangles\ \ \ \ \ \ \ =\ m\_numTriangles;}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ m\_ttags\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{long}\ [m\_numTriangles];}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ m\_tmap\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{long}\ [m\_numTriangles];}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \ \ \ \ m\_invTMap\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{long}\ [m\_numTriangles];}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ m\_count\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{long}\ [m\_numTriangles+1];}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ m\_nonConqueredTriangles\ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{long}\ [m\_numTriangles];}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ m\_nonConqueredEdges\ \ \ \ \ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{long}\ [2*m\_numTriangles];}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ memset(m\_vtags\ \ ,\ 0x00,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{long})\ *\ m\_numVertices\ );}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ memset(m\_vmap\ \ \ ,\ 0xFF,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{long})\ *\ m\_numVertices\ );}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \ \ memset(m\_invVMap,\ 0xFF,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{long})\ *\ m\_numVertices\ );}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ memset(m\_ttags\ \ ,\ 0x00,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{long})\ *\ m\_numTriangles);}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \ \ memset(m\_tmap\ \ \ ,\ 0xFF,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{long})\ *\ m\_numTriangles);}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \ \ memset(m\_invTMap,\ 0xFF,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{long})\ *\ m\_numTriangles);}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ memset(m\_count\ \ ,\ 0x00,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{long})\ *\ (m\_numTriangles+1));}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ m\_vfifo.Allocate(m\_numVertices);}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \ \ m\_ctfans.SetStreamType(m\_streamType);}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \ \ m\_ctfans.Allocate(m\_numVertices,\ m\_numTriangles);}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ compute\ vertex-\/to-\/triangle\ adjacency\ information}}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ m\_vertexToTriangle.AllocateNumNeighborsArray(numVertices);}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ m\_vertexToTriangle.ClearNumNeighborsArray();}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ *\ numNeighbors\ =\ m\_vertexToTriangle.GetNumNeighborsBuffer();}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ i\ =\ 0,\ t\ =\ 0;\ i\ <\ m\_numTriangles;\ ++i,\ t+=3)}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ \ \ ++numNeighbors[\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a9434fd4562553cca08dab528b268e4ea}{triangles}}[t\ \ ]\ ];}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ \ \ \ \ ++numNeighbors[\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a9434fd4562553cca08dab528b268e4ea}{triangles}}[t+1]\ ];}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ \ \ \ \ ++numNeighbors[\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a9434fd4562553cca08dab528b268e4ea}{triangles}}[t+2]\ ];}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ m\_maxSizeVertexToTriangle\ =\ 0;}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ i\ =\ 0;\ i\ <\ numVertices;\ ++i)}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_maxSizeVertexToTriangle\ <\ numNeighbors[i])}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_maxSizeVertexToTriangle\ =\ numNeighbors[i];}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ m\_vertexToTriangle.AllocateNeighborsArray();}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \ \ m\_vertexToTriangle.ClearNeighborsArray();}
+\DoxyCodeLine{00284\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ i\ =\ 0,\ t\ =\ 0;\ i\ <\ m\_numTriangles;\ ++i,\ t+=3)}
+\DoxyCodeLine{00285\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \ \ \ \ \ \ m\_vertexToTriangle.AddNeighbor(triangles[t\ \ ],\ i);}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \ \ \ \ \ \ m\_vertexToTriangle.AddNeighbor(triangles[t+1],\ i);}
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \ \ \ \ \ \ m\_vertexToTriangle.AddNeighbor(triangles[t+2],\ i);}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5dafa1e8a11127e85587a968567b26944b9}{O3DGC\_OK}};}
+\DoxyCodeLine{00291\ \ \ \ \ \}}
+\DoxyCodeLine{00292\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00293\ \ \ \ \ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5d}{O3DGCErrorCode}}\ \mbox{\hyperlink{classo3dgc_1_1_triangle_list_encoder_a573c51b4c2effb8f71bdf39d8c7d11f9}{TriangleListEncoder<T>::Encode}}(\textcolor{keyword}{const}\ T\ *\ \textcolor{keyword}{const}\ triangles,\ }
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ indexBufferIDs,}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ numTriangles,}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ numVertices,\ }
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_binary_stream}{BinaryStream}}\ \&\ bstream)}
+\DoxyCodeLine{00298\ \ \ \ \ \{}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \ \ assert(numVertices\ >\ 0);}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ assert(numTriangles\ >\ 0);}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ Init(triangles,\ numTriangles,\ numVertices);}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ mask\ =\ 0;}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ encodeTrianglesOrder\ =\ (indexBufferIDs\ !=\ 0);}
+\DoxyCodeLine{00305\ }
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (encodeTrianglesOrder)}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ numBufferIDs\ =\ 0;}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ t\ =\ 0;\ t\ <\ numTriangles;\ t++)}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (numBufferIDs\ <=\ (\textcolor{keywordtype}{long})\ indexBufferIDs[t])}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++numBufferIDs;}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ assert(numBufferIDs\ <=\ numTriangles);}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++m\_count[indexBufferIDs[t]+1];}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ i\ =\ 2;\ i\ <=\ numBufferIDs;\ i++)}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_count[i]\ +=\ m\_count[i-\/1];}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \ \ \ \ \ \ mask\ +=\ 2;\ \textcolor{comment}{//\ preserved\ triangles\ order}}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ bstream.\mbox{\hyperlink{classo3dgc_1_1_binary_stream_a5411a8682bc54bd3ac6d159f0a352564}{WriteUChar}}(mask,\ m\_streamType);\ }
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ bstream.\mbox{\hyperlink{classo3dgc_1_1_binary_stream_affccf50be4669127ef4cc2a400fbc6d1}{WriteUInt32}}(m\_maxSizeVertexToTriangle,\ m\_streamType);}
+\DoxyCodeLine{00327\ }
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ v0;}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ v\ =\ 0;\ v\ <\ m\_numVertices;\ v++)}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!m\_vtags[v])\ }
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_vfifo.PushBack(v);}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_vtags[v]\ =\ 1;\ }
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_vmap[v]\ =\ m\_vertexCount++;}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_invVMap[m\_vmap[v]]\ =\ v;}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (m\_vfifo.GetSize()\ >\ 0\ )}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ v0\ =\ m\_vfifo.PopFirst();}
+\DoxyCodeLine{00340\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ProcessVertex(v0);}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (encodeTrianglesOrder)}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ t,\ prev\ =\ 0;}
+\DoxyCodeLine{00347\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ pred;}
+\DoxyCodeLine{00348\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ i\ =\ 0;\ i\ <\ numTriangles;\ ++i)}
+\DoxyCodeLine{00349\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00350\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ t\ =\ m\_invTMap[i];}
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_tmap[t]\ =\ m\_count[\ indexBufferIDs[t]\ ]++;}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pred\ =\ m\_tmap[t]\ -\/\ prev;}
+\DoxyCodeLine{00353\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushTriangleIndex(pred);}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ prev\ =\ m\_tmap[t]\ +\ 1;}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ tt\ =\ 0;\ tt\ <\ numTriangles;\ ++tt)}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_invTMap[m\_tmap[tt]]\ =\ tt;}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \ \ m\_ctfans.Save(bstream,\ encodeTrianglesOrder,\ m\_streamType);}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5dafa1e8a11127e85587a968567b26944b9}{O3DGC\_OK}};}
+\DoxyCodeLine{00363\ \ \ \ \ \}}
+\DoxyCodeLine{00364\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00365\ \ \ \ \ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5d}{O3DGCErrorCode}}\ TriangleListEncoder<T>::CompueLocalConnectivityInfo(\textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ focusVertex)}
+\DoxyCodeLine{00366\ \ \ \ \ \{}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ t,\ v,\ p;}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ \ \ m\_numNonConqueredTriangles\ =\ 0;}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \ \ m\_numConqueredTriangles\ \ \ \ =\ 0;}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ m\_numVisitedVertices\ \ \ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ i\ =\ m\_vertexToTriangle.Begin(focusVertex);\ i\ <\ m\_vertexToTriangle.End(focusVertex);\ ++i)}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \ \ \ \ \ \ t\ =\ m\_vertexToTriangle.GetNeighbor(i);}
+\DoxyCodeLine{00374\ }
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\ m\_ttags[t]\ ==\ 0)\ \textcolor{comment}{//\ non-\/processed\ triangle}}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_nonConqueredTriangles[m\_numNonConqueredTriangles]\ =\ t;}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespaceo3dgc_ae523e611e4ee56cf322f833cbe6519a4}{CompueOppositeEdge}}(\ focusVertex,\ }
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangles\ +\ (3*t),\ }
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_nonConqueredEdges[m\_numNonConqueredTriangles*2],}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_nonConqueredEdges[m\_numNonConqueredTriangles*2+1]);}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++m\_numNonConqueredTriangles;}
+\DoxyCodeLine{00383\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ triangle\ already\ processed}}
+\DoxyCodeLine{00385\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00386\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_numConqueredTriangles++;}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ p\ =\ 3*t;}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ extract\ visited\ vertices}}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ k\ =\ 0;\ k\ <\ 3;\ ++k)}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ v\ =\ m\_triangles[p+k];}
+\DoxyCodeLine{00392\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_vmap[v]\ >\ m\_vmap[focusVertex])\ \textcolor{comment}{//\ vertices\ are\ insertices\ by\ increasing\ traversal\ order}}
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00394\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ foundOrInserted\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ j\ =\ 0;\ j\ <\ m\_numVisitedVertices;\ ++j)}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00397\ }
+\DoxyCodeLine{00398\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_vmap[v]\ ==\ m\_visitedVertices[j])}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_visitedVerticesValence[j]++;}
+\DoxyCodeLine{00401\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ foundOrInserted\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (m\_vmap[v]\ <\ m\_visitedVertices[j])}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++m\_numVisitedVertices;}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{long}\ h\ =\ m\_numVisitedVertices-\/1;\ h\ >\ j;\ -\/-\/h)}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_visitedVertices[h]\ \ \ \ \ \ \ \ =\ m\_visitedVertices[h-\/1];}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_visitedVerticesValence[h]\ =\ m\_visitedVerticesValence[h-\/1];}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_visitedVertices[j]\ \ \ \ \ \ \ \ =\ m\_vmap[v];}
+\DoxyCodeLine{00413\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_visitedVerticesValence[j]\ =\ 1;}
+\DoxyCodeLine{00414\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ foundOrInserted\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00415\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00416\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00417\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00418\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!foundOrInserted)}
+\DoxyCodeLine{00419\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_visitedVertices[m\_numVisitedVertices]\ =\ m\_vmap[v];}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_visitedVerticesValence[m\_numVisitedVertices]\ =\ 1;}
+\DoxyCodeLine{00422\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_numVisitedVertices++;}
+\DoxyCodeLine{00423\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00424\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00426\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00427\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00428\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ re-\/order\ visited\ vertices\ by\ taking\ into\ account\ their\ valence\ (i.e.,\ \#\ of\ conquered\ triangles\ incident\ to\ each\ vertex)}}
+\DoxyCodeLine{00429\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ in\ order\ to\ avoid\ config.\ 9}}
+\DoxyCodeLine{00430\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_numVisitedVertices\ >\ 2)}
+\DoxyCodeLine{00431\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00432\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_acdf728de24d3295c218d5a10ca4598e1}{y}};}
+\DoxyCodeLine{00433\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ x\ =\ 1;\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_ae4259d8527288b5ab77aa84a65670a71}{x}}\ <\ m\_numVisitedVertices;\ ++\mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_ae4259d8527288b5ab77aa84a65670a71}{x}})}
+\DoxyCodeLine{00434\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00435\ }
+\DoxyCodeLine{00436\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_visitedVerticesValence[x]\ ==\ 1)}
+\DoxyCodeLine{00437\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00438\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_acdf728de24d3295c218d5a10ca4598e1}{y}}\ =\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_ae4259d8527288b5ab77aa84a65670a71}{x}};}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}(\ (y\ >\ 0)\ \&\&\ (m\_visitedVerticesValence[y]\ <\ m\_visitedVerticesValence[y-\/1])\ )}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespaceo3dgc_a15c18506bdd21a292c6b4e9b2a794370}{swap}}(m\_visitedVerticesValence[y],\ m\_visitedVerticesValence[y-\/1]);}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespaceo3dgc_a15c18506bdd21a292c6b4e9b2a794370}{swap}}(m\_visitedVertices[y],\ m\_visitedVertices[y-\/1]);}
+\DoxyCodeLine{00443\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/-\/\mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_acdf728de24d3295c218d5a10ca4598e1}{y}};}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00445\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00446\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00447\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00448\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_numNonConqueredTriangles\ >\ 0)}
+\DoxyCodeLine{00449\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00450\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ compute\ triangle-\/to-\/triangle\ adjacency\ information}}
+\DoxyCodeLine{00451\ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangle.AllocateNumNeighborsArray(m\_numNonConqueredTriangles);}
+\DoxyCodeLine{00452\ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangle.ClearNumNeighborsArray();}
+\DoxyCodeLine{00453\ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangleInv.AllocateNumNeighborsArray(m\_numNonConqueredTriangles);}
+\DoxyCodeLine{00454\ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangleInv.ClearNumNeighborsArray();}
+\DoxyCodeLine{00455\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ numNeighbors\ \ \ \ =\ m\_triangleToTriangle.GetNumNeighborsBuffer();}
+\DoxyCodeLine{00456\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ *\ \textcolor{keyword}{const}\ invNumNeighbors\ =\ m\_triangleToTriangleInv.GetNumNeighborsBuffer();}
+\DoxyCodeLine{00457\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ i\ =\ 0;\ i\ <\ m\_numNonConqueredTriangles;\ ++i)}
+\DoxyCodeLine{00458\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ j\ =\ i+1;\ j\ <\ m\_numNonConqueredTriangles;\ ++j)}
+\DoxyCodeLine{00460\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00461\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_nonConqueredEdges[2*i+1]\ ==\ m\_nonConqueredEdges[2*j])\ \textcolor{comment}{//\ edge\ i\ is\ connected\ to\ edge\ j}}
+\DoxyCodeLine{00462\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00463\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++numNeighbors[i];}
+\DoxyCodeLine{00464\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++invNumNeighbors[j];}
+\DoxyCodeLine{00465\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00466\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_nonConqueredEdges[2*i]\ ==\ m\_nonConqueredEdges[2*j+1])\ \textcolor{comment}{//\ edge\ i\ is\ connected\ to\ edge\ j}}
+\DoxyCodeLine{00467\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00468\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++numNeighbors[j];}
+\DoxyCodeLine{00469\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++invNumNeighbors[i];}
+\DoxyCodeLine{00470\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00472\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00473\ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangle.AllocateNeighborsArray();}
+\DoxyCodeLine{00474\ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangle.ClearNeighborsArray();}
+\DoxyCodeLine{00475\ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangleInv.AllocateNeighborsArray();}
+\DoxyCodeLine{00476\ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangleInv.ClearNeighborsArray();}
+\DoxyCodeLine{00477\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ i\ =\ 0;\ i\ <\ m\_numNonConqueredTriangles;\ ++i)}
+\DoxyCodeLine{00478\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00479\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ j\ =\ 1;\ j\ <\ m\_numNonConqueredTriangles;\ ++j)}
+\DoxyCodeLine{00480\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00481\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_nonConqueredEdges[2*i+1]\ ==\ m\_nonConqueredEdges[2*j])\ \textcolor{comment}{//\ edge\ i\ is\ connected\ to\ edge\ j}}
+\DoxyCodeLine{00482\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00483\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangle.AddNeighbor(i,\ j);}
+\DoxyCodeLine{00484\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangleInv.AddNeighbor(j,\ i);}
+\DoxyCodeLine{00485\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00486\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_nonConqueredEdges[2*i]\ ==\ m\_nonConqueredEdges[2*j+1])\ \textcolor{comment}{//\ edge\ i\ is\ connected\ to\ edge\ j}}
+\DoxyCodeLine{00487\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00488\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangle.AddNeighbor(j,\ i);}
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_triangleToTriangleInv.AddNeighbor(i,\ j);}
+\DoxyCodeLine{00490\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00492\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00493\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00494\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5dafa1e8a11127e85587a968567b26944b9}{O3DGC\_OK}};}
+\DoxyCodeLine{00495\ \ \ \ \ \}}
+\DoxyCodeLine{00496\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00497\ \ \ \ \ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5d}{O3DGCErrorCode}}\ TriangleListEncoder<T>::ComputeTFANDecomposition(\textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ focusVertex)}
+\DoxyCodeLine{00498\ \ \ \ \ \{}
+\DoxyCodeLine{00499\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ processedTriangles\ =\ 0;}
+\DoxyCodeLine{00500\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ minNumInputEdges;}
+\DoxyCodeLine{00501\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ numInputEdges;}
+\DoxyCodeLine{00502\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ indexSeedTriangle;}
+\DoxyCodeLine{00503\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ seedTriangle;}
+\DoxyCodeLine{00504\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ currentIndex;}
+\DoxyCodeLine{00505\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ currentTriangle;}
+\DoxyCodeLine{00506\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ i0,\ i1,\ index;}
+\DoxyCodeLine{00507\ }
+\DoxyCodeLine{00508\ \ \ \ \ \ \ \ \ m\_tfans.Clear();}
+\DoxyCodeLine{00509\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (processedTriangles\ !=\ m\_numNonConqueredTriangles)}
+\DoxyCodeLine{00510\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00511\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ find\ non\ processed\ triangle\ with\ lowest\ number\ of\ inputs}}
+\DoxyCodeLine{00512\ \ \ \ \ \ \ \ \ \ \ \ \ minNumInputEdges\ \ \ =\ m\_numTriangles;}
+\DoxyCodeLine{00513\ \ \ \ \ \ \ \ \ \ \ \ \ indexSeedTriangle\ =\ -\/1;}
+\DoxyCodeLine{00514\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ i\ =\ 0;\ i\ <\ m\_numNonConqueredTriangles;\ ++i)}
+\DoxyCodeLine{00515\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00516\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ numInputEdges\ =\ m\_triangleToTriangleInv.GetNumNeighbors(i);}
+\DoxyCodeLine{00517\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\ !m\_ttags[m\_nonConqueredTriangles[i]]\ \&\&\ }
+\DoxyCodeLine{00518\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ numInputEdges\ <\ minNumInputEdges\ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{00519\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00520\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ minNumInputEdges\ \ =\ numInputEdges;}
+\DoxyCodeLine{00521\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ indexSeedTriangle\ =\ i;}
+\DoxyCodeLine{00522\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (minNumInputEdges\ ==\ 0)\ \textcolor{comment}{//\ found\ boundary\ triangle}}
+\DoxyCodeLine{00523\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00524\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00525\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00526\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00527\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00528\ \ \ \ \ \ \ \ \ \ \ \ \ assert(indexSeedTriangle\ >=\ 0);}
+\DoxyCodeLine{00529\ \ \ \ \ \ \ \ \ \ \ \ \ seedTriangle\ =\ m\_nonConqueredTriangles[indexSeedTriangle];}
+\DoxyCodeLine{00530\ \ \ \ \ \ \ \ \ \ \ \ \ m\_tfans.AddTFAN();}
+\DoxyCodeLine{00531\ \ \ \ \ \ \ \ \ \ \ \ \ m\_tfans.AddVertex(\ focusVertex\ );}
+\DoxyCodeLine{00532\ \ \ \ \ \ \ \ \ \ \ \ \ m\_tfans.AddVertex(\ m\_nonConqueredEdges[indexSeedTriangle*2]\ );}
+\DoxyCodeLine{00533\ \ \ \ \ \ \ \ \ \ \ \ \ m\_tfans.AddVertex(\ m\_nonConqueredEdges[indexSeedTriangle*2\ +\ 1]\ );}
+\DoxyCodeLine{00534\ \ \ \ \ \ \ \ \ \ \ \ \ m\_ttags[\ seedTriangle\ ]\ \ \ \ \ \ \ \ \ =\ 1;\ \textcolor{comment}{//\ mark\ triangle\ as\ processed}}
+\DoxyCodeLine{00535\ \ \ \ \ \ \ \ \ \ \ \ \ m\_tmap[seedTriangle]\ \ \ \ \ \ \ \ \ \ \ \ =\ m\_triangleCount++;}
+\DoxyCodeLine{00536\ \ \ \ \ \ \ \ \ \ \ \ \ m\_invTMap[m\_tmap[seedTriangle]]\ =\ seedTriangle;}
+\DoxyCodeLine{00537\ \ \ \ \ \ \ \ \ \ \ \ \ ++processedTriangles;}
+\DoxyCodeLine{00538\ \ \ \ \ \ \ \ \ \ \ \ \ currentIndex\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ indexSeedTriangle;}
+\DoxyCodeLine{00539\ \ \ \ \ \ \ \ \ \ \ \ \ currentTriangle\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ seedTriangle;}
+\DoxyCodeLine{00540\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{do}}
+\DoxyCodeLine{00541\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00542\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ find\ next\ triangle\ \ \ \ \ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{00543\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ i0\ =\ m\_triangleToTriangle.Begin(currentIndex);}
+\DoxyCodeLine{00544\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ i1\ =\ m\_triangleToTriangle.End(currentIndex);}
+\DoxyCodeLine{00545\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ currentIndex\ =\ -\/1;}
+\DoxyCodeLine{00546\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ i\ =\ i0;\ i\ <\ i1;\ ++i)}
+\DoxyCodeLine{00547\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00548\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ index\ \ \ \ \ \ \ \ \ \ \ =\ m\_triangleToTriangle.GetNeighbor(i);}
+\DoxyCodeLine{00549\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ currentTriangle\ =\ m\_nonConqueredTriangles[index];}
+\DoxyCodeLine{00550\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\ !m\_ttags[currentTriangle]\ )}
+\DoxyCodeLine{00551\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00552\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ currentIndex\ =\ index;}
+\DoxyCodeLine{00553\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_tfans.AddVertex(\ m\_nonConqueredEdges[currentIndex*2+1]\ );}
+\DoxyCodeLine{00554\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ttags[currentTriangle]\ \ \ \ \ \ \ \ \ \ \ \ =\ 1;\ \textcolor{comment}{//\ mark\ triangle\ as\ processed}}
+\DoxyCodeLine{00555\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_tmap\ [currentTriangle]\ \ \ \ \ \ \ \ \ \ \ \ =\ m\_triangleCount++;}
+\DoxyCodeLine{00556\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_invTMap[m\_tmap\ [currentTriangle]]\ =\ currentTriangle;}
+\DoxyCodeLine{00557\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++processedTriangles;}
+\DoxyCodeLine{00558\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00559\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00560\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00561\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{while}\ (currentIndex\ !=\ -\/1);}
+\DoxyCodeLine{00562\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00563\ }
+\DoxyCodeLine{00564\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5dafa1e8a11127e85587a968567b26944b9}{O3DGC\_OK}};}
+\DoxyCodeLine{00565\ \ \ \ \ \}}
+\DoxyCodeLine{00566\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00567\ \ \ \ \ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5d}{O3DGCErrorCode}}\ TriangleListEncoder<T>::CompressTFAN(\textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ focusVertex)}
+\DoxyCodeLine{00568\ \ \ \ \ \{}
+\DoxyCodeLine{00569\ \ \ \ \ \ \ \ \ m\_ctfans.PushNumTFans(m\_tfans.GetNumTFANs());\ \ \ \ }
+\DoxyCodeLine{00570\ }
+\DoxyCodeLine{00571\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ ntfans\ =\ m\_tfans.GetNumTFANs();}
+\DoxyCodeLine{00572\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ degree;}
+\DoxyCodeLine{00573\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ k0,\ k1;}
+\DoxyCodeLine{00574\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ v0;}
+\DoxyCodeLine{00575\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ ops[\mbox{\hyperlink{namespaceo3dgc_a522972fb305f929ffadc7cd29dc35451}{O3DGC\_MAX\_TFAN\_SIZE}}];}
+\DoxyCodeLine{00576\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ indices[\mbox{\hyperlink{namespaceo3dgc_a522972fb305f929ffadc7cd29dc35451}{O3DGC\_MAX\_TFAN\_SIZE}}];}
+\DoxyCodeLine{00577\ }
+\DoxyCodeLine{00578\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ numOps;}
+\DoxyCodeLine{00579\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ numIndices;}
+\DoxyCodeLine{00580\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{namespaceextract__step__token_a0c4d27af030a9bcb56a261adcf7f0cd0}{pos}};}
+\DoxyCodeLine{00581\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ found;}
+\DoxyCodeLine{00582\ }
+\DoxyCodeLine{00583\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_tfans.GetNumTFANs()\ >\ 0)\ }
+\DoxyCodeLine{00584\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00585\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ f\ =\ 0;\ f\ !=\ ntfans;\ f++)\ }
+\DoxyCodeLine{00586\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00587\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ degree\ =\ m\_tfans.GetTFANSize(f)\ -\/\ 1;}
+\DoxyCodeLine{00588\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushDegree(degree-\/2+\ m\_numConqueredTriangles);}
+\DoxyCodeLine{00589\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ numOps\ \ \ \ \ =\ 0;}
+\DoxyCodeLine{00590\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ numIndices\ =\ 0;}
+\DoxyCodeLine{00591\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ k0\ =\ 1\ +\ m\_tfans.Begin(f);}
+\DoxyCodeLine{00592\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ k1\ =\ m\_tfans.End(f);}
+\DoxyCodeLine{00593\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ k\ =\ k0;\ k\ <\ k1;\ k++)\ }
+\DoxyCodeLine{00594\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00595\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ v0\ =\ m\_tfans.GetVertex(k);}
+\DoxyCodeLine{00596\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_vtags[v0]\ ==\ 0)}
+\DoxyCodeLine{00597\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00598\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ops[numOps++]\ =\ 0;}
+\DoxyCodeLine{00599\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_vtags[v0]\ =\ 1;}
+\DoxyCodeLine{00600\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_vmap[v0]\ =\ m\_vertexCount++;}
+\DoxyCodeLine{00601\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_invVMap[m\_vmap[v0]]\ =\ v0;}
+\DoxyCodeLine{00602\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_vfifo.PushBack(v0);}
+\DoxyCodeLine{00603\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_visitedVertices[m\_numVisitedVertices++]\ =\ m\_vmap[v0];}
+\DoxyCodeLine{00604\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00605\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ }
+\DoxyCodeLine{00606\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00607\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ops[numOps++]\ =\ 1;}
+\DoxyCodeLine{00608\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespaceextract__step__token_a0c4d27af030a9bcb56a261adcf7f0cd0}{pos}}\ =\ 0;}
+\DoxyCodeLine{00609\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ found\ =\ 0;}
+\DoxyCodeLine{00610\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{long}\ u=0;\ u\ <\ m\_numVisitedVertices;\ ++u)}
+\DoxyCodeLine{00611\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00612\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespaceextract__step__token_a0c4d27af030a9bcb56a261adcf7f0cd0}{pos}}++;}
+\DoxyCodeLine{00613\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_visitedVertices[u]\ ==\ m\_vmap[v0])\ }
+\DoxyCodeLine{00614\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00615\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ found\ =\ 1;}
+\DoxyCodeLine{00616\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00617\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00618\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \ \ \ }
+\DoxyCodeLine{00619\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (found\ ==\ 1)}
+\DoxyCodeLine{00620\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00621\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ indices[numIndices++]\ =\ -\/\mbox{\hyperlink{namespaceextract__step__token_a0c4d27af030a9bcb56a261adcf7f0cd0}{pos}};}
+\DoxyCodeLine{00622\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00623\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ }
+\DoxyCodeLine{00624\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00625\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ indices[numIndices++]\ =\ m\_vmap[v0]\ -\/\ m\_vmap[focusVertex];}
+\DoxyCodeLine{00626\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00627\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00628\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00629\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00630\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespaceo3dgc_a22095492d8b50c7b009792542c8a1061}{IsCase0}}(degree,\ numIndices,\ ops,\ indices))}
+\DoxyCodeLine{00631\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{\ }
+\DoxyCodeLine{00632\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 1000001\ vertices:\ -\/1\ -\/2}}
+\DoxyCodeLine{00633\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushConfig(0);}
+\DoxyCodeLine{00634\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00635\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespaceo3dgc_a9659e8be1e069177ccdcc8b1dd7f7a0c}{IsCase1}}(degree,\ numIndices,\ ops,\ indices))}
+\DoxyCodeLine{00636\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00637\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 1xxxxxx1\ vertices:\ -\/1\ x\ x\ x\ x\ x\ -\/2}}
+\DoxyCodeLine{00638\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ u\ =\ 1;}
+\DoxyCodeLine{00639\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(u\ =\ 1;\ u\ <\ degree-\/1;\ u++)}
+\DoxyCodeLine{00640\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00641\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushOperation(ops[u]);}
+\DoxyCodeLine{00642\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00643\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(u\ =1;\ u\ <\ numIndices-\/1;\ u++)}
+\DoxyCodeLine{00644\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00645\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushIndex(indices[u]);}
+\DoxyCodeLine{00646\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00647\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushConfig(1);}
+\DoxyCodeLine{00648\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00649\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespaceo3dgc_a31a9d75ff485cb51904223c56d5bdbfc}{IsCase2}}(degree,\ numIndices,\ ops,\ indices))}
+\DoxyCodeLine{00650\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00651\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 00000001\ vertices:\ -\/1}}
+\DoxyCodeLine{00652\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushConfig(2);}
+\DoxyCodeLine{00653\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00654\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespaceo3dgc_a94a688e21e7bfe04ccc5b21174cd1434}{IsCase3}}(degree,\ numIndices,\ ops,\ indices))}
+\DoxyCodeLine{00655\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00656\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 00000001\ vertices:\ -\/2}}
+\DoxyCodeLine{00657\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushConfig(3);}
+\DoxyCodeLine{00658\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00659\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespaceo3dgc_adb6fe8131c32afe5ae20b7cbfb94292d}{IsCase4}}(degree,\ numIndices,\ ops,\ indices))}
+\DoxyCodeLine{00660\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00661\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 10000000\ vertices:\ -\/1}}
+\DoxyCodeLine{00662\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushConfig(4);}
+\DoxyCodeLine{00663\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00664\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespaceo3dgc_a00417401ee6e62dc7bfcf10454857da2}{IsCase5}}(degree,\ numIndices,\ ops,\ indices))}
+\DoxyCodeLine{00665\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00666\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 10000000\ vertices:\ -\/2}}
+\DoxyCodeLine{00667\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushConfig(5);}
+\DoxyCodeLine{00668\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00669\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespaceo3dgc_a0a5d60bd161b7cb122b8514da44dbb73}{IsCase6}}(degree,\ numIndices,\ ops,\ indices))}
+\DoxyCodeLine{00670\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00671\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 00000000\ vertices:}}
+\DoxyCodeLine{00672\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushConfig(6);}
+\DoxyCodeLine{00673\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00674\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespaceo3dgc_a7b7cbfaaddb0e13034804ff07fee65a2}{IsCase7}}(degree,\ numIndices,\ ops,\ indices))}
+\DoxyCodeLine{00675\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00676\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 1000001\ vertices:\ -\/1\ -\/2}}
+\DoxyCodeLine{00677\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushConfig(7);}
+\DoxyCodeLine{00678\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00679\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespaceo3dgc_a3e7f03cb99107d60b9701c12d7bd79e0}{IsCase8}}(degree,\ numIndices,\ ops,\ indices))}
+\DoxyCodeLine{00680\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00681\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ops:\ 1xxxxxx1\ vertices:\ -\/2\ x\ x\ x\ x\ x\ -\/1}}
+\DoxyCodeLine{00682\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ u\ =\ 1;}
+\DoxyCodeLine{00683\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(u\ =1;\ u\ <\ degree-\/1;\ u++)}
+\DoxyCodeLine{00684\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00685\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushOperation(ops[u]);}
+\DoxyCodeLine{00686\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00687\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(u\ =1;\ u\ <\ numIndices-\/1;\ u++)}
+\DoxyCodeLine{00688\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00689\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushIndex(indices[u]);}
+\DoxyCodeLine{00690\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00691\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushConfig(8);}
+\DoxyCodeLine{00692\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00693\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ }
+\DoxyCodeLine{00694\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00695\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ u\ =\ 0;}
+\DoxyCodeLine{00696\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(u\ =0;\ u\ <\ degree;\ u++)}
+\DoxyCodeLine{00697\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00698\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushOperation(ops[u]);}
+\DoxyCodeLine{00699\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00700\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(u\ =0;\ u\ <\ numIndices;\ u++)}
+\DoxyCodeLine{00701\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00702\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushIndex(indices[u]);}
+\DoxyCodeLine{00703\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00704\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_ctfans.PushConfig(9);}
+\DoxyCodeLine{00705\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00706\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00707\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00708\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5dafa1e8a11127e85587a968567b26944b9}{O3DGC\_OK}};}
+\DoxyCodeLine{00709\ \ \ \ \ \}}
+\DoxyCodeLine{00710\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00711\ \ \ \ \ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5d}{O3DGCErrorCode}}\ TriangleListEncoder<T>::ProcessVertex(\textcolor{keyword}{const}\ \textcolor{keywordtype}{long}\ focusVertex)}
+\DoxyCodeLine{00712\ \ \ \ \ \{}
+\DoxyCodeLine{00713\ \ \ \ \ \ \ \ \ CompueLocalConnectivityInfo(focusVertex);}
+\DoxyCodeLine{00714\ \ \ \ \ \ \ \ \ ComputeTFANDecomposition(focusVertex);}
+\DoxyCodeLine{00715\ \ \ \ \ \ \ \ \ CompressTFAN(focusVertex);}
+\DoxyCodeLine{00716\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespaceo3dgc_aeb7200719b53b58e0e284ebbd157ab5dafa1e8a11127e85587a968567b26944b9}{O3DGC\_OK}};}
+\DoxyCodeLine{00717\ \ \ \ \ \}}
+\DoxyCodeLine{00718\ \}}
+\DoxyCodeLine{00719\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//O3DGC\_TRIANGLE\_LIST\_ENCODER\_INL}}
+
+\end{DoxyCode}

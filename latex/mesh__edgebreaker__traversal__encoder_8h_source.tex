@@ -1,0 +1,145 @@
+\doxysection{mesh\+\_\+edgebreaker\+\_\+traversal\+\_\+encoder.\+h}
+\hypertarget{mesh__edgebreaker__traversal__encoder_8h_source}{}\label{mesh__edgebreaker__traversal__encoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/mesh/mesh\_edgebreaker\_traversal\_encoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/mesh/mesh\_edgebreaker\_traversal\_encoder.h}}
+\mbox{\hyperlink{mesh__edgebreaker__traversal__encoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_TRAVERSAL\_ENCODER\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_TRAVERSAL\_ENCODER\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{rans__bit__encoder_8h}{draco/compression/bit\_coders/rans\_bit\_encoder.h}}"{}}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__edgebreaker__encoder_8h}{draco/compression/mesh/mesh\_edgebreaker\_encoder.h}}"{}}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__edgebreaker__encoder__impl__interface_8h}{draco/compression/mesh/mesh\_edgebreaker\_encoder\_impl\_interface.h}}"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_r_ans_bit_encoder}{RAnsBitEncoder}}\ \mbox{\hyperlink{namespacedraco_a2bc1ca33ee2ca6547279945190fd9878}{BinaryEncoder}};}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ Default\ implementation\ of\ the\ edgebreaker\ traversal\ encoder.\ Face}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ configurations\ are\ stored\ directly\ into\ the\ output\ buffer\ and\ the\ symbols}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ are\ first\ collected\ and\ then\ encoded\ in\ the\ reverse\ order\ to\ make\ the}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ decoding\ faster.}}
+\DoxyCodeLine{00031\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a5904972669be6e55b39db64c28d8e0e7}{MeshEdgebreakerTraversalEncoder}}\ \{}
+\DoxyCodeLine{00032\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00033\ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a5904972669be6e55b39db64c28d8e0e7}{MeshEdgebreakerTraversalEncoder}}()}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ :\ encoder\_impl\_(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ attribute\_connectivity\_encoders\_(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ num\_attribute\_data\_(0)\ \{\}}
+\DoxyCodeLine{00037\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a8059dd32507cebf42dec19554b51993e}{Init}}(\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_encoder_impl_interface}{MeshEdgebreakerEncoderImplInterface}}\ *encoder)\ \{}
+\DoxyCodeLine{00038\ \ \ \ \ encoder\_impl\_\ =\ encoder;}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00040\ \ \ \}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ Set\ the\ number\ of\ non-\/position\ attribute\ data\ for\ which\ we\ need\ to\ encode}}
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ the\ connectivity.}}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a374a50018f85a4f6fd89fe164ac032f5}{SetNumAttributeData}}(\textcolor{keywordtype}{int}\ num\_data)\ \{\ num\_attribute\_data\_\ =\ num\_data;\ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ Called\ before\ the\ traversal\ encoding\ is\ started.}}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a3fe9d814eb3602824f898bc2fbdede0c}{Start}}()\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ start\_face\_encoder\_.StartEncoding();}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_attribute\_data\_\ >\ 0)\ \{}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \textcolor{comment}{//\ Init\ and\ start\ arithmetic\ encoders\ for\ storing\ configuration\ types}}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \textcolor{comment}{//\ of\ non-\/position\ attributes.}}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ attribute\_connectivity\_encoders\_\ =\ std::unique\_ptr<BinaryEncoder[]>(}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{new}\ \mbox{\hyperlink{namespacedraco_a2bc1ca33ee2ca6547279945190fd9878}{BinaryEncoder}}[num\_attribute\_data\_]);}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_attribute\_data\_;\ ++i)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ attribute\_connectivity\_encoders\_[i].StartEncoding();}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00057\ \ \ \ \ \}}
+\DoxyCodeLine{00058\ \ \ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{comment}{//\ Called\ when\ a\ traversal\ starts\ from\ a\ new\ initial\ face.}}
+\DoxyCodeLine{00061\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_ac2e2269b5f8c124b9f2f491915cd7c35}{EncodeStartFaceConfiguration}}(\textcolor{keywordtype}{bool}\ interior)\ \{}
+\DoxyCodeLine{00062\ \ \ \ \ start\_face\_encoder\_.EncodeBit(interior);}
+\DoxyCodeLine{00063\ \ \ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \textcolor{comment}{//\ Called\ when\ a\ new\ corner\ is\ reached\ during\ the\ traversal.\ No-\/op\ for\ the}}
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ default\ encoder.}}
+\DoxyCodeLine{00067\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_ae48a11ec9107b2d66e3e3261c3053b6d}{NewCornerReached}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \textcolor{comment}{/*\ corner\ */})\ \{\}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \textcolor{comment}{//\ Called\ whenever\ a\ new\ symbol\ is\ reached\ during\ the\ edgebreaker\ traversal.}}
+\DoxyCodeLine{00070\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a962f4e4220ab1acedc1a2fb7706ff456}{EncodeSymbol}}(\mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649f}{EdgebreakerTopologyBitPattern}}\ symbol)\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{comment}{//\ Store\ the\ symbol.\ It\ will\ be\ encoded\ after\ all\ symbols\ are\ processed.}}
+\DoxyCodeLine{00072\ \ \ \ \ symbols\_.push\_back(symbol);}
+\DoxyCodeLine{00073\ \ \ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \textcolor{comment}{//\ Called\ for\ every\ pair\ of\ connected\ and\ visited\ faces.\ |is\_seam|\ specifies}}
+\DoxyCodeLine{00076\ \ \ \textcolor{comment}{//\ whether\ there\ is\ an\ attribute\ seam\ between\ the\ two\ faces.}}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a752e2ac2d3c79fe92c5c375e4783171f}{EncodeAttributeSeam}}(\textcolor{keywordtype}{int}\ attribute,\ \textcolor{keywordtype}{bool}\ is\_seam)\ \{}
+\DoxyCodeLine{00079\ \ \ \ \ attribute\_connectivity\_encoders\_[attribute].EncodeBit(is\_seam\ ?\ 1\ :\ 0);}
+\DoxyCodeLine{00080\ \ \ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ \textcolor{comment}{//\ Called\ when\ the\ traversal\ is\ finished.}}
+\DoxyCodeLine{00083\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a3112297fdf9715a8455d7e1558d4c5c2}{Done}}()\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_af27db090244de69f1e88976491187083}{EncodeTraversalSymbols}}();}
+\DoxyCodeLine{00085\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a5b73547f32c2c43e4392cc6ea3810264}{EncodeStartFaces}}();}
+\DoxyCodeLine{00086\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_af4c7e05058314507203e170ccfd6221d}{EncodeAttributeSeams}}();}
+\DoxyCodeLine{00087\ \ \ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ encoded\ symbols.}}
+\DoxyCodeLine{00090\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a7b61901fb448e6b512fb0ca07c6acb27}{NumEncodedSymbols}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(symbols\_.size());\ \}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ \&\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a25683be8f21ebd0a194dc6f32397b2db}{buffer}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ traversal\_buffer\_;\ \}}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00095\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_af27db090244de69f1e88976491187083}{EncodeTraversalSymbols}}()\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{comment}{//\ Bit\ encode\ the\ collected\ symbols.}}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{comment}{//\ Allocate\ enough\ storage\ for\ the\ bit\ encoder.}}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{comment}{//\ It's\ guaranteed\ that\ each\ face\ will\ need\ only\ up\ to\ 3\ bits.}}
+\DoxyCodeLine{00099\ \ \ \ \ traversal\_buffer\_.StartBitEncoding(}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ encoder\_impl\_-\/>GetEncoder()-\/>mesh()-\/>num\_faces()\ *\ 3,\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(symbols\_.size()\ -\/\ 1);\ i\ >=\ 0;\ -\/-\/i)\ \{}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ traversal\_buffer\_.EncodeLeastSignificantBits32(}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_a26bacacaa61493ff40ef3c30a2222e90}{edge\_breaker\_topology\_bit\_pattern\_length}}[symbols\_[i]],\ symbols\_[i]);}
+\DoxyCodeLine{00104\ \ \ \ \ \}}
+\DoxyCodeLine{00105\ \ \ \ \ traversal\_buffer\_.EndBitEncoding();}
+\DoxyCodeLine{00106\ \ \ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a5b73547f32c2c43e4392cc6ea3810264}{EncodeStartFaces}}()\ \{}
+\DoxyCodeLine{00109\ \ \ \ \ start\_face\_encoder\_.EndEncoding(\&traversal\_buffer\_);}
+\DoxyCodeLine{00110\ \ \ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_af4c7e05058314507203e170ccfd6221d}{EncodeAttributeSeams}}()\ \{}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordflow}{if}\ (attribute\_connectivity\_encoders\_\ !=\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_attribute\_data\_;\ ++i)\ \{}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ attribute\_connectivity\_encoders\_[i].EndEncoding(\&traversal\_buffer\_);}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00117\ \ \ \ \ \}}
+\DoxyCodeLine{00118\ \ \ \}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a4ddb52b3d89192a0c3806aa5b1b447c4}{GetOutputBuffer}}()\ \{\ \textcolor{keywordflow}{return}\ \&traversal\_buffer\_;\ \}}
+\DoxyCodeLine{00121\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_encoder_impl_interface}{MeshEdgebreakerEncoderImplInterface}}\ *\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_encoder_a52cd847309ae7b696dd3bccb918b6135}{encoder\_impl}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordflow}{return}\ encoder\_impl\_;}
+\DoxyCodeLine{00123\ \ \ \}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00126\ \ \ \mbox{\hyperlink{namespacedraco_a2bc1ca33ee2ca6547279945190fd9878}{BinaryEncoder}}\ start\_face\_encoder\_;}
+\DoxyCodeLine{00127\ \ \ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ traversal\_buffer\_;}
+\DoxyCodeLine{00128\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_encoder_impl_interface}{MeshEdgebreakerEncoderImplInterface}}\ *encoder\_impl\_;}
+\DoxyCodeLine{00129\ \ \ \textcolor{comment}{//\ Symbols\ collected\ during\ the\ traversal.}}
+\DoxyCodeLine{00130\ \ \ std::vector<EdgebreakerTopologyBitPattern>\ symbols\_;}
+\DoxyCodeLine{00131\ \ \ \textcolor{comment}{//\ Arithmetic\ encoder\ for\ encoding\ attribute\ seams.}}
+\DoxyCodeLine{00132\ \ \ \textcolor{comment}{//\ One\ context\ for\ each\ non-\/position\ attribute.}}
+\DoxyCodeLine{00133\ \ \ std::unique\_ptr<BinaryEncoder[]>\ attribute\_connectivity\_encoders\_;}
+\DoxyCodeLine{00134\ \ \ \textcolor{keywordtype}{int}\ num\_attribute\_data\_;}
+\DoxyCodeLine{00135\ \};}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_TRAVERSAL\_ENCODER\_H\_}}
+
+\end{DoxyCode}

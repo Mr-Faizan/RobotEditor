@@ -1,0 +1,530 @@
+\doxysection{gltf\+\_\+decoder.\+h}
+\hypertarget{gltf__decoder_8h_source}{}\label{gltf__decoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/io/gltf\_decoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/io/gltf\_decoder.h}}
+\mbox{\hyperlink{gltf__decoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2018\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_IO\_GLTF\_DECODER\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_IO\_GLTF\_DECODER\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ <unordered\_map>}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ <unordered\_set>}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{decoder__buffer_8h}{draco/core/decoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status_8h}{draco/core/status.h}}"{}}}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status__or_8h}{draco/core/status\_or.h}}"{}}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{tiny__gltf__utils_8h}{draco/io/tiny\_gltf\_utils.h}}"{}}}
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2mesh_2mesh_8h}{draco/mesh/mesh.h}}"{}}}
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{triangle__soup__mesh__builder_8h}{draco/mesh/triangle\_soup\_mesh\_builder.h}}"{}}}
+\DoxyCodeLine{00034\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{point__cloud__builder_8h}{draco/point\_cloud/point\_cloud\_builder.h}}"{}}}
+\DoxyCodeLine{00035\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2scene_2scene_8h}{draco/scene/scene.h}}"{}}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ Decodes\ a\ glTF\ file\ and\ returns\ a\ draco::Mesh.\ All\ of\ the\ |mesh|'s\ attributes}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ will\ be\ merged\ into\ one\ draco::Mesh}}
+\DoxyCodeLine{00041\ \textcolor{keyword}{class\ }GltfDecoder\ \{}
+\DoxyCodeLine{00042\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00043\ \ \ GltfDecoder();}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \textcolor{comment}{//\ Decodes\ a\ glTF\ file\ stored\ in\ the\ input\ |file\_name|\ or\ |buffer|\ to\ a\ Mesh.}}
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ The\ second\ form\ returns\ a\ vector\ of\ files\ used\ as\ input\ to\ the\ mesh\ during}}
+\DoxyCodeLine{00047\ \ \ \textcolor{comment}{//\ the\ decoding\ process.\ Returns\ nullptr\ when\ decode\ fails.}}
+\DoxyCodeLine{00048\ \ \ StatusOr<std::unique\_ptr<Mesh>>\ DecodeFromFile(\textcolor{keyword}{const}\ std::string\ \&file\_name);}
+\DoxyCodeLine{00049\ \ \ StatusOr<std::unique\_ptr<Mesh>>\ DecodeFromFile(}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&file\_name,\ std::vector<std::string>\ *mesh\_files);}
+\DoxyCodeLine{00051\ \ \ StatusOr<std::unique\_ptr<Mesh>>\ DecodeFromBuffer(DecoderBuffer\ *buffer);}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \textcolor{comment}{//\ Decodes\ a\ glTF\ file\ stored\ in\ the\ input\ |file\_name|\ or\ |buffer|\ to\ a\ Scene.}}
+\DoxyCodeLine{00054\ \ \ \textcolor{comment}{//\ The\ second\ form\ returns\ a\ vector\ of\ files\ used\ as\ input\ to\ the\ scene\ during}}
+\DoxyCodeLine{00055\ \ \ \textcolor{comment}{//\ the\ decoding\ process.\ Returns\ nullptr\ if\ the\ decode\ fails.}}
+\DoxyCodeLine{00056\ \ \ StatusOr<std::unique\_ptr<Scene>>\ DecodeFromFileToScene(}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&file\_name);}
+\DoxyCodeLine{00058\ \ \ StatusOr<std::unique\_ptr<Scene>>\ DecodeFromFileToScene(}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&file\_name,\ std::vector<std::string>\ *scene\_files);}
+\DoxyCodeLine{00060\ \ \ StatusOr<std::unique\_ptr<Scene>>\ DecodeFromBufferToScene(}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ DecoderBuffer\ *buffer);}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//\ Scene\ graph\ can\ be\ loaded\ either\ as\ a\ tree\ or\ a\ general\ directed\ acyclic}}
+\DoxyCodeLine{00064\ \ \ \textcolor{comment}{//\ graph\ (DAG)\ that\ allows\ multiple\ parent\ nodes.\ By\ default.\ we\ decode\ the}}
+\DoxyCodeLine{00065\ \ \ \textcolor{comment}{//\ scene\ graph\ as\ a\ tree.\ If\ the\ tree\ mode\ is\ selected\ and\ the\ input\ contains}}
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ nodes\ with\ multiple\ parents,\ these\ nodes\ are\ duplicated\ to\ form\ a\ tree.}}
+\DoxyCodeLine{00067\ \ \ \textcolor{comment}{//\ TODO(ostava):\ Add\ support\ for\ DAG\ mode\ to\ other\ parts\ of\ the\ Draco}}
+\DoxyCodeLine{00068\ \ \ \textcolor{comment}{//\ library.}}
+\DoxyCodeLine{00069\ \ \ \textcolor{keyword}{enum\ class}\ GltfSceneGraphMode\ \{\ TREE,\ DAG\ \};}
+\DoxyCodeLine{00070\ \ \ \textcolor{keywordtype}{void}\ SetSceneGraphMode(GltfSceneGraphMode\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}})\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ gltf\_scene\_graph\_mode\_\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}};}
+\DoxyCodeLine{00072\ \ \ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00075\ \ \ \textcolor{comment}{//\ Loads\ |file\_name|\ into\ |gltf\_model\_|.\ Fills\ |input\_files|\ with\ paths\ to\ all}}
+\DoxyCodeLine{00076\ \ \ \textcolor{comment}{//\ input\ files\ when\ non-\/null.}}
+\DoxyCodeLine{00077\ \ \ Status\ LoadFile(\textcolor{keyword}{const}\ std::string\ \&file\_name,}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<std::string>\ *input\_files);}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \textcolor{comment}{//\ Loads\ |gltf\_model\_|\ from\ |buffer|\ in\ GLB\ format.}}
+\DoxyCodeLine{00081\ \ \ Status\ LoadBuffer(\textcolor{keyword}{const}\ DecoderBuffer\ \&buffer);}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \textcolor{comment}{//\ Builds\ mesh\ from\ |gltf\_model\_|.}}
+\DoxyCodeLine{00084\ \ \ StatusOr<std::unique\_ptr<Mesh>>\ BuildMesh();}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \textcolor{comment}{//\ Checks\ |gltf\_model\_|\ for\ unsupported\ features.\ If\ |gltf\_model\_|\ contains}}
+\DoxyCodeLine{00087\ \ \ \textcolor{comment}{//\ unsupported\ features\ then\ the\ function\ will\ return\ with\ a\ status\ code\ of}}
+\DoxyCodeLine{00088\ \ \ \textcolor{comment}{//\ UNSUPPORTED\_FEATURE.}}
+\DoxyCodeLine{00089\ \ \ Status\ CheckUnsupportedFeatures();}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \textcolor{comment}{//\ Decodes\ a\ glTF\ Node\ as\ well\ as\ any\ child\ Nodes.\ If\ |node|\ contains\ a\ mesh}}
+\DoxyCodeLine{00092\ \ \ \textcolor{comment}{//\ it\ will\ process\ all\ of\ the\ mesh's\ primitives.}}
+\DoxyCodeLine{00093\ \ \ Status\ DecodeNode(\textcolor{keywordtype}{int}\ node\_index,\ \textcolor{keyword}{const}\ Eigen::Matrix4d\ \&parent\_matrix);}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \textcolor{comment}{//\ Decodes\ the\ number\ of\ entries\ in\ the\ first\ attribute\ of\ a\ given\ glTF}}
+\DoxyCodeLine{00096\ \ \ \textcolor{comment}{//\ |primitive|.\ Note\ that\ all\ attributes\ have\ the\ same\ entry\ count\ according}}
+\DoxyCodeLine{00097\ \ \ \textcolor{comment}{//\ to\ glTF\ 2.0\ spec.}}
+\DoxyCodeLine{00098\ \ \ StatusOr<int>\ DecodePrimitiveAttributeCount(}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Primitive\ \&primitive)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \textcolor{comment}{//\ Decodes\ the\ number\ of\ indices\ in\ a\ given\ glTF\ |primitive|.\ If\ primitive's}}
+\DoxyCodeLine{00102\ \ \ \textcolor{comment}{//\ indices\ property\ is\ not\ defined,\ the\ index\ count\ is\ implied\ from\ the\ entry}}
+\DoxyCodeLine{00103\ \ \ \textcolor{comment}{//\ count\ of\ a\ primitive\ attribute.}}
+\DoxyCodeLine{00104\ \ \ StatusOr<int>\ DecodePrimitiveIndicesCount(}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Primitive\ \&primitive)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \textcolor{comment}{//\ Decodes\ indices\ property\ of\ a\ given\ glTF\ |primitive|.\ If\ primitive's}}
+\DoxyCodeLine{00108\ \ \ \textcolor{comment}{//\ indices\ property\ is\ not\ defined,\ the\ indices\ are\ generated\ based\ on\ entry}}
+\DoxyCodeLine{00109\ \ \ \textcolor{comment}{//\ count\ of\ a\ primitive\ attribute.}}
+\DoxyCodeLine{00110\ \ \ StatusOr<std::vector<uint32\_t>>\ DecodePrimitiveIndices(}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Primitive\ \&primitive)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \textcolor{comment}{//\ Decodes\ a\ glTF\ Primitive.\ All\ of\ the\ |primitive|'s\ attributes\ will\ be}}
+\DoxyCodeLine{00114\ \ \ \textcolor{comment}{//\ merged\ into\ the\ draco::Mesh\ output\ if\ they\ are\ of\ the\ same\ type\ that}}
+\DoxyCodeLine{00115\ \ \ \textcolor{comment}{//\ already\ has\ been\ decoded.}}
+\DoxyCodeLine{00116\ \ \ Status\ DecodePrimitive(\textcolor{keyword}{const}\ tinygltf::Primitive\ \&primitive,}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ Eigen::Matrix4d\ \&transform\_matrix);}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \textcolor{comment}{//\ Sums\ the\ number\ of\ elements\ per\ attribute\ for\ |node|'s\ mesh\ and\ any\ of}}
+\DoxyCodeLine{00120\ \ \ \textcolor{comment}{//\ |node|'s\ children.\ Fills\ out\ the\ material\ index\ map.}}
+\DoxyCodeLine{00121\ \ \ Status\ NodeGatherAttributeAndMaterialStats(\textcolor{keyword}{const}\ tinygltf::Node\ \&node);}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ \textcolor{comment}{//\ Sums\ the\ number\ of\ elements\ per\ attribute\ for\ all\ of\ the\ meshes\ and}}
+\DoxyCodeLine{00124\ \ \ \textcolor{comment}{//\ primitives.}}
+\DoxyCodeLine{00125\ \ \ Status\ GatherAttributeAndMaterialStats();}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ \textcolor{comment}{//\ Sums\ the\ attribute\ counts\ into\ total\_attribute\_counts\_.}}
+\DoxyCodeLine{00128\ \ \ \textcolor{keywordtype}{void}\ SumAttributeStats(\textcolor{keyword}{const}\ std::string\ \&attribute\_name,\ \textcolor{keywordtype}{int}\ count);}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \ \ \textcolor{comment}{//\ Checks\ that\ all\ the\ same\ glTF\ attribute\ types\ in\ different\ meshes\ and}}
+\DoxyCodeLine{00131\ \ \ \textcolor{comment}{//\ primitives\ contain\ the\ same\ characteristics.}}
+\DoxyCodeLine{00132\ \ \ Status\ CheckTypes(\textcolor{keyword}{const}\ std::string\ \&attribute\_name,\ \textcolor{keywordtype}{int}\ component\_type,}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ type,\ \textcolor{keywordtype}{bool}\ normalized);}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \textcolor{comment}{//\ Accumulates\ the\ number\ of\ elements\ per\ attribute\ for\ |primitive|.}}
+\DoxyCodeLine{00136\ \ \ Status\ AccumulatePrimitiveStats(\textcolor{keyword}{const}\ tinygltf::Primitive\ \&primitive);}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \textcolor{comment}{//\ Adds\ all\ of\ the\ attributes\ from\ the\ glTF\ file\ to\ a\ Draco\ mesh.}}
+\DoxyCodeLine{00139\ \ \ \textcolor{comment}{//\ GatherAttributeAndMaterialStats()\ must\ be\ called\ before\ this\ function.\ The}}
+\DoxyCodeLine{00140\ \ \ \textcolor{comment}{//\ GeometryAttribute::MATERIAL\ attribute\ will\ be\ created\ only\ if\ the\ glTF\ file}}
+\DoxyCodeLine{00141\ \ \ \textcolor{comment}{//\ contains\ more\ than\ one\ material.}}
+\DoxyCodeLine{00142\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00143\ \ \ Status\ AddAttributesToDracoMesh(BuilderT\ *builder);}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \textcolor{comment}{//\ Copies\ attribute\ data\ from\ |accessor|\ and\ adds\ it\ to\ a\ Draco\ mesh\ using\ the}}
+\DoxyCodeLine{00146\ \ \ \textcolor{comment}{//\ geometry\ builder\ |builder|.}}
+\DoxyCodeLine{00147\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00148\ \ \ Status\ AddAttributeValuesToBuilder(\textcolor{keyword}{const}\ std::string\ \&attribute\_name,}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Accessor\ \&accessor,}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<uint32\_t>\ \&indices\_data,}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ att\_id,\ \textcolor{keywordtype}{int}\ number\_of\_elements,}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ Eigen::Matrix4d\ \&transform\_matrix,}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ BuilderT\ *builder);}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \ \ \textcolor{comment}{//\ Copies\ the\ tangent\ attribute\ data\ from\ |accessor|\ and\ adds\ it\ to\ a\ Draco}}
+\DoxyCodeLine{00156\ \ \ \textcolor{comment}{//\ mesh.\ This\ function\ will\ transform\ all\ of\ the\ data\ by\ |transform\_matrix|}}
+\DoxyCodeLine{00157\ \ \ \textcolor{comment}{//\ and\ then\ normalize\ before\ adding\ the\ data\ to\ the\ Draco\ mesh.}}
+\DoxyCodeLine{00158\ \ \ \textcolor{comment}{//\ |indices\_data|\ is\ the\ indices\ data\ from\ the\ glTF\ file.\ |att\_id|\ is\ the}}
+\DoxyCodeLine{00159\ \ \ \textcolor{comment}{//\ attribute\ id\ of\ the\ tangent\ attribute\ in\ the\ Draco\ mesh.}}
+\DoxyCodeLine{00160\ \ \ \textcolor{comment}{//\ |number\_of\_elements|\ is\ the\ number\ of\ faces\ or\ points\ this\ function\ will}}
+\DoxyCodeLine{00161\ \ \ \textcolor{comment}{//\ process.\ |reverse\_winding|\ if\ set\ will\ change\ the\ orientation\ of\ the\ data.}}
+\DoxyCodeLine{00162\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00163\ \ \ Status\ AddTangentToBuilder(\textcolor{keyword}{const}\ tinygltf::Accessor\ \&accessor,}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<uint32\_t>\ \&indices\_data,}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ att\_id,\ \textcolor{keywordtype}{int}\ number\_of\_elements,}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ Eigen::Matrix4d\ \&transform\_matrix,}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ reverse\_winding,\ BuilderT\ *builder);}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \textcolor{comment}{//\ Copies\ the\ texture\ coordinate\ attribute\ data\ from\ |accessor|\ and\ adds\ it\ to}}
+\DoxyCodeLine{00170\ \ \ \textcolor{comment}{//\ a\ Draco\ mesh.\ This\ function\ will\ flip\ the\ data\ on\ the\ horizontal\ axis\ as}}
+\DoxyCodeLine{00171\ \ \ \textcolor{comment}{//\ Draco\ meshes\ store\ the\ texture\ coordinates\ differently\ than\ glTF.}}
+\DoxyCodeLine{00172\ \ \ \textcolor{comment}{//\ |indices\_data|\ is\ the\ indices\ data\ from\ the\ glTF\ file.\ |att\_id|\ is\ the}}
+\DoxyCodeLine{00173\ \ \ \textcolor{comment}{//\ attribute\ id\ of\ the\ texture\ coordinate\ attribute\ in\ the\ Draco\ mesh.}}
+\DoxyCodeLine{00174\ \ \ \textcolor{comment}{//\ |number\_of\_elements|\ is\ the\ number\ of\ faces\ or\ points\ this\ function\ will}}
+\DoxyCodeLine{00175\ \ \ \textcolor{comment}{//\ process.\ |reverse\_winding|\ if\ set\ will\ change\ the\ orientation\ of\ the\ data.}}
+\DoxyCodeLine{00176\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00177\ \ \ Status\ AddTexCoordToBuilder(\textcolor{keyword}{const}\ tinygltf::Accessor\ \&accessor,}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<uint32\_t>\ \&indices\_data,}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ att\_id,\ \textcolor{keywordtype}{int}\ number\_of\_elements,}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ reverse\_winding,\ BuilderT\ *builder);}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \ \ \textcolor{comment}{//\ Copies\ the\ mesh\ feature\ ID\ attribute\ data\ from\ |accessor|\ and\ adds\ it\ to\ a}}
+\DoxyCodeLine{00183\ \ \ \textcolor{comment}{//\ Draco\ mesh.\ |indices\_data|\ is\ the\ indices\ data\ from\ the\ glTF\ file.\ |att\_id|}}
+\DoxyCodeLine{00184\ \ \ \textcolor{comment}{//\ is\ the\ attribute\ ID\ of\ the\ mesh\ feature\ ID\ attribute\ in\ the\ Draco\ mesh.}}
+\DoxyCodeLine{00185\ \ \ \textcolor{comment}{//\ |number\_of\_elements|\ is\ the\ number\ of\ faces\ or\ points\ this\ function\ will}}
+\DoxyCodeLine{00186\ \ \ \textcolor{comment}{//\ process.\ |reverse\_winding|\ if\ set\ will\ change\ the\ orientation\ of\ the\ data.}}
+\DoxyCodeLine{00187\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00188\ \ \ Status\ AddFeatureIdToBuilder(\textcolor{keyword}{const}\ tinygltf::Accessor\ \&accessor,}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<uint32\_t>\ \&indices\_data,}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ att\_id,\ \textcolor{keywordtype}{int}\ number\_of\_elements,}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ reverse\_winding,}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&attribute\_name,}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ BuilderT\ *builder);}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \ \ \textcolor{comment}{//\ Copies\ the\ attribute\ data\ from\ |accessor|\ and\ adds\ it\ to\ a\ Draco\ mesh.}}
+\DoxyCodeLine{00196\ \ \ \textcolor{comment}{//\ This\ function\ will\ transform\ all\ of\ the\ data\ by\ |transform\_matrix|\ before}}
+\DoxyCodeLine{00197\ \ \ \textcolor{comment}{//\ adding\ the\ data\ to\ the\ Draco\ mesh.\ |indices\_data|\ is\ the\ indices\ data}}
+\DoxyCodeLine{00198\ \ \ \textcolor{comment}{//\ from\ the\ glTF\ file.\ |att\_id|\ is\ the\ attribute\ id\ of\ the\ attribute\ in\ the}}
+\DoxyCodeLine{00199\ \ \ \textcolor{comment}{//\ Draco\ mesh.\ |number\_of\_elements|\ is\ the\ number\ of\ faces\ or\ points\ this}}
+\DoxyCodeLine{00200\ \ \ \textcolor{comment}{//\ function\ will\ process.\ |normalize|\ if\ set\ will\ normalize\ all\ of\ the\ vector}}
+\DoxyCodeLine{00201\ \ \ \textcolor{comment}{//\ data\ after\ transformation.\ |reverse\_winding|\ if\ set\ will\ change\ the}}
+\DoxyCodeLine{00202\ \ \ \textcolor{comment}{//\ orientation\ of\ the\ data.}}
+\DoxyCodeLine{00203\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00204\ \ \ Status\ AddTransformedDataToBuilder(\textcolor{keyword}{const}\ tinygltf::Accessor\ \&accessor,}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<uint32\_t>\ \&indices\_data,}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ att\_id,\ \textcolor{keywordtype}{int}\ number\_of\_elements,}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ Eigen::Matrix4d\ \&transform\_matrix,}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ normalize,\ \textcolor{keywordtype}{bool}\ reverse\_winding,}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ BuilderT\ *builder);}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ \textcolor{comment}{//\ Sets\ values\ in\ |data|\ into\ the\ builder\ |builder|\ for\ |att\_id|.}}
+\DoxyCodeLine{00212\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00213\ \ \ \textcolor{keywordtype}{void}\ SetValuesForBuilder(\textcolor{keyword}{const}\ std::vector<uint32\_t>\ \&indices\_data,}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ att\_id,\ \textcolor{keywordtype}{int}\ number\_of\_elements,}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<T>\ \&\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}},\ \textcolor{keywordtype}{bool}\ reverse\_winding,}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ TriangleSoupMeshBuilder\ *builder);}
+\DoxyCodeLine{00217\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00218\ \ \ \textcolor{keywordtype}{void}\ SetValuesForBuilder(\textcolor{keyword}{const}\ std::vector<uint32\_t>\ \&indices\_data,}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ att\_id,\ \textcolor{keywordtype}{int}\ number\_of\_elements,}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<T>\ \&\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}},\ \textcolor{keywordtype}{bool}\ reverse\_winding,}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ PointCloudBuilder\ *builder);}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \ \ \textcolor{comment}{//\ Sets\ values\ in\ |data|\ into\ the\ mesh\ builder\ |mb|\ for\ |att\_id|.}}
+\DoxyCodeLine{00224\ \ \ \textcolor{comment}{//\ |reverse\_winding|\ if\ set\ will\ change\ the\ orientation\ of\ the\ data.}}
+\DoxyCodeLine{00225\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00226\ \ \ \textcolor{keywordtype}{void}\ SetValuesPerFace(\textcolor{keyword}{const}\ std::vector<uint32\_t>\ \&indices\_data,\ \textcolor{keywordtype}{int}\ att\_id,}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ number\_of\_faces,\ \textcolor{keyword}{const}\ std::vector<T>\ \&\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}},}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ reverse\_winding,\ TriangleSoupMeshBuilder\ *mb);}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00230\ \ \ \textcolor{comment}{//\ Returns\ an\ address\ pointing\ to\ the\ content\ stored\ in\ |data|.\ This\ is\ used}}
+\DoxyCodeLine{00231\ \ \ \textcolor{comment}{//\ when\ passing\ values\ to\ mesh\ /\ point\ cloud\ builder\ when\ the\ input\ type\ can}}
+\DoxyCodeLine{00232\ \ \ \textcolor{comment}{//\ be\ either\ a\ VectorD\ or\ an\ arithmetic\ type.}}
+\DoxyCodeLine{00233\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00234\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *GetDataContentAddress(\textcolor{keyword}{const}\ T\ \&\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}})\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00236\ \ \ \textcolor{comment}{//\ Adds\ the\ attribute\ data\ in\ |accessor|\ to\ |mb|\ for\ unique\ attribute}}
+\DoxyCodeLine{00237\ \ \ \textcolor{comment}{//\ |att\_id|.\ |indices\_data|\ is\ the\ mesh's\ indices\ data.\ |reverse\_winding|\ if}}
+\DoxyCodeLine{00238\ \ \ \textcolor{comment}{//\ set\ will\ change\ the\ orientation\ of\ the\ data.}}
+\DoxyCodeLine{00239\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00240\ \ \ Status\ AddAttributeDataByTypes(\textcolor{keyword}{const}\ tinygltf::Accessor\ \&accessor,}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<uint32\_t>\ \&indices\_data,}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ att\_id,\ \textcolor{keywordtype}{int}\ number\_of\_elements,}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ reverse\_winding,\ BuilderT\ *builder);}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00245\ \ \ \textcolor{comment}{//\ Adds\ the\ textures\ to\ |owner|.}}
+\DoxyCodeLine{00246\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00247\ \ \ Status\ CopyTextures(T\ *owner);}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00249\ \ \ \textcolor{comment}{//\ Sets\ extra\ attribute\ properties\ on\ a\ constructed\ draco\ mesh.}}
+\DoxyCodeLine{00250\ \ \ \textcolor{keywordtype}{void}\ SetAttributePropertiesOnDracoMesh(Mesh\ *mesh);}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00252\ \ \ \textcolor{comment}{//\ Adds\ the\ materials\ to\ |mesh|.}}
+\DoxyCodeLine{00253\ \ \ Status\ AddMaterialsToDracoMesh(Mesh\ *mesh);}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00255\ \ \ \textcolor{comment}{//\ Adds\ the\ material\ data\ for\ the\ GeometryAttribute::MATERIAL\ attribute\ to\ the}}
+\DoxyCodeLine{00256\ \ \ \textcolor{comment}{//\ Draco\ mesh.}}
+\DoxyCodeLine{00257\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00258\ \ \ Status\ AddMaterialDataToBuilder(\textcolor{keywordtype}{int}\ material\_value,\ \textcolor{keywordtype}{int}\ number\_of\_elements,}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ BuilderT\ *builder);}
+\DoxyCodeLine{00260\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00261\ \ \ Status\ AddMaterialDataToBuilderInternal(T\ material\_value,\ \textcolor{keywordtype}{int}\ number\_of\_faces,}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ TriangleSoupMeshBuilder\ *builder);}
+\DoxyCodeLine{00263\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00264\ \ \ Status\ AddMaterialDataToBuilderInternal(T\ material\_value,}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ number\_of\_points,}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ PointCloudBuilder\ *builder);}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ \ \ \textcolor{comment}{//\ Checks\ if\ the\ glTF\ file\ contains\ a\ texture.\ If\ there\ is\ a\ texture,\ this}}
+\DoxyCodeLine{00269\ \ \ \textcolor{comment}{//\ function\ will\ read\ the\ texture\ data\ and\ add\ it\ to\ the\ Draco\ |material|.\ If}}
+\DoxyCodeLine{00270\ \ \ \textcolor{comment}{//\ there\ is\ no\ texture,\ this\ function\ will\ return\ OkStatus().\ |texture\_info|}}
+\DoxyCodeLine{00271\ \ \ \textcolor{comment}{//\ is\ the\ data\ structure\ containing\ information\ about\ the\ texture\ in\ the\ glTF}}
+\DoxyCodeLine{00272\ \ \ \textcolor{comment}{//\ file.\ |type|\ is\ the\ type\ of\ texture\ defined\ by\ Draco.\ This\ is\ not\ the\ same}}
+\DoxyCodeLine{00273\ \ \ \textcolor{comment}{//\ as\ the\ texture\ coordinate\ attribute\ id.}}
+\DoxyCodeLine{00274\ \ \ Status\ CheckAndAddTextureToDracoMaterial(}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ texture\_index,\ \textcolor{keywordtype}{int}\ tex\_coord\_attribute\_index,}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::ExtensionMap\ \&tex\_info\_ext,\ Material\ *material,}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ TextureMap::Type\ type);}
+\DoxyCodeLine{00278\ }
+\DoxyCodeLine{00279\ \ \ \textcolor{comment}{//\ Decode\ glTF\ file\ to\ scene.}}
+\DoxyCodeLine{00280\ \ \ Status\ DecodeGltfToScene();}
+\DoxyCodeLine{00281\ }
+\DoxyCodeLine{00282\ \ \ \textcolor{comment}{//\ Decode\ glTF\ lights\ into\ a\ scene.}}
+\DoxyCodeLine{00283\ \ \ Status\ AddLightsToScene();}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \ \ \textcolor{comment}{//\ Decodes\ glTF\ materials\ variants\ names\ into\ a\ scene.}}
+\DoxyCodeLine{00286\ \ \ Status\ AddMaterialsVariantsNamesToScene();}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \ \ \textcolor{comment}{//\ Decode\ glTF\ animations\ into\ a\ scene.\ All\ of\ the\ glTF\ nodes\ must\ be\ decoded}}
+\DoxyCodeLine{00289\ \ \ \textcolor{comment}{//\ to\ the\ scene\ before\ this\ function\ is\ called.}}
+\DoxyCodeLine{00290\ \ \ Status\ AddAnimationsToScene();}
+\DoxyCodeLine{00291\ }
+\DoxyCodeLine{00292\ \ \ \textcolor{comment}{//\ Decode\ glTF\ node\ into\ a\ Draco\ scene.\ |parent\_index|\ is\ the\ index\ of\ the}}
+\DoxyCodeLine{00293\ \ \ \textcolor{comment}{//\ parent\ node.\ If\ |node|\ is\ a\ root\ node\ set\ |parent\_index|\ to}}
+\DoxyCodeLine{00294\ \ \ \textcolor{comment}{//\ |kInvalidSceneNodeIndex|.\ All\ glTF\ lights\ must\ be\ decoded\ to\ the\ scene}}
+\DoxyCodeLine{00295\ \ \ \textcolor{comment}{//\ before\ this\ function\ is\ called.}}
+\DoxyCodeLine{00296\ \ \ Status\ DecodeNodeForScene(\textcolor{keywordtype}{int}\ node\_index,\ SceneNodeIndex\ parent\_index);}
+\DoxyCodeLine{00297\ }
+\DoxyCodeLine{00298\ \ \ \textcolor{comment}{//\ Decode\ glTF\ primitive\ into\ a\ Draco\ scene.}}
+\DoxyCodeLine{00299\ \ \ Status\ DecodePrimitiveForScene(\textcolor{keyword}{const}\ tinygltf::Primitive\ \&primitive,}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MeshGroup\ *mesh\_group);}
+\DoxyCodeLine{00301\ }
+\DoxyCodeLine{00302\ \ \ \textcolor{comment}{//\ Decodes\ glTF\ materials\ variants\ from\ |extension|\ and\ adds\ it\ into\ materials}}
+\DoxyCodeLine{00303\ \ \ \textcolor{comment}{//\ variants\ |mappings|.\ Before\ calling\ this\ function,\ all\ materials\ variants}}
+\DoxyCodeLine{00304\ \ \ \textcolor{comment}{//\ names\ must\ be\ decoded\ by\ calling\ AddMaterialsVariantsNamesToScene().}}
+\DoxyCodeLine{00305\ \ \ Status\ DecodeMaterialsVariantsMappings(}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Value::Object\ \&extension,}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ std::vector<MeshGroup::MaterialsVariantsMapping>\ *mappings);}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \ \ \textcolor{comment}{//\ Decodes\ glTF\ mesh\ feature\ ID\ sets\ from\ all\ glTF\ primitives\ and\ adds\ them\ to}}
+\DoxyCodeLine{00310\ \ \ \textcolor{comment}{//\ |mesh|.}}
+\DoxyCodeLine{00311\ \ \ Status\ AddMeshFeaturesToDracoMesh(Mesh\ *mesh);}
+\DoxyCodeLine{00312\ }
+\DoxyCodeLine{00313\ \ \ \textcolor{comment}{//\ Decodes\ glTF\ mesh\ feature\ ID\ sets\ from\ glTF\ primitive\ in\ glTF\ node\ at}}
+\DoxyCodeLine{00314\ \ \ \textcolor{comment}{//\ |node\_index|\ and\ adds\ them\ to\ |mesh|.}}
+\DoxyCodeLine{00315\ \ \ Status\ AddMeshFeaturesToDracoMesh(\textcolor{keywordtype}{int}\ node\_index,\ Mesh\ *mesh);}
+\DoxyCodeLine{00316\ }
+\DoxyCodeLine{00317\ \ \ \textcolor{comment}{//\ Decodes\ glTF\ structural\ metadata\ from\ glTF\ model\ and\ adds\ it\ to\ |geometry|.}}
+\DoxyCodeLine{00318\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ GeometryT>}
+\DoxyCodeLine{00319\ \ \ Status\ AddStructuralMetadataToGeometry(GeometryT\ *geometry);}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00321\ \ \ \textcolor{comment}{//\ Decodes\ glTF\ mesh\ feature\ ID\ sets\ from\ |primitive|\ and\ adds\ them\ to\ |mesh|.}}
+\DoxyCodeLine{00322\ \ \ Status\ DecodeMeshFeatures(\textcolor{keyword}{const}\ tinygltf::Primitive\ \&primitive,}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ TextureLibrary\ *texture\_library,\ Mesh\ *mesh);}
+\DoxyCodeLine{00324\ }
+\DoxyCodeLine{00325\ \ \ \textcolor{comment}{//\ Decodes\ glTF\ mesh\ feature\ ID\ sets\ from\ |extension|\ and\ adds\ them\ to\ the}}
+\DoxyCodeLine{00326\ \ \ \textcolor{comment}{//\ |mesh\_features|\ vector.}}
+\DoxyCodeLine{00327\ \ \ Status\ DecodeMeshFeatures(}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Value::Object\ \&extension,\ TextureLibrary\ *texture\_library,}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ std::vector<std::unique\_ptr<MeshFeatures>>\ *mesh\_features);}
+\DoxyCodeLine{00330\ }
+\DoxyCodeLine{00331\ \ \ \textcolor{comment}{//\ Adds\ an\ attribute\ of\ type\ |attribute\_name|\ to\ |builder|.\ Returns\ the}}
+\DoxyCodeLine{00332\ \ \ \textcolor{comment}{//\ attribute\ id.}}
+\DoxyCodeLine{00333\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00334\ \ \ StatusOr<int>\ AddAttribute(\textcolor{keyword}{const}\ std::string\ \&attribute\_name,}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ component\_type,\ \textcolor{keywordtype}{int}\ type,\ BuilderT\ *builder);}
+\DoxyCodeLine{00336\ }
+\DoxyCodeLine{00337\ \ \ \textcolor{comment}{//\ Adds\ an\ attribute\ of\ |attribute\_type|\ to\ |builder|.\ Returns\ the\ attribute}}
+\DoxyCodeLine{00338\ \ \ \textcolor{comment}{//\ id.}}
+\DoxyCodeLine{00339\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00340\ \ \ StatusOr<int>\ AddAttribute(GeometryAttribute::Type\ attribute\_type,}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ component\_type,\ \textcolor{keywordtype}{int}\ type,\ BuilderT\ *builder);}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \ \ \textcolor{comment}{//\ Returns\ true\ if\ the\ KHR\_texture\_transform\ extension\ is\ set\ in\ |extension|.}}
+\DoxyCodeLine{00344\ \ \ \textcolor{comment}{//\ If\ the\ KHR\_texture\_transform\ extension\ is\ set\ then\ the\ values\ are\ returned}}
+\DoxyCodeLine{00345\ \ \ \textcolor{comment}{//\ in\ |transform|.}}
+\DoxyCodeLine{00346\ \ \ StatusOr<bool>\ CheckKhrTextureTransform(}
+\DoxyCodeLine{00347\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::ExtensionMap\ \&extension,\ TextureTransform\ *transform);}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \ \ \textcolor{comment}{//\ Adds\ glTF\ material\ |input\_material\_index|\ to\ |output\_material|.}}
+\DoxyCodeLine{00350\ \ \ Status\ AddGltfMaterial(\textcolor{keywordtype}{int}\ input\_material\_index,\ Material\ *output\_material);}
+\DoxyCodeLine{00351\ }
+\DoxyCodeLine{00352\ \ \ \textcolor{comment}{//\ Adds\ unlit\ property\ from\ glTF\ |input\_material|\ to\ |output\_material|.}}
+\DoxyCodeLine{00353\ \ \ \textcolor{keywordtype}{void}\ DecodeMaterialUnlitExtension(\textcolor{keyword}{const}\ tinygltf::Material\ \&input\_material,}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Material\ *output\_material);}
+\DoxyCodeLine{00355\ }
+\DoxyCodeLine{00356\ \ \ \textcolor{comment}{//\ Adds\ sheen\ properties\ from\ glTF\ |input\_material|\ to\ |output\_material|.}}
+\DoxyCodeLine{00357\ \ \ Status\ DecodeMaterialSheenExtension(\textcolor{keyword}{const}\ tinygltf::Material\ \&input\_material,}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Material\ *output\_material);}
+\DoxyCodeLine{00359\ }
+\DoxyCodeLine{00360\ \ \ \textcolor{comment}{//\ Adds\ transmission\ from\ glTF\ |input\_material|\ to\ |output\_material|.}}
+\DoxyCodeLine{00361\ \ \ Status\ DecodeMaterialTransmissionExtension(}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Material\ \&input\_material,\ Material\ *output\_material);}
+\DoxyCodeLine{00363\ }
+\DoxyCodeLine{00364\ \ \ \textcolor{comment}{//\ Adds\ clearcoat\ properties\ from\ glTF\ |input\_material|\ to\ |output\_material|.}}
+\DoxyCodeLine{00365\ \ \ Status\ DecodeMaterialClearcoatExtension(}
+\DoxyCodeLine{00366\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Material\ \&input\_material,\ Material\ *output\_material);}
+\DoxyCodeLine{00367\ }
+\DoxyCodeLine{00368\ \ \ \textcolor{comment}{//\ Adds\ volume\ properties\ from\ glTF\ |input\_material|\ to\ |output\_material|.}}
+\DoxyCodeLine{00369\ \ \ Status\ DecodeMaterialVolumeExtension(\textcolor{keyword}{const}\ tinygltf::Material\ \&input\_material,}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ input\_material\_index,}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Material\ *output\_material);}
+\DoxyCodeLine{00372\ }
+\DoxyCodeLine{00373\ \ \ \textcolor{comment}{//\ Adds\ ior\ properties\ from\ glTF\ |input\_material|\ to\ |output\_material|.}}
+\DoxyCodeLine{00374\ \ \ Status\ DecodeMaterialIorExtension(\textcolor{keyword}{const}\ tinygltf::Material\ \&input\_material,}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Material\ *output\_material);}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00377\ \ \ \textcolor{comment}{//\ Adds\ specular\ properties\ from\ glTF\ |input\_material|\ to\ |output\_material|.}}
+\DoxyCodeLine{00378\ \ \ Status\ DecodeMaterialSpecularExtension(}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Material\ \&input\_material,\ Material\ *output\_material);}
+\DoxyCodeLine{00380\ }
+\DoxyCodeLine{00381\ \ \ \textcolor{comment}{//\ Decodes\ a\ float\ value\ with\ |name|\ from\ |object|\ to\ |value|\ and\ returns\ true}}
+\DoxyCodeLine{00382\ \ \ \textcolor{comment}{//\ if\ a\ well-\/formed\ value\ with\ such\ |name|\ is\ present.}}
+\DoxyCodeLine{00383\ \ \ \textcolor{keyword}{static}\ StatusOr<bool>\ DecodeFloat(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Value::Object\ \&\textcolor{keywordtype}{object},}
+\DoxyCodeLine{00385\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00386\ }
+\DoxyCodeLine{00387\ \ \ \textcolor{comment}{//\ Decodes\ an\ integer\ value\ with\ |name|\ from\ |object|\ to\ |value|\ and\ returns}}
+\DoxyCodeLine{00388\ \ \ \textcolor{comment}{//\ true\ if\ a\ well-\/formed\ value\ with\ such\ |name|\ is\ present.}}
+\DoxyCodeLine{00389\ \ \ \textcolor{keyword}{static}\ StatusOr<bool>\ DecodeInt(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Value::Object\ \&\textcolor{keywordtype}{object},}
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00392\ }
+\DoxyCodeLine{00393\ \ \ \textcolor{comment}{//\ Decodes\ a\ string\ value\ with\ |name|\ from\ |object|\ to\ |value|\ and\ returns}}
+\DoxyCodeLine{00394\ \ \ \textcolor{comment}{//\ true\ if\ a\ well-\/formed\ value\ with\ such\ |name|\ is\ present.}}
+\DoxyCodeLine{00395\ \ \ \textcolor{keyword}{static}\ StatusOr<bool>\ DecodeString(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Value::Object\ \&\textcolor{keywordtype}{object},}
+\DoxyCodeLine{00397\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00398\ }
+\DoxyCodeLine{00399\ \ \ \textcolor{comment}{//\ Decodes\ data\ and\ data\ target\ from\ buffer\ view\ index\ with\ |name|\ in\ |object|}}
+\DoxyCodeLine{00400\ \ \ \textcolor{comment}{//\ to\ |data|\ and\ returns\ true\ if\ a\ well-\/formed\ data\ is\ present.}}
+\DoxyCodeLine{00401\ \ \ StatusOr<bool>\ DecodePropertyTableData(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Value::Object\ \&\textcolor{keywordtype}{object},}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ PropertyTable::Property::Data\ *\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}});}
+\DoxyCodeLine{00404\ }
+\DoxyCodeLine{00405\ \ \ \textcolor{comment}{//\ Decodes\ a\ 3D\ vector\ with\ |name|\ from\ |object|\ to\ |value|\ and\ returns\ true}}
+\DoxyCodeLine{00406\ \ \ \textcolor{comment}{//\ if\ a\ well-\/formed\ vector\ with\ such\ |name|\ is\ present.}}
+\DoxyCodeLine{00407\ \ \ \textcolor{keyword}{static}\ StatusOr<bool>\ DecodeVector3f(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Value::Object\ \&\textcolor{keywordtype}{object},}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Vector3f\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00410\ }
+\DoxyCodeLine{00411\ \ \ \textcolor{comment}{//\ Decodes\ a\ texture\ with\ |name|\ from\ |object|\ and\ adds\ it\ to\ |material|\ as\ a}}
+\DoxyCodeLine{00412\ \ \ \textcolor{comment}{//\ texture\ map\ of\ |type|.}}
+\DoxyCodeLine{00413\ \ \ Status\ DecodeTexture(\textcolor{keyword}{const}\ std::string\ \&name,\ TextureMap::Type\ type,}
+\DoxyCodeLine{00414\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Value::Object\ \&\textcolor{keywordtype}{object},}
+\DoxyCodeLine{00415\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Material\ *material);}
+\DoxyCodeLine{00416\ }
+\DoxyCodeLine{00417\ \ \ \textcolor{comment}{//\ Reads\ texture\ with\ |texture\_name|\ from\ |container\_object|\ into}}
+\DoxyCodeLine{00418\ \ \ \textcolor{comment}{//\ |texture\_info|.}}
+\DoxyCodeLine{00419\ \ \ \textcolor{keyword}{static}\ Status\ ParseTextureInfo(}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&texture\_name,}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Value::Object\ \&container\_object,}
+\DoxyCodeLine{00422\ \ \ \ \ \ \ tinygltf::TextureInfo\ *texture\_info);}
+\DoxyCodeLine{00423\ }
+\DoxyCodeLine{00424\ \ \ \textcolor{comment}{//\ Adds\ the\ materials\ to\ the\ scene.}}
+\DoxyCodeLine{00425\ \ \ Status\ AddMaterialsToScene();}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00427\ \ \ \textcolor{comment}{//\ Adds\ the\ skins\ to\ the\ scene.}}
+\DoxyCodeLine{00428\ \ \ Status\ AddSkinsToScene();}
+\DoxyCodeLine{00429\ }
+\DoxyCodeLine{00430\ \ \ \textcolor{comment}{//\ All\ material\ and\ non-\/material\ textures\ (e.g.,\ from\ EXT\_mesh\_features)\ are}}
+\DoxyCodeLine{00431\ \ \ \textcolor{comment}{//\ initially\ loaded\ into\ a\ texture\ library\ inside\ the\ the\ material\ library.}}
+\DoxyCodeLine{00432\ \ \ \textcolor{comment}{//\ These\ methods\ move\ |non\_material\_textures|\ from\ material\ texture\ library}}
+\DoxyCodeLine{00433\ \ \ \textcolor{comment}{//\ |material\_tl|\ to\ non-\/material\ texture\ library\ |non\_material\_tl|.}}
+\DoxyCodeLine{00434\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ MoveNonMaterialTextures(Mesh\ *mesh);}
+\DoxyCodeLine{00435\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ MoveNonMaterialTextures(Scene\ *\mbox{\hyperlink{_sample___simple_open_g_l_8c_a619ab59111512ab3962ba200beed7cf9}{scene}});}
+\DoxyCodeLine{00436\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ MoveNonMaterialTextures(}
+\DoxyCodeLine{00437\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::unordered\_set<Texture\ *>\ \&non\_material\_textures,}
+\DoxyCodeLine{00438\ \ \ \ \ \ \ TextureLibrary\ *material\_tl,\ TextureLibrary\ *non\_material\_tl);}
+\DoxyCodeLine{00439\ }
+\DoxyCodeLine{00440\ \ \ \textcolor{comment}{//\ Builds\ and\ returns\ a\ mesh\ constructed\ from\ either\ mesh\ builder\ |mb|\ or}}
+\DoxyCodeLine{00441\ \ \ \textcolor{comment}{//\ point\ cloud\ builder\ |pb|.\ Mesh\ builder\ is\ used\ if\ |use\_mesh\_builder|\ is\ set}}
+\DoxyCodeLine{00442\ \ \ \textcolor{comment}{//\ to\ true.}}
+\DoxyCodeLine{00443\ \ \ \textcolor{keyword}{static}\ StatusOr<std::unique\_ptr<Mesh>>\ BuildMeshFromBuilder(}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ use\_mesh\_builder,\ TriangleSoupMeshBuilder\ *mb,}
+\DoxyCodeLine{00445\ \ \ \ \ \ \ PointCloudBuilder\ *pb);}
+\DoxyCodeLine{00446\ }
+\DoxyCodeLine{00447\ \ \ \textcolor{comment}{//\ Map\ of\ glTF\ Mesh\ to\ Draco\ scene\ mesh\ group.}}
+\DoxyCodeLine{00448\ \ \ std::map<int,\ MeshGroupIndex>\ gltf\_mesh\_to\_scene\_mesh\_group\_;}
+\DoxyCodeLine{00449\ }
+\DoxyCodeLine{00450\ \ \ \textcolor{comment}{//\ Data\ structure\ that\ stores\ the\ glTF\ data.}}
+\DoxyCodeLine{00451\ \ \ tinygltf::Model\ gltf\_model\_;}
+\DoxyCodeLine{00452\ }
+\DoxyCodeLine{00453\ \ \ \textcolor{comment}{//\ Path\ to\ the\ glTF\ file.}}
+\DoxyCodeLine{00454\ \ \ std::string\ input\_file\_name\_;}
+\DoxyCodeLine{00455\ }
+\DoxyCodeLine{00456\ \ \ \textcolor{comment}{//\ Class\ used\ to\ build\ the\ Draco\ mesh.}}
+\DoxyCodeLine{00457\ \ \ TriangleSoupMeshBuilder\ mb\_;}
+\DoxyCodeLine{00458\ \ \ PointCloudBuilder\ pb\_;}
+\DoxyCodeLine{00459\ }
+\DoxyCodeLine{00460\ \ \ \textcolor{comment}{//\ Next\ face\ index\ used\ when\ adding\ attribute\ data\ to\ the\ Draco\ mesh.}}
+\DoxyCodeLine{00461\ \ \ \textcolor{keywordtype}{int}\ next\_face\_id\_;}
+\DoxyCodeLine{00462\ }
+\DoxyCodeLine{00463\ \ \ \textcolor{comment}{//\ Next\ point\ index\ used\ when\ adding\ attribute\ data\ to\ the\ point\ cloud.}}
+\DoxyCodeLine{00464\ \ \ \textcolor{keywordtype}{int}\ next\_point\_id\_;}
+\DoxyCodeLine{00465\ }
+\DoxyCodeLine{00466\ \ \ \textcolor{comment}{//\ Total\ number\ of\ indices\ from\ all\ the\ meshes\ and\ primitives.}}
+\DoxyCodeLine{00467\ \ \ \textcolor{keywordtype}{int}\ total\_face\_indices\_count\_;}
+\DoxyCodeLine{00468\ \ \ \textcolor{keywordtype}{int}\ total\_point\_indices\_count\_;}
+\DoxyCodeLine{00469\ }
+\DoxyCodeLine{00470\ \ \ \textcolor{comment}{//\ This\ is\ the\ id\ of\ the\ GeometryAttribute::MATERIAL\ attribute\ added\ to\ the}}
+\DoxyCodeLine{00471\ \ \ \textcolor{comment}{//\ Draco\ mesh.}}
+\DoxyCodeLine{00472\ \ \ \textcolor{keywordtype}{int}\ material\_att\_id\_;}
+\DoxyCodeLine{00473\ }
+\DoxyCodeLine{00474\ \ \ \textcolor{comment}{//\ Data\ used\ when\ decoding\ the\ entire\ glTF\ asset\ into\ a\ single\ draco::Mesh.}}
+\DoxyCodeLine{00475\ \ \ \textcolor{comment}{//\ The\ struct\ tracks\ the\ total\ number\ of\ elements\ across\ all\ matching}}
+\DoxyCodeLine{00476\ \ \ \textcolor{comment}{//\ attributes\ and\ it\ ensures\ all\ matching\ attributes\ are\ compatible.}}
+\DoxyCodeLine{00477\ \ \ \textcolor{keyword}{struct\ }MeshAttributeData\ \{}
+\DoxyCodeLine{00478\ \ \ \ \ \textcolor{keywordtype}{int}\ component\_type\ =\ 0;}
+\DoxyCodeLine{00479\ \ \ \ \ \textcolor{keywordtype}{int}\ attribute\_type\ =\ 0;}
+\DoxyCodeLine{00480\ \ \ \ \ \textcolor{keywordtype}{bool}\ normalized\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00481\ \ \ \ \ \textcolor{keywordtype}{int}\ total\_attribute\_counts\ =\ 0;}
+\DoxyCodeLine{00482\ \ \ \};}
+\DoxyCodeLine{00483\ }
+\DoxyCodeLine{00484\ \ \ \textcolor{comment}{//\ Map\ of\ glTF\ attribute\ name\ to\ attribute\ component\ type.}}
+\DoxyCodeLine{00485\ \ \ std::map<std::string,\ MeshAttributeData>\ mesh\_attribute\_data\_;}
+\DoxyCodeLine{00486\ }
+\DoxyCodeLine{00487\ \ \ \textcolor{comment}{//\ Map\ of\ glTF\ attribute\ name\ to\ Draco\ mesh\ attribute\ id.}}
+\DoxyCodeLine{00488\ \ \ std::map<std::string,\ int>\ attribute\_name\_to\_draco\_mesh\_attribute\_id\_;}
+\DoxyCodeLine{00489\ }
+\DoxyCodeLine{00490\ \ \ \textcolor{comment}{//\ Map\ of\ glTF\ material\ to\ Draco\ material\ index.}}
+\DoxyCodeLine{00491\ \ \ std::map<int,\ int>\ gltf\_primitive\_material\_to\_draco\_material\_;}
+\DoxyCodeLine{00492\ }
+\DoxyCodeLine{00493\ \ \ \textcolor{comment}{//\ Map\ of\ glTF\ material\ index\ to\ transformation\ scales\ of\ primitives.}}
+\DoxyCodeLine{00494\ \ \ std::map<int,\ std::vector<float>>\ gltf\_primitive\_material\_to\_scales\_;}
+\DoxyCodeLine{00495\ }
+\DoxyCodeLine{00496\ \ \ \textcolor{comment}{//\ Map\ of\ glTF\ image\ to\ Draco\ textures.}}
+\DoxyCodeLine{00497\ \ \ std::map<int,\ Texture\ *>\ gltf\_image\_to\_draco\_texture\_;}
+\DoxyCodeLine{00498\ }
+\DoxyCodeLine{00499\ \ \ std::unique\_ptr<Scene>\ scene\_;}
+\DoxyCodeLine{00500\ }
+\DoxyCodeLine{00501\ \ \ \textcolor{comment}{//\ Map\ of\ glTF\ Node\ to\ local\ store\ order.}}
+\DoxyCodeLine{00502\ \ \ std::map<int,\ SceneNodeIndex>\ gltf\_node\_to\_scenenode\_index\_;}
+\DoxyCodeLine{00503\ }
+\DoxyCodeLine{00504\ \ \ \textcolor{comment}{//\ Selected\ mode\ of\ the\ decoded\ scene\ graph.}}
+\DoxyCodeLine{00505\ \ \ GltfSceneGraphMode\ gltf\_scene\_graph\_mode\_\ =\ GltfSceneGraphMode::TREE;}
+\DoxyCodeLine{00506\ }
+\DoxyCodeLine{00507\ \ \ \textcolor{comment}{//\ Functionality\ for\ deduping\ primitives\ on\ decode.}}
+\DoxyCodeLine{00508\ \ \ \textcolor{keyword}{struct\ }PrimitiveSignature\ \{}
+\DoxyCodeLine{00509\ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Primitive\ \&\mbox{\hyperlink{namespacestructsgen_a74cee29784ce7a254b743755e861cb35}{primitive}};}
+\DoxyCodeLine{00510\ \ \ \ \ \textcolor{keyword}{explicit}\ PrimitiveSignature(\textcolor{keyword}{const}\ tinygltf::Primitive\ \&primitive)}
+\DoxyCodeLine{00511\ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{namespacestructsgen_a74cee29784ce7a254b743755e861cb35}{primitive}}(\mbox{\hyperlink{namespacestructsgen_a74cee29784ce7a254b743755e861cb35}{primitive}})\ \{\}}
+\DoxyCodeLine{00512\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_a4fe1c9b8096b3c21d3dd1e19c3eff59f}{operator==}}(\textcolor{keyword}{const}\ PrimitiveSignature\ \&signature)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00513\ \ \ \ \ \textcolor{keyword}{struct\ }Hash\ \{}
+\DoxyCodeLine{00514\ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ operator()(\textcolor{keyword}{const}\ PrimitiveSignature\ \&signature)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00515\ \ \ \ \ \};}
+\DoxyCodeLine{00516\ \ \ \};}
+\DoxyCodeLine{00517\ \ \ std::unordered\_map<PrimitiveSignature,\ MeshIndex,\ PrimitiveSignature::Hash>}
+\DoxyCodeLine{00518\ \ \ \ \ \ \ gltf\_primitive\_to\_draco\_mesh\_index\_;}
+\DoxyCodeLine{00519\ \};}
+\DoxyCodeLine{00520\ }
+\DoxyCodeLine{00521\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00522\ }
+\DoxyCodeLine{00523\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00524\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_IO\_GLTF\_DECODER\_H\_}}
+
+\end{DoxyCode}

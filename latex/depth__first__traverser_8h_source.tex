@@ -1,0 +1,178 @@
+\doxysection{depth\+\_\+first\+\_\+traverser.\+h}
+\hypertarget{depth__first__traverser_8h_source}{}\label{depth__first__traverser_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/mesh/traverser/depth\_first\_traverser.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/mesh/traverser/depth\_first\_traverser.h}}
+\mbox{\hyperlink{depth__first__traverser_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_MESH\_TRAVERSER\_DEPTH\_FIRST\_TRAVERSER\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_MESH\_TRAVERSER\_DEPTH\_FIRST\_TRAVERSER\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{traverser__base_8h}{draco/compression/mesh/traverser/traverser\_base.h}}"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{corner__table_8h}{draco/mesh/corner\_table.h}}"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ Basic\ traverser\ that\ traverses\ a\ mesh\ in\ a\ DFS\ like\ fashion\ using\ the}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ CornerTable\ data\ structure.\ The\ necessary\ bookkeeping\ is\ available\ via\ the}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ TraverserBase.\ Callbacks\ are\ handled\ through\ template\ argument}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ TraversalObserverT.}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ TraversalObserverT\ can\ perform\ an\ action\ on\ a\ traversal\ event\ such\ as\ newly}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ visited\ face,\ or\ corner,\ but\ it\ does\ not\ affect\ the\ traversal\ itself.}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ Concept\ TraversalObserverT\ requires:}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ public:}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ void\ OnNewFaceVisited(FaceIndex\ face);}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ \ \ \ -\/\ Called\ whenever\ a\ previously\ unvisited\ face\ is\ reached.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ void\ OnNewVertexVisited(VertexIndex\ vert,\ CornerIndex\ corner)}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ \ \ \ -\/\ Called\ when\ a\ new\ vertex\ is\ visited.\ |corner|\ is\ used\ to\ indicate\ the}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ \ \ \ \ \ which\ of\ the\ vertex's\ corners\ has\ been\ reached.}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ CornerTableT,\ \textcolor{keyword}{class}\ TraversalObserverT>}
+\DoxyCodeLine{00044\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_depth_first_traverser_a8239762ee7c9e83fe37a4d4f83970c71}{DepthFirstTraverser}}}
+\DoxyCodeLine{00045\ \ \ \ \ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classdraco_1_1_traverser_base_ad18c3647e34d25015c526a872d425b36}{TraverserBase}}<CornerTableT,\ TraversalObserverT>\ \{}
+\DoxyCodeLine{00046\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00047\ \ \ \textcolor{keyword}{typedef}\ CornerTableT\ \mbox{\hyperlink{classdraco_1_1_depth_first_traverser_a600428cd86743b37b4b6476b0ef3d3ce}{CornerTable}};}
+\DoxyCodeLine{00048\ \ \ \textcolor{keyword}{typedef}\ TraversalObserverT\ \mbox{\hyperlink{classdraco_1_1_depth_first_traverser_a8672406672a64a7f12e63713d9ce15c7}{TraversalObserver}};}
+\DoxyCodeLine{00049\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_traverser_base_ad18c3647e34d25015c526a872d425b36}{TraverserBase<CornerTable,\ TraversalObserver>}}\ \mbox{\hyperlink{classdraco_1_1_depth_first_traverser_adf2aa0cd45a11b533c81316ef4a66264}{Base}};}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \mbox{\hyperlink{classdraco_1_1_depth_first_traverser_a8239762ee7c9e83fe37a4d4f83970c71}{DepthFirstTraverser}}()\ \{\}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \textcolor{comment}{//\ Called\ before\ any\ traversing\ starts.}}
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_depth_first_traverser_a745683651274b319ae1c4bc74a60931e}{OnTraversalStart}}()\ \{\}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \textcolor{comment}{//\ Called\ when\ all\ the\ traversing\ is\ done.}}
+\DoxyCodeLine{00057\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_depth_first_traverser_a9614a95bef53c7fa3e2e419f4affac1f}{OnTraversalEnd}}()\ \{\}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_depth_first_traverser_ae88acc4bf8c5df6c96f3296065d266db}{TraverseFromCorner}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_id)\ \{}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordflow}{if}\ (this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a6cdc133e15aabf71a3a3b8a44edb1b2f}{IsFaceVisited}}(corner\_id))\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};\ \ \textcolor{comment}{//\ Already\ traversed.}}
+\DoxyCodeLine{00062\ \ \ \ \ \}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \ \ corner\_traversal\_stack\_.clear();}
+\DoxyCodeLine{00065\ \ \ \ \ corner\_traversal\_stack\_.push\_back(corner\_id);}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ For\ the\ first\ face,\ check\ the\ remaining\ corners\ as\ they\ may\ not\ be}}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{comment}{//\ processed\ yet.}}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ next\_vert\ =}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a088b8ebfb1adf3cfad2924b3e7f38b1e}{corner\_table}}()-\/>Vertex(this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a088b8ebfb1adf3cfad2924b3e7f38b1e}{corner\_table}}()-\/>Next(corner\_id));}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ prev\_vert\ =}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a088b8ebfb1adf3cfad2924b3e7f38b1e}{corner\_table}}()-\/>Vertex(this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a088b8ebfb1adf3cfad2924b3e7f38b1e}{corner\_table}}()-\/>Previous(corner\_id));}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordflow}{if}\ (next\_vert\ ==\ kInvalidVertexIndex\ ||\ prev\_vert\ ==\ kInvalidVertexIndex)\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00074\ \ \ \ \ \}}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordflow}{if}\ (!this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a34b9dd4444c136d8771142523407a24e}{IsVertexVisited}}(next\_vert))\ \{}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_ab3c6c0052a6d78af20ab85a8aefcbf58}{MarkVertexVisited}}(next\_vert);}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a51f66c88f1a3a3c7a8d5f08fc279b334}{traversal\_observer}}().OnNewVertexVisited(}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ next\_vert,\ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a088b8ebfb1adf3cfad2924b3e7f38b1e}{corner\_table}}()-\/>Next(corner\_id));}
+\DoxyCodeLine{00079\ \ \ \ \ \}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordflow}{if}\ (!this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a34b9dd4444c136d8771142523407a24e}{IsVertexVisited}}(prev\_vert))\ \{}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_ab3c6c0052a6d78af20ab85a8aefcbf58}{MarkVertexVisited}}(prev\_vert);}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a51f66c88f1a3a3c7a8d5f08fc279b334}{traversal\_observer}}().OnNewVertexVisited(}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ prev\_vert,\ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a088b8ebfb1adf3cfad2924b3e7f38b1e}{corner\_table}}()-\/>Previous(corner\_id));}
+\DoxyCodeLine{00084\ \ \ \ \ \}}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{comment}{//\ Start\ the\ actual\ traversal.}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{while}\ (!corner\_traversal\_stack\_.empty())\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \textcolor{comment}{//\ Currently\ processed\ corner.}}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ corner\_id\ =\ corner\_traversal\_stack\_.back();}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ face\_id(corner\_id.value()\ /\ 3);}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \textcolor{comment}{//\ Make\ sure\ the\ face\ hasn't\ been\ visited\ yet.}}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_id\ ==\ kInvalidCornerIndex\ ||\ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a6cdc133e15aabf71a3a3b8a44edb1b2f}{IsFaceVisited}}(face\_id))\ \{}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ This\ face\ has\ been\ already\ traversed.}}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ corner\_traversal\_stack\_.pop\_back();}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (\textcolor{keyword}{true})\ \{}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_ab67e000f8dc53a10be1dc538ad371e79}{MarkFaceVisited}}(face\_id);}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a51f66c88f1a3a3c7a8d5f08fc279b334}{traversal\_observer}}().OnNewFaceVisited(face\_id);}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ vert\_id\ =\ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a088b8ebfb1adf3cfad2924b3e7f38b1e}{corner\_table}}()-\/>Vertex(corner\_id);}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (vert\_id\ ==\ kInvalidVertexIndex)\ \{}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a34b9dd4444c136d8771142523407a24e}{IsVertexVisited}}(vert\_id))\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ on\_boundary\ =\ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a088b8ebfb1adf3cfad2924b3e7f38b1e}{corner\_table}}()-\/>IsOnBoundary(vert\_id);}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_ab3c6c0052a6d78af20ab85a8aefcbf58}{MarkVertexVisited}}(vert\_id);}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a51f66c88f1a3a3c7a8d5f08fc279b334}{traversal\_observer}}().OnNewVertexVisited(vert\_id,\ corner\_id);}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!on\_boundary)\ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ corner\_id\ =\ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a088b8ebfb1adf3cfad2924b3e7f38b1e}{corner\_table}}()-\/>GetRightCorner(corner\_id);}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ face\_id\ =\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}(corner\_id.value()\ /\ 3);}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ The\ current\ vertex\ has\ been\ already\ visited\ or\ it\ was\ on\ a\ boundary.}}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ We\ need\ to\ determine\ whether\ we\ can\ visit\ any\ of\ it's\ neighboring}}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ faces.}}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ right\_corner\_id\ =}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a088b8ebfb1adf3cfad2924b3e7f38b1e}{corner\_table}}()-\/>GetRightCorner(corner\_id);}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ left\_corner\_id\ =}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a088b8ebfb1adf3cfad2924b3e7f38b1e}{corner\_table}}()-\/>GetLeftCorner(corner\_id);}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ right\_face\_id(}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ (right\_corner\_id\ ==\ kInvalidCornerIndex}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ?\ kInvalidFaceIndex}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}(right\_corner\_id.value()\ /\ 3)));}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ left\_face\_id(}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \ \ \ \ (left\_corner\_id\ ==\ kInvalidCornerIndex}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ?\ kInvalidFaceIndex}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}(left\_corner\_id.value()\ /\ 3)));}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a6cdc133e15aabf71a3a3b8a44edb1b2f}{IsFaceVisited}}(right\_face\_id))\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Right\ face\ has\ been\ already\ visited.}}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a6cdc133e15aabf71a3a3b8a44edb1b2f}{IsFaceVisited}}(left\_face\_id))\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Both\ neighboring\ faces\ are\ visited.\ End\ reached.}}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ \ \ corner\_traversal\_stack\_.pop\_back();}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};\ \ \textcolor{comment}{//\ Break\ from\ the\ while\ (true)\ loop.}}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Go\ to\ the\ left\ face.}}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \ \ \ \ corner\_id\ =\ left\_corner\_id;}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \ \ \ \ face\_id\ =\ left\_face\_id;}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Right\ face\ was\ not\ visited.}}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (this-\/>\mbox{\hyperlink{classdraco_1_1_traverser_base_a6cdc133e15aabf71a3a3b8a44edb1b2f}{IsFaceVisited}}(left\_face\_id))\ \{}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Left\ face\ visited,\ go\ to\ the\ right\ one.}}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \ \ \ \ corner\_id\ =\ right\_corner\_id;}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ face\_id\ =\ right\_face\_id;}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Both\ neighboring\ faces\ are\ unvisited,\ we\ need\ to\ visit\ both\ of}}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ them.}}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Split\ the\ traversal.}}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ First\ make\ the\ top\ of\ the\ current\ corner\ stack\ point\ to\ the\ left}}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ face\ (this\ one\ will\ be\ processed\ second).}}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \ \ \ \ corner\_traversal\_stack\_.back()\ =\ left\_corner\_id;}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Add\ a\ new\ corner\ to\ the\ top\ of\ the\ stack\ (right\ face\ needs\ to}}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ be\ traversed\ first).}}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \ \ \ \ corner\_traversal\_stack\_.push\_back(right\_corner\_id);}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Break\ from\ the\ while\ (true)\ loop.}}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00162\ \ \ \ \ \}}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00164\ \ \ \}}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00167\ \ \ std::vector<CornerIndex>\ corner\_traversal\_stack\_;}
+\DoxyCodeLine{00168\ \};}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_MESH\_TRAVERSER\_DEPTH\_FIRST\_TRAVERSER\_H\_}}
+
+\end{DoxyCode}

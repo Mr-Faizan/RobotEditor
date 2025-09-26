@@ -1,0 +1,126 @@
+\doxysection{prediction\+\_\+scheme\+\_\+wrap\+\_\+transform\+\_\+base.\+h}
+\hypertarget{prediction__scheme__wrap__transform__base_8h_source}{}\label{prediction__scheme__wrap__transform__base_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/prediction\_scheme\_wrap\_transform\_base.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/prediction\_scheme\_wrap\_transform\_base.h}}
+\mbox{\hyperlink{prediction__scheme__wrap__transform__base_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_WRAP\_TRANSFORM\_BASE\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_WRAP\_TRANSFORM\_BASE\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <limits>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{compression__shared_8h}{draco/compression/config/compression\_shared.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ PredictionSchemeWrapTransform\ uses\ the\ min\ and\ max\ bounds\ of\ the\ original}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ data\ to\ wrap\ stored\ correction\ values\ around\ these\ bounds\ centered\ at\ 0,}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ i.e.,\ when\ the\ range\ of\ the\ original\ values\ O\ is\ between\ <MIN,\ MAX>\ and}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ N\ =\ MAX-\/MIN,\ we\ can\ then\ store\ any\ correction\ X\ =\ O\ -\/\ P,\ as:}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ \ \ \ \ \ \ \ X\ +\ N,\ \ \ if\ X\ <\ -\/N\ /\ 2}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ \ \ \ \ \ \ \ X\ -\/\ N,\ \ \ if\ X\ >\ N\ /\ 2}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ \ \ \ \ \ \ \ X\ \ \ \ \ \ \ \ otherwise}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ To\ unwrap\ this\ value,\ the\ decoder\ then\ simply\ checks\ whether\ the\ final}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ corrected\ value\ F\ =\ P\ +\ X\ is\ out\ of\ the\ bounds\ of\ the\ input\ values.}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ All\ out\ of\ bounds\ values\ are\ unwrapped\ using}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ \ \ \ \ \ \ \ F\ +\ N,\ \ \ if\ F\ <\ MIN}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ \ \ \ \ \ \ \ F\ -\/\ N,\ \ \ if\ F\ >\ MAX}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ This\ wrapping\ can\ reduce\ the\ number\ of\ unique\ values,\ which\ translates\ to\ a}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ better\ entropy\ of\ the\ stored\ values\ and\ better\ compression\ rates.}}
+\DoxyCodeLine{00040\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT>}
+\DoxyCodeLine{00041\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a0953fb845376aee896caaca788a6814d}{PredictionSchemeWrapTransformBase}}\ \{}
+\DoxyCodeLine{00042\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00043\ \ \ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a0953fb845376aee896caaca788a6814d}{PredictionSchemeWrapTransformBase}}()}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ :\ num\_components\_(0),}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ min\_value\_(0),}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ max\_value\_(0),}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ max\_dif\_(0),}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ max\_correction\_(0),}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ min\_correction\_(0)\ \{\}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacedraco_a97f6eb795ad70e03e96cb38a944c8f96}{PredictionSchemeTransformType}}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_adfb5221b90d5a09dfea46cbbf0ed9adf}{GetType}}()\ \{}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_a97f6eb795ad70e03e96cb38a944c8f96a95f70566dc69bc725254ea7bbd7363ea}{PREDICTION\_TRANSFORM\_WRAP}};}
+\DoxyCodeLine{00053\ \ \ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a08aca615141dea0a04dd259a55e5a623}{Init}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a93beabb0f51a7000e090df655d1d6c45}{num\_components}})\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ num\_components\_\ =\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a93beabb0f51a7000e090df655d1d6c45}{num\_components}};}
+\DoxyCodeLine{00057\ \ \ \ \ clamped\_value\_.resize(\mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a93beabb0f51a7000e090df655d1d6c45}{num\_components}});}
+\DoxyCodeLine{00058\ \ \ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_adb79047da172568e972a1b77d64cf2c7}{AreCorrectionsPositive}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};\ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{const}\ DataTypeT\ *\mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a45a639f39622527354fc3fed414ffa2f}{ClampPredictedValue}}(}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \textcolor{keyword}{const}\ DataTypeT\ *predicted\_val)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a93beabb0f51a7000e090df655d1d6c45}{num\_components}}();\ ++i)\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (predicted\_val[i]\ >\ max\_value\_)\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ clamped\_value\_[i]\ =\ max\_value\_;}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (predicted\_val[i]\ <\ min\_value\_)\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ clamped\_value\_[i]\ =\ min\_value\_;}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ clamped\_value\_[i]\ =\ predicted\_val[i];}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00072\ \ \ \ \ \}}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keywordflow}{return}\ clamped\_value\_.data();}
+\DoxyCodeLine{00074\ \ \ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \textcolor{comment}{//\ TODO(b/199760123):\ Consider\ refactoring\ to\ avoid\ this\ dummy.}}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a33355c834de1fa436a69bf0e8d8972c4}{quantization\_bits}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00078\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00080\ \ \ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00083\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a4ac133923696fca62538f1eeca990e9b}{InitCorrectionBounds}}()\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keyword}{const}\ int64\_t\ dif\ =}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}int64\_t\textcolor{keyword}{>}(max\_value\_)\ -\/\ \textcolor{keyword}{static\_cast<}int64\_t\textcolor{keyword}{>}(min\_value\_);}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordflow}{if}\ (dif\ <\ 0\ ||\ dif\ >=\ std::numeric\_limits<DataTypeT>::max())\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00088\ \ \ \ \ \}}
+\DoxyCodeLine{00089\ \ \ \ \ max\_dif\_\ =\ 1\ +\ \textcolor{keyword}{static\_cast<}DataTypeT\textcolor{keyword}{>}(dif);}
+\DoxyCodeLine{00090\ \ \ \ \ max\_correction\_\ =\ max\_dif\_\ /\ 2;}
+\DoxyCodeLine{00091\ \ \ \ \ min\_correction\_\ =\ -\/max\_correction\_;}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keywordflow}{if}\ ((max\_dif\_\ \&\ 1)\ ==\ 0)\ \{}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ max\_correction\_\ -\/=\ 1;}
+\DoxyCodeLine{00094\ \ \ \ \ \}}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00096\ \ \ \}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a93beabb0f51a7000e090df655d1d6c45}{num\_components}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ num\_components\_;\ \}}
+\DoxyCodeLine{00099\ \ \ \textcolor{keyword}{inline}\ DataTypeT\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a3b6f9ef1b67fcd3d0e7c87d561ae1bf1}{min\_value}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ min\_value\_;\ \}}
+\DoxyCodeLine{00100\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_aa64c6b545ab3047127241b310775b20b}{set\_min\_value}}(\textcolor{keyword}{const}\ DataTypeT\ \&v)\ \{\ min\_value\_\ =\ v;\ \}}
+\DoxyCodeLine{00101\ \ \ \textcolor{keyword}{inline}\ DataTypeT\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_ae87a1138d1c5ae32ce350ade7eae9059}{max\_value}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ max\_value\_;\ \}}
+\DoxyCodeLine{00102\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a46e3fc4670b788d08647b4e2afe50931}{set\_max\_value}}(\textcolor{keyword}{const}\ DataTypeT\ \&v)\ \{\ max\_value\_\ =\ v;\ \}}
+\DoxyCodeLine{00103\ \ \ \textcolor{keyword}{inline}\ DataTypeT\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a56db7c4cb5732e554cc64a1c53dd78cf}{max\_dif}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ max\_dif\_;\ \}}
+\DoxyCodeLine{00104\ \ \ \textcolor{keyword}{inline}\ DataTypeT\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_a3e78cd50b7e8036a99d4515ec7295b3a}{min\_correction}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ min\_correction\_;\ \}}
+\DoxyCodeLine{00105\ \ \ \textcolor{keyword}{inline}\ DataTypeT\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_wrap_transform_base_ab305c22f012e45cde32689dc659f8a2f}{max\_correction}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ max\_correction\_;\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordtype}{int}\ num\_components\_;}
+\DoxyCodeLine{00109\ \ \ DataTypeT\ min\_value\_;}
+\DoxyCodeLine{00110\ \ \ DataTypeT\ max\_value\_;}
+\DoxyCodeLine{00111\ \ \ DataTypeT\ max\_dif\_;}
+\DoxyCodeLine{00112\ \ \ DataTypeT\ max\_correction\_;}
+\DoxyCodeLine{00113\ \ \ DataTypeT\ min\_correction\_;}
+\DoxyCodeLine{00114\ \ \ \textcolor{comment}{//\ This\ is\ in\ fact\ just\ a\ tmp\ variable\ to\ avoid\ reallocation.}}
+\DoxyCodeLine{00115\ \ \ \textcolor{keyword}{mutable}\ std::vector<DataTypeT>\ clamped\_value\_;}
+\DoxyCodeLine{00116\ \};}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_WRAP\_TRANSFORM\_BASE\_H\_}}
+
+\end{DoxyCode}

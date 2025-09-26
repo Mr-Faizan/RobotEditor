@@ -1,0 +1,417 @@
+\doxysection{Ogre\+Binary\+Serializer.\+h}
+\hypertarget{_ogre_binary_serializer_8h_source}{}\label{_ogre_binary_serializer_8h_source}\index{RobotLib/libraries/assimp/code/AssetLib/Ogre/OgreBinarySerializer.h@{RobotLib/libraries/assimp/code/AssetLib/Ogre/OgreBinarySerializer.h}}
+\mbox{\hyperlink{_ogre_binary_serializer_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00011\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ following\ disclaimer.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00028\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00029\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00030\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00031\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00032\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00033\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00034\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00035\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00037\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{}}
+\DoxyCodeLine{00039\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\#ifndef\ AI\_OGREBINARYSERIALIZER\_H\_INC}}
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#define\ AI\_OGREBINARYSERIALIZER\_H\_INC}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#ifndef\ ASSIMP\_BUILD\_NO\_OGRE\_IMPORTER}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_ogre_structs_8h}{OgreStructs.h}}"{}}}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#include\ <assimp/StreamReader.h>}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00051\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp_1_1_ogre}{Ogre}}\ \{}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{namespace_assimp_ae1f004ccb8f551efc9c3249184f66eef}{Assimp::StreamReaderLE}}\ \mbox{\hyperlink{namespace_assimp_1_1_ogre_a601f05de3bd7e6bac740162f54a1f111}{MemoryStreamReader}};}
+\DoxyCodeLine{00054\ \textcolor{keyword}{typedef}\ std::shared\_ptr<MemoryStreamReader>\ \mbox{\hyperlink{namespace_assimp_1_1_ogre_a97e9422c2d4af7d22b66c4567ab23ac0}{MemoryStreamReaderPtr}};}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{keyword}{class\ }OgreBinarySerializer\ \{}
+\DoxyCodeLine{00057\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_ogre_binary_serializer_a3b907a23d6f3d316b4e40767ebda4b68}{ImportMesh}}(\mbox{\hyperlink{namespace_assimp_1_1_ogre_a601f05de3bd7e6bac740162f54a1f111}{MemoryStreamReader}}\ *reader);}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_ogre_1_1_ogre_binary_serializer_adca42c4976752dc1b146003bd7cea9dd}{ImportSkeleton}}(\mbox{\hyperlink{class_assimp_1_1_i_o_system}{Assimp::IOSystem}}\ *pIOHandler,\ \mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *mesh);}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_ogre_1_1_ogre_binary_serializer_adca42c4976752dc1b146003bd7cea9dd}{ImportSkeleton}}(\mbox{\hyperlink{class_assimp_1_1_i_o_system}{Assimp::IOSystem}}\ *pIOHandler,\ \mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh_xml}{MeshXml}}\ *mesh);}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keyword}{enum}\ AssetMode\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ AM\_Mesh,}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ AM\_Skeleton}
+\DoxyCodeLine{00073\ \ \ \ \ \};}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \ \ OgreBinarySerializer(\mbox{\hyperlink{namespace_assimp_1_1_ogre_a601f05de3bd7e6bac740162f54a1f111}{MemoryStreamReader}}\ *reader,\ AssetMode\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}})\ :}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ \ \ m\_currentLen(0),}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ m\_reader(reader),}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ assetMode(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}})\ \{}
+\DoxyCodeLine{00079\ \ \ \ \ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{namespace_assimp_1_1_ogre_a97e9422c2d4af7d22b66c4567ab23ac0}{MemoryStreamReaderPtr}}\ OpenReader(\mbox{\hyperlink{class_assimp_1_1_i_o_system}{Assimp::IOSystem}}\ *pIOHandler,\ \textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}});}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{comment}{//\ Header}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a32fb567579d9a01528a96c60d962cdc6}{uint16\_t}}\ ReadHeader(\textcolor{keywordtype}{bool}\ readLen\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordtype}{void}\ RollbackHeader();}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//\ Mesh}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadMesh(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *mesh);}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadMeshLodInfo(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *mesh);}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadMeshSkeletonLink(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *mesh);}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadMeshBounds(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *mesh);}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadMeshExtremes(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *mesh);}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadSubMesh(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *mesh);}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadSubMeshNames(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *mesh);}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadSubMeshOperation(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_sub_mesh}{SubMesh}}\ *submesh);}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadSubMeshTextureAlias(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_sub_mesh}{SubMesh}}\ *submesh);}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadBoneAssignment(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_vertex_data}{VertexData}}\ *dest);}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadGeometry(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_vertex_data}{VertexData}}\ *dest);}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadGeometryVertexDeclaration(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_vertex_data}{VertexData}}\ *dest);}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadGeometryVertexElement(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_vertex_data}{VertexData}}\ *dest);}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadGeometryVertexBuffer(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_vertex_data}{VertexData}}\ *dest);}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadEdgeList(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *mesh);}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadPoses(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *mesh);}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadPoseVertices(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_pose}{Pose}}\ *pose);}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadAnimations(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_mesh}{Mesh}}\ *mesh);}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadAnimation(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_animation}{Animation}}\ *anim);}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadAnimationKeyFrames(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_animation}{Animation}}\ *anim,\ \mbox{\hyperlink{struct_assimp_1_1_ogre_1_1_vertex_animation_track}{VertexAnimationTrack}}\ *track);}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordtype}{void}\ NormalizeBoneWeights(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_vertex_data}{VertexData}}\ *vertexData)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{comment}{//\ Skeleton}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadSkeleton(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_skeleton}{Skeleton}}\ *skeleton);}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadBone(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_skeleton}{Skeleton}}\ *skeleton);}
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadBoneParent(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_skeleton}{Skeleton}}\ *skeleton);}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadSkeletonAnimation(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_skeleton}{Skeleton}}\ *skeleton);}
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadSkeletonAnimationTrack(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_skeleton}{Skeleton}}\ *skeleton,\ \mbox{\hyperlink{class_assimp_1_1_ogre_1_1_animation}{Animation}}\ *dest);}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadSkeletonAnimationKeyFrame(\mbox{\hyperlink{struct_assimp_1_1_ogre_1_1_vertex_animation_track}{VertexAnimationTrack}}\ *dest);}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadSkeletonAnimationLink(\mbox{\hyperlink{class_assimp_1_1_ogre_1_1_skeleton}{Skeleton}}\ *skeleton);}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{comment}{//\ Reader\ utils}}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordtype}{bool}\ AtEnd()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keyword}{inline}\ T\ Read();}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadBytes(\textcolor{keywordtype}{char}\ *dest,\ \textcolor{keywordtype}{size\_t}\ numBytes);}
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadBytes(\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *dest,\ \textcolor{keywordtype}{size\_t}\ numBytes);}
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadBytes(\textcolor{keywordtype}{void}\ *dest,\ \textcolor{keywordtype}{size\_t}\ numBytes);}
+\DoxyCodeLine{00139\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *ReadBytes(\textcolor{keywordtype}{size\_t}\ numBytes);}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadVector(\mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \&vec);}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadQuaternion(\mbox{\hyperlink{structai_quaternion}{aiQuaternion}}\ \&quat);}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \ \ std::string\ ReadString(\textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{00145\ \ \ \ \ std::string\ ReadLine();}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keywordtype}{void}\ SkipBytes(\textcolor{keywordtype}{size\_t}\ numBytes);}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ m\_currentLen;}
+\DoxyCodeLine{00150\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_a601f05de3bd7e6bac740162f54a1f111}{MemoryStreamReader}}\ *m\_reader;}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \ \ AssetMode\ assetMode;}
+\DoxyCodeLine{00153\ \};}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900}{MeshChunkId}}\ \{}
+\DoxyCodeLine{00156\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a22b9a2462aa398e79ceab1f3f86b9e8f}{M\_HEADER}}\ =\ 0x1000,}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{comment}{//\ char*\ \ \ \ \ \ \ \ \ \ version\ \ \ \ \ \ \ \ \ \ :\ Version\ number\ check}}
+\DoxyCodeLine{00158\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a9bb6d6248c4c6c28f6cb15fedd7bd5de}{M\_MESH}}\ =\ 0x3000,}
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{comment}{//\ bool\ skeletallyAnimated\ \ \ //\ important\ flag\ which\ affects\ h/w\ buffer\ policies}}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{comment}{//\ Optional\ M\_GEOMETRY\ chunk}}
+\DoxyCodeLine{00161\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a141b457c7d6768fe1c3ef2c4fb086c2c}{M\_SUBMESH}}\ =\ 0x4000,}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{comment}{//\ char*\ materialName}}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{comment}{//\ bool\ useSharedVertices}}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{comment}{//\ unsigned\ int\ indexCount}}
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{comment}{//\ bool\ indexes32Bit}}
+\DoxyCodeLine{00166\ \ \ \ \ \textcolor{comment}{//\ unsigned\ int*\ faceVertexIndices\ (indexCount)}}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{comment}{//\ OR}}
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short*\ faceVertexIndices\ (indexCount)}}
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{comment}{//\ M\_GEOMETRY\ chunk\ (Optional:\ present\ only\ if\ useSharedVertices\ =\ false)}}
+\DoxyCodeLine{00170\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a9c8600d8af3b4746c631026e6c313d23}{M\_SUBMESH\_OPERATION}}\ =\ 0x4010,\ \textcolor{comment}{//\ optional,\ trilist\ assumed\ if\ missing}}
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ operationType}}
+\DoxyCodeLine{00172\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a173ec8a554be0bfa784e4c90c2977b25}{M\_SUBMESH\_BONE\_ASSIGNMENT}}\ =\ 0x4100,}
+\DoxyCodeLine{00173\ \ \ \ \ \textcolor{comment}{//\ Optional\ bone\ weights\ (repeating\ section)}}
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{comment}{//\ unsigned\ int\ vertexIndex;}}
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ boneIndex;}}
+\DoxyCodeLine{00176\ \ \ \ \ \textcolor{comment}{//\ float\ weight;}}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{comment}{//\ Optional\ chunk\ that\ matches\ a\ texture\ name\ to\ an\ alias}}
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{comment}{//\ a\ texture\ alias\ is\ sent\ to\ the\ submesh\ material\ to\ use\ this\ texture\ name}}
+\DoxyCodeLine{00179\ \ \ \ \ \textcolor{comment}{//\ instead\ of\ the\ one\ in\ the\ texture\ unit\ with\ a\ matching\ alias\ name}}
+\DoxyCodeLine{00180\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a89e603d05fa06bae76046161721da718}{M\_SUBMESH\_TEXTURE\_ALIAS}}\ =\ 0x4200,\ \textcolor{comment}{//\ Repeating\ section}}
+\DoxyCodeLine{00181\ \ \ \ \ \textcolor{comment}{//\ char*\ aliasName;}}
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{comment}{//\ char*\ textureName;}}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900afac77fecb38b20c637b48445885c0a66}{M\_GEOMETRY}}\ =\ 0x5000,\ \textcolor{comment}{//\ NB\ this\ chunk\ is\ embedded\ within\ M\_MESH\ and\ M\_SUBMESH}}
+\DoxyCodeLine{00185\ \ \ \ \ \textcolor{comment}{//\ unsigned\ int\ vertexCount}}
+\DoxyCodeLine{00186\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a0c331120cc78aedd59e855be8d46a0ce}{M\_GEOMETRY\_VERTEX\_DECLARATION}}\ =\ 0x5100,}
+\DoxyCodeLine{00187\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900aad7b06d207b1552e24c12ef008703786}{M\_GEOMETRY\_VERTEX\_ELEMENT}}\ =\ 0x5110,\ \textcolor{comment}{//\ Repeating\ section}}
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ source;\ \ \ //\ buffer\ bind\ source}}
+\DoxyCodeLine{00189\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ type;\ \ \ \ \ //\ VertexElementType}}
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ semantic;\ //\ VertexElementSemantic}}
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ offset;\ \ \ //\ start\ offset\ in\ buffer\ in\ bytes}}
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ index;\ \ \ \ //\ index\ of\ the\ semantic\ (for\ colours\ and\ texture\ coords)}}
+\DoxyCodeLine{00193\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a32f880fd7fcf58ee02e205e3cc88e2ca}{M\_GEOMETRY\_VERTEX\_BUFFER}}\ =\ 0x5200,\ \textcolor{comment}{//\ Repeating\ section}}
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ bindIndex;\ \ \ \ //\ Index\ to\ bind\ this\ buffer\ to}}
+\DoxyCodeLine{00195\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ vertexSize;\ \ \ //\ Per-\/vertex\ size,\ must\ agree\ with\ declaration\ at\ this\ index}}
+\DoxyCodeLine{00196\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900aad57925b25d4380d120cec449986575f}{M\_GEOMETRY\_VERTEX\_BUFFER\_DATA}}\ =\ 0x5210,}
+\DoxyCodeLine{00197\ \ \ \ \ \textcolor{comment}{//\ raw\ buffer\ data}}
+\DoxyCodeLine{00198\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a7cbc75e1e4bcda337178fb5c5ac97ada}{M\_MESH\_SKELETON\_LINK}}\ =\ 0x6000,}
+\DoxyCodeLine{00199\ \ \ \ \ \textcolor{comment}{//\ Optional\ link\ to\ skeleton}}
+\DoxyCodeLine{00200\ \ \ \ \ \textcolor{comment}{//\ char*\ skeletonName\ \ \ \ \ \ \ \ \ \ :\ name\ of\ .skeleton\ to\ use}}
+\DoxyCodeLine{00201\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900abd10e54b20906370823ce4c520e65aa6}{M\_MESH\_BONE\_ASSIGNMENT}}\ =\ 0x7000,}
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{comment}{//\ Optional\ bone\ weights\ (repeating\ section)}}
+\DoxyCodeLine{00203\ \ \ \ \ \textcolor{comment}{//\ unsigned\ int\ vertexIndex;}}
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ boneIndex;}}
+\DoxyCodeLine{00205\ \ \ \ \ \textcolor{comment}{//\ float\ weight;}}
+\DoxyCodeLine{00206\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900aa58699188b0ebabef608614da6fda4c0}{M\_MESH\_LOD}}\ =\ 0x8000,}
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{comment}{//\ Optional\ LOD\ information}}
+\DoxyCodeLine{00208\ \ \ \ \ \textcolor{comment}{//\ string\ strategyName;}}
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ numLevels;}}
+\DoxyCodeLine{00210\ \ \ \ \ \textcolor{comment}{//\ bool\ manual;\ \ (true\ for\ manual\ alternate\ meshes,\ false\ for\ generated)}}
+\DoxyCodeLine{00211\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a539f19fc641eb847513063baf99212bd}{M\_MESH\_LOD\_USAGE}}\ =\ 0x8100,}
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{comment}{//\ Repeating\ section,\ ordered\ in\ increasing\ depth}}
+\DoxyCodeLine{00213\ \ \ \ \ \textcolor{comment}{//\ NB\ LOD\ 0\ (full\ detail\ from\ 0\ depth)\ is\ omitted}}
+\DoxyCodeLine{00214\ \ \ \ \ \textcolor{comment}{//\ LOD\ value\ -\/\ this\ is\ a\ distance,\ a\ pixel\ count\ etc,\ based\ on\ strategy}}
+\DoxyCodeLine{00215\ \ \ \ \ \textcolor{comment}{//\ float\ lodValue;}}
+\DoxyCodeLine{00216\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900aae189d85b2b343fab523f08cf823b593}{M\_MESH\_LOD\_MANUAL}}\ =\ 0x8110,}
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{comment}{//\ Required\ if\ M\_MESH\_LOD\ section\ manual\ =\ true}}
+\DoxyCodeLine{00218\ \ \ \ \ \textcolor{comment}{//\ String\ manualMeshName;}}
+\DoxyCodeLine{00219\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a9297bd3b41a70d05d7e46be1c7757861}{M\_MESH\_LOD\_GENERATED}}\ =\ 0x8120,}
+\DoxyCodeLine{00220\ \ \ \ \ \textcolor{comment}{//\ Required\ if\ M\_MESH\_LOD\ section\ manual\ =\ false}}
+\DoxyCodeLine{00221\ \ \ \ \ \textcolor{comment}{//\ Repeating\ section\ (1\ per\ submesh)}}
+\DoxyCodeLine{00222\ \ \ \ \ \textcolor{comment}{//\ unsigned\ int\ indexCount;}}
+\DoxyCodeLine{00223\ \ \ \ \ \textcolor{comment}{//\ bool\ indexes32Bit}}
+\DoxyCodeLine{00224\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short*\ faceIndexes;\ \ (indexCount)}}
+\DoxyCodeLine{00225\ \ \ \ \ \textcolor{comment}{//\ OR}}
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{comment}{//\ unsigned\ int*\ faceIndexes;\ \ (indexCount)}}
+\DoxyCodeLine{00227\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900af843abcfc46402b4ea44240d1fe8ec3c}{M\_MESH\_BOUNDS}}\ =\ 0x9000,}
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{comment}{//\ float\ minx,\ miny,\ minz}}
+\DoxyCodeLine{00229\ \ \ \ \ \textcolor{comment}{//\ float\ maxx,\ maxy,\ maxz}}
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{comment}{//\ float\ radius}}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \ \ \ \ \textcolor{comment}{//\ Added\ By\ DrEvil}}
+\DoxyCodeLine{00233\ \ \ \ \ \textcolor{comment}{//\ optional\ chunk\ that\ contains\ a\ table\ of\ submesh\ indexes\ and\ the\ names\ of}}
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{comment}{//\ the\ sub-\/meshes.}}
+\DoxyCodeLine{00235\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a48bd4f51e4b5dc481fd4c0a18fd33823}{M\_SUBMESH\_NAME\_TABLE}}\ =\ 0xA000,}
+\DoxyCodeLine{00236\ \ \ \ \ \textcolor{comment}{//\ Subchunks\ of\ the\ name\ table.\ Each\ chunk\ contains\ an\ index\ \&\ string}}
+\DoxyCodeLine{00237\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a2a8dfadf65279d6586b7e8fc4309bb46}{M\_SUBMESH\_NAME\_TABLE\_ELEMENT}}\ =\ 0xA100,}
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{comment}{//\ short\ index}}
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{comment}{//\ char*\ name}}
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{comment}{//\ Optional\ chunk\ which\ stores\ precomputed\ edge\ data}}
+\DoxyCodeLine{00241\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900abd27bc5798125682a21de93d8f684910}{M\_EDGE\_LISTS}}\ =\ 0xB000,}
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{comment}{//\ Each\ LOD\ has\ a\ separate\ edge\ list}}
+\DoxyCodeLine{00243\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900aea0e53158040e05ba5e249f29b149694}{M\_EDGE\_LIST\_LOD}}\ =\ 0xB100,}
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ lodIndex}}
+\DoxyCodeLine{00245\ \ \ \ \ \textcolor{comment}{//\ bool\ isManual\ \ \ \ \ \ \ \ \ \ \ \ //\ If\ manual,\ no\ edge\ data\ here,\ loaded\ from\ manual\ mesh}}
+\DoxyCodeLine{00246\ \ \ \ \ \textcolor{comment}{//\ bool\ isClosed}}
+\DoxyCodeLine{00247\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ numTriangles}}
+\DoxyCodeLine{00248\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ numEdgeGroups}}
+\DoxyCodeLine{00249\ \ \ \ \ \textcolor{comment}{//\ Triangle*\ triangleList}}
+\DoxyCodeLine{00250\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ indexSet}}
+\DoxyCodeLine{00251\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ vertexSet}}
+\DoxyCodeLine{00252\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ vertIndex[3]}}
+\DoxyCodeLine{00253\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ sharedVertIndex[3]}}
+\DoxyCodeLine{00254\ \ \ \ \ \textcolor{comment}{//\ float\ normal[4]}}
+\DoxyCodeLine{00255\ }
+\DoxyCodeLine{00256\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a04903c92aa48b987e241ea68ab8d84ca}{M\_EDGE\_GROUP}}\ =\ 0xB110,}
+\DoxyCodeLine{00257\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ vertexSet}}
+\DoxyCodeLine{00258\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ triStart}}
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ triCount}}
+\DoxyCodeLine{00260\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ numEdges}}
+\DoxyCodeLine{00261\ \ \ \ \ \textcolor{comment}{//\ Edge*\ edgeList}}
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ \ triIndex[2]}}
+\DoxyCodeLine{00263\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ \ vertIndex[2]}}
+\DoxyCodeLine{00264\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ \ sharedVertIndex[2]}}
+\DoxyCodeLine{00265\ \ \ \ \ \textcolor{comment}{//\ bool\ degenerate}}
+\DoxyCodeLine{00266\ \ \ \ \ \textcolor{comment}{//\ Optional\ poses\ section,\ referred\ to\ by\ pose\ keyframes}}
+\DoxyCodeLine{00267\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a66ef71462975f7c102a194caf45351f0}{M\_POSES}}\ =\ 0xC000,}
+\DoxyCodeLine{00268\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900ae146a490f3aee035b05929c8f00a9f12}{M\_POSE}}\ =\ 0xC100,}
+\DoxyCodeLine{00269\ \ \ \ \ \textcolor{comment}{//\ char*\ name\ (may\ be\ blank)}}
+\DoxyCodeLine{00270\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ target\ \ \ \ //\ 0\ for\ shared\ geometry,}}
+\DoxyCodeLine{00271\ \ \ \ \ \textcolor{comment}{//\ 1+\ for\ submesh\ index\ +\ 1}}
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{comment}{//\ bool\ includesNormals\ [1.8+]}}
+\DoxyCodeLine{00273\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a168927386d23e25176b10a10b0ce3078}{M\_POSE\_VERTEX}}\ =\ 0xC111,}
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{comment}{//\ unsigned\ long\ vertexIndex}}
+\DoxyCodeLine{00275\ \ \ \ \ \textcolor{comment}{//\ float\ xoffset,\ yoffset,\ zoffset}}
+\DoxyCodeLine{00276\ \ \ \ \ \textcolor{comment}{//\ float\ xnormal,\ ynormal,\ znormal\ (optional,\ 1.8+)}}
+\DoxyCodeLine{00277\ \ \ \ \ \textcolor{comment}{//\ Optional\ vertex\ animation\ chunk}}
+\DoxyCodeLine{00278\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a78b6383b659f1dcbb7fcb0f858e0f8a4}{M\_ANIMATIONS}}\ =\ 0xD000,}
+\DoxyCodeLine{00279\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a648bec328f6fe6c71bbc0621849298f6}{M\_ANIMATION}}\ =\ 0xD100,}
+\DoxyCodeLine{00280\ \ \ \ \ \textcolor{comment}{//\ char*\ name}}
+\DoxyCodeLine{00281\ \ \ \ \ \textcolor{comment}{//\ float\ length}}
+\DoxyCodeLine{00282\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a6be43846df54b6d54be2a75c22cf00b9}{M\_ANIMATION\_BASEINFO}}\ =\ 0xD105,}
+\DoxyCodeLine{00283\ \ \ \ \ \textcolor{comment}{//\ [Optional]\ base\ keyframe\ information\ (pose\ animation\ only)}}
+\DoxyCodeLine{00284\ \ \ \ \ \textcolor{comment}{//\ char*\ baseAnimationName\ (blank\ for\ self)}}
+\DoxyCodeLine{00285\ \ \ \ \ \textcolor{comment}{//\ float\ baseKeyFrameTime}}
+\DoxyCodeLine{00286\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a4758729c8f3a623e5584713a39f1a458}{M\_ANIMATION\_TRACK}}\ =\ 0xD110,}
+\DoxyCodeLine{00287\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ type\ \ \ \ \ \ \ \ \ \ //\ 1\ ==\ morph,\ 2\ ==\ pose}}
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ target\ \ \ \ \ \ \ \ //\ 0\ for\ shared\ geometry,}}
+\DoxyCodeLine{00289\ \ \ \ \ \textcolor{comment}{//\ 1+\ for\ submesh\ index\ +\ 1}}
+\DoxyCodeLine{00290\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a9ffb07408272e540e20233caac08218a}{M\_ANIMATION\_MORPH\_KEYFRAME}}\ =\ 0xD111,}
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{comment}{//\ float\ time}}
+\DoxyCodeLine{00292\ \ \ \ \ \textcolor{comment}{//\ bool\ includesNormals\ [1.8+]}}
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{comment}{//\ float\ x,y,z\ \ \ \ \ \ \ \ \ \ //\ repeat\ by\ number\ of\ vertices\ in\ original\ geometry}}
+\DoxyCodeLine{00294\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900a1cf7e16683a734a19cc3d54c5df27d21}{M\_ANIMATION\_POSE\_KEYFRAME}}\ =\ 0xD112,}
+\DoxyCodeLine{00295\ \ \ \ \ \textcolor{comment}{//\ float\ time}}
+\DoxyCodeLine{00296\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900aeac34ddf4bfbca79531e8d689e26df7d}{M\_ANIMATION\_POSE\_REF}}\ =\ 0xD113,\ \textcolor{comment}{//\ repeat\ for\ number\ of\ referenced\ poses}}
+\DoxyCodeLine{00297\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ poseIndex}}
+\DoxyCodeLine{00298\ \ \ \ \ \textcolor{comment}{//\ float\ influence}}
+\DoxyCodeLine{00299\ \ \ \ \ \textcolor{comment}{//\ Optional\ submesh\ extreme\ vertex\ list\ chink}}
+\DoxyCodeLine{00300\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_aded07905bf02569ed986bbd08c491900af3f931ff2baa667bb96a4ac0802642a7}{M\_TABLE\_EXTREMES}}\ =\ 0xE000}
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ submesh\_index;}}
+\DoxyCodeLine{00302\ \ \ \ \ \textcolor{comment}{//\ float\ extremes\ [n\_extremes][3];}}
+\DoxyCodeLine{00303\ \};}
+\DoxyCodeLine{00304\ }
+\DoxyCodeLine{00305\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00306\ \textcolor{comment}{static\ std::string\ MeshHeaderToString(MeshChunkId\ id)}}
+\DoxyCodeLine{00307\ \textcolor{comment}{\{}}
+\DoxyCodeLine{00308\ \textcolor{comment}{\ \ \ \ switch(id)}}
+\DoxyCodeLine{00309\ \textcolor{comment}{\ \ \ \ \{}}
+\DoxyCodeLine{00310\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_HEADER:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}HEADER"{};}}
+\DoxyCodeLine{00311\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_MESH:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}MESH"{};}}
+\DoxyCodeLine{00312\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_SUBMESH:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}SUBMESH"{};}}
+\DoxyCodeLine{00313\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_SUBMESH\_OPERATION:\ \ \ \ \ \ \ \ \ \ \ return\ "{}SUBMESH\_OPERATION"{};}}
+\DoxyCodeLine{00314\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_SUBMESH\_BONE\_ASSIGNMENT:\ \ \ \ \ return\ "{}SUBMESH\_BONE\_ASSIGNMENT"{};}}
+\DoxyCodeLine{00315\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_SUBMESH\_TEXTURE\_ALIAS:\ \ \ \ \ \ \ return\ "{}SUBMESH\_TEXTURE\_ALIAS"{};}}
+\DoxyCodeLine{00316\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_GEOMETRY:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}GEOMETRY"{};}}
+\DoxyCodeLine{00317\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_GEOMETRY\_VERTEX\_DECLARATION:\ return\ "{}GEOMETRY\_VERTEX\_DECLARATION"{};}}
+\DoxyCodeLine{00318\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_GEOMETRY\_VERTEX\_ELEMENT:\ \ \ \ \ return\ "{}GEOMETRY\_VERTEX\_ELEMENT"{};}}
+\DoxyCodeLine{00319\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_GEOMETRY\_VERTEX\_BUFFER:\ \ \ \ \ \ return\ "{}GEOMETRY\_VERTEX\_BUFFER"{};}}
+\DoxyCodeLine{00320\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_GEOMETRY\_VERTEX\_BUFFER\_DATA:\ return\ "{}GEOMETRY\_VERTEX\_BUFFER\_DATA"{};}}
+\DoxyCodeLine{00321\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_MESH\_SKELETON\_LINK:\ \ \ \ \ \ \ \ \ \ return\ "{}MESH\_SKELETON\_LINK"{};}}
+\DoxyCodeLine{00322\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_MESH\_BONE\_ASSIGNMENT:\ \ \ \ \ \ \ \ return\ "{}MESH\_BONE\_ASSIGNMENT"{};}}
+\DoxyCodeLine{00323\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_MESH\_LOD:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}MESH\_LOD"{};}}
+\DoxyCodeLine{00324\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_MESH\_LOD\_USAGE:\ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}MESH\_LOD\_USAGE"{};}}
+\DoxyCodeLine{00325\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_MESH\_LOD\_MANUAL:\ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}MESH\_LOD\_MANUAL"{};}}
+\DoxyCodeLine{00326\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_MESH\_LOD\_GENERATED:\ \ \ \ \ \ \ \ \ \ return\ "{}MESH\_LOD\_GENERATED"{};}}
+\DoxyCodeLine{00327\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_MESH\_BOUNDS:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}MESH\_BOUNDS"{};}}
+\DoxyCodeLine{00328\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_SUBMESH\_NAME\_TABLE:\ \ \ \ \ \ \ \ \ \ return\ "{}SUBMESH\_NAME\_TABLE"{};}}
+\DoxyCodeLine{00329\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_SUBMESH\_NAME\_TABLE\_ELEMENT:\ \ return\ "{}SUBMESH\_NAME\_TABLE\_ELEMENT"{};}}
+\DoxyCodeLine{00330\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_EDGE\_LISTS:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}EDGE\_LISTS"{};}}
+\DoxyCodeLine{00331\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_EDGE\_LIST\_LOD:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}EDGE\_LIST\_LOD"{};}}
+\DoxyCodeLine{00332\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_EDGE\_GROUP:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}EDGE\_GROUP"{};}}
+\DoxyCodeLine{00333\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_POSES:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}POSES"{};}}
+\DoxyCodeLine{00334\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_POSE:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}POSE"{};}}
+\DoxyCodeLine{00335\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_POSE\_VERTEX:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}POSE\_VERTEX"{};}}
+\DoxyCodeLine{00336\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_ANIMATIONS:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}ANIMATIONS"{};}}
+\DoxyCodeLine{00337\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_ANIMATION:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}ANIMATION"{};}}
+\DoxyCodeLine{00338\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_ANIMATION\_BASEINFO:\ \ \ \ \ \ \ \ \ \ return\ "{}ANIMATION\_BASEINFO"{};}}
+\DoxyCodeLine{00339\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_ANIMATION\_TRACK:\ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}ANIMATION\_TRACK"{};}}
+\DoxyCodeLine{00340\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_ANIMATION\_MORPH\_KEYFRAME:\ \ \ \ return\ "{}ANIMATION\_MORPH\_KEYFRAME"{};}}
+\DoxyCodeLine{00341\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_ANIMATION\_POSE\_KEYFRAME:\ \ \ \ \ return\ "{}ANIMATION\_POSE\_KEYFRAME"{};}}
+\DoxyCodeLine{00342\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_ANIMATION\_POSE\_REF:\ \ \ \ \ \ \ \ \ \ return\ "{}ANIMATION\_POSE\_REF"{};}}
+\DoxyCodeLine{00343\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ M\_TABLE\_EXTREMES:\ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}TABLE\_EXTREMES"{};}}
+\DoxyCodeLine{00344\ \textcolor{comment}{\ \ \ \ \}}}
+\DoxyCodeLine{00345\ \textcolor{comment}{\ \ \ \ return\ "{}Unknown\_MeshChunkId"{};}}
+\DoxyCodeLine{00346\ \textcolor{comment}{\}}}
+\DoxyCodeLine{00347\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespace_assimp_1_1_ogre_ac7f6988b57b47637b9e066e5ac856f2f}{SkeletonChunkId}}\ \{}
+\DoxyCodeLine{00350\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_ac7f6988b57b47637b9e066e5ac856f2fadd4628ef38d6f74c35d4358b70e2fbcb}{SKELETON\_HEADER}}\ =\ 0x1000,}
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{comment}{//\ char*\ version\ \ \ \ \ \ \ \ \ \ \ :\ Version\ number\ check}}
+\DoxyCodeLine{00352\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_ac7f6988b57b47637b9e066e5ac856f2fa27186cddb837acd8bf0ed66b40ae7aba}{SKELETON\_BLENDMODE}}\ =\ 0x1010,\ \textcolor{comment}{//\ optional}}
+\DoxyCodeLine{00353\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ blendmode\ \ \ \ \ :\ SkeletonAnimationBlendMode}}
+\DoxyCodeLine{00354\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_ac7f6988b57b47637b9e066e5ac856f2fa174af030ae22b7ca59aa0285f5501ca4}{SKELETON\_BONE}}\ =\ 0x2000,}
+\DoxyCodeLine{00355\ \ \ \ \ \textcolor{comment}{//\ Repeating\ section\ defining\ each\ bone\ in\ the\ system.}}
+\DoxyCodeLine{00356\ \ \ \ \ \textcolor{comment}{//\ Bones\ are\ assigned\ indexes\ automatically\ based\ on\ their\ order\ of\ declaration}}
+\DoxyCodeLine{00357\ \ \ \ \ \textcolor{comment}{//\ starting\ with\ 0.}}
+\DoxyCodeLine{00358\ \ \ \ \ \textcolor{comment}{//\ char*\ name\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ name\ of\ the\ bone}}
+\DoxyCodeLine{00359\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ handle\ \ \ \ \ \ \ \ \ \ \ \ :\ handle\ of\ the\ bone,\ should\ be\ contiguous\ \&\ start\ at\ 0}}
+\DoxyCodeLine{00360\ \ \ \ \ \textcolor{comment}{//\ Vector3\ position\ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ position\ of\ this\ bone\ relative\ to\ parent}}
+\DoxyCodeLine{00361\ \ \ \ \ \textcolor{comment}{//\ Quaternion\ orientation\ \ \ \ \ \ \ \ \ \ :\ orientation\ of\ this\ bone\ relative\ to\ parent}}
+\DoxyCodeLine{00362\ \ \ \ \ \textcolor{comment}{//\ Vector3\ scale\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ scale\ of\ this\ bone\ relative\ to\ parent}}
+\DoxyCodeLine{00363\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_ac7f6988b57b47637b9e066e5ac856f2fa64a0092b7a5970f5de03d8e53390c1bc}{SKELETON\_BONE\_PARENT}}\ =\ 0x3000,}
+\DoxyCodeLine{00364\ \ \ \ \ \textcolor{comment}{//\ Record\ of\ the\ parent\ of\ a\ single\ bone,\ used\ to\ build\ the\ node\ tree}}
+\DoxyCodeLine{00365\ \ \ \ \ \textcolor{comment}{//\ Repeating\ section,\ listed\ in\ Bone\ Index\ order,\ one\ per\ Bone}}
+\DoxyCodeLine{00366\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ handle\ \ \ \ \ \ \ \ \ \ \ \ \ :\ child\ bone}}
+\DoxyCodeLine{00367\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ parentHandle\ \ \ :\ parent\ bone}}
+\DoxyCodeLine{00368\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_ac7f6988b57b47637b9e066e5ac856f2fab484940c60813a874b66eedc5328ea3f}{SKELETON\_ANIMATION}}\ =\ 0x4000,}
+\DoxyCodeLine{00369\ \ \ \ \ \textcolor{comment}{//\ A\ single\ animation\ for\ this\ skeleton}}
+\DoxyCodeLine{00370\ \ \ \ \ \textcolor{comment}{//\ char*\ name\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ Name\ of\ the\ animation}}
+\DoxyCodeLine{00371\ \ \ \ \ \textcolor{comment}{//\ float\ length\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ Length\ of\ the\ animation\ in\ seconds}}
+\DoxyCodeLine{00372\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_ac7f6988b57b47637b9e066e5ac856f2fac634991cc75d024132f959952b4f6f7d}{SKELETON\_ANIMATION\_BASEINFO}}\ =\ 0x4010,}
+\DoxyCodeLine{00373\ \ \ \ \ \textcolor{comment}{//\ [Optional]\ base\ keyframe\ information}}
+\DoxyCodeLine{00374\ \ \ \ \ \textcolor{comment}{//\ char*\ baseAnimationName\ (blank\ for\ self)}}
+\DoxyCodeLine{00375\ \ \ \ \ \textcolor{comment}{//\ float\ baseKeyFrameTime}}
+\DoxyCodeLine{00376\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_ac7f6988b57b47637b9e066e5ac856f2faaae1d0935035dbcfbb290018bd7901cc}{SKELETON\_ANIMATION\_TRACK}}\ =\ 0x4100,}
+\DoxyCodeLine{00377\ \ \ \ \ \textcolor{comment}{//\ A\ single\ animation\ track\ (relates\ to\ a\ single\ bone)}}
+\DoxyCodeLine{00378\ \ \ \ \ \textcolor{comment}{//\ Repeating\ section\ (within\ SKELETON\_ANIMATION)}}
+\DoxyCodeLine{00379\ \ \ \ \ \textcolor{comment}{//\ unsigned\ short\ boneIndex\ \ :\ Index\ of\ bone\ to\ apply\ to}}
+\DoxyCodeLine{00380\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_ac7f6988b57b47637b9e066e5ac856f2fab1b1af79e0774c43c7f27c7d539b0a22}{SKELETON\_ANIMATION\_TRACK\_KEYFRAME}}\ =\ 0x4110,}
+\DoxyCodeLine{00381\ \ \ \ \ \textcolor{comment}{//\ A\ single\ keyframe\ within\ the\ track}}
+\DoxyCodeLine{00382\ \ \ \ \ \textcolor{comment}{//\ Repeating\ section}}
+\DoxyCodeLine{00383\ \ \ \ \ \textcolor{comment}{//\ float\ time\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ The\ time\ position\ (seconds)}}
+\DoxyCodeLine{00384\ \ \ \ \ \textcolor{comment}{//\ Quaternion\ rotate\ \ \ \ \ \ \ \ \ \ \ \ :\ Rotation\ to\ apply\ at\ this\ keyframe}}
+\DoxyCodeLine{00385\ \ \ \ \ \textcolor{comment}{//\ Vector3\ translate\ \ \ \ \ \ \ \ \ \ \ \ :\ Translation\ to\ apply\ at\ this\ keyframe}}
+\DoxyCodeLine{00386\ \ \ \ \ \textcolor{comment}{//\ Vector3\ scale\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ Scale\ to\ apply\ at\ this\ keyframe}}
+\DoxyCodeLine{00387\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_ogre_ac7f6988b57b47637b9e066e5ac856f2fab1792c99ba2993d0e8b3faf6bd87ce31}{SKELETON\_ANIMATION\_LINK}}\ =\ 0x5000}
+\DoxyCodeLine{00388\ \ \ \ \ \textcolor{comment}{//\ Link\ to\ another\ skeleton,\ to\ re-\/use\ its\ animations}}
+\DoxyCodeLine{00389\ \ \ \ \ \textcolor{comment}{//\ char*\ skeletonName\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ name\ of\ skeleton\ to\ get\ animations\ from}}
+\DoxyCodeLine{00390\ \ \ \ \ \textcolor{comment}{//\ float\ scale\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ scale\ to\ apply\ to\ trans/scale\ keys}}
+\DoxyCodeLine{00391\ \};}
+\DoxyCodeLine{00392\ }
+\DoxyCodeLine{00393\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00394\ \textcolor{comment}{static\ std::string\ SkeletonHeaderToString(SkeletonChunkId\ id)}}
+\DoxyCodeLine{00395\ \textcolor{comment}{\{}}
+\DoxyCodeLine{00396\ \textcolor{comment}{\ \ \ \ switch(id)}}
+\DoxyCodeLine{00397\ \textcolor{comment}{\ \ \ \ \{}}
+\DoxyCodeLine{00398\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ SKELETON\_HEADER:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}HEADER"{};}}
+\DoxyCodeLine{00399\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ SKELETON\_BLENDMODE:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}BLENDMODE"{};}}
+\DoxyCodeLine{00400\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ SKELETON\_BONE:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}BONE"{};}}
+\DoxyCodeLine{00401\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ SKELETON\_BONE\_PARENT:\ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}BONE\_PARENT"{};}}
+\DoxyCodeLine{00402\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ SKELETON\_ANIMATION:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ "{}ANIMATION"{};}}
+\DoxyCodeLine{00403\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ SKELETON\_ANIMATION\_BASEINFO:\ \ \ \ \ \ \ return\ "{}ANIMATION\_BASEINFO"{};}}
+\DoxyCodeLine{00404\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ SKELETON\_ANIMATION\_TRACK:\ \ \ \ \ \ \ \ \ \ return\ "{}ANIMATION\_TRACK"{};}}
+\DoxyCodeLine{00405\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ SKELETON\_ANIMATION\_TRACK\_KEYFRAME:\ return\ "{}ANIMATION\_TRACK\_KEYFRAME"{};}}
+\DoxyCodeLine{00406\ \textcolor{comment}{\ \ \ \ \ \ \ \ case\ SKELETON\_ANIMATION\_LINK:\ \ \ \ \ \ \ \ \ \ \ return\ "{}ANIMATION\_LINK"{};}}
+\DoxyCodeLine{00407\ \textcolor{comment}{\ \ \ \ \}}}
+\DoxyCodeLine{00408\ \textcolor{comment}{\ \ \ \ return\ "{}Unknown\_SkeletonChunkId"{};}}
+\DoxyCodeLine{00409\ \textcolor{comment}{\}}}
+\DoxyCodeLine{00410\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00411\ \}\ \textcolor{comment}{//\ namespace\ Ogre}}
+\DoxyCodeLine{00412\ \}\ \textcolor{comment}{//\ namespace\ Assimp}}
+\DoxyCodeLine{00413\ }
+\DoxyCodeLine{00414\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ ASSIMP\_BUILD\_NO\_OGRE\_IMPORTER}}
+\DoxyCodeLine{00415\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ AI\_OGREBINARYSERIALIZER\_H\_INC}}
+
+\end{DoxyCode}

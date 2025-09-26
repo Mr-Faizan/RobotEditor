@@ -1,0 +1,107 @@
+\doxysection{Robot\+Lib/libraries/assimp/code/\+Common/\+Subdivision.cpp File Reference}
+\hypertarget{_subdivision_8cpp}{}\label{_subdivision_8cpp}\index{RobotLib/libraries/assimp/code/Common/Subdivision.cpp@{RobotLib/libraries/assimp/code/Common/Subdivision.cpp}}
+{\ttfamily \#include $<$assimp/\+Subdivision.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/\+Scene\+Combiner.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/\+Spatial\+Sort.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/\+Vertex.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/ai\+\_\+assert.\+h$>$}\newline
+{\ttfamily \#include "{}Post\+Processing/\+Process\+Helper.\+h"{}}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$unordered\+\_\+map$>$}\newline
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_catmull_clark_subdivider}{Catmull\+Clark\+Subdivider}}
+\item 
+struct \mbox{\hyperlink{struct_catmull_clark_subdivider_1_1_edge}{Catmull\+Clark\+Subdivider\+::\+Edge}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{_subdivision_8cpp_ac7ce16329f0f89bf1263a233d7f3e726}{MAKE\+\_\+\+EDGE\+\_\+\+HASH}}(id0,  id1)
+\item 
+\#define \mbox{\hyperlink{_subdivision_8cpp_a6ab0be9c1cf84181da51cc9832c72224}{INIT\+\_\+\+EDGE\+\_\+\+HASH\+\_\+\+TEMPORARIES}}()
+\item 
+\#define \mbox{\hyperlink{_subdivision_8cpp_a258e36f8953c8aa1d22262df5e685b39}{FLATTEN\+\_\+\+VERTEX\+\_\+\+IDX}}(mesh\+\_\+idx,  vert\+\_\+idx)
+\item 
+\#define \mbox{\hyperlink{_subdivision_8cpp_ab61024257c44c92f4c63a510ba235e76}{FLATTEN\+\_\+\+FACE\+\_\+\+IDX}}(mesh\+\_\+idx,  face\+\_\+idx)
+\item 
+\#define \mbox{\hyperlink{_subdivision_8cpp_af8aeb17d91c8ed61b057d64aecf4d389}{GET\+\_\+\+ADJACENT\+\_\+\+FACES\+\_\+\+AND\+\_\+\+CNT}}(vidx,  fstartout,  numout)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{_subdivision_8cpp_a4a70ee75a8937ef864aa316ea512db1e}{mydummy}} ()
+\end{DoxyCompactItemize}
+
+
+\label{doc-define-members}
+\Hypertarget{_subdivision_8cpp_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{_subdivision_8cpp_ab61024257c44c92f4c63a510ba235e76}\index{Subdivision.cpp@{Subdivision.cpp}!FLATTEN\_FACE\_IDX@{FLATTEN\_FACE\_IDX}}
+\index{FLATTEN\_FACE\_IDX@{FLATTEN\_FACE\_IDX}!Subdivision.cpp@{Subdivision.cpp}}
+\doxysubsubsection{\texorpdfstring{FLATTEN\_FACE\_IDX}{FLATTEN\_FACE\_IDX}}
+{\footnotesize\ttfamily \label{_subdivision_8cpp_ab61024257c44c92f4c63a510ba235e76} 
+\#define FLATTEN\+\_\+\+FACE\+\_\+\+IDX(\begin{DoxyParamCaption}\item[{}]{mesh\+\_\+idx}{, }\item[{}]{face\+\_\+idx}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(moffsets[mesh\_idx].first\ +\ face\_idx)}
+
+\end{DoxyCode}
+\Hypertarget{_subdivision_8cpp_a258e36f8953c8aa1d22262df5e685b39}\index{Subdivision.cpp@{Subdivision.cpp}!FLATTEN\_VERTEX\_IDX@{FLATTEN\_VERTEX\_IDX}}
+\index{FLATTEN\_VERTEX\_IDX@{FLATTEN\_VERTEX\_IDX}!Subdivision.cpp@{Subdivision.cpp}}
+\doxysubsubsection{\texorpdfstring{FLATTEN\_VERTEX\_IDX}{FLATTEN\_VERTEX\_IDX}}
+{\footnotesize\ttfamily \label{_subdivision_8cpp_a258e36f8953c8aa1d22262df5e685b39} 
+\#define FLATTEN\+\_\+\+VERTEX\+\_\+\+IDX(\begin{DoxyParamCaption}\item[{}]{mesh\+\_\+idx}{, }\item[{}]{vert\+\_\+idx}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(moffsets[mesh\_idx].second\ +\ vert\_idx)}
+
+\end{DoxyCode}
+\Hypertarget{_subdivision_8cpp_af8aeb17d91c8ed61b057d64aecf4d389}\index{Subdivision.cpp@{Subdivision.cpp}!GET\_ADJACENT\_FACES\_AND\_CNT@{GET\_ADJACENT\_FACES\_AND\_CNT}}
+\index{GET\_ADJACENT\_FACES\_AND\_CNT@{GET\_ADJACENT\_FACES\_AND\_CNT}!Subdivision.cpp@{Subdivision.cpp}}
+\doxysubsubsection{\texorpdfstring{GET\_ADJACENT\_FACES\_AND\_CNT}{GET\_ADJACENT\_FACES\_AND\_CNT}}
+{\footnotesize\ttfamily \label{_subdivision_8cpp_af8aeb17d91c8ed61b057d64aecf4d389} 
+\#define GET\+\_\+\+ADJACENT\+\_\+\+FACES\+\_\+\+AND\+\_\+\+CNT(\begin{DoxyParamCaption}\item[{}]{vidx}{, }\item[{}]{fstartout}{, }\item[{}]{numout}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ fstartout\ =\ \&faceadjac[ofsadjvec[vidx]],\ numout\ =\ cntadjfac[vidx]}
+
+\end{DoxyCode}
+\Hypertarget{_subdivision_8cpp_a6ab0be9c1cf84181da51cc9832c72224}\index{Subdivision.cpp@{Subdivision.cpp}!INIT\_EDGE\_HASH\_TEMPORARIES@{INIT\_EDGE\_HASH\_TEMPORARIES}}
+\index{INIT\_EDGE\_HASH\_TEMPORARIES@{INIT\_EDGE\_HASH\_TEMPORARIES}!Subdivision.cpp@{Subdivision.cpp}}
+\doxysubsubsection{\texorpdfstring{INIT\_EDGE\_HASH\_TEMPORARIES}{INIT\_EDGE\_HASH\_TEMPORARIES}}
+{\footnotesize\ttfamily \label{_subdivision_8cpp_a6ab0be9c1cf84181da51cc9832c72224} 
+\#define INIT\+\_\+\+EDGE\+\_\+\+HASH\+\_\+\+TEMPORARIES(\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ eh\_tmp0\_\_,\ eh\_tmp1\_\_;}
+
+\end{DoxyCode}
+\Hypertarget{_subdivision_8cpp_ac7ce16329f0f89bf1263a233d7f3e726}\index{Subdivision.cpp@{Subdivision.cpp}!MAKE\_EDGE\_HASH@{MAKE\_EDGE\_HASH}}
+\index{MAKE\_EDGE\_HASH@{MAKE\_EDGE\_HASH}!Subdivision.cpp@{Subdivision.cpp}}
+\doxysubsubsection{\texorpdfstring{MAKE\_EDGE\_HASH}{MAKE\_EDGE\_HASH}}
+{\footnotesize\ttfamily \label{_subdivision_8cpp_ac7ce16329f0f89bf1263a233d7f3e726} 
+\#define MAKE\+\_\+\+EDGE\+\_\+\+HASH(\begin{DoxyParamCaption}\item[{}]{id0}{, }\item[{}]{id1}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ (eh\_tmp0\_\_\ =\ id0,\ eh\_tmp1\_\_\ =\ id1,\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ (eh\_tmp0\_\_\ <\ eh\_tmp1\_\_\ ?\ \mbox{\hyperlink{namespacestd_a4874fd00297ff5aef2872379cb521783}{std::swap}}(eh\_tmp0\_\_,\ eh\_tmp1\_\_)\ :\ \mbox{\hyperlink{_subdivision_8cpp_a4a70ee75a8937ef864aa316ea512db1e}{mydummy}}()),\ (\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\_t}})eh\_tmp0\_\_\ \string^\ ((\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\_t}})eh\_tmp1\_\_\ <<\ 32u))}
+
+\end{DoxyCode}
+
+
+\label{doc-func-members}
+\Hypertarget{_subdivision_8cpp_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_subdivision_8cpp_a4a70ee75a8937ef864aa316ea512db1e}\index{Subdivision.cpp@{Subdivision.cpp}!mydummy@{mydummy}}
+\index{mydummy@{mydummy}!Subdivision.cpp@{Subdivision.cpp}}
+\doxysubsubsection{\texorpdfstring{mydummy()}{mydummy()}}
+{\footnotesize\ttfamily \label{_subdivision_8cpp_a4a70ee75a8937ef864aa316ea512db1e} 
+void mydummy (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+

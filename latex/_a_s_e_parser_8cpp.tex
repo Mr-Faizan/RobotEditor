@@ -1,0 +1,101 @@
+\doxysection{Robot\+Lib/libraries/assimp/code/\+Asset\+Lib/\+ASE/\+ASEParser.cpp File Reference}
+\hypertarget{_a_s_e_parser_8cpp}{}\label{_a_s_e_parser_8cpp}\index{RobotLib/libraries/assimp/code/AssetLib/ASE/ASEParser.cpp@{RobotLib/libraries/assimp/code/AssetLib/ASE/ASEParser.cpp}}
+
+
+Implementation of the ASE parser class.  
+
+
+{\ttfamily \#include "{}ASELoader.\+h"{}}\newline
+{\ttfamily \#include "{}Post\+Processing/\+Texture\+Transform.\+h"{}}\newline
+{\ttfamily \#include $<$assimp/fast\+\_\+atof.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/\+Default\+Logger.\+hpp$>$}\newline
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespace_assimp}{Assimp}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{_a_s_e_parser_8cpp_a26c8ada79382b504c4162bdd728ca7f6}{AI\+\_\+\+ASE\+\_\+\+PARSER\+\_\+\+INIT}}()
+\item 
+\#define \mbox{\hyperlink{_a_s_e_parser_8cpp_a14d994ced67054b916ad9cd4fb8c152d}{AI\+\_\+\+ASE\+\_\+\+HANDLE\+\_\+\+TOP\+\_\+\+LEVEL\+\_\+\+SECTION}}()
+\item 
+\#define \mbox{\hyperlink{_a_s_e_parser_8cpp_ae9c74f6146e4746d537bf99f05ce8327}{AI\+\_\+\+ASE\+\_\+\+HANDLE\+\_\+\+SECTION}}(level,  msg)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implementation of the ASE parser class. 
+
+
+
+\label{doc-define-members}
+\Hypertarget{_a_s_e_parser_8cpp_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{_a_s_e_parser_8cpp_ae9c74f6146e4746d537bf99f05ce8327}\index{ASEParser.cpp@{ASEParser.cpp}!AI\_ASE\_HANDLE\_SECTION@{AI\_ASE\_HANDLE\_SECTION}}
+\index{AI\_ASE\_HANDLE\_SECTION@{AI\_ASE\_HANDLE\_SECTION}!ASEParser.cpp@{ASEParser.cpp}}
+\doxysubsubsection{\texorpdfstring{AI\_ASE\_HANDLE\_SECTION}{AI\_ASE\_HANDLE\_SECTION}}
+{\footnotesize\ttfamily \label{_a_s_e_parser_8cpp_ae9c74f6146e4746d537bf99f05ce8327} 
+\#define AI\+\_\+\+ASE\+\_\+\+HANDLE\+\_\+\+SECTION(\begin{DoxyParamCaption}\item[{}]{level}{, }\item[{}]{msg}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{charliteral}{'\{'}\ ==\ *filePtr)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ iDepth++;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\textcolor{charliteral}{'\}'}\ ==\ *filePtr)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ if\ (0\ ==\ -\/-\/iDepth)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ ++filePtr;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ SkipToNextToken();\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\textcolor{charliteral}{'\(\backslash\)0'}\ ==\ *filePtr)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ LogError(\textcolor{stringliteral}{"{}Encountered\ unexpected\ EOL\ while\ parsing\ a\ "{}}\ msg\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ chunk\ (Level\ "{}}\ level\ \textcolor{stringliteral}{"{})"{}});\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ if\ (\mbox{\hyperlink{namespace_assimp_a99092e9b63e3e8bb88dc63e141d7157f}{IsLineEnd}}(*filePtr)\ \&\&\ !bLastWasEndLine)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ ++iLineNumber;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ bLastWasEndLine\ =\ \textcolor{keyword}{true};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ else\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ bLastWasEndLine\ =\ \textcolor{keyword}{false};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ ++filePtr;}
+
+\end{DoxyCode}
+\Hypertarget{_a_s_e_parser_8cpp_a14d994ced67054b916ad9cd4fb8c152d}\index{ASEParser.cpp@{ASEParser.cpp}!AI\_ASE\_HANDLE\_TOP\_LEVEL\_SECTION@{AI\_ASE\_HANDLE\_TOP\_LEVEL\_SECTION}}
+\index{AI\_ASE\_HANDLE\_TOP\_LEVEL\_SECTION@{AI\_ASE\_HANDLE\_TOP\_LEVEL\_SECTION}!ASEParser.cpp@{ASEParser.cpp}}
+\doxysubsubsection{\texorpdfstring{AI\_ASE\_HANDLE\_TOP\_LEVEL\_SECTION}{AI\_ASE\_HANDLE\_TOP\_LEVEL\_SECTION}}
+{\footnotesize\ttfamily \label{_a_s_e_parser_8cpp_a14d994ced67054b916ad9cd4fb8c152d} 
+\#define AI\+\_\+\+ASE\+\_\+\+HANDLE\+\_\+\+TOP\+\_\+\+LEVEL\+\_\+\+SECTION(\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\textcolor{charliteral}{'\{'}\ ==\ *filePtr)\ iDepth++;\ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\textcolor{charliteral}{'\}'}\ ==\ *filePtr)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ if\ (0\ ==\ -\/-\/iDepth)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ ++filePtr;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ SkipToNextToken();\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ if\ (\textcolor{charliteral}{'\(\backslash\)0'}\ ==\ *filePtr)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ if\ (\mbox{\hyperlink{namespace_assimp_a99092e9b63e3e8bb88dc63e141d7157f}{IsLineEnd}}(*filePtr)\ \&\&\ !bLastWasEndLine)\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ ++iLineNumber;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ bLastWasEndLine\ =\ \textcolor{keyword}{true};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ else\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ bLastWasEndLine\ =\ \textcolor{keyword}{false};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ ++filePtr;}
+
+\end{DoxyCode}
+\Hypertarget{_a_s_e_parser_8cpp_a26c8ada79382b504c4162bdd728ca7f6}\index{ASEParser.cpp@{ASEParser.cpp}!AI\_ASE\_PARSER\_INIT@{AI\_ASE\_PARSER\_INIT}}
+\index{AI\_ASE\_PARSER\_INIT@{AI\_ASE\_PARSER\_INIT}!ASEParser.cpp@{ASEParser.cpp}}
+\doxysubsubsection{\texorpdfstring{AI\_ASE\_PARSER\_INIT}{AI\_ASE\_PARSER\_INIT}}
+{\footnotesize\ttfamily \label{_a_s_e_parser_8cpp_a26c8ada79382b504c4162bdd728ca7f6} 
+\#define AI\+\_\+\+ASE\+\_\+\+PARSER\+\_\+\+INIT(\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordtype}{int}\ iDepth\ =\ 0;}
+
+\end{DoxyCode}

@@ -1,0 +1,135 @@
+\doxysection{Spatial\+Sort.\+h}
+\hypertarget{assimp-install_2include_2assimp_2_spatial_sort_8h_source}{}\label{assimp-install_2include_2assimp_2_spatial_sort_8h_source}\index{RobotLib/libraries/assimp-\/install/include/assimp/SpatialSort.h@{RobotLib/libraries/assimp-\/install/include/assimp/SpatialSort.h}}
+\mbox{\hyperlink{assimp-install_2include_2assimp_2_spatial_sort_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{}}
+\DoxyCodeLine{00008\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00012\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ \ following\ disclaimer.}}
+\DoxyCodeLine{00017\ \textcolor{comment}{}}
+\DoxyCodeLine{00018\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ \ materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{}}
+\DoxyCodeLine{00023\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00027\ \textcolor{comment}{}}
+\DoxyCodeLine{00028\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00029\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00030\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00031\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00032\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00033\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00034\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00035\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00036\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00037\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00038\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00039\ \textcolor{comment}{}}
+\DoxyCodeLine{00040\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00041\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#ifndef\ AI\_SPATIALSORT\_H\_INC}}
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#define\ AI\_SPATIALSORT\_H\_INC}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#ifdef\ \_\_GNUC\_\_}}
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#pragma\ GCC\ system\_header}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#include\ <assimp/types.h>}}
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#include\ <limits>}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00065\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00066\ \textcolor{keyword}{class\ }\mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a7d617d307e656cb6ff315ba71ff958d4}{ASSIMP\_API}}\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_a155ce605d4f51234406422723003c5f3}{SpatialSort}}\ \{}
+\DoxyCodeLine{00067\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00068\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_a155ce605d4f51234406422723003c5f3}{SpatialSort}}();}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00078\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_a155ce605d4f51234406422723003c5f3}{SpatialSort}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ *pPositions,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ pNumPositions,}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ pElementOffset);}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00082\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_a77fc422f8682caa48a54f89d3110cca8}{\string~SpatialSort}}();}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_a9818ff67761742c6492173e61035ad37}{Fill}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ *pPositions,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ pNumPositions,}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ pElementOffset,}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ pFinalize\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_acc7813f0ab385e7744890b92f12c8fd8}{Append}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ *pPositions,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ pNumPositions,}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ pElementOffset,}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ pFinalize\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_a28ddec1cbbce9f157dd1457f5f7f07d4}{Finalize}}();}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_a4a14505e6d4f7fa8be1ba71fc34c74e5}{FindPositions}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \&pPosition,\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ pRadius,}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<unsigned\ int>\ \&poResults)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_ab53d3691a78b3e07eec1a150f0eb7ad8}{FindIdenticalPositions}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \&pPosition,}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<unsigned\ int>\ \&poResults)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_ad8b7d5bfbde1291619ca59bff3424d58}{GenerateMappingTable}}(std::vector<unsigned\ int>\ \&fill,}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ pRadius)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00147\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_a63a92cf95421cdefc21d942799b2eab7}{CalculateDistance}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \&pPosition)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00152\ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_ac74b71cbd72f9868e5cd273b13a92244}{mPlaneNormal}};}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00157\ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_ae93620ec0bb979f72803d00b74750109}{mCentroid}};}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a528f8b5a31da99acb6b86cc0f50503d8}{Entry}}\ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_aa565c52287969319573aa49b7e57e8b4}{mIndex}};\ }
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a926cd396d1a79007bb7e3807ec4039d2}{mPosition}};\ }
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a10c04d21be72f153cfec43bc94314088}{mDistance}};}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a528f8b5a31da99acb6b86cc0f50503d8}{Entry}}()\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_ae032f18edd69bf6ba935ef9feb025a96}{AI\_NO\_EXCEPT}}}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_aa565c52287969319573aa49b7e57e8b4}{mIndex}}(\mbox{\hyperlink{namespacestd}{std}}::numeric\_limits<\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}>::max()),}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a926cd396d1a79007bb7e3807ec4039d2}{mPosition}}(),}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a10c04d21be72f153cfec43bc94314088}{mDistance}}(\mbox{\hyperlink{namespacestd}{std}}::numeric\_limits<\mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}>::max())\ \{}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a975df5156c22c18f7aa86bdce9453c67}{Entry}}(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ pIndex,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \&pPosition)\ :}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_aa565c52287969319573aa49b7e57e8b4}{mIndex}}(pIndex),\ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a926cd396d1a79007bb7e3807ec4039d2}{mPosition}}(pPosition),\ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a10c04d21be72f153cfec43bc94314088}{mDistance}}(\mbox{\hyperlink{namespacestd}{std}}::numeric\_limits<\mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}>::max())\ \{}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a891cb0661a1e8ad37ee003ec4c3421e9}{operator<}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a528f8b5a31da99acb6b86cc0f50503d8}{Entry}}\ \&e)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a10c04d21be72f153cfec43bc94314088}{mDistance}}\ <\ e.\mbox{\hyperlink{struct_assimp_1_1_spatial_sort_1_1_entry_a10c04d21be72f153cfec43bc94314088}{mDistance}};\ \}}
+\DoxyCodeLine{00179\ \ \ \ \ \};}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \ \ \ \ \textcolor{comment}{//\ all\ positions,\ sorted\ by\ distance\ to\ the\ sorting\ plane}}
+\DoxyCodeLine{00182\ \ \ \ \ std::vector<Entry>\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_acd974670680623852b0a9fd0792a54c7}{mPositions}};}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00185\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_spatial_sort_a0a3c4701ce9b2ec551bf9606d0686cc3}{mFinalized}};}
+\DoxyCodeLine{00186\ \};}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \}\ \textcolor{comment}{//\ end\ of\ namespace\ Assimp}}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ AI\_SPATIALSORT\_H\_INC}}
+
+\end{DoxyCode}

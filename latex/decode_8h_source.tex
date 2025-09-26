@@ -1,0 +1,86 @@
+\doxysection{decode.\+h}
+\hypertarget{decode_8h_source}{}\label{decode_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/decode.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/decode.h}}
+\mbox{\hyperlink{decode_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_DECODE\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_DECODE\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{compression__shared_8h}{draco/compression/config/compression\_shared.h}}"{}}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{decoder__options_8h}{draco/compression/config/decoder\_options.h}}"{}}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{decoder__buffer_8h}{draco/core/decoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status__or_8h}{draco/core/status\_or.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2mesh_2mesh_8h}{draco/mesh/mesh.h}}"{}}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ Class\ responsible\ for\ decoding\ of\ meshes\ and\ point\ clouds\ that\ were}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ compressed\ by\ a\ Draco\ encoder.}}
+\DoxyCodeLine{00029\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_decoder}{Decoder}}\ \{}
+\DoxyCodeLine{00030\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00031\ \ \ \textcolor{comment}{//\ Returns\ the\ geometry\ type\ encoded\ in\ the\ input\ |in\_buffer|.}}
+\DoxyCodeLine{00032\ \ \ \textcolor{comment}{//\ The\ return\ value\ is\ one\ of\ POINT\_CLOUD,\ MESH\ or\ INVALID\_GEOMETRY\ in\ case}}
+\DoxyCodeLine{00033\ \ \ \textcolor{comment}{//\ the\ input\ data\ is\ invalid.}}
+\DoxyCodeLine{00034\ \ \ \textcolor{comment}{//\ The\ decoded\ geometry\ type\ can\ be\ used\ to\ choose\ an\ appropriate\ decoding}}
+\DoxyCodeLine{00035\ \ \ \textcolor{comment}{//\ function\ for\ a\ given\ geometry\ type\ (see\ below).}}
+\DoxyCodeLine{00036\ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{classdraco_1_1_status_or}{StatusOr<EncodedGeometryType>}}\ \mbox{\hyperlink{classdraco_1_1_decoder_a458ab5476a29e1d8cc50d48e3a1af025}{GetEncodedGeometryType}}(}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_decoder_buffer}{DecoderBuffer}}\ *in\_buffer);}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \textcolor{comment}{//\ Decodes\ point\ cloud\ from\ the\ provided\ buffer.\ The\ buffer\ must\ be\ filled}}
+\DoxyCodeLine{00040\ \ \ \textcolor{comment}{//\ with\ data\ that\ was\ encoded\ with\ either\ the\ EncodePointCloudToBuffer\ or}}
+\DoxyCodeLine{00041\ \ \ \textcolor{comment}{//\ EncodeMeshToBuffer\ methods\ in\ encode.h.\ In\ case\ the\ input\ buffer\ contains}}
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ mesh,\ the\ returned\ instance\ can\ be\ down-\/casted\ to\ Mesh.}}
+\DoxyCodeLine{00043\ \ \ \mbox{\hyperlink{classdraco_1_1_status_or}{StatusOr<std::unique\_ptr<PointCloud>}}>\ \mbox{\hyperlink{classdraco_1_1_decoder_a7c99fb8ba29b228b67c7f09fe0712931}{DecodePointCloudFromBuffer}}(}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_decoder_buffer}{DecoderBuffer}}\ *in\_buffer);}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ Decodes\ a\ triangular\ mesh\ from\ the\ provided\ buffer.\ The\ mesh\ must\ be\ filled}}
+\DoxyCodeLine{00047\ \ \ \textcolor{comment}{//\ with\ data\ that\ was\ encoded\ using\ the\ EncodeMeshToBuffer\ method\ in\ encode.h.}}
+\DoxyCodeLine{00048\ \ \ \textcolor{comment}{//\ The\ function\ will\ return\ nullptr\ in\ case\ the\ input\ is\ invalid\ or\ if\ it\ was}}
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//\ encoded\ with\ the\ EncodePointCloudToBuffer\ method.}}
+\DoxyCodeLine{00050\ \ \ \mbox{\hyperlink{classdraco_1_1_status_or}{StatusOr<std::unique\_ptr<Mesh>}}>\ \mbox{\hyperlink{classdraco_1_1_decoder_a8c8a283e042af356dda79a6904cb2064}{DecodeMeshFromBuffer}}(}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_decoder_buffer}{DecoderBuffer}}\ *in\_buffer);}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \textcolor{comment}{//\ Decodes\ the\ buffer\ into\ a\ provided\ geometry.\ If\ the\ geometry\ is}}
+\DoxyCodeLine{00054\ \ \ \textcolor{comment}{//\ incompatible\ with\ the\ encoded\ data.\ For\ example,\ when\ |out\_geometry|\ is}}
+\DoxyCodeLine{00055\ \ \ \textcolor{comment}{//\ draco::Mesh\ while\ the\ data\ contains\ a\ point\ cloud,\ the\ function\ will\ return}}
+\DoxyCodeLine{00056\ \ \ \textcolor{comment}{//\ an\ error\ status.}}
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{classdraco_1_1_status}{Status}}\ \mbox{\hyperlink{classdraco_1_1_decoder_abe4341cc976521fef505f299fc7fa2fe}{DecodeBufferToGeometry}}(\mbox{\hyperlink{classdraco_1_1_decoder_buffer}{DecoderBuffer}}\ *in\_buffer,}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_cloud}{PointCloud}}\ *out\_geometry);}
+\DoxyCodeLine{00059\ \ \ \mbox{\hyperlink{classdraco_1_1_status}{Status}}\ \mbox{\hyperlink{classdraco_1_1_decoder_abe4341cc976521fef505f299fc7fa2fe}{DecodeBufferToGeometry}}(\mbox{\hyperlink{classdraco_1_1_decoder_buffer}{DecoderBuffer}}\ *in\_buffer,\ \mbox{\hyperlink{classdraco_1_1_mesh}{Mesh}}\ *out\_geometry);}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \textcolor{comment}{//\ When\ set,\ the\ decoder\ is\ going\ to\ skip\ attribute\ transform\ for\ a\ given}}
+\DoxyCodeLine{00062\ \ \ \textcolor{comment}{//\ attribute\ type.\ For\ example\ for\ quantized\ attributes,\ the\ decoder\ would}}
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//\ skip\ the\ dequantization\ step\ and\ the\ returned\ geometry\ would\ contain\ an}}
+\DoxyCodeLine{00064\ \ \ \textcolor{comment}{//\ attribute\ with\ quantized\ values.\ The\ attribute\ would\ also\ contain\ an}}
+\DoxyCodeLine{00065\ \ \ \textcolor{comment}{//\ instance\ of\ AttributeTransform\ class\ that\ is\ used\ to\ describe\ the\ skipped}}
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ transform,\ including\ all\ parameters\ that\ are\ needed\ to\ perform\ the}}
+\DoxyCodeLine{00067\ \ \ \textcolor{comment}{//\ transform\ manually.}}
+\DoxyCodeLine{00068\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_decoder_a3858ec14bbb4342b594e0c43fe72d013}{SetSkipAttributeTransform}}(\mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800}{GeometryAttribute::Type}}\ att\_type);}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \textcolor{comment}{//\ Returns\ the\ options\ instance\ used\ by\ the\ decoder\ that\ can\ be\ used\ by\ users}}
+\DoxyCodeLine{00071\ \ \ \textcolor{comment}{//\ to\ control\ the\ decoding\ process.}}
+\DoxyCodeLine{00072\ \ \ \mbox{\hyperlink{namespacedraco_ad78b45d3b4365dbb8aef6c0fdb5ce005}{DecoderOptions}}\ *\mbox{\hyperlink{classdraco_1_1_decoder_af3397c3d07aa94f408e402eebb03a4d4}{options}}()\ \{\ \textcolor{keywordflow}{return}\ \&options\_;\ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00075\ \ \ \mbox{\hyperlink{namespacedraco_ad78b45d3b4365dbb8aef6c0fdb5ce005}{DecoderOptions}}\ options\_;}
+\DoxyCodeLine{00076\ \};}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_DECODE\_H\_}}
+
+\end{DoxyCode}

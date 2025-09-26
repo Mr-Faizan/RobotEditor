@@ -1,0 +1,200 @@
+\doxysection{AMFImporter.\+hpp}
+\hypertarget{_a_m_f_importer_8hpp_source}{}\label{_a_m_f_importer_8hpp_source}\index{RobotLib/libraries/assimp/code/AssetLib/AMF/AMFImporter.hpp@{RobotLib/libraries/assimp/code/AssetLib/AMF/AMFImporter.hpp}}
+\mbox{\hyperlink{_a_m_f_importer_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00003\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00004\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00005\ \textcolor{comment}{}}
+\DoxyCodeLine{00006\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00007\ \textcolor{comment}{}}
+\DoxyCodeLine{00008\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the\ following}}
+\DoxyCodeLine{00012\ \textcolor{comment}{conditions\ are\ met:}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00015\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00016\ \textcolor{comment}{following\ disclaimer.}}
+\DoxyCodeLine{00017\ \textcolor{comment}{}}
+\DoxyCodeLine{00018\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00019\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00020\ \textcolor{comment}{following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00021\ \textcolor{comment}{materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{}}
+\DoxyCodeLine{00023\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00024\ \textcolor{comment}{contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00025\ \textcolor{comment}{derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00026\ \textcolor{comment}{written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00027\ \textcolor{comment}{}}
+\DoxyCodeLine{00028\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00029\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00030\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00031\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00032\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00033\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00034\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00035\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00036\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00037\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00038\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00039\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00046\ \textcolor{comment}{//\ Thanks\ to\ acorn89\ for\ support.}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#ifndef\ INCLUDED\_AI\_AMF\_IMPORTER\_H}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#define\ INCLUDED\_AI\_AMF\_IMPORTER\_H}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_a_m_f_importer___node_8hpp}{AMFImporter\_Node.hpp}}"{}}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{comment}{//\ Header\ files,\ Assimp.}}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#include\ "{}assimp/types.h"{}}}
+\DoxyCodeLine{00056\ \textcolor{preprocessor}{\#include\ <assimp/BaseImporter.h>}}
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#include\ <assimp/XmlParser.h>}}
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\#include\ <assimp/importerdesc.h>}}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#include\ <assimp/DefaultLogger.hpp>}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{comment}{//\ Header\ files,\ stdlib.}}
+\DoxyCodeLine{00062\ \textcolor{preprocessor}{\#include\ <set>}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00100\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a773ef728497dcfd14ae4df39304d3b3e}{AMFImporter}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_assimp_1_1_base_importer_a3a26428f61d7bebdc477c4d0add9da30}{BaseImporter}}\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keyword}{using\ }AMFMetaDataArray\ =\ std::vector<AMFMetadata\ *>;}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keyword}{using\ }MeshArray\ =\ std::vector<aiMesh\ *>;}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keyword}{using\ }NodeArray\ =\ std::vector<aiNode\ *>;}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___material}{SPP\_Material}};}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___composite}{SPP\_Composite}}\ \{}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___material}{SPP\_Material}}\ *\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___composite_a28e8913bb29ddb2d065fdbe6de865c5e}{Material}};\ }
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ std::string\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___composite_ae64a30ea9f1f2c432e3f4604e2411c78}{Formula}};\ }
+\DoxyCodeLine{00112\ \ \ \ \ \};}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___texture}{SPP\_Texture}}\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ std::string\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___texture_addd9e97de830a23d200fa34bb8b8417e}{ID}};}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___texture_a2d921d1cec8d2cc0cfa46d316262f5f0}{Width}},\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___texture_a18f2fe58cd3b0cde3a3f5e1f547a750d}{Height}},\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___texture_a97efa26aff941e40c1cddbd4f52c0033}{Depth}};}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___texture_a6f585acce62dc0941b98e87bf4077c94}{Tiled}};}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___texture_afb4809f5f4214e1a9a0152141683eb36}{FormatHint}}[9];\ \textcolor{comment}{//\ 8\ for\ string\ +\ 1\ for\ terminator.}}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___texture_a250afa504e2c04427f99212cf053cd2a}{Data}};}
+\DoxyCodeLine{00121\ \ \ \ \ \};}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_complex_face}{SComplexFace}}\ \{}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_face}{aiFace}}\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_complex_face_a1599d69d7189036b8b4279e4d8bb67b1}{Face}};\ }
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_a_m_f_color}{AMFColor}}\ *\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_complex_face_aef187e83f7738cc6881c03e2a60ef9a2}{Color}};\ }
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_a_m_f_tex_map}{AMFTexMap}}\ *\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_complex_face_ac69ffc8d02ff4afe16a35670030939b4}{TexMap}};\ }
+\DoxyCodeLine{00128\ \ \ \ \ \};}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___material}{SPP\_Material}}\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ std::string\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___material_a22bc40942c7966923beda4fa800a6f58}{ID}};\ }
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ std::list<AMFMetadata\ *>\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___material_a3e3b918b511590fa07fff5b3759eca18}{Metadata}};\ }
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_a_m_f_color}{AMFColor}}\ *\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___material_a6786a8425e493174d2ce561021ffa7a2}{Color}};\ }
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ std::list<SPP\_Composite>\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___material_ace539b8377d047bd0c61d86cdb1f5022}{Composition}};\ }
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___material_a1e9c693545b87ddb2b1bcc7af45a6ec4}{GetColor}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ pX,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ pY,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ pZ)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00143\ \ \ \ \ \};}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00146\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a773ef728497dcfd14ae4df39304d3b3e}{AMFImporter}}()\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_ae032f18edd69bf6ba935ef9feb025a96}{AI\_NO\_EXCEPT}};}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00149\ \ \ \ \ \string~\mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a773ef728497dcfd14ae4df39304d3b3e}{AMFImporter}}()\ override;}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_ae2f19d53310ef5b54f5bdce46bbd098f}{ParseFile}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pFile,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler);}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a0c14cbd0ddc699098a71e320588ae361}{ParseHelper\_Node\_Enter}}(\mbox{\hyperlink{class_a_m_f_node_element_base}{AMFNodeElementBase}}\ *child);}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a297134f091bc15389459fe2bb31d46aa}{ParseHelper\_Node\_Exit}}();}
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a753e2efe6ee830f9ff710ad95b0405c3}{CanRead}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pFile,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler,\ \textcolor{keywordtype}{bool}\ pCheckSig)\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ override;}
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a9b620b62aecce98b7489d1eb54f25bd8}{InternReadFile}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pFile,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler)\ override;}
+\DoxyCodeLine{00160\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{structai_importer_desc}{aiImporterDesc}}\ *\mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_ac7ad294ea4c35ea457b565cfd8b2229d}{GetInfo}}()\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ override;}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a38726efa592db2c8fdc51f7b2cfd1bf0}{Find\_NodeElement}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pID,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{class_a_m_f_node_element_base}{AMFNodeElementBase}}::EType\ pType,\ \mbox{\hyperlink{class_a_m_f_node_element_base}{AMFNodeElementBase}}\ **pNodeElement)\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}};}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_af0fa072ffa46e867e23db2a9e2160daf}{Find\_ConvertedNode}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pID,\ NodeArray\ \&nodeArray,\ \mbox{\hyperlink{structai_node}{aiNode}}\ **pNode)\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}};}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a4f50ef50c8ce066cfa9c1034c2161948}{Find\_ConvertedMaterial}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pID,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___material}{SPP\_Material}}\ **pConvertedMaterial)\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}};}
+\DoxyCodeLine{00164\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a984a6d2ce1ae6109ceb9042e6c0b59ca}{Throw\_CloseNotFound}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&nodeName)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00165\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_aa0a05c4a9833ce3061a28541490f8cad}{Throw\_IncorrectAttr}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&nodeName,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pAttrName)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00166\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_aada635a5dbbb5a8b1bc4aaf140cd95c8}{Throw\_IncorrectAttrValue}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&nodeName,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pAttrName)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00167\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a55fb2bac9978012b384bc109accf66a6}{Throw\_MoreThanOnceDefined}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&nodeName,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pNodeType,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pDescription)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00168\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_adcffbe8b08f65484e126897a3a014f88}{Throw\_ID\_NotFound}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pID)\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a393394ef52250e7ce09ef77455192684}{XML\_CheckNode\_MustHaveChildren}}(\mbox{\hyperlink{namespacepugi}{pugi}}::xml\_node\ \&node);}
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a3c57be60be98d108cabd6a784cf9aae4}{XML\_SearchNode}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&nodeName);}
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a3082a3a110c6cf65d3c74b1977c037d5}{ParseHelper\_FixTruncatedFloatString}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \textcolor{keywordtype}{char}\ *pInStr,\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pOutString);}
+\DoxyCodeLine{00172\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a773ef728497dcfd14ae4df39304d3b3e}{AMFImporter}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a773ef728497dcfd14ae4df39304d3b3e}{AMFImporter}}\ \&pScene)\ =\ delete;}
+\DoxyCodeLine{00173\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a773ef728497dcfd14ae4df39304d3b3e}{AMFImporter}}\ \&operator=(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{class_assimp_1_1_a_m_f_importer_a773ef728497dcfd14ae4df39304d3b3e}{AMFImporter}}\ \&pScene)\ =\ delete;}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ private:}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordtype}{void}\ Clear();}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00184\ \ \ \ \ \textcolor{keywordtype}{void}\ PostprocessHelper\_CreateMeshDataArray(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{struct_a_m_f_mesh}{AMFMesh}}\ \&pNodeElement,\ \mbox{\hyperlink{namespacestd}{std}}::vector<\mbox{\hyperlink{structai_vector3_d}{aiVector3D}}>\ \&pVertexCoordinateArray,}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacestd}{std}}::vector<\mbox{\hyperlink{struct_a_m_f_color}{AMFColor}}\ *>\ \&pVertexColorArray)\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}};}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ PostprocessHelper\_GetTextureID\_Or\_Create(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pID\_R,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pID\_G,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pID\_B,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pID\_A);}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{keywordtype}{void}\ PostprocessHelper\_SplitFacesByTextureID(\mbox{\hyperlink{namespacestd}{std}}::list<\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_complex_face}{SComplexFace}}>\ \&pInputList,\ \mbox{\hyperlink{namespacestd}{std}}::list<\mbox{\hyperlink{namespacestd}{std}}::list<\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_complex_face}{SComplexFace}}>>\ \&pOutputList\_Separated);}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_AddMetadata(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ AMFMetaDataArray\ \&pMetadataList,\ \mbox{\hyperlink{structai_node}{aiNode}}\ \&pSceneNode)\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}};}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00213\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_BuildNodeAndObject(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{struct_a_m_f_object}{AMFObject}}\ \&pNodeElement,\ MeshArray\ \&meshList,\ \mbox{\hyperlink{structai_node}{aiNode}}\ **pSceneNode);}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00224\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_BuildMeshSet(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{struct_a_m_f_mesh}{AMFMesh}}\ \&pNodeElement,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::vector<\mbox{\hyperlink{structai_vector3_d}{aiVector3D}}>\ \&pVertexCoordinateArray,}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::vector<\mbox{\hyperlink{struct_a_m_f_color}{AMFColor}}\ *>\ \&pVertexColorArray,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{struct_a_m_f_color}{AMFColor}}\ *pObjectColor,}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \ \ \ \ MeshArray\ \&pMeshList,\ \mbox{\hyperlink{structai_node}{aiNode}}\ \&pSceneNode);}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_BuildMaterial(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{struct_a_m_f_material}{AMFMaterial}}\ \&pMaterial);}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00235\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_BuildConstellation(\mbox{\hyperlink{struct_a_m_f_constellation}{AMFConstellation}}\ \&pConstellation,\ NodeArray\ \&nodeArray)\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}};}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_BuildScene(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00240\ }
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseHelper\_Decode\_Base64(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ \&pInputBase64,\ \mbox{\hyperlink{namespacestd}{std}}::vector<\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}>\ \&pOutputData)\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}};}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00247\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Root();}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00250\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Constellation(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00253\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Instance(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00256\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Material(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Metadata(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Object(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00265\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Texture(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00268\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Coordinates(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00271\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Edge(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Mesh(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00277\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Triangle(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00278\ }
+\DoxyCodeLine{00280\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Vertex(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00281\ }
+\DoxyCodeLine{00283\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Vertices(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00286\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Volume(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00289\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_Color(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00290\ }
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseNode\_TexMap(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}}\ \textcolor{keywordtype}{bool}\ pUseOldName\ =\ false);}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ }
+\DoxyCodeLine{00296\ }
+\DoxyCodeLine{00297\ private:}
+\DoxyCodeLine{00298\ \ \ \ \ \mbox{\hyperlink{class_a_m_f_node_element_base}{AMFNodeElementBase}}\ *mNodeElement\_Cur;\ }
+\DoxyCodeLine{00299\ \ \ \ \ \mbox{\hyperlink{namespacestd}{std}}::list<\mbox{\hyperlink{class_a_m_f_node_element_base}{AMFNodeElementBase}}\ *>\ mNodeElement\_List;\ }
+\DoxyCodeLine{00300\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_a0484448f9ec9eab92e527c9897f0a2ed}{XmlParser}}\ *mXmlParser;}
+\DoxyCodeLine{00301\ \ \ \ \ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ mUnit;}
+\DoxyCodeLine{00302\ \ \ \ \ \mbox{\hyperlink{namespacestd}{std}}::\textcolor{keywordtype}{string}\ mVersion;}
+\DoxyCodeLine{00303\ \ \ \ \ \mbox{\hyperlink{namespacestd}{std}}::list<\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___material}{SPP\_Material}}>\ mMaterial\_Converted;\ }
+\DoxyCodeLine{00304\ \ \ \ \ \mbox{\hyperlink{namespacestd}{std}}::list<\mbox{\hyperlink{struct_assimp_1_1_a_m_f_importer_1_1_s_p_p___texture}{SPP\_Texture}}>\ mTexture\_Converted;\ }
+\DoxyCodeLine{00305\ \};}
+\DoxyCodeLine{00306\ }
+\DoxyCodeLine{00307\ \}\ \textcolor{comment}{//\ namespace\ Assimp}}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ INCLUDED\_AI\_AMF\_IMPORTER\_H}}
+
+\end{DoxyCode}

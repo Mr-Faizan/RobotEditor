@@ -1,0 +1,225 @@
+\doxysection{mesh\+\_\+edgebreaker\+\_\+traversal\+\_\+valence\+\_\+decoder.\+h}
+\hypertarget{mesh__edgebreaker__traversal__valence__decoder_8h_source}{}\label{mesh__edgebreaker__traversal__valence__decoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/mesh/mesh\_edgebreaker\_traversal\_valence\_decoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/mesh/mesh\_edgebreaker\_traversal\_valence\_decoder.h}}
+\mbox{\hyperlink{mesh__edgebreaker__traversal__valence__decoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_TRAVERSAL\_VALENCE\_DECODER\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_TRAVERSAL\_VALENCE\_DECODER\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{symbol__decoding_8h}{draco/compression/entropy/symbol\_decoding.h}}"{}}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__edgebreaker__traversal__decoder_8h}{draco/compression/mesh/mesh\_edgebreaker\_traversal\_decoder.h}}"{}}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{varint__decoding_8h}{draco/core/varint\_decoding.h}}"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ Decoder\ for\ traversal\ encoded\ with\ MeshEdgebreakerTraversalValenceEncoder.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ The\ decoder\ maintains\ valences\ of\ the\ decoded\ portion\ of\ the\ traversed\ mesh}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ and\ it\ uses\ them\ to\ select\ entropy\ context\ used\ for\ decoding\ of\ the\ actual}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ symbols.}}
+\DoxyCodeLine{00029\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_valence_decoder_a30903110eab23922c6bfbfc531f6c87b}{MeshEdgebreakerTraversalValenceDecoder}}}
+\DoxyCodeLine{00030\ \ \ \ \ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_decoder_a0dbdce460e730b9b99ca59ca60398798}{MeshEdgebreakerTraversalDecoder}}\ \{}
+\DoxyCodeLine{00031\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00032\ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_valence_decoder_a30903110eab23922c6bfbfc531f6c87b}{MeshEdgebreakerTraversalValenceDecoder}}()}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ :\ corner\_table\_(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ num\_vertices\_(0),}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ last\_symbol\_(-\/1),}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ active\_context\_(-\/1),}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ min\_valence\_(2),}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ max\_valence\_(7)\ \{\}}
+\DoxyCodeLine{00039\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_valence_decoder_ad29b8eecec72435d56da6b045529cc52}{Init}}(\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_interface}{MeshEdgebreakerDecoderImplInterface}}\ *decoder)\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_decoder_a2c9cd7ef7702512425a08333e93efeca}{MeshEdgebreakerTraversalDecoder::Init}}(decoder);}
+\DoxyCodeLine{00041\ \ \ \ \ corner\_table\_\ =\ decoder-\/>\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_interface_a552277aa688bcfa935307e4d9b425612}{GetCornerTable}}();}
+\DoxyCodeLine{00042\ \ \ \}}
+\DoxyCodeLine{00043\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_valence_decoder_ab8cb138a75d63a2972d7421a669aee17}{SetNumEncodedVertices}}(\textcolor{keywordtype}{int}\ num\_vertices)\ \{\ num\_vertices\_\ =\ num\_vertices;\ \}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_valence_decoder_aeba8ec15bd1ec09f71bc126ade2b001d}{Start}}(\mbox{\hyperlink{classdraco_1_1_decoder_buffer}{DecoderBuffer}}\ *out\_buffer)\ \{}
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#ifdef\ DRACO\_BACKWARDS\_COMPATIBILITY\_SUPPORTED}}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_decoder_a8c931e2cda223626962c1b6a88184603}{BitstreamVersion}}()\ <\ \mbox{\hyperlink{macros_8h_a6732649b03e16a7fd23539e2132d057a}{DRACO\_BITSTREAM\_VERSION}}(2,\ 2))\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_decoder_a5aa38bd4b509278b92b8501fb8e0500d}{MeshEdgebreakerTraversalDecoder::DecodeTraversalSymbols}}())\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00051\ \ \ \ \ \}}
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_decoder_a97a3187eeae22070bf5fed29a628caaa}{MeshEdgebreakerTraversalDecoder::DecodeStartFaces}}())\ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00055\ \ \ \ \ \}}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_decoder_a44c00efd04e70330130cc4755300e349}{MeshEdgebreakerTraversalDecoder::DecodeAttributeSeams}}())\ \{}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00058\ \ \ \ \ \}}
+\DoxyCodeLine{00059\ \ \ \ \ *out\_buffer\ =\ *\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_decoder_a7840c1030c54599419da003e37be18e2}{buffer}}();}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#ifdef\ DRACO\_BACKWARDS\_COMPATIBILITY\_SUPPORTED}}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_decoder_a8c931e2cda223626962c1b6a88184603}{BitstreamVersion}}()\ <\ \mbox{\hyperlink{macros_8h_a6732649b03e16a7fd23539e2132d057a}{DRACO\_BITSTREAM\_VERSION}}(2,\ 2))\ \{}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ uint32\_t\ num\_split\_symbols;}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_decoder_a8c931e2cda223626962c1b6a88184603}{BitstreamVersion}}()\ <\ \mbox{\hyperlink{macros_8h_a6732649b03e16a7fd23539e2132d057a}{DRACO\_BITSTREAM\_VERSION}}(2,\ 0))\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!out\_buffer-\/>\mbox{\hyperlink{classdraco_1_1_decoder_buffer_a8a3db0161af18bd5d9bd76e90788f711}{Decode}}(\&num\_split\_symbols))\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{namespacedraco_a1b889762d988e388641322ed23501ae1}{DecodeVarint}}(\&num\_split\_symbols,\ out\_buffer))\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_split\_symbols\ >=\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(num\_vertices\_))\ \{}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \ \ \ \ int8\_t\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}};}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!out\_buffer-\/>\mbox{\hyperlink{classdraco_1_1_decoder_buffer_a8a3db0161af18bd5d9bd76e90788f711}{Decode}}(\&\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}}))\ \{}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}}\ ==\ \mbox{\hyperlink{namespacedraco_a31780c2383b07a6b27b9fd3ffee3879ea370497d9e46a1af59c70fa4ec831c6cd}{EDGEBREAKER\_VALENCE\_MODE\_2\_7}})\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ min\_valence\_\ =\ 2;}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ max\_valence\_\ =\ 7;}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Unsupported\ mode.}}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \ \ \}\ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00090\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00091\ \ \ \ \ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ min\_valence\_\ =\ 2;}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ max\_valence\_\ =\ 7;}
+\DoxyCodeLine{00094\ \ \ \ \ \}}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_vertices\_\ <\ 0)\ \{}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00098\ \ \ \ \ \}}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{comment}{//\ Set\ the\ valences\ of\ all\ initial\ vertices\ to\ 0.}}
+\DoxyCodeLine{00100\ \ \ \ \ vertex\_valences\_.resize(num\_vertices\_,\ 0);}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ num\_unique\_valences\ =\ max\_valence\_\ -\/\ min\_valence\_\ +\ 1;}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{comment}{//\ Decode\ all\ symbols\ for\ all\ contexts.}}
+\DoxyCodeLine{00105\ \ \ \ \ context\_symbols\_.resize(num\_unique\_valences);}
+\DoxyCodeLine{00106\ \ \ \ \ context\_counters\_.resize(context\_symbols\_.size());}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ context\_symbols\_.size();\ ++i)\ \{}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ uint32\_t\ num\_symbols;}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{namespacedraco_a1b889762d988e388641322ed23501ae1}{DecodeVarint<uint32\_t>}}(\&num\_symbols,\ out\_buffer))\ \{}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_symbols\ >\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(corner\_table\_-\/>num\_faces()))\ \{}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_symbols\ >\ 0)\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ context\_symbols\_[i].resize(num\_symbols);}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_a3dfa6e78e2b501d18720c2dcd452e2e7}{DecodeSymbols}}(num\_symbols,\ 1,\ out\_buffer,\ context\_symbols\_[i].\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}());}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ All\ symbols\ are\ going\ to\ be\ processed\ from\ the\ back.}}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ context\_counters\_[i]\ =\ num\_symbols;}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00121\ \ \ \ \ \}}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00123\ \ \ \}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \textcolor{keyword}{inline}\ uint32\_t\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_valence_decoder_a0e27335fb01d5f9958e514098f02b281}{DecodeSymbol}}()\ \{}
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{comment}{//\ First\ check\ if\ we\ have\ a\ valid\ context.}}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_context\_\ !=\ -\/1)\ \{}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ context\_counter\ =\ -\/-\/context\_counters\_[active\_context\_];}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (context\_counter\ <\ 0)\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fa32faabf08038a57519af934c82a6b598}{TOPOLOGY\_INVALID}};}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ symbol\_id\ =}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ context\_symbols\_[active\_context\_][context\_counter];}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (symbol\_id\ >\ 4)\ \{}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fa32faabf08038a57519af934c82a6b598}{TOPOLOGY\_INVALID}};}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ last\_symbol\_\ =\ \mbox{\hyperlink{namespacedraco_a6cbd393571966db97746810d7f95f288}{edge\_breaker\_symbol\_to\_topology\_id}}[symbol\_id];}
+\DoxyCodeLine{00138\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00139\ \textcolor{preprocessor}{\#ifdef\ DRACO\_BACKWARDS\_COMPATIBILITY\_SUPPORTED}}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_decoder_a8c931e2cda223626962c1b6a88184603}{BitstreamVersion}}()\ <\ \mbox{\hyperlink{macros_8h_a6732649b03e16a7fd23539e2132d057a}{DRACO\_BITSTREAM\_VERSION}}(2,\ 2))\ \{}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ We\ don't\ have\ a\ predicted\ symbol\ or\ the\ symbol\ was\ mis-\/predicted.}}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Decode\ it\ directly.}}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ last\_symbol\_\ =\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_decoder_a13792584da6b4ccfc9d16689490cd02b}{MeshEdgebreakerTraversalDecoder::DecodeSymbol}}();}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00146\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ The\ first\ symbol\ must\ be\ E.}}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ last\_symbol\_\ =\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fad90e5ac018f13e15b6f7e34b38ce8939}{TOPOLOGY\_E}};}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00151\ \ \ \ \ \}}
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{keywordflow}{return}\ last\_symbol\_;}
+\DoxyCodeLine{00153\ \ \ \}}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_valence_decoder_a3f17177de4ed33e096ed6c4ec6e823ea}{NewActiveCornerReached}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner)\ \{}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ next\ =\ corner\_table\_-\/>Next(corner);}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ prev\ =\ corner\_table\_-\/>Previous(corner);}
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{comment}{//\ Update\ valences.}}
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keywordflow}{switch}\ (last\_symbol\_)\ \{}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fafcce402f65c2a7c47860e83d4a4c5459}{TOPOLOGY\_C}}:}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fa89c941ca2690911ef1bb4ce34939307e}{TOPOLOGY\_S}}:}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ vertex\_valences\_[corner\_table\_-\/>Vertex(next)]\ +=\ 1;}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ vertex\_valences\_[corner\_table\_-\/>Vertex(prev)]\ +=\ 1;}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fa337b767534b20f7f44e3f97462aaeff2}{TOPOLOGY\_R}}:}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ vertex\_valences\_[corner\_table\_-\/>Vertex(corner)]\ +=\ 1;}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ vertex\_valences\_[corner\_table\_-\/>Vertex(next)]\ +=\ 1;}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ vertex\_valences\_[corner\_table\_-\/>Vertex(prev)]\ +=\ 2;}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fad2057b987b0cd3baa543f0e75d86f909}{TOPOLOGY\_L}}:}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ vertex\_valences\_[corner\_table\_-\/>Vertex(corner)]\ +=\ 1;}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ vertex\_valences\_[corner\_table\_-\/>Vertex(next)]\ +=\ 2;}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ vertex\_valences\_[corner\_table\_-\/>Vertex(prev)]\ +=\ 1;}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fad90e5ac018f13e15b6f7e34b38ce8939}{TOPOLOGY\_E}}:}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ vertex\_valences\_[corner\_table\_-\/>Vertex(corner)]\ +=\ 2;}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ vertex\_valences\_[corner\_table\_-\/>Vertex(next)]\ +=\ 2;}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ vertex\_valences\_[corner\_table\_-\/>Vertex(prev)]\ +=\ 2;}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00182\ \ \ \ \ \}}
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{comment}{//\ Compute\ the\ new\ context\ that\ is\ going\ to\ be\ used\ to\ decode\ the\ next}}
+\DoxyCodeLine{00184\ \ \ \ \ \textcolor{comment}{//\ symbol.}}
+\DoxyCodeLine{00185\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ active\_valence\ =\ vertex\_valences\_[corner\_table\_-\/>Vertex(next)];}
+\DoxyCodeLine{00186\ \ \ \ \ \textcolor{keywordtype}{int}\ clamped\_valence;}
+\DoxyCodeLine{00187\ \ \ \ \ \textcolor{keywordflow}{if}\ (active\_valence\ <\ min\_valence\_)\ \{}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ clamped\_valence\ =\ min\_valence\_;}
+\DoxyCodeLine{00189\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (active\_valence\ >\ max\_valence\_)\ \{}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ clamped\_valence\ =\ max\_valence\_;}
+\DoxyCodeLine{00191\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ clamped\_valence\ =\ active\_valence;}
+\DoxyCodeLine{00193\ \ \ \ \ \}}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \ \ \ \ active\_context\_\ =\ (clamped\_valence\ -\/\ min\_valence\_);}
+\DoxyCodeLine{00196\ \ \ \}}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_traversal_valence_decoder_a197fd62c1ce08d98fb5bb89896a288a8}{MergeVertices}}(\mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ dest,\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ \mbox{\hyperlink{pointer_8h_adb82dfe18535e9a30aa97d275f82bd55}{source}})\ \{}
+\DoxyCodeLine{00199\ \ \ \ \ \textcolor{comment}{//\ Update\ valences\ on\ the\ merged\ vertices.}}
+\DoxyCodeLine{00200\ \ \ \ \ vertex\_valences\_[dest]\ +=\ vertex\_valences\_[\mbox{\hyperlink{pointer_8h_adb82dfe18535e9a30aa97d275f82bd55}{source}}];}
+\DoxyCodeLine{00201\ \ \ \}}
+\DoxyCodeLine{00202\ }
+\DoxyCodeLine{00203\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00204\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_corner_table}{CornerTable}}\ *corner\_table\_;}
+\DoxyCodeLine{00205\ \ \ \textcolor{keywordtype}{int}\ num\_vertices\_;}
+\DoxyCodeLine{00206\ \ \ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<VertexIndex,\ int>}}\ vertex\_valences\_;}
+\DoxyCodeLine{00207\ \ \ \textcolor{keywordtype}{int}\ last\_symbol\_;}
+\DoxyCodeLine{00208\ \ \ \textcolor{keywordtype}{int}\ active\_context\_;}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \ \ \textcolor{keywordtype}{int}\ min\_valence\_;}
+\DoxyCodeLine{00211\ \ \ \textcolor{keywordtype}{int}\ max\_valence\_;}
+\DoxyCodeLine{00212\ \ \ std::vector<std::vector<uint32\_t>>\ context\_symbols\_;}
+\DoxyCodeLine{00213\ \ \ \textcolor{comment}{//\ Points\ to\ the\ active\ symbol\ in\ each\ context.}}
+\DoxyCodeLine{00214\ \ \ std::vector<int>\ context\_counters\_;}
+\DoxyCodeLine{00215\ \};}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00219\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_TRAVERSAL\_VALENCE\_DECODER\_H\_}}
+
+\end{DoxyCode}

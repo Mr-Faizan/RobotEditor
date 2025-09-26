@@ -1,0 +1,324 @@
+\doxysection{IOStream\+Buffer.\+h}
+\hypertarget{assimp_2include_2assimp_2_i_o_stream_buffer_8h_source}{}\label{assimp_2include_2assimp_2_i_o_stream_buffer_8h_source}\index{RobotLib/libraries/assimp/include/assimp/IOStreamBuffer.h@{RobotLib/libraries/assimp/include/assimp/IOStreamBuffer.h}}
+\mbox{\hyperlink{assimp_2include_2assimp_2_i_o_stream_buffer_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00011\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00014\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00015\ \textcolor{comment}{following\ disclaimer.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00018\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00019\ \textcolor{comment}{following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00020\ \textcolor{comment}{materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00023\ \textcolor{comment}{contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00024\ \textcolor{comment}{derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00025\ \textcolor{comment}{written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00028\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00029\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00030\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00031\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00032\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00033\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00034\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00035\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00037\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{}}
+\DoxyCodeLine{00039\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#ifndef\ AI\_IOSTREAMBUFFER\_H\_INC}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#define\ AI\_IOSTREAMBUFFER\_H\_INC}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#ifdef\ \_\_GNUC\_\_}}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#pragma\ GCC\ system\_header}}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#include\ <assimp/ParsingUtils.h>}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#include\ <assimp/types.h>}}
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#include\ <assimp/IOStream.hpp>}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00062\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00063\ \textcolor{keyword}{class\ }IOStreamBuffer\ \{}
+\DoxyCodeLine{00064\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00066\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_aab0bb03fb370f47326122facd24d0c40}{IOStreamBuffer}}(\textcolor{keywordtype}{size\_t}\ cache\ =\ 4096\ *\ 4096);}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00069\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a5daa0917cf948bb2cd8500864e822abc}{\string~IOStreamBuffer}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a109aef606101c5dd293f463979e5fd91}{open}}(\mbox{\hyperlink{class_assimp_1_1_i_o_stream}{IOStream}}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}});}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a583904a599f6fcd16fec708f3d8acad6}{close}}();}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a7c869c41abd7d33bcce59813b58bc0ba}{size}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_ab82ffc1a3aac15f848e6198636443d6a}{cacheSize}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a8ba73b5ea05de640d58ecf9f70bc4297}{readNextBlock}}();}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_aa1d83ef42e385e70cfad5f4df57add4a}{getNumBlocks}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a503f2433451043f73d6635b95dd289b6}{getCurrentBlockIndex}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a09c0c4089edfe306116499f93479216a}{getFilePos}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_af5d1dcd344faa2aa449c652ee6f3e969}{getNextDataLine}}(std::vector<T>\ \&buffer,\ T\ continuationToken);}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a39202109e37a8893980fc2d4cb2c42d6}{getNextLine}}(std::vector<T>\ \&buffer);}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a1688702fcfabf892f5ede62aed4d9158}{getNextBlock}}(std::vector<T>\ \&buffer);}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00120\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_i_o_stream}{IOStream}}\ *m\_stream;}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ m\_filesize;}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ m\_cacheSize;}
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ m\_numBlocks;}
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ m\_blockIdx;}
+\DoxyCodeLine{00125\ \ \ \ \ std::vector<T>\ m\_cache;}
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ m\_cachePos;}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ m\_filePos;}
+\DoxyCodeLine{00128\ \};}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00131\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_ad360ca023c5112f6f8f25ded92c3c9f6}{IOStreamBuffer<T>::IOStreamBuffer}}(\textcolor{keywordtype}{size\_t}\ cache)\ :}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ m\_stream(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ m\_filesize(0),}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ m\_cacheSize(cache),}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ m\_numBlocks(0),}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ m\_blockIdx(0),}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ m\_cachePos(0),}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ m\_filePos(0)\ \{}
+\DoxyCodeLine{00139\ \ \ \ \ m\_cache.resize(cache);}
+\DoxyCodeLine{00140\ \ \ \ \ std::fill(m\_cache.begin(),\ m\_cache.end(),\ \textcolor{charliteral}{'\(\backslash\)n'});}
+\DoxyCodeLine{00141\ \}}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00144\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a66c14bc6c35b33bf470be66c470e7a8f}{IOStreamBuffer<T>::open}}(IOStream\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}})\ \{}
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{comment}{//\ \ file\ still\ opened!}}
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{nullptr}\ !=\ m\_stream)\ \{}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00148\ \ \ \ \ \}}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{comment}{//\ \ Invalid\ stream\ pointer}}
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{nullptr}\ ==\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}})\ \{}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00153\ \ \ \ \ \}}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \ \ \ \ m\_stream\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}};}
+\DoxyCodeLine{00156\ \ \ \ \ m\_filesize\ =\ m\_stream-\/>FileSize();}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_filesize\ ==\ 0)\ \{}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00159\ \ \ \ \ \}}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_filesize\ <\ m\_cacheSize)\ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ m\_cacheSize\ =\ m\_filesize;}
+\DoxyCodeLine{00162\ \ \ \ \ \}}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \ \ m\_numBlocks\ =\ m\_filesize\ /\ m\_cacheSize;}
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{keywordflow}{if}\ ((m\_filesize\ \%\ m\_cacheSize)\ >\ 0)\ \{}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ m\_numBlocks++;}
+\DoxyCodeLine{00167\ \ \ \ \ \}}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00170\ \}}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00173\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a37d88ec985f715f926f1b37052893922}{IOStreamBuffer<T>::close}}()\ \{}
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{nullptr}\ ==\ m\_stream)\ \{}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00176\ \ \ \ \ \}}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{comment}{//\ init\ counters\ and\ state\ vars}}
+\DoxyCodeLine{00179\ \ \ \ \ m\_stream\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00180\ \ \ \ \ m\_filesize\ =\ 0;}
+\DoxyCodeLine{00181\ \ \ \ \ m\_numBlocks\ =\ 0;}
+\DoxyCodeLine{00182\ \ \ \ \ m\_blockIdx\ =\ 0;}
+\DoxyCodeLine{00183\ \ \ \ \ m\_cachePos\ =\ 0;}
+\DoxyCodeLine{00184\ \ \ \ \ m\_filePos\ =\ 0;}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00187\ \}}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00190\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_abe0e9a33241889b300000424935957d7}{IOStreamBuffer<T>::size}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00193\ \ \ \ \ \textcolor{keywordflow}{return}\ m\_filesize;}
+\DoxyCodeLine{00194\ \}}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00197\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a9bc1e05e0c6d26151b9185ba0f949756}{IOStreamBuffer<T>::cacheSize}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00200\ \ \ \ \ \textcolor{keywordflow}{return}\ m\_cacheSize;}
+\DoxyCodeLine{00201\ \}}
+\DoxyCodeLine{00202\ }
+\DoxyCodeLine{00203\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00204\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a79cade42575d01ca83103c4c6ef999e3}{IOStreamBuffer<T>::readNextBlock}}()\ \{}
+\DoxyCodeLine{00205\ \ \ \ \ m\_stream-\/>Seek(m\_filePos,\ \mbox{\hyperlink{assimp-install_2include_2assimp_2types_8h_ac50fbaa57d78776ca99e42104d9b2786a94a44e681b6c891e39767c518b64b56f}{aiOrigin\_SET}});}
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ readLen\ =\ m\_stream-\/>Read(\&m\_cache[0],\ \textcolor{keyword}{sizeof}(T),\ m\_cacheSize);}
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{keywordflow}{if}\ (readLen\ ==\ 0)\ \{}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00209\ \ \ \ \ \}}
+\DoxyCodeLine{00210\ \ \ \ \ \textcolor{keywordflow}{if}\ (readLen\ <\ m\_cacheSize)\ \{}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ m\_cacheSize\ =\ readLen;}
+\DoxyCodeLine{00212\ \ \ \ \ \}}
+\DoxyCodeLine{00213\ \ \ \ \ m\_filePos\ +=\ m\_cacheSize;}
+\DoxyCodeLine{00214\ \ \ \ \ m\_cachePos\ =\ 0;}
+\DoxyCodeLine{00215\ \ \ \ \ m\_blockIdx++;}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00218\ \}}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00220\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00221\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_aa94a8c9a0c831793c95f08297bfd2333}{IOStreamBuffer<T>::getNumBlocks}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00222\ \ \ \ \ \textcolor{keywordflow}{return}\ m\_numBlocks;}
+\DoxyCodeLine{00223\ \}}
+\DoxyCodeLine{00224\ }
+\DoxyCodeLine{00225\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00226\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a6d2b4c96f23ef78f912389195efe974d}{IOStreamBuffer<T>::getCurrentBlockIndex}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keywordflow}{return}\ m\_blockIdx;}
+\DoxyCodeLine{00228\ \}}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00230\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00231\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_a7e830d938c2e8eae737e1151e0b72f4f}{IOStreamBuffer<T>::getFilePos}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00232\ \ \ \ \ \textcolor{keywordflow}{return}\ m\_filePos;}
+\DoxyCodeLine{00233\ \}}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00235\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00236\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_adaa7761b2120cf17f8ac802bf732baf6}{IOStreamBuffer<T>::getNextDataLine}}(std::vector<T>\ \&buffer,\ T\ continuationToken)\ \{}
+\DoxyCodeLine{00237\ \ \ \ \ buffer.resize(m\_cacheSize);}
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_cachePos\ >=\ m\_cacheSize\ ||\ 0\ ==\ m\_filePos)\ \{}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!readNextBlock())\ \{}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00242\ \ \ \ \ \}}
+\DoxyCodeLine{00243\ }
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ i\ =\ 0;}
+\DoxyCodeLine{00245\ \ \ \ \ \textcolor{keywordflow}{for}\ (;;)\ \{}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (continuationToken\ ==\ m\_cache[m\_cachePos]\ \&\&\ \mbox{\hyperlink{namespace_assimp_a99092e9b63e3e8bb88dc63e141d7157f}{IsLineEnd}}(m\_cache[m\_cachePos\ +\ 1]))\ \{}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ ++m\_cachePos;}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (m\_cache[m\_cachePos]\ !=\ \textcolor{charliteral}{'\(\backslash\)n'})\ \{}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++m\_cachePos;}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \ \ \ \ ++m\_cachePos;}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespace_assimp_a99092e9b63e3e8bb88dc63e141d7157f}{IsLineEnd}}(m\_cache[m\_cachePos]))\ \{}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00255\ }
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \ \ buffer[i]\ =\ m\_cache[m\_cachePos];}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \ \ ++m\_cachePos;}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ ++i;}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(i\ ==\ buffer.size())\ \{}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \ \ \ \ \ \ buffer.resize(buffer.size()\ *\ 2);}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_cachePos\ >=\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}}())\ \{}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_cachePos\ >=\ m\_cacheSize)\ \{}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!readNextBlock())\ \{}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00272\ \ \ \ \ \}}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00274\ \ \ \ \ buffer[i]\ =\ \textcolor{charliteral}{'\(\backslash\)n'};}
+\DoxyCodeLine{00275\ \ \ \ \ ++m\_cachePos;}
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00277\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00278\ \}}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \textcolor{keyword}{static}\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \textcolor{keywordtype}{bool}\ isEndOfCache(\textcolor{keywordtype}{size\_t}\ pos,\ \textcolor{keywordtype}{size\_t}\ cacheSize)\ \{}
+\DoxyCodeLine{00281\ \ \ \ \ \textcolor{keywordflow}{return}\ (pos\ ==\ cacheSize);}
+\DoxyCodeLine{00282\ \}}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00285\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_ad25f465cec695363c75b218ab21d9d08}{IOStreamBuffer<T>::getNextLine}}(std::vector<T>\ \&buffer)\ \{}
+\DoxyCodeLine{00286\ \ \ \ \ buffer.resize(m\_cacheSize);}
+\DoxyCodeLine{00287\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_cachePos\ >=\ m\_cacheSize\ ||\ 0\ ==\ m\_filePos)\ \{}
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!readNextBlock())\ \{}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00291\ \ \ \ \ \}}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespace_assimp_a99092e9b63e3e8bb88dc63e141d7157f}{IsLineEnd}}(m\_cache[m\_cachePos]))\ \{}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ skip\ line\ end}}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (m\_cache[m\_cachePos]\ !=\ \textcolor{charliteral}{'\(\backslash\)n'})\ \{}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ \ \ \ \ ++m\_cachePos;}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \ \ ++m\_cachePos;}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (isEndOfCache(m\_cachePos,\ m\_cacheSize))\ \{}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!readNextBlock())\ \{}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00304\ \ \ \ \ \}}
+\DoxyCodeLine{00305\ }
+\DoxyCodeLine{00306\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ i(0);}
+\DoxyCodeLine{00307\ \ \ \ \ \textcolor{keywordflow}{while}\ (!\mbox{\hyperlink{namespace_assimp_a99092e9b63e3e8bb88dc63e141d7157f}{IsLineEnd}}(m\_cache[m\_cachePos]))\ \{}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \ \ buffer[i]\ =\ m\_cache[m\_cachePos];}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ ++m\_cachePos;}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ ++i;}
+\DoxyCodeLine{00311\ }
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(i\ ==\ buffer.size())\ \{}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \ \ \ \ buffer.resize(buffer.size()\ *\ 2);}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_cachePos\ >=\ m\_cacheSize)\ \{}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!readNextBlock())\ \{}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00321\ \ \ \ \ \}}
+\DoxyCodeLine{00322\ \ \ \ \ buffer[i]\ =\ \textcolor{charliteral}{'\(\backslash\)n'};}
+\DoxyCodeLine{00323\ \ \ \ \ \textcolor{keywordflow}{while}\ (m\_cachePos\ <\ m\_cacheSize\ \&\&\ (m\_cache[m\_cachePos]\ ==\ \textcolor{charliteral}{'\(\backslash\)r'}\ ||\ m\_cache[m\_cachePos]\ ==\ \textcolor{charliteral}{'\(\backslash\)n'}))\ \{}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ ++m\_cachePos;}
+\DoxyCodeLine{00325\ \ \ \ \ \}}
+\DoxyCodeLine{00326\ }
+\DoxyCodeLine{00327\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00328\ \}}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00331\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_i_o_stream_buffer_ae4e4be6dd4284644f9b99e11b95a66a4}{IOStreamBuffer<T>::getNextBlock}}(std::vector<T>\ \&buffer)\ \{}
+\DoxyCodeLine{00332\ \ \ \ \ \textcolor{comment}{//\ Return\ the\ last\ block-\/value\ if\ getNextLine\ was\ used\ before}}
+\DoxyCodeLine{00333\ \ \ \ \ \textcolor{keywordflow}{if}\ (0\ !=\ m\_cachePos)\ \{}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ buffer\ =\ std::vector<T>(m\_cache.begin()\ +\ m\_cachePos,\ m\_cache.end());}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \ \ m\_cachePos\ =\ 0;}
+\DoxyCodeLine{00336\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!readNextBlock())\ \{}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \ \ buffer\ =\ std::vector<T>(m\_cache.begin(),\ m\_cache.end());}
+\DoxyCodeLine{00342\ \ \ \ \ \}}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00344\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00345\ \}}
+\DoxyCodeLine{00346\ }
+\DoxyCodeLine{00347\ \}\ \textcolor{comment}{//\ namespace\ Assimp}}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ AI\_IOSTREAMBUFFER\_H\_INC}}
+
+\end{DoxyCode}

@@ -1,0 +1,346 @@
+\doxysection{o3dgc\+Arithmetic\+Codec.\+h}
+\hypertarget{o3dgc_arithmetic_codec_8h_source}{}\label{o3dgc_arithmetic_codec_8h_source}\index{RobotLib/libraries/assimp/contrib/Open3DGC/o3dgcArithmeticCodec.h@{RobotLib/libraries/assimp/contrib/Open3DGC/o3dgcArithmeticCodec.h}}
+\mbox{\hyperlink{o3dgc_arithmetic_codec_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Copyright\ (c)\ 2004\ Amir\ Said\ (said@ieee.org)\ \&\ William\ A.\ Pearlman\ (pearlw@ecse.rpi.edu)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Redistribution\ and\ use\ in\ source\ and\ binary\ forms,\ with\ or\ without\ modification,\ }}
+\DoxyCodeLine{00006\ \textcolor{comment}{are\ permitted\ provided\ that\ the\ following\ conditions\ are\ met:}}
+\DoxyCodeLine{00007\ \textcolor{comment}{}}
+\DoxyCodeLine{00008\ \textcolor{comment}{-\/\ \ \ Redistributions\ of\ source\ code\ must\ retain\ the\ above\ copyright\ notice,\ this\ list\ }}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ \ \ \ of\ conditions\ and\ the\ following\ disclaimer.\ }}
+\DoxyCodeLine{00010\ \textcolor{comment}{}}
+\DoxyCodeLine{00011\ \textcolor{comment}{-\/\ \ \ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above\ copyright\ notice,\ this\ list\ of\ }}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ \ \ \ conditions\ and\ the\ following\ disclaimer\ in\ the\ documentation\ and/or\ other\ materials\ }}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ \ \ \ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{}}
+\DoxyCodeLine{00015\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS\ "{}AS\ IS"{}\ AND\ ANY\ }}
+\DoxyCodeLine{00016\ \textcolor{comment}{EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT\ LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ }}
+\DoxyCodeLine{00017\ \textcolor{comment}{MERCHANTABILITY\ AND\ FITNESS\ FOR\ A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ }}
+\DoxyCodeLine{00018\ \textcolor{comment}{THE\ COPYRIGHT\ HOLDER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,\ }}
+\DoxyCodeLine{00019\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT\ LIMITED\ TO,\ }}
+\DoxyCodeLine{00020\ \textcolor{comment}{PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,\ DATA,\ OR\ PROFITS;\ }}
+\DoxyCodeLine{00021\ \textcolor{comment}{OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY\ THEORY\ OF\ LIABILITY,\ WHETHER\ }}
+\DoxyCodeLine{00022\ \textcolor{comment}{IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT\ (INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ }}
+\DoxyCodeLine{00023\ \textcolor{comment}{IN\ ANY\ WAY\ OUT\ OF\ THE\ USE\ OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ }}
+\DoxyCodeLine{00024\ \textcolor{comment}{OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00025\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ****************************\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ARITHMETIC\ CODING\ EXAMPLES\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ****************************\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ Fast\ arithmetic\ coding\ implementation\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ -\/>\ 32-\/bit\ variables,\ 32-\/bit\ product,\ periodic\ updates,\ table\ decoding\ \ \ \ \ -\/}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ Version\ 1.00\ \ -\/\ \ April\ 25,\ 2004\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00042\ \textcolor{comment}{//\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00043\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00044\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ WARNING\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00045\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =========\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00046\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00047\ \textcolor{comment}{//\ The\ only\ purpose\ of\ this\ program\ is\ to\ demonstrate\ the\ basic\ principles\ \ \ -\/}}
+\DoxyCodeLine{00048\ \textcolor{comment}{//\ of\ arithmetic\ coding.\ It\ is\ provided\ as\ is,\ without\ any\ express\ or\ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00049\ \textcolor{comment}{//\ implied\ warranty,\ without\ even\ the\ warranty\ of\ fitness\ for\ any\ particular\ -\/}}
+\DoxyCodeLine{00050\ \textcolor{comment}{//\ purpose,\ or\ that\ the\ implementations\ are\ correct.\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00051\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00052\ \textcolor{comment}{//\ Permission\ to\ copy\ and\ redistribute\ this\ code\ is\ hereby\ granted,\ provided\ -\/}}
+\DoxyCodeLine{00053\ \textcolor{comment}{//\ that\ this\ warning\ and\ copyright\ notices\ are\ not\ removed\ or\ altered.\ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00054\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00055\ \textcolor{comment}{//\ Copyright\ (c)\ 2004\ by\ Amir\ Said\ (said@ieee.org)\ \&\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00056\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ William\ A.\ Pearlman\ (pearlw@ecse.rpi.edu)\ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00057\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00058\ \textcolor{comment}{//\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00059\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00060\ \textcolor{comment}{//\ A\ description\ of\ the\ arithmetic\ coding\ method\ used\ here\ is\ available\ in\ \ \ -\/}}
+\DoxyCodeLine{00061\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00062\ \textcolor{comment}{//\ Lossless\ Compression\ Handbook,\ ed.\ K.\ Sayood\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00063\ \textcolor{comment}{//\ Chapter\ 5:\ Arithmetic\ Coding\ (A.\ Said),\ pp.\ 101-\/152,\ Academic\ Press,\ 2003\ -\/}}
+\DoxyCodeLine{00064\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00065\ \textcolor{comment}{//\ A.\ Said,\ Introduction\ to\ Arithetic\ Coding\ Theory\ and\ Practice\ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00066\ \textcolor{comment}{//\ HP\ Labs\ report\ HPL-\/2004-\/76\ \ -\/\ \ http://www.hpl.hp.com/techreports/\ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00067\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/}}
+\DoxyCodeLine{00068\ \textcolor{comment}{//\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \textcolor{comment}{//\ -\/\ -\/\ Definitions\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \textcolor{preprocessor}{\#ifndef\ O3DGC\_ARITHMETIC\_CODEC}}
+\DoxyCodeLine{00074\ \textcolor{preprocessor}{\#define\ O3DGC\_ARITHMETIC\_CODEC}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \textcolor{preprocessor}{\#include\ <stdio.h>}}
+\DoxyCodeLine{00077\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{o3dgc_common_8h}{o3dgcCommon.h}}"{}}}
+\DoxyCodeLine{00078\ \textcolor{preprocessor}{\#include\ <assimp/defs.h>}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespaceo3dgc}{o3dgc}}}
+\DoxyCodeLine{00081\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{comment}{//\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{comment}{//\ -\/\ -\/\ Class\ definitions\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classo3dgc_1_1_static___bit___model_afd1bec6cfb72190b635ab546125d9366}{Static\_Bit\_Model}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ static\ model\ for\ binary\ data}}
+\DoxyCodeLine{00086\ \ \ \ \ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_static___bit___model_afd1bec6cfb72190b635ab546125d9366}{Static\_Bit\_Model}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classo3dgc_1_1_static___bit___model_ac5fc8cd177068fb673f6eed70d516844}{set\_probability\_0}}(\textcolor{keywordtype}{double});\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ set\ probability\ of\ symbol\ '0'}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keyword}{private}:\ \ \textcolor{comment}{//\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .}}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ bit\_0\_prob;}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classo3dgc_1_1_static___bit___model_a010899680e9b2cf79f8f24f4a1af3444}{Arithmetic\_Codec}};}
+\DoxyCodeLine{00096\ \ \ \ \ \};}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{comment}{//\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classo3dgc_1_1_static___data___model_ab6f9a60805314c160b5aa14cdffc1013}{Static\_Data\_Model}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ static\ model\ for\ general\ data}}
+\DoxyCodeLine{00101\ \ \ \ \ \{}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_static___data___model_ab6f9a60805314c160b5aa14cdffc1013}{Static\_Data\_Model}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00105\ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_static___data___model_a2674633b35ab41e9aba31e6a98f7db4e}{\string~Static\_Data\_Model}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{classo3dgc_1_1_static___data___model_aed755658c76b8c11efac187f60d3c647}{model\_symbols}}(\textcolor{keywordtype}{void})\ \{\ \textcolor{keywordflow}{return}\ data\_symbols;\ \}}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classo3dgc_1_1_static___data___model_a1fae3043b01f699e39ee98acaed9a4cf}{set\_distribution}}(\textcolor{keywordtype}{unsigned}\ number\_of\_symbols,}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ probability[]\ =\ 0);\ \ \ \ \textcolor{comment}{//\ 0\ means\ uniform}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keyword}{private}:\ \ \textcolor{comment}{//\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .}}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ *\ distribution,\ *\ decoder\_table;}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ data\_symbols,\ last\_symbol,\ table\_size,\ table\_shift;}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classo3dgc_1_1_static___data___model_a010899680e9b2cf79f8f24f4a1af3444}{Arithmetic\_Codec}};}
+\DoxyCodeLine{00116\ \ \ \ \ \};}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{comment}{//\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model_a814ed2d186b3aa8fb387b4b8702fd4d6}{Adaptive\_Bit\_Model}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ adaptive\ model\ for\ binary\ data}}
+\DoxyCodeLine{00121\ \ \ \ \ \{}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model_a814ed2d186b3aa8fb387b4b8702fd4d6}{Adaptive\_Bit\_Model}}(\textcolor{keywordtype}{void});\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model_a383beb36a340868552624a7684f3f52b}{reset}}(\textcolor{keywordtype}{void});\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ reset\ to\ equiprobable\ model}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keyword}{private}:\ \ \textcolor{comment}{//\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .}}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ update(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ update\_cycle,\ bits\_until\_update;}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ bit\_0\_prob,\ bit\_0\_count,\ bit\_count;}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model_a010899680e9b2cf79f8f24f4a1af3444}{Arithmetic\_Codec}};}
+\DoxyCodeLine{00133\ \ \ \ \ \};}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{comment}{//\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model_a9d8189031b82e3f30a0e0b6de022cb98}{Adaptive\_Data\_Model}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ adaptive\ model\ for\ binary\ data}}
+\DoxyCodeLine{00138\ \ \ \ \ \{}
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model_a9d8189031b82e3f30a0e0b6de022cb98}{Adaptive\_Data\_Model}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model_a9d8189031b82e3f30a0e0b6de022cb98}{Adaptive\_Data\_Model}}(\textcolor{keywordtype}{unsigned}\ number\_of\_symbols);}
+\DoxyCodeLine{00143\ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model_abad2537c4b65d63376dcd1d352d60bde}{\string~Adaptive\_Data\_Model}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model_af8393561b0f33f31d0a8de24b258878b}{model\_symbols}}(\textcolor{keywordtype}{void})\ \{\ \textcolor{keywordflow}{return}\ data\_symbols;\ \}}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model_a2ee2085517b0c2173d5cf143d8ecc95a}{reset}}(\textcolor{keywordtype}{void});\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ reset\ to\ equiprobable\ model}}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model_a4ab67667ecbdd04bd46e0c4d5f13b922}{set\_alphabet}}(\textcolor{keywordtype}{unsigned}\ number\_of\_symbols);}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keyword}{private}:\ \ \textcolor{comment}{//\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .}}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ update(\textcolor{keywordtype}{bool});}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ *\ distribution,\ *\ symbol\_count,\ *\ decoder\_table;}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ total\_count,\ update\_cycle,\ symbols\_until\_update;}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ data\_symbols,\ last\_symbol,\ table\_size,\ table\_shift;}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model_a010899680e9b2cf79f8f24f4a1af3444}{Arithmetic\_Codec}};}
+\DoxyCodeLine{00156\ \ \ \ \ \};}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{comment}{//\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{comment}{//\ -\/\ -\/\ Encoder\ and\ decoder\ class\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/\ -\/}}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{comment}{//\ Class\ with\ both\ the\ arithmetic\ encoder\ and\ decoder.\ \ All\ compressed\ data\ is}}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{comment}{//\ saved\ to\ a\ memory\ buffer}}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_ad15ba34ab3576a1541dd920becd09ede}{Arithmetic\_Codec}}}
+\DoxyCodeLine{00166\ \ \ \ \ \{}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_ad15ba34ab3576a1541dd920becd09ede}{Arithmetic\_Codec}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00170\ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_ab73d9e5f65ea3e5a3e725a396f0d25e7}{\string~Arithmetic\_Codec}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_ad15ba34ab3576a1541dd920becd09ede}{Arithmetic\_Codec}}(\textcolor{keywordtype}{unsigned}\ max\_code\_bytes,}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *\ user\_buffer\ =\ 0);\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 0\ =\ assign\ new}}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *\ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_abc0b9002efd3eb4358d74b9977ad35d1}{buffer}}(\textcolor{keywordtype}{void})\ \{\ \textcolor{keywordflow}{return}\ code\_buffer;\ \}}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a06c4f25ac86cffb72de69b1869bf921b}{set\_buffer}}(\textcolor{keywordtype}{unsigned}\ max\_code\_bytes,}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *\ user\_buffer\ =\ 0);\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 0\ =\ assign\ new}}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_aed09dbffe061095ef5f0a013019e242e}{start\_encoder}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a249c42cf16d48ae3de193fc450caa4f6}{start\_decoder}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a94951f2cfc42f1fe45ae11a68506125f}{read\_from\_file}}(FILE\ *\ code\_file);\ \ \textcolor{comment}{//\ read\ code\ data,\ start\ decoder}}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_ad21face568a9a0f0fa0c4a8e96f14736}{stop\_encoder}}(\textcolor{keywordtype}{void});\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ returns\ number\ of\ bytes\ used}}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_afc03c49788330e4dda845ad96c707ff8}{write\_to\_file}}(FILE\ *\ code\_file);\ \ \ \textcolor{comment}{//\ stop\ encoder,\ write\ code\ data}}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_ad1e2f32b861d619bd39829aea525bf0d}{stop\_decoder}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a6d9cb2217277a1050c31c1154d28a3dc}{put\_bit}}(\textcolor{keywordtype}{unsigned}\ bit);}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0c91b09991af8c6b2bff8eab715d41a6}{get\_bit}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a28bb91b12acd003142b8729c60a7a005}{put\_bits}}(\textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}},\ \textcolor{keywordtype}{unsigned}\ number\_of\_bits);}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a5b18fa16299ae7b350162dc7c24e5239}{get\_bits}}(\textcolor{keywordtype}{unsigned}\ number\_of\_bits);}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0fe85535a9a0c185364da7dce752f311}{encode}}(\textcolor{keywordtype}{unsigned}\ bit,}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_static___bit___model}{Static\_Bit\_Model}}\ \&);}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a7769266855d87ff2696fd75d2e7edfa1}{decode}}(\mbox{\hyperlink{classo3dgc_1_1_static___bit___model}{Static\_Bit\_Model}}\ \&);}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0fe85535a9a0c185364da7dce752f311}{encode}}(\textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}},}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_static___data___model}{Static\_Data\_Model}}\ \&);}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a7769266855d87ff2696fd75d2e7edfa1}{decode}}(\mbox{\hyperlink{classo3dgc_1_1_static___data___model}{Static\_Data\_Model}}\ \&);}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0fe85535a9a0c185364da7dce752f311}{encode}}(\textcolor{keywordtype}{unsigned}\ bit,}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model}{Adaptive\_Bit\_Model}}\ \&);}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a7769266855d87ff2696fd75d2e7edfa1}{decode}}(\mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model}{Adaptive\_Bit\_Model}}\ \&);}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0fe85535a9a0c185364da7dce752f311}{encode}}(\textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}},}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model}{Adaptive\_Data\_Model}}\ \&);}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a7769266855d87ff2696fd75d2e7edfa1}{decode}}(\mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model}{Adaptive\_Data\_Model}}\ \&);}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \textcolor{comment}{//\ \ \ This\ section\ was\ added\ by\ K.\ Mammou}}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a471e374d8707e8442a1d849a4a4602e4}{ExpGolombEncode}}(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ symbol,\ }
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ k,}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_static___bit___model}{Static\_Bit\_Model}}\ \&\ bModel0,}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model}{Adaptive\_Bit\_Model}}\ \&\ bModel1)}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}(1)}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (symbol\ >=\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int})(1<<k))}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0fe85535a9a0c185364da7dce752f311}{encode}}(1,\ bModel1);}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ symbol\ =\ symbol\ -\/\ (1<<k);}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ k++;}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0fe85535a9a0c185364da7dce752f311}{encode}}(0,\ bModel1);\ \textcolor{comment}{//\ now\ terminated\ zero\ of\ unary\ part}}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (k-\/-\/)\ \textcolor{comment}{//\ next\ binary\ part}}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0fe85535a9a0c185364da7dce752f311}{encode}}((\textcolor{keywordtype}{signed}\ \textcolor{keywordtype}{short})((symbol>>k)\&1),\ bModel0);}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00236\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a9bf7ba47650ec649e3d23e04f82a8bb1}{ExpGolombDecode}}(\textcolor{keywordtype}{int}\ k,}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_static___bit___model}{Static\_Bit\_Model}}\ \&\ bModel0,}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model}{Adaptive\_Bit\_Model}}\ \&\ bModel1)}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ l;}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ symbol\ =\ 0;}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ binary\_symbol\ =\ 0;}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{do}}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ l=\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a7769266855d87ff2696fd75d2e7edfa1}{decode}}(bModel1);}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (l==1)}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ symbol\ +=\ (1<<k);}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ k++;}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (l!=0);}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (k-\/-\/)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//next\ binary\ part}}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a7769266855d87ff2696fd75d2e7edfa1}{decode}}(bModel0)==1)}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ binary\_symbol\ |=\ (1<<k);}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int})\ (symbol+binary\_symbol);}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00260\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00261\ }
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keyword}{private}:\ \ \textcolor{comment}{//\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .\ \ .}}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ propagate\_carry(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ renorm\_enc\_interval(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ renorm\_dec\_interval(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *\ code\_buffer,\ *\ new\_buffer,\ *\ ac\_pointer;}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ base,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}},\ length;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ arithmetic\ coding\ state}}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ buffer\_size,\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}};\ \ \ \ \ \textcolor{comment}{//\ mode:\ 0\ =\ undef,\ 1\ =\ encoder,\ 2\ =\ decoder}}
+\DoxyCodeLine{00269\ \ \ \ \ \};}
+\DoxyCodeLine{00270\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{namespaceo3dgc_a911d0282dc761b2cdb97e47a05b62b70}{DecodeIntACEGC}}(\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec}{Arithmetic\_Codec}}\ \&\ acd,}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model}{Adaptive\_Data\_Model}}\ \&\ mModelValues,}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_static___bit___model}{Static\_Bit\_Model}}\ \&\ bModel0,}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model}{Adaptive\_Bit\_Model}}\ \&\ bModel1,}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ exp\_k,}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ M)}
+\DoxyCodeLine{00276\ \ \ \ \ \{}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ uiValue\ =\ acd.\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a7769266855d87ff2696fd75d2e7edfa1}{decode}}(mModelValues);}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (uiValue\ ==\ M)\ }
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \ \ \ \ uiValue\ +=\ acd.\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a9bf7ba47650ec649e3d23e04f82a8bb1}{ExpGolombDecode}}(exp\_k,\ bModel0,\ bModel1);}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespaceo3dgc_a2e219156aee80fe6d563792873382775}{UIntToInt}}(uiValue);}
+\DoxyCodeLine{00283\ \ \ \ \ \}}
+\DoxyCodeLine{00284\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{namespaceo3dgc_ab02fea38c1673a7ef809b59e7cc95f91}{DecodeUIntACEGC}}(\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec}{Arithmetic\_Codec}}\ \&\ acd,}
+\DoxyCodeLine{00285\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model}{Adaptive\_Data\_Model}}\ \&\ mModelValues,}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_static___bit___model}{Static\_Bit\_Model}}\ \&\ bModel0,}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model}{Adaptive\_Bit\_Model}}\ \&\ bModel1,}
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ exp\_k,}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ M)}
+\DoxyCodeLine{00290\ \ \ \ \ \{}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ uiValue\ =\ acd.\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a7769266855d87ff2696fd75d2e7edfa1}{decode}}(mModelValues);}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (uiValue\ ==\ M)\ }
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \ \ \ \ uiValue\ +=\ acd.\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a9bf7ba47650ec649e3d23e04f82a8bb1}{ExpGolombDecode}}(exp\_k,\ bModel0,\ bModel1);}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ uiValue;}
+\DoxyCodeLine{00297\ \ \ \ \ \}}
+\DoxyCodeLine{00298\ }
+\DoxyCodeLine{00299\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespaceo3dgc_aaa228efe3a46f0822fca3726182f889a}{EncodeIntACEGC}}(\textcolor{keywordtype}{long}\ predResidual,\ }
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec}{Arithmetic\_Codec}}\ \&\ ace,}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model}{Adaptive\_Data\_Model}}\ \&\ mModelValues,}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_static___bit___model}{Static\_Bit\_Model}}\ \&\ bModel0,}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model}{Adaptive\_Bit\_Model}}\ \&\ bModel1,}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ M)}
+\DoxyCodeLine{00305\ \ \ \ \ \{}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ uiValue\ =\ \mbox{\hyperlink{namespaceo3dgc_aeecd3c1ce6cab851cb972922eedcc92c}{IntToUInt}}(predResidual);}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (uiValue\ <\ M)\ }
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \ \ \ \ ace.\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0fe85535a9a0c185364da7dce752f311}{encode}}(uiValue,\ mModelValues);}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ }
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \ \ \ \ ace.\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0fe85535a9a0c185364da7dce752f311}{encode}}(M,\ mModelValues);}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \ \ \ \ ace.\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a471e374d8707e8442a1d849a4a4602e4}{ExpGolombEncode}}(uiValue-\/M,\ 0,\ bModel0,\ bModel1);}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00316\ \ \ \ \ \}}
+\DoxyCodeLine{00317\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespaceo3dgc_a5036b2ac5bff1d1eddcdb2edd4b169d2}{EncodeUIntACEGC}}(\textcolor{keywordtype}{long}\ predResidual,\ }
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec}{Arithmetic\_Codec}}\ \&\ ace,}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___data___model}{Adaptive\_Data\_Model}}\ \&\ mModelValues,}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_static___bit___model}{Static\_Bit\_Model}}\ \&\ bModel0,}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classo3dgc_1_1_adaptive___bit___model}{Adaptive\_Bit\_Model}}\ \&\ bModel1,}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ M)}
+\DoxyCodeLine{00323\ \ \ \ \ \{}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ uiValue\ =\ (\textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}})\ predResidual;}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (uiValue\ <\ M)\ }
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \ \ \ \ \ \ ace.\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0fe85535a9a0c185364da7dce752f311}{encode}}(uiValue,\ mModelValues);}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ }
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \ \ \ \ \ \ ace.\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a0fe85535a9a0c185364da7dce752f311}{encode}}(M,\ mModelValues);}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ \ \ \ \ ace.\mbox{\hyperlink{classo3dgc_1_1_arithmetic___codec_a471e374d8707e8442a1d849a4a4602e4}{ExpGolombEncode}}(uiValue-\/M,\ 0,\ bModel0,\ bModel1);}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00334\ \ \ \ \ \}}
+\DoxyCodeLine{00335\ }
+\DoxyCodeLine{00336\ \}}
+\DoxyCodeLine{00337\ \textcolor{comment}{/*\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ *\ */}}
+\DoxyCodeLine{00338\ }
+\DoxyCodeLine{00339\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00340\ }
+
+\end{DoxyCode}

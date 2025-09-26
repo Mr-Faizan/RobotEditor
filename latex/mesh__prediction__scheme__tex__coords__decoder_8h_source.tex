@@ -1,0 +1,378 @@
+\doxysection{mesh\+\_\+prediction\+\_\+scheme\+\_\+tex\+\_\+coords\+\_\+decoder.\+h}
+\hypertarget{mesh__prediction__scheme__tex__coords__decoder_8h_source}{}\label{mesh__prediction__scheme__tex__coords__decoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_tex\_coords\_decoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_tex\_coords\_decoder.h}}
+\mbox{\hyperlink{mesh__prediction__scheme__tex__coords__decoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifdef\ DRACO\_BACKWARDS\_COMPATIBILITY\_SUPPORTED}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_MESH\_PREDICTION\_SCHEME\_TEX\_COORDS\_DECODER\_H\_}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_MESH\_PREDICTION\_SCHEME\_TEX\_COORDS\_DECODER\_H\_}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <math.h>}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__prediction__scheme__decoder_8h}{draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_decoder.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{rans__bit__decoder_8h}{draco/compression/bit\_coders/rans\_bit\_decoder.h}}"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{varint__decoding_8h}{draco/core/varint\_decoding.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{vector__d_8h}{draco/core/vector\_d.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{corner__table_8h}{draco/mesh/corner\_table.h}}"{}}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ Decoder\ for\ predictions\ of\ UV\ coordinates\ encoded\ by\ our\ specialized\ texture}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ coordinate\ predictor.\ See\ the\ corresponding\ encoder\ for\ more\ details.\ Note}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ that\ this\ predictor\ is\ not\ portable\ and\ should\ not\ be\ used\ anymore.\ See}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ MeshPredictionSchemeTexCoordsPortableEncoder/Decoder\ for\ a\ portable\ version}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ of\ this\ prediction\ scheme.}}
+\DoxyCodeLine{00035\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT,\ \textcolor{keyword}{class}\ TransformT,\ \textcolor{keyword}{class}\ MeshDataT>}
+\DoxyCodeLine{00036\ \textcolor{keyword}{class\ }MeshPredictionSchemeTexCoordsDecoder}
+\DoxyCodeLine{00037\ \ \ \ \ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_decoder}{MeshPredictionSchemeDecoder}}<DataTypeT,\ TransformT,\ MeshDataT>\ \{}
+\DoxyCodeLine{00038\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00039\ \ \ \textcolor{keyword}{using\ }CorrType\ =\ \textcolor{keyword}{typename}\ MeshPredictionSchemeDecoder<DataTypeT,\ TransformT,}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MeshDataT>::CorrType;}
+\DoxyCodeLine{00041\ \ \ MeshPredictionSchemeTexCoordsDecoder(\textcolor{keyword}{const}\ PointAttribute\ *attribute,}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ TransformT\ \&transform,}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ MeshDataT\ \&mesh\_data,\ \textcolor{keywordtype}{int}\ version)}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ :\ MeshPredictionSchemeDecoder<DataTypeT,\ TransformT,\ MeshDataT>(}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \ \ \ \ attribute,\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a154943ef2b12b495a5323509a4ffab1b}{transform}},\ mesh\_data),}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ pos\_attribute\_(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ entry\_to\_point\_id\_map\_(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ num\_components\_(0),}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ version\_(\mbox{\hyperlink{namespacesetup_a2aa722b36a933088812b50ea79b97a5c}{version}})\ \{\}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordtype}{bool}\ ComputeOriginalValues(\textcolor{keyword}{const}\ CorrType\ *in\_corr,\ DataTypeT\ *out\_data,}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}},\ \textcolor{keywordtype}{int}\ num\_components,}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ PointIndex\ *entry\_to\_point\_id\_map)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{bool}\ DecodePredictionData(DecoderBuffer\ *buffer)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91b}{PredictionSchemeMethod}}\ GetPredictionMethod()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba3cc6d7ebd3afcfd6e2a96bc1cf99e324}{MESH\_PREDICTION\_TEX\_COORDS\_DEPRECATED}};}
+\DoxyCodeLine{00059\ \ \ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \textcolor{keywordtype}{bool}\ IsInitialized()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordflow}{if}\ (pos\_attribute\_\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00064\ \ \ \ \ \}}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keywordflow}{if}\ (!this-\/>mesh\_data().IsInitialized())\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00067\ \ \ \ \ \}}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00069\ \ \ \}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{keywordtype}{int}\ GetNumParentAttributes()\textcolor{keyword}{\ const\ override\ }\{\ \textcolor{keywordflow}{return}\ 1;\ \}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ GeometryAttribute::Type\ GetParentAttributeType(\textcolor{keywordtype}{int}\ i)\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00074\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(i,\ 0);}
+\DoxyCodeLine{00075\ \ \ \ \ (void)i;}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordflow}{return}\ GeometryAttribute::POSITION;}
+\DoxyCodeLine{00077\ \ \ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \textcolor{keywordtype}{bool}\ SetParentAttribute(\textcolor{keyword}{const}\ PointAttribute\ *att)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordflow}{if}\ (att\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00082\ \ \ \ \ \}}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keywordflow}{if}\ (att-\/>\mbox{\hyperlink{interface_point_attribute_a610c8bdf0d1782e352e5e674bd280475}{attribute\_type}}()\ !=\ GeometryAttribute::POSITION)\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};\ \ \textcolor{comment}{//\ Invalid\ attribute\ type.}}
+\DoxyCodeLine{00085\ \ \ \ \ \}}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordflow}{if}\ (att-\/>\mbox{\hyperlink{interface_point_attribute_ad278845f7032d3635e539039511495a4}{num\_components}}()\ !=\ 3)\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};\ \ \textcolor{comment}{//\ Currently\ works\ only\ for\ 3\ component\ positions.}}
+\DoxyCodeLine{00088\ \ \ \ \ \}}
+\DoxyCodeLine{00089\ \ \ \ \ pos\_attribute\_\ =\ att;}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00091\ \ \ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00094\ \ \ \mbox{\hyperlink{namespacedraco_a90878d79a1dad6ca8ea1a380c905033f}{Vector3f}}\ GetPositionForEntryId(\textcolor{keywordtype}{int}\ entry\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keyword}{const}\ PointIndex\ point\_id\ =\ entry\_to\_point\_id\_map\_[entry\_id];}
+\DoxyCodeLine{00096\ \ \ \ \ \mbox{\hyperlink{namespacedraco_a90878d79a1dad6ca8ea1a380c905033f}{Vector3f}}\ \mbox{\hyperlink{namespaceextract__step__token_a0c4d27af030a9bcb56a261adcf7f0cd0}{pos}};}
+\DoxyCodeLine{00097\ \ \ \ \ pos\_attribute\_-\/>ConvertValue(pos\_attribute\_-\/>mapped\_index(point\_id),}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&pos[0]);}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespaceextract__step__token_a0c4d27af030a9bcb56a261adcf7f0cd0}{pos}};}
+\DoxyCodeLine{00100\ \ \ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \mbox{\hyperlink{namespacedraco_a943738d0026f00c8f03078515ff84709}{Vector2f}}\ GetTexCoordForEntryId(\textcolor{keywordtype}{int}\ entry\_id,\ \textcolor{keyword}{const}\ DataTypeT\ *\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}})\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ data\_offset\ =\ entry\_id\ *\ num\_components\_;}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_a943738d0026f00c8f03078515ff84709}{Vector2f}}(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}[data\_offset]),}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}[data\_offset\ +\ 1]));}
+\DoxyCodeLine{00106\ \ \ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordtype}{bool}\ ComputePredictedValue(CornerIndex\ corner\_id,\ \textcolor{keyword}{const}\ DataTypeT\ *\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}},}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ data\_id);}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00112\ \ \ \textcolor{keyword}{const}\ PointAttribute\ *pos\_attribute\_;}
+\DoxyCodeLine{00113\ \ \ \textcolor{keyword}{const}\ PointIndex\ *entry\_to\_point\_id\_map\_;}
+\DoxyCodeLine{00114\ \ \ std::unique\_ptr<DataTypeT[]>\ predicted\_value\_;}
+\DoxyCodeLine{00115\ \ \ \textcolor{keywordtype}{int}\ num\_components\_;}
+\DoxyCodeLine{00116\ \ \ \textcolor{comment}{//\ Encoded\ /\ decoded\ array\ of\ UV\ flips.}}
+\DoxyCodeLine{00117\ \ \ std::vector<bool>\ orientations\_;}
+\DoxyCodeLine{00118\ \ \ \textcolor{keywordtype}{int}\ version\_;}
+\DoxyCodeLine{00119\ \};}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT,\ \textcolor{keyword}{class}\ TransformT,\ \textcolor{keyword}{class}\ MeshDataT>}
+\DoxyCodeLine{00122\ \textcolor{keywordtype}{bool}\ MeshPredictionSchemeTexCoordsDecoder<DataTypeT,\ TransformT,\ MeshDataT>::}
+\DoxyCodeLine{00123\ \ \ \ \ ComputeOriginalValues(\textcolor{keyword}{const}\ CorrType\ *in\_corr,\ DataTypeT\ *out\_data,}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \textcolor{comment}{/*\ size\ */},\ \textcolor{keywordtype}{int}\ num\_components,}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ PointIndex\ *entry\_to\_point\_id\_map)\ \{}
+\DoxyCodeLine{00126\ \ \ \textcolor{keywordflow}{if}\ (num\_components\ !=\ 2)\ \{}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{comment}{//\ Corrupt/malformed\ input.\ Two\ output\ components\ are\ req'd.}}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00129\ \ \ \}}
+\DoxyCodeLine{00130\ \ \ num\_components\_\ =\ num\_components;}
+\DoxyCodeLine{00131\ \ \ entry\_to\_point\_id\_map\_\ =\ entry\_to\_point\_id\_map;}
+\DoxyCodeLine{00132\ \ \ predicted\_value\_\ =}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ std::unique\_ptr<DataTypeT[]>(\textcolor{keyword}{new}\ DataTypeT[num\_components]);}
+\DoxyCodeLine{00134\ \ \ this-\/>\mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a154943ef2b12b495a5323509a4ffab1b}{transform}}().Init(num\_components);}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ corner\_map\_size\ =}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(this-\/>mesh\_data().data\_to\_corner\_map()-\/>size());}
+\DoxyCodeLine{00138\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ p\ =\ 0;\ p\ <\ corner\_map\_size;\ ++p)\ \{}
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_id\ =\ this-\/>mesh\_data().data\_to\_corner\_map()-\/>at(p);}
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keywordflow}{if}\ (!ComputePredictedValue(corner\_id,\ out\_data,\ p))\ \{}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00142\ \ \ \ \ \}}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ dst\_offset\ =\ p\ *\ num\_components;}
+\DoxyCodeLine{00145\ \ \ \ \ this-\/>\mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a154943ef2b12b495a5323509a4ffab1b}{transform}}().ComputeOriginalValue(}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ predicted\_value\_.get(),\ in\_corr\ +\ dst\_offset,\ out\_data\ +\ dst\_offset);}
+\DoxyCodeLine{00147\ \ \ \}}
+\DoxyCodeLine{00148\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00149\ \}}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT,\ \textcolor{keyword}{class}\ TransformT,\ \textcolor{keyword}{class}\ MeshDataT>}
+\DoxyCodeLine{00152\ \textcolor{keywordtype}{bool}\ MeshPredictionSchemeTexCoordsDecoder<DataTypeT,\ TransformT,\ MeshDataT>::}
+\DoxyCodeLine{00153\ \ \ \ \ DecodePredictionData(\mbox{\hyperlink{classdraco_1_1_decoder_buffer}{DecoderBuffer}}\ *buffer)\ \{}
+\DoxyCodeLine{00154\ \ \ \textcolor{comment}{//\ Decode\ the\ delta\ coded\ orientations.}}
+\DoxyCodeLine{00155\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ num\_orientations\ =\ 0;}
+\DoxyCodeLine{00156\ \ \ \textcolor{keywordflow}{if}\ (buffer-\/>bitstream\_version()\ <\ \mbox{\hyperlink{macros_8h_a6732649b03e16a7fd23539e2132d057a}{DRACO\_BITSTREAM\_VERSION}}(2,\ 2))\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer-\/>Decode(\&num\_orientations))\ \{}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00159\ \ \ \ \ \}}
+\DoxyCodeLine{00160\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{namespacedraco_a1b889762d988e388641322ed23501ae1}{DecodeVarint}}(\&num\_orientations,\ buffer))\ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00163\ \ \ \ \ \}}
+\DoxyCodeLine{00164\ \ \ \}}
+\DoxyCodeLine{00165\ \ \ \textcolor{keywordflow}{if}\ (num\_orientations\ ==\ 0)\ \{}
+\DoxyCodeLine{00166\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00167\ \ \ \}}
+\DoxyCodeLine{00168\ \ \ \textcolor{keywordflow}{if}\ (num\_orientations\ >\ this-\/>mesh\_data().corner\_table()-\/>num\_corners())\ \{}
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{comment}{//\ We\ can't\ have\ more\ orientations\ than\ the\ maximum\ number\ of\ decoded}}
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{comment}{//\ values.}}
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00172\ \ \ \}}
+\DoxyCodeLine{00173\ \ \ orientations\_.resize(num\_orientations);}
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordtype}{bool}\ last\_orientation\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00175\ \ \ \mbox{\hyperlink{classdraco_1_1_r_ans_bit_decoder}{RAnsBitDecoder}}\ decoder;}
+\DoxyCodeLine{00176\ \ \ \textcolor{keywordflow}{if}\ (!decoder.StartDecoding(buffer))\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00178\ \ \ \}}
+\DoxyCodeLine{00179\ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 0;\ i\ <\ num\_orientations;\ ++i)\ \{}
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordflow}{if}\ (!decoder.DecodeNextBit())\ \{}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ last\_orientation\ =\ !last\_orientation;}
+\DoxyCodeLine{00182\ \ \ \ \ \}}
+\DoxyCodeLine{00183\ \ \ \ \ orientations\_[i]\ =\ last\_orientation;}
+\DoxyCodeLine{00184\ \ \ \}}
+\DoxyCodeLine{00185\ \ \ decoder.\mbox{\hyperlink{classdraco_1_1_r_ans_bit_decoder_a1a2f0ddcec00df17cbb0cb250e6a1bf3}{EndDecoding}}();}
+\DoxyCodeLine{00186\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_decoder}{MeshPredictionSchemeDecoder}}<DataTypeT,\ TransformT,}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MeshDataT>::DecodePredictionData(buffer);}
+\DoxyCodeLine{00188\ \}}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT,\ \textcolor{keyword}{class}\ TransformT,\ \textcolor{keyword}{class}\ MeshDataT>}
+\DoxyCodeLine{00191\ \textcolor{keywordtype}{bool}\ MeshPredictionSchemeTexCoordsDecoder<DataTypeT,\ TransformT,\ MeshDataT>::}
+\DoxyCodeLine{00192\ \ \ \ \ ComputePredictedValue(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_id,\ \textcolor{keyword}{const}\ DataTypeT\ *\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}},}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ data\_id)\ \{}
+\DoxyCodeLine{00194\ \ \ \textcolor{comment}{//\ Compute\ the\ predicted\ UV\ coordinate\ from\ the\ positions\ on\ all\ corners}}
+\DoxyCodeLine{00195\ \ \ \textcolor{comment}{//\ of\ the\ processed\ triangle.\ For\ the\ best\ prediction,\ the\ UV\ coordinates}}
+\DoxyCodeLine{00196\ \ \ \textcolor{comment}{//\ on\ the\ next/previous\ corners\ need\ to\ be\ already\ encoded/decoded.}}
+\DoxyCodeLine{00197\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ next\_corner\_id\ =}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ this-\/>mesh\_data().corner\_table()-\/>Next(corner\_id);}
+\DoxyCodeLine{00199\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ prev\_corner\_id\ =}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ this-\/>mesh\_data().corner\_table()-\/>Previous(corner\_id);}
+\DoxyCodeLine{00201\ \ \ \textcolor{comment}{//\ Get\ the\ encoded\ data\ ids\ from\ the\ next\ and\ previous\ corners.}}
+\DoxyCodeLine{00202\ \ \ \textcolor{comment}{//\ The\ data\ id\ is\ the\ encoding\ order\ of\ the\ UV\ coordinates.}}
+\DoxyCodeLine{00203\ \ \ \textcolor{keywordtype}{int}\ next\_data\_id,\ prev\_data\_id;}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \ \ \textcolor{keywordtype}{int}\ next\_vert\_id,\ prev\_vert\_id;}
+\DoxyCodeLine{00206\ \ \ next\_vert\_id\ =}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ this-\/>mesh\_data().corner\_table()-\/>Vertex(next\_corner\_id).value();}
+\DoxyCodeLine{00208\ \ \ prev\_vert\_id\ =}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ this-\/>mesh\_data().corner\_table()-\/>Vertex(prev\_corner\_id).value();}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ next\_data\_id\ =\ this-\/>mesh\_data().vertex\_to\_data\_map()-\/>at(next\_vert\_id);}
+\DoxyCodeLine{00212\ \ \ prev\_data\_id\ =\ this-\/>mesh\_data().vertex\_to\_data\_map()-\/>at(prev\_vert\_id);}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ \textcolor{keywordflow}{if}\ (prev\_data\_id\ <\ data\_id\ \&\&\ next\_data\_id\ <\ data\_id)\ \{}
+\DoxyCodeLine{00215\ \ \ \ \ \textcolor{comment}{//\ Both\ other\ corners\ have\ available\ UV\ coordinates\ for\ prediction.}}
+\DoxyCodeLine{00216\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a943738d0026f00c8f03078515ff84709}{Vector2f}}\ n\_uv\ =\ GetTexCoordForEntryId(next\_data\_id,\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}});}
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a943738d0026f00c8f03078515ff84709}{Vector2f}}\ p\_uv\ =\ GetTexCoordForEntryId(prev\_data\_id,\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}});}
+\DoxyCodeLine{00218\ \ \ \ \ \textcolor{keywordflow}{if}\ (p\_uv\ ==\ n\_uv)\ \{}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \textcolor{comment}{//\ We\ cannot\ do\ a\ reliable\ prediction\ on\ degenerated\ UV\ triangles.}}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \textcolor{comment}{//\ Technically\ floats\ >\ INT\_MAX\ are\ undefined,\ but\ compilers\ will}}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \textcolor{comment}{//\ convert\ those\ values\ to\ INT\_MIN.\ We\ are\ being\ explicit\ here\ for\ asan.}}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ i\ :\ \{0,\ 1\})\ \{}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (std::isnan(p\_uv[i])\ ||\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(p\_uv[i])\ >\ INT\_MAX\ ||}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(p\_uv[i])\ <\ INT\_MIN)\ \{}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ \ \ predicted\_value\_[i]\ =\ INT\_MIN;}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \ \ predicted\_value\_[i]\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(p\_uv[i]);}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00231\ \ \ \ \ \}}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ \ \ \textcolor{comment}{//\ Get\ positions\ at\ all\ corners.}}
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a90878d79a1dad6ca8ea1a380c905033f}{Vector3f}}\ tip\_pos\ =\ GetPositionForEntryId(data\_id);}
+\DoxyCodeLine{00235\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a90878d79a1dad6ca8ea1a380c905033f}{Vector3f}}\ next\_pos\ =\ GetPositionForEntryId(next\_data\_id);}
+\DoxyCodeLine{00236\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a90878d79a1dad6ca8ea1a380c905033f}{Vector3f}}\ prev\_pos\ =\ GetPositionForEntryId(prev\_data\_id);}
+\DoxyCodeLine{00237\ \ \ \ \ \textcolor{comment}{//\ Use\ the\ positions\ of\ the\ above\ triangle\ to\ predict\ the\ texture\ coordinate}}
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{comment}{//\ on\ the\ tip\ corner\ C.}}
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{comment}{//\ Convert\ the\ triangle\ into\ a\ new\ coordinate\ system\ defined\ by\ orthogonal}}
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{comment}{//\ bases\ vectors\ S,\ T,\ where\ S\ is\ vector\ prev\_pos\ -\/\ next\_pos\ and\ T\ is\ an}}
+\DoxyCodeLine{00241\ \ \ \ \ \textcolor{comment}{//\ perpendicular\ vector\ to\ S\ in\ the\ same\ plane\ as\ vector\ the}}
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{comment}{//\ tip\_pos\ -\/\ next\_pos.}}
+\DoxyCodeLine{00243\ \ \ \ \ \textcolor{comment}{//\ The\ transformed\ triangle\ in\ the\ new\ coordinate\ system\ is\ then\ going\ to}}
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{comment}{//\ be\ represented\ as:}}
+\DoxyCodeLine{00245\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00246\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ \ 1\ \string^}}
+\DoxyCodeLine{00247\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ |}}
+\DoxyCodeLine{00248\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ |}}
+\DoxyCodeLine{00249\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ |\ \ \ C}}
+\DoxyCodeLine{00250\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ |\ \ /\ \ \(\backslash\)}}
+\DoxyCodeLine{00251\ \textcolor{comment}{\ \ \ \ //\ \ \ \ \ \ \ \ \ \ |\ /\ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00252\ \textcolor{comment}{\ \ \ \ //\ \ \ \ \ \ \ \ \ \ |/\ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00253\ \textcolor{comment}{\ \ \ \ //\ \ \ \ \ \ \ \ \ \ N-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/P}}
+\DoxyCodeLine{00254\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ 0\ \ \ \ \ \ \ \ \ \ \ \ \ \ 1}}
+\DoxyCodeLine{00255\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00256\ \ \ \ \ \textcolor{comment}{//\ Where\ next\_pos\ point\ (N)\ is\ at\ position\ (0,\ 0),\ prev\_pos\ point\ (P)\ is}}
+\DoxyCodeLine{00257\ \ \ \ \ \textcolor{comment}{//\ at\ (1,\ 0).\ Our\ goal\ is\ to\ compute\ the\ position\ of\ the\ tip\_pos\ point\ (C)}}
+\DoxyCodeLine{00258\ \ \ \ \ \textcolor{comment}{//\ in\ this\ new\ coordinate\ space\ (s,\ t).}}
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00260\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a90878d79a1dad6ca8ea1a380c905033f}{Vector3f}}\ pn\ =\ prev\_pos\ -\/\ next\_pos;}
+\DoxyCodeLine{00261\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a90878d79a1dad6ca8ea1a380c905033f}{Vector3f}}\ cn\ =\ tip\_pos\ -\/\ next\_pos;}
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ pn\_norm2\_squared\ =\ pn.SquaredNorm();}
+\DoxyCodeLine{00263\ \ \ \ \ \textcolor{comment}{//\ Coordinate\ s\ of\ the\ tip\ corner\ C\ is\ simply\ the\ dot\ product\ of\ the}}
+\DoxyCodeLine{00264\ \ \ \ \ \textcolor{comment}{//\ normalized\ vectors\ |pn|\ and\ |cn|\ (normalized\ by\ the\ length\ of\ |pn|).}}
+\DoxyCodeLine{00265\ \ \ \ \ \textcolor{comment}{//\ Since\ both\ of\ these\ vectors\ are\ normalized,\ we\ don't\ need\ to\ perform\ the}}
+\DoxyCodeLine{00266\ \ \ \ \ \textcolor{comment}{//\ normalization\ explicitly\ and\ instead\ we\ can\ just\ use\ the\ squared\ norm}}
+\DoxyCodeLine{00267\ \ \ \ \ \textcolor{comment}{//\ of\ |pn|\ as\ a\ denominator\ of\ the\ resulting\ dot\ product\ of\ non\ normalized}}
+\DoxyCodeLine{00268\ \ \ \ \ \textcolor{comment}{//\ vectors.}}
+\DoxyCodeLine{00269\ \ \ \ \ \textcolor{keywordtype}{float}\ s,\ t;}
+\DoxyCodeLine{00270\ \ \ \ \ \textcolor{comment}{//\ |pn\_norm2\_squared|\ can\ be\ exactly\ 0\ when\ the\ next\_pos\ and\ prev\_pos\ are}}
+\DoxyCodeLine{00271\ \ \ \ \ \textcolor{comment}{//\ the\ same\ positions\ (e.g.\ because\ they\ were\ quantized\ to\ the\ same}}
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{comment}{//\ location).}}
+\DoxyCodeLine{00273\ \ \ \ \ \textcolor{keywordflow}{if}\ (version\_\ <\ \mbox{\hyperlink{macros_8h_a6732649b03e16a7fd23539e2132d057a}{DRACO\_BITSTREAM\_VERSION}}(1,\ 2)\ ||\ pn\_norm2\_squared\ >\ 0)\ \{}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ s\ =\ pn.Dot(cn)\ /\ pn\_norm2\_squared;}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \textcolor{comment}{//\ To\ get\ the\ coordinate\ t,\ we\ can\ use\ formula:}}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ t\ =\ |C-\/N\ -\/\ (P-\/N)\ *\ s|\ /\ |P-\/N|}}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \textcolor{comment}{//\ Do\ not\ use\ std::sqrt\ to\ avoid\ changes\ in\ the\ bitstream.}}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ t\ =\ sqrt((cn\ -\/\ pn\ *\ s).SquaredNorm()\ /\ pn\_norm2\_squared);}
+\DoxyCodeLine{00279\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ s\ =\ 0;}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ t\ =\ 0;}
+\DoxyCodeLine{00282\ \ \ \ \ \}}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \ \ \ \ \textcolor{comment}{//\ Now\ we\ need\ to\ transform\ the\ point\ (s,\ t)\ to\ the\ texture\ coordinate\ space}}
+\DoxyCodeLine{00285\ \ \ \ \ \textcolor{comment}{//\ UV.\ We\ know\ the\ UV\ coordinates\ on\ points\ N\ and\ P\ (N\_UV\ and\ P\_UV).\ Lets}}
+\DoxyCodeLine{00286\ \ \ \ \ \textcolor{comment}{//\ denote\ P\_UV\ -\/\ N\_UV\ =\ PN\_UV.\ PN\_UV\ is\ then\ 2\ dimensional\ vector\ that\ can}}
+\DoxyCodeLine{00287\ \ \ \ \ \textcolor{comment}{//\ be\ used\ to\ define\ transformation\ from\ the\ normalized\ coordinate\ system}}
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{comment}{//\ to\ the\ texture\ coordinate\ system\ using\ a\ 3x3\ affine\ matrix\ M:}}
+\DoxyCodeLine{00289\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00290\ \ \ \ \ \textcolor{comment}{//\ \ M\ =\ |\ PN\_UV[0]\ \ -\/PN\_UV[1]\ \ N\_UV[0]\ |}}
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ |\ PN\_UV[1]\ \ \ PN\_UV[0]\ \ N\_UV[1]\ |}}
+\DoxyCodeLine{00292\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ |\ 0\ \ \ \ \ \ \ \ \ \ 0\ \ \ \ \ \ \ \ \ 1\ \ \ \ \ \ \ |}}
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00294\ \ \ \ \ \textcolor{comment}{//\ The\ predicted\ point\ C\_UV\ in\ the\ texture\ space\ is\ then\ equal\ to}}
+\DoxyCodeLine{00295\ \ \ \ \ \textcolor{comment}{//\ C\_UV\ =\ M\ *\ (s,\ t,\ 1).\ Because\ the\ triangle\ in\ UV\ space\ may\ be\ flipped}}
+\DoxyCodeLine{00296\ \ \ \ \ \textcolor{comment}{//\ around\ the\ PN\_UV\ axis,\ we\ also\ need\ to\ consider\ point\ C\_UV'\ =\ M\ *\ (s,\ -\/t)}}
+\DoxyCodeLine{00297\ \ \ \ \ \textcolor{comment}{//\ as\ the\ prediction.}}
+\DoxyCodeLine{00298\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a943738d0026f00c8f03078515ff84709}{Vector2f}}\ pn\_uv\ =\ p\_uv\ -\/\ n\_uv;}
+\DoxyCodeLine{00299\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ pnus\ =\ pn\_uv[0]\ *\ s\ +\ n\_uv[0];}
+\DoxyCodeLine{00300\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ pnut\ =\ pn\_uv[0]\ *\ t;}
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ pnvs\ =\ pn\_uv[1]\ *\ s\ +\ n\_uv[1];}
+\DoxyCodeLine{00302\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ pnvt\ =\ pn\_uv[1]\ *\ t;}
+\DoxyCodeLine{00303\ \ \ \ \ \mbox{\hyperlink{namespacedraco_a943738d0026f00c8f03078515ff84709}{Vector2f}}\ predicted\_uv;}
+\DoxyCodeLine{00304\ \ \ \ \ \textcolor{keywordflow}{if}\ (orientations\_.empty())\ \{}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00306\ \ \ \ \ \}}
+\DoxyCodeLine{00307\ }
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{comment}{//\ When\ decoding\ the\ data,\ we\ already\ know\ which\ orientation\ to\ use.}}
+\DoxyCodeLine{00309\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ orientation\ =\ orientations\_.back();}
+\DoxyCodeLine{00310\ \ \ \ \ orientations\_.pop\_back();}
+\DoxyCodeLine{00311\ \ \ \ \ \textcolor{keywordflow}{if}\ (orientation)\ \{}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ predicted\_uv\ =\ \mbox{\hyperlink{namespacedraco_a943738d0026f00c8f03078515ff84709}{Vector2f}}(pnus\ -\/\ pnvt,\ pnvs\ +\ pnut);}
+\DoxyCodeLine{00313\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ predicted\_uv\ =\ \mbox{\hyperlink{namespacedraco_a943738d0026f00c8f03078515ff84709}{Vector2f}}(pnus\ +\ pnvt,\ pnvs\ -\/\ pnut);}
+\DoxyCodeLine{00315\ \ \ \ \ \}}
+\DoxyCodeLine{00316\ \ \ \ \ \textcolor{keywordflow}{if}\ (std::is\_integral<DataTypeT>::value)\ \{}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \textcolor{comment}{//\ Round\ the\ predicted\ value\ for\ integer\ types.}}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \textcolor{comment}{//\ Technically\ floats\ >\ INT\_MAX\ are\ undefined,\ but\ compilers\ will}}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \textcolor{comment}{//\ convert\ those\ values\ to\ INT\_MIN.\ We\ are\ being\ explicit\ here\ for\ asan.}}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ u\ =\ floor(predicted\_uv[0]\ +\ 0.5);}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (std::isnan(u)\ ||\ u\ >\ INT\_MAX\ ||\ u\ <\ INT\_MIN)\ \{}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ predicted\_value\_[0]\ =\ INT\_MIN;}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ predicted\_value\_[0]\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(u);}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ v\ =\ floor(predicted\_uv[1]\ +\ 0.5);}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (std::isnan(v)\ ||\ v\ >\ INT\_MAX\ ||\ v\ <\ INT\_MIN)\ \{}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ predicted\_value\_[1]\ =\ INT\_MIN;}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ predicted\_value\_[1]\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(v);}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00332\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ predicted\_value\_[0]\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(predicted\_uv[0]);}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ predicted\_value\_[1]\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(predicted\_uv[1]);}
+\DoxyCodeLine{00335\ \ \ \ \ \}}
+\DoxyCodeLine{00336\ }
+\DoxyCodeLine{00337\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00338\ \ \ \}}
+\DoxyCodeLine{00339\ \ \ \textcolor{comment}{//\ Else\ we\ don't\ have\ available\ textures\ on\ both\ corners.\ For\ such\ case\ we}}
+\DoxyCodeLine{00340\ \ \ \textcolor{comment}{//\ can't\ use\ positions\ for\ predicting\ the\ uv\ value\ and\ we\ resort\ to\ delta}}
+\DoxyCodeLine{00341\ \ \ \textcolor{comment}{//\ coding.}}
+\DoxyCodeLine{00342\ \ \ \textcolor{keywordtype}{int}\ data\_offset\ =\ 0;}
+\DoxyCodeLine{00343\ \ \ \textcolor{keywordflow}{if}\ (prev\_data\_id\ <\ data\_id)\ \{}
+\DoxyCodeLine{00344\ \ \ \ \ \textcolor{comment}{//\ Use\ the\ value\ on\ the\ previous\ corner\ as\ the\ prediction.}}
+\DoxyCodeLine{00345\ \ \ \ \ data\_offset\ =\ prev\_data\_id\ *\ num\_components\_;}
+\DoxyCodeLine{00346\ \ \ \}}
+\DoxyCodeLine{00347\ \ \ \textcolor{keywordflow}{if}\ (next\_data\_id\ <\ data\_id)\ \{}
+\DoxyCodeLine{00348\ \ \ \ \ \textcolor{comment}{//\ Use\ the\ value\ on\ the\ next\ corner\ as\ the\ prediction.}}
+\DoxyCodeLine{00349\ \ \ \ \ data\_offset\ =\ next\_data\_id\ *\ num\_components\_;}
+\DoxyCodeLine{00350\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{comment}{//\ None\ of\ the\ other\ corners\ have\ a\ valid\ value.\ Use\ the\ last\ encoded\ value}}
+\DoxyCodeLine{00352\ \ \ \ \ \textcolor{comment}{//\ as\ the\ prediction\ if\ possible.}}
+\DoxyCodeLine{00353\ \ \ \ \ \textcolor{keywordflow}{if}\ (data\_id\ >\ 0)\ \{}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ data\_offset\ =\ (data\_id\ -\/\ 1)\ *\ num\_components\_;}
+\DoxyCodeLine{00355\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \textcolor{comment}{//\ We\ are\ encoding\ the\ first\ value.\ Predict\ 0.}}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_components\_;\ ++i)\ \{}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \ \ predicted\_value\_[i]\ =\ 0;}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00361\ \ \ \ \ \}}
+\DoxyCodeLine{00362\ \ \ \}}
+\DoxyCodeLine{00363\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_components\_;\ ++i)\ \{}
+\DoxyCodeLine{00364\ \ \ \ \ predicted\_value\_[i]\ =\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}[data\_offset\ +\ i];}
+\DoxyCodeLine{00365\ \ \ \}}
+\DoxyCodeLine{00366\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00367\ \}}
+\DoxyCodeLine{00368\ }
+\DoxyCodeLine{00369\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00370\ }
+\DoxyCodeLine{00371\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_MESH\_PREDICTION\_SCHEME\_TEX\_COORDS\_DECODER\_H\_}}
+\DoxyCodeLine{00372\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

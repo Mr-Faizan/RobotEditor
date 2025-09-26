@@ -1,0 +1,141 @@
+\doxysection{BVHLoader.\+h}
+\hypertarget{_b_v_h_loader_8h_source}{}\label{_b_v_h_loader_8h_source}\index{RobotLib/libraries/assimp/code/AssetLib/BVH/BVHLoader.h@{RobotLib/libraries/assimp/code/AssetLib/BVH/BVHLoader.h}}
+\mbox{\hyperlink{_b_v_h_loader_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00004\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00005\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00011\ \textcolor{comment}{}}
+\DoxyCodeLine{00012\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00013\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00014\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00015\ \textcolor{comment}{}}
+\DoxyCodeLine{00016\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00017\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00018\ \textcolor{comment}{following\ disclaimer.}}
+\DoxyCodeLine{00019\ \textcolor{comment}{}}
+\DoxyCodeLine{00020\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00021\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00022\ \textcolor{comment}{following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00023\ \textcolor{comment}{materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00024\ \textcolor{comment}{}}
+\DoxyCodeLine{00025\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00026\ \textcolor{comment}{contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00027\ \textcolor{comment}{derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00028\ \textcolor{comment}{written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00029\ \textcolor{comment}{}}
+\DoxyCodeLine{00030\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00031\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00032\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00033\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00034\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00035\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00037\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00038\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00039\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00040\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00041\ \textcolor{comment}{}}
+\DoxyCodeLine{00042\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00043\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#ifndef\ AI\_BVHLOADER\_H\_INC}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#define\ AI\_BVHLOADER\_H\_INC}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#include\ <assimp/BaseImporter.h>}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_node}{aiNode}};}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00065\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a805a4df97765eac468005601586d326d}{BVHLoader}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_assimp_1_1_base_importer_a3a26428f61d7bebdc477c4d0add9da30}{BaseImporter}}\ \{}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keyword}{enum}\ ChannelType\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ Channel\_PositionX,}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ Channel\_PositionY,}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ Channel\_PositionZ,}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ Channel\_RotationX,}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ Channel\_RotationY,}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ Channel\_RotationZ}
+\DoxyCodeLine{00075\ \ \ \ \ \};}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keyword}{struct\ }Node\ \{}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_node}{aiNode}}\ *mNode;}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ std::vector<ChannelType>\ mChannels;}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ std::vector<float>\ mChannelValues;\ \textcolor{comment}{//\ motion\ data\ values\ for\ that\ node.\ Of\ size\ NumChannels\ *\ NumFrames}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ Node()\ :}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mNode(\textcolor{keyword}{nullptr})\ \{\}}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keyword}{explicit}\ Node(\textcolor{keyword}{const}\ \mbox{\hyperlink{structai_node}{aiNode}}\ *pNode)\ :}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mNode(pNode)\ \{\}}
+\DoxyCodeLine{00088\ \ \ \ \ \};}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00091\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a805a4df97765eac468005601586d326d}{BVHLoader}}();}
+\DoxyCodeLine{00092\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_ace5b0bc0ba6fc9f1eb571807fe839d61}{\string~BVHLoader}}();}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a322d60d640f36a7aafe44766fee92b79}{CanRead}}(\textcolor{keyword}{const}\ std::string\ \&pFile,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler,\ \textcolor{keywordtype}{bool}\ cs)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a8ebc62898a1e17b20facb5b0a6935eb7}{SetupProperties}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_base_importer_ac81c9c578a539b88828a1e57a4f242cd}{Importer}}\ *pImp);}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_importer_desc}{aiImporterDesc}}\ *\mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_aa9d162452db38b4e582fcbfa6eb9f1f5}{GetInfo}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_add23d3e24b50531f2bc2ca310d15c877}{InternReadFile}}(\textcolor{keyword}{const}\ std::string\ \&pFile,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler);}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a961053a2aaa52322ef447db418b333ac}{ReadStructure}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a3e4455f4ed0b31365eba7145a97bccec}{ReadHierarchy}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00116\ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *\mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a6c3edead3dcd716a0c33902333da2bd3}{ReadNode}}();}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00119\ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *\mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a9c9d72c9db409031dc0e1d8dd806710c}{ReadEndSite}}(\textcolor{keyword}{const}\ std::string\ \&pParentName);}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a85f0e52d28d307bc69ae4c9f21f44673}{ReadNodeOffset}}(\mbox{\hyperlink{structai_node}{aiNode}}\ *pNode);}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_ab1f6d25a167f0abefa7ddf01cfc2a341}{ReadNodeChannels}}(BVHLoader::Node\ \&pNode);}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a1a11dcf7ec194aed5a2c48ae08dc9b0c}{ReadMotion}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00131\ \ \ \ \ std::string\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a0db82d27635daa378f69d70328990200}{GetNextToken}}();}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a8a2d18ff50d22d641221014f204e6687}{GetNextTokenAsFloat}}();}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}...\ T>}
+\DoxyCodeLine{00138\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_af74a3bc26a72aa3a00340b248b234b36}{ThrowException}}(T\&\&...\ args)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a582c0a3743f44976b5f929d5697b83e9}{CreateAnimation}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00145\ \ \ \ \ std::string\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a034214fb7761d7940b64caf8b569b4a3}{mFileName}};}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00148\ \ \ \ \ std::vector<char>\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a63b77fea8384ccd978416a40eb2cf242}{mBuffer}};}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00151\ \ \ \ \ std::vector<char>::const\_iterator\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_ad7afa3ab368969bfd40f033456599713}{mReader}};}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a3d51f5982c16a51785ec38ab4cd64dd3}{mLine}};}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00159\ \ \ \ \ std::vector<Node>\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_aece4b9ced38cd7ca8151dcd6ee7fc65a}{mNodes}};}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_ad3515f43c7caa917c2b1b35d80da1565}{mAnimTickDuration}};}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_aea196453d9f25ed32f3291df63bc96bc}{mAnimNumFrames}};}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_b_v_h_loader_a736c0d851ff9eb1bb6acbc187f156be4}{noSkeletonMesh}};}
+\DoxyCodeLine{00166\ \};}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \}\ \textcolor{comment}{//\ end\ of\ namespace\ Assimp}}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ AI\_BVHLOADER\_H\_INC}}
+
+\end{DoxyCode}

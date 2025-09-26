@@ -1,0 +1,161 @@
+\doxysection{ply\+\_\+reader.\+h}
+\hypertarget{ply__reader_8h_source}{}\label{ply__reader_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/io/ply\_reader.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/io/ply\_reader.h}}
+\mbox{\hyperlink{ply__reader_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ File\ contains\ helper\ classes\ used\ for\ parsing\ of\ PLY\ files.\ The\ classes\ are}}
+\DoxyCodeLine{00016\ \textcolor{comment}{//\ used\ by\ the\ PlyDecoder\ (ply\_decoder.h)\ to\ read\ a\ point\ cloud\ or\ mesh\ from\ a}}
+\DoxyCodeLine{00017\ \textcolor{comment}{//\ source\ PLY\ file.}}
+\DoxyCodeLine{00018\ \textcolor{comment}{//\ TODO(ostava):\ Currently,\ we\ support\ only\ binary\ PLYs\ encoded\ in\ the\ little}}
+\DoxyCodeLine{00019\ \textcolor{comment}{//\ endian\ format\ ("{}format\ binary\_little\_endian\ 1.0"{}).}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#ifndef\ DRACO\_IO\_PLY\_READER\_H\_}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#define\ DRACO\_IO\_PLY\_READER\_H\_}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{decoder__buffer_8h}{draco/core/decoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{draco__types_8h}{draco/core/draco\_types.h}}"{}}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status_8h}{draco/core/status.h}}"{}}}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status__or_8h}{draco/core/status\_or.h}}"{}}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ A\ single\ PLY\ property\ of\ a\ given\ PLY\ element.\ For\ "{}vertex"{}\ element\ this\ can}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ contain\ data\ such\ as\ "{}x"{},\ "{}y"{},\ or\ "{}z"{}\ coordinate\ of\ the\ vertex,\ while\ for}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ "{}face"{}\ element\ this\ usually\ contains\ corner\ indices.}}
+\DoxyCodeLine{00037\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_ply_property_a2fad647289bfaf759c7b8ffd1f56b90b}{PlyProperty}}\ \{}
+\DoxyCodeLine{00038\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00039\ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_ply_property_af3909708e5c64312dc18736fd317c80d}{PlyReader}};}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{classdraco_1_1_ply_property_a2fad647289bfaf759c7b8ffd1f56b90b}{PlyProperty}}(\textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{classdraco_1_1_ply_property_a72eb169bd07562f6af7e509c15a6c167}{name}},\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}}\ \mbox{\hyperlink{classdraco_1_1_ply_property_aa6aa7335bac9c1773c70af296edb40ef}{data\_type}},\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}}\ list\_type);}
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_ply_property_a780c091d678ea93103c3c4a15e6143a8}{ReserveData}}(\textcolor{keywordtype}{int}\ num\_entries)\ \{}
+\DoxyCodeLine{00043\ \ \ \ \ data\_.reserve(\mbox{\hyperlink{namespacedraco_a2ac1492b28fff97d071dc60c57bd269a}{DataTypeLength}}(data\_type\_)\ *\ num\_entries);}
+\DoxyCodeLine{00044\ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ int64\_t\ \mbox{\hyperlink{classdraco_1_1_ply_property_a24ea136de39daf8aedbd3789212f751e}{GetListEntryOffset}}(\textcolor{keywordtype}{int}\ entry\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordflow}{return}\ list\_data\_[entry\_id\ *\ 2];}
+\DoxyCodeLine{00048\ \ \ \}}
+\DoxyCodeLine{00049\ \ \ int64\_t\ \mbox{\hyperlink{classdraco_1_1_ply_property_a7d36fb790e587f4d7a4d08a78384adb8}{GetListEntryNumValues}}(\textcolor{keywordtype}{int}\ entry\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordflow}{return}\ list\_data\_[entry\_id\ *\ 2\ +\ 1];}
+\DoxyCodeLine{00051\ \ \ \}}
+\DoxyCodeLine{00052\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{classdraco_1_1_ply_property_adc711417d06b1fb4c2fe7b8d342db1e4}{GetDataEntryAddress}}(\textcolor{keywordtype}{int}\ entry\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordflow}{return}\ data\_.data()\ +\ entry\_id\ *\ data\_type\_num\_bytes\_;}
+\DoxyCodeLine{00054\ \ \ \}}
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_ply_property_a08eb96f9b10b4f1382a743adc7990408}{push\_back\_value}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}})\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ data\_.insert(data\_.end(),\ \textcolor{keyword}{static\_cast<}\textcolor{keyword}{const\ }uint8\_t\ *\textcolor{keyword}{>}(\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}),}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}\textcolor{keyword}{const\ }uint8\_t\ *\textcolor{keyword}{>}(\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}})\ +\ data\_type\_num\_bytes\_);}
+\DoxyCodeLine{00058\ \ \ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{classdraco_1_1_ply_property_a72eb169bd07562f6af7e509c15a6c167}{name}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ name\_;\ \}}
+\DoxyCodeLine{00061\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_ply_property_a273e77d63ef002b7fb1d06179c0f9913}{is\_list}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ list\_data\_type\_\ !=\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a571c2f2d142ee0ad41d9101a3de1132a}{DT\_INVALID}};\ \}}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}}\ \mbox{\hyperlink{classdraco_1_1_ply_property_aa6aa7335bac9c1773c70af296edb40ef}{data\_type}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ data\_type\_;\ \}}
+\DoxyCodeLine{00063\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_ply_property_ad63f11fe56d8d19125145951c9faccb3}{data\_type\_num\_bytes}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ data\_type\_num\_bytes\_;\ \}}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}}\ \mbox{\hyperlink{classdraco_1_1_ply_property_a0210030f3c8a248bb42a99aa1d6d1908}{list\_data\_type}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ list\_data\_type\_;\ \}}
+\DoxyCodeLine{00065\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_ply_property_a187f8864f1ce53012437fa3e6264dc52}{list\_data\_type\_num\_bytes}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ list\_data\_type\_num\_bytes\_;\ \}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00068\ \ \ std::string\ name\_;}
+\DoxyCodeLine{00069\ \ \ std::vector<uint8\_t>\ data\_;}
+\DoxyCodeLine{00070\ \ \ \textcolor{comment}{//\ List\ data\ contain\ pairs\ of\ <offset,\ number\_of\_values>}}
+\DoxyCodeLine{00071\ \ \ std::vector<int64\_t>\ list\_data\_;}
+\DoxyCodeLine{00072\ \ \ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}}\ data\_type\_;}
+\DoxyCodeLine{00073\ \ \ \textcolor{keywordtype}{int}\ data\_type\_num\_bytes\_;}
+\DoxyCodeLine{00074\ \ \ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}}\ list\_data\_type\_;}
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordtype}{int}\ list\_data\_type\_num\_bytes\_;}
+\DoxyCodeLine{00076\ \};}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \textcolor{comment}{//\ A\ single\ PLY\ element\ such\ as\ "{}vertex"{}\ or\ "{}face"{}.\ Each\ element\ can\ store}}
+\DoxyCodeLine{00079\ \textcolor{comment}{//\ arbitrary\ properties\ such\ as\ vertex\ coordinates\ or\ face\ indices.}}
+\DoxyCodeLine{00080\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_ply_element_aee8950b9185d40123bc81a72e8f72899}{PlyElement}}\ \{}
+\DoxyCodeLine{00081\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00082\ \ \ \mbox{\hyperlink{classdraco_1_1_ply_element_aee8950b9185d40123bc81a72e8f72899}{PlyElement}}(\textcolor{keyword}{const}\ std::string\ \&name,\ int64\_t\ \mbox{\hyperlink{classdraco_1_1_ply_element_a359f82a73a349d830d4e695873c2d97e}{num\_entries}});}
+\DoxyCodeLine{00083\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_ply_element_a21ff9d2054229437e30ab5b902122eb6}{AddProperty}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_ply_property}{PlyProperty}}\ \&prop)\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ property\_index\_[prop.\mbox{\hyperlink{classdraco_1_1_ply_property_a72eb169bd07562f6af7e509c15a6c167}{name}}()]\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(properties\_.size());}
+\DoxyCodeLine{00085\ \ \ \ \ properties\_.emplace\_back(prop);}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordflow}{if}\ (!properties\_.back().is\_list())\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ properties\_.back().ReserveData(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(num\_entries\_));}
+\DoxyCodeLine{00088\ \ \ \ \ \}}
+\DoxyCodeLine{00089\ \ \ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_ply_property}{PlyProperty}}\ *\mbox{\hyperlink{classdraco_1_1_ply_element_a4c17fc15b400382a1a6d2c342d230406}{GetPropertyByName}}(\textcolor{keyword}{const}\ std::string\ \&name)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ it\ =\ property\_index\_.find(name);}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ !=\ property\_index\_.end())\ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \&properties\_[it-\/>second];}
+\DoxyCodeLine{00095\ \ \ \ \ \}}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00097\ \ \ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_ply_element_af6fa533deba7b04e69061b7eec0605dc}{num\_properties}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(properties\_.size());\ \}}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_ply_element_a359f82a73a349d830d4e695873c2d97e}{num\_entries}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(num\_entries\_);\ \}}
+\DoxyCodeLine{00101\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_ply_property}{PlyProperty}}\ \&\mbox{\hyperlink{classdraco_1_1_ply_element_a9a56e8f7976682e7c53d5369c0b5dd1b}{property}}(\textcolor{keywordtype}{int}\ prop\_index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordflow}{return}\ properties\_[prop\_index];}
+\DoxyCodeLine{00103\ \ \ \}}
+\DoxyCodeLine{00104\ \ \ \mbox{\hyperlink{classdraco_1_1_ply_property}{PlyProperty}}\ \&\mbox{\hyperlink{classdraco_1_1_ply_element_a1317dcc9c0d13393a31bfb62cdb7994e}{property}}(\textcolor{keywordtype}{int}\ prop\_index)\ \{\ \textcolor{keywordflow}{return}\ properties\_[prop\_index];\ \}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00107\ \ \ std::string\ name\_;}
+\DoxyCodeLine{00108\ \ \ int64\_t\ num\_entries\_;}
+\DoxyCodeLine{00109\ \ \ std::vector<PlyProperty>\ properties\_;}
+\DoxyCodeLine{00110\ \ \ std::map<std::string,\ int>\ property\_index\_;}
+\DoxyCodeLine{00111\ \};}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \textcolor{comment}{//\ Class\ responsible\ for\ parsing\ PLY\ data.\ It\ produces\ a\ list\ of\ PLY\ elements}}
+\DoxyCodeLine{00114\ \textcolor{comment}{//\ and\ their\ properties\ that\ can\ be\ used\ to\ construct\ a\ mesh\ or\ a\ point\ cloud.}}
+\DoxyCodeLine{00115\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_ply_reader_a72920cb6f021b91a9282edf2e009e830}{PlyReader}}\ \{}
+\DoxyCodeLine{00116\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00117\ \ \ \mbox{\hyperlink{classdraco_1_1_ply_reader_a72920cb6f021b91a9282edf2e009e830}{PlyReader}}();}
+\DoxyCodeLine{00118\ \ \ \mbox{\hyperlink{classdraco_1_1_status}{Status}}\ \mbox{\hyperlink{classdraco_1_1_ply_reader_ae44213aee4049ca2860a551d67121150}{Read}}(\mbox{\hyperlink{classdraco_1_1_decoder_buffer}{DecoderBuffer}}\ *buffer);}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_ply_element}{PlyElement}}\ *\mbox{\hyperlink{classdraco_1_1_ply_reader_a9fdfbe4751f2dc89dc4aa60c9f596c95}{GetElementByName}}(\textcolor{keyword}{const}\ std::string\ \&name)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ it\ =\ element\_index\_.find(name);}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ !=\ element\_index\_.end())\ \{}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \&elements\_[it-\/>second];}
+\DoxyCodeLine{00124\ \ \ \ \ \}}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00126\ \ \ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_ply_reader_a52c40c7b1508f7c1753ca43777eb7fca}{num\_elements}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(elements\_.size());\ \}}
+\DoxyCodeLine{00129\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_ply_element}{PlyElement}}\ \&\mbox{\hyperlink{classdraco_1_1_ply_reader_a29b581d34eef2c25ecaf9b0e4e484b88}{element}}(\textcolor{keywordtype}{int}\ element\_index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordflow}{return}\ elements\_[element\_index];}
+\DoxyCodeLine{00131\ \ \ \}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00134\ \ \ \textcolor{keyword}{enum}\ Format\ \{\ kLittleEndian\ =\ 0,\ kAscii\ \};}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \mbox{\hyperlink{interface_status}{Status}}\ ParseHeader(\mbox{\hyperlink{interface_decoder_buffer}{DecoderBuffer}}\ *buffer);}
+\DoxyCodeLine{00137\ \ \ StatusOr<bool>\ ParseEndHeader(\mbox{\hyperlink{interface_decoder_buffer}{DecoderBuffer}}\ *buffer);}
+\DoxyCodeLine{00138\ \ \ \textcolor{keywordtype}{bool}\ ParseElement(\mbox{\hyperlink{interface_decoder_buffer}{DecoderBuffer}}\ *buffer);}
+\DoxyCodeLine{00139\ \ \ StatusOr<bool>\ ParseProperty(\mbox{\hyperlink{interface_decoder_buffer}{DecoderBuffer}}\ *buffer);}
+\DoxyCodeLine{00140\ \ \ \textcolor{keywordtype}{bool}\ ParsePropertiesData(\mbox{\hyperlink{interface_decoder_buffer}{DecoderBuffer}}\ *buffer);}
+\DoxyCodeLine{00141\ \ \ \textcolor{keywordtype}{bool}\ ParseElementData(\mbox{\hyperlink{interface_decoder_buffer}{DecoderBuffer}}\ *buffer,\ \textcolor{keywordtype}{int}\ element\_index);}
+\DoxyCodeLine{00142\ \ \ \textcolor{keywordtype}{bool}\ ParseElementDataAscii(\mbox{\hyperlink{interface_decoder_buffer}{DecoderBuffer}}\ *buffer,\ \textcolor{keywordtype}{int}\ element\_index);}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \textcolor{comment}{//\ Splits\ |line|\ by\ whitespace\ characters.}}
+\DoxyCodeLine{00145\ \ \ std::vector<std::string>\ SplitWords(\textcolor{keyword}{const}\ std::string\ \&line);}
+\DoxyCodeLine{00146\ \ \ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}}\ GetDataTypeFromString(\textcolor{keyword}{const}\ std::string\ \&name)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ std::vector<PlyElement>\ elements\_;}
+\DoxyCodeLine{00149\ \ \ std::map<std::string,\ int>\ element\_index\_;}
+\DoxyCodeLine{00150\ \ \ Format\ format\_;}
+\DoxyCodeLine{00151\ \};}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_IO\_PLY\_READER\_H\_}}
+
+\end{DoxyCode}

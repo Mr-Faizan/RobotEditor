@@ -1,0 +1,147 @@
+\doxysection{draco\+\_\+compression\+\_\+options.\+h}
+\hypertarget{draco__compression__options_8h_source}{}\label{draco__compression__options_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/draco\_compression\_options.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/draco\_compression\_options.h}}
+\mbox{\hyperlink{draco__compression__options_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2019\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_DRACO\_COMPRESSION\_OPTIONS\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_DRACO\_COMPRESSION\_OPTIONS\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status_8h}{draco/core/status.h}}"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ Quantization\ options\ for\ positions.\ Currently\ there\ are\ two\ modes\ for}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ quantizing\ positions:}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ \ \ 1.\ Quantization\ bits:}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ \ \ \ \ \ \ \ -\/\ User\ defined\ number\ of\ quantization\ bits\ that\ is\ evenly\ distributed}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ to\ cover\ the\ compressed\ geometry.}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ \ \ 2.\ Grid:}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ \ \ \ \ \ \ \ -\/\ Positions\ are\ snapped\ to\ a\ global\ grid\ defined\ by\ grid\ spacing.}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ \ \ \ \ \ \ \ -\/\ This\ method\ is\ primarily\ intended\ to\ be\ used\ when\ the\ location\ of}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ quantized\ vertices\ needs\ to\ be\ consistent\ between\ multiple}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ geometries.}}
+\DoxyCodeLine{00036\ \textcolor{keyword}{class\ }SpatialQuantizationOptions\ \{}
+\DoxyCodeLine{00037\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00038\ \ \ \textcolor{keyword}{explicit}\ SpatialQuantizationOptions(\textcolor{keywordtype}{int}\ quantization\_bits);}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \textcolor{comment}{//\ Sets\ quantization\ bits\ that\ are\ going\ to\ be\ used\ for\ the\ compressed}}
+\DoxyCodeLine{00041\ \ \ \textcolor{comment}{//\ geometry.\ If\ the\ geometry\ is\ a\ scene,\ the\ same\ number\ of\ quantization\ bits}}
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ is\ going\ to\ be\ applied\ to\ each\ mesh\ of\ the\ scene.\ Quantized\ values\ are}}
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ going\ to\ be\ distributed\ within\ the\ bounds\ of\ individual\ meshes.}}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{void}\ SetQuantizationBits(\textcolor{keywordtype}{int}\ quantization\_bits);}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ If\ this\ returns\ true,\ quantization\_bits()\ should\ be\ used\ to\ get\ the}}
+\DoxyCodeLine{00047\ \ \ \textcolor{comment}{//\ desired\ number\ of\ quantization\ bits\ for\ compression.\ Otherwise\ the\ grid}}
+\DoxyCodeLine{00048\ \ \ \textcolor{comment}{//\ mode\ is\ selected\ and\ spacing()\ should\ be\ used\ to\ get\ the\ desired\ grid}}
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//\ spacing.}}
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordtype}{bool}\ AreQuantizationBitsDefined()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00051\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ quantization\_bits()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ quantization\_bits\_;\ \}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \textcolor{comment}{//\ Defines\ quantization\ grid\ used\ for\ the\ compressed\ geometry.\ All\ vertices}}
+\DoxyCodeLine{00054\ \ \ \textcolor{comment}{//\ are\ going\ to\ be\ snapped\ to\ the\ nearest\ grid\ vertex\ that\ corresponds\ to\ an}}
+\DoxyCodeLine{00055\ \ \ \textcolor{comment}{//\ integer\ quantized\ position.\ |spacing|\ defines\ the\ distance\ between\ two\ grid}}
+\DoxyCodeLine{00056\ \ \ \textcolor{comment}{//\ vertices.\ E.g.\ a\ grid\ with\ |spacing|\ =\ 10\ would\ have\ grid\ vertices\ at}}
+\DoxyCodeLine{00057\ \ \ \textcolor{comment}{//\ locations\ \{10\ *\ i,\ 10\ *\ j,\ 10\ *\ k\}\ where\ i,\ j,\ k\ are\ integer\ numbers.}}
+\DoxyCodeLine{00058\ \ \ SpatialQuantizationOptions\ \&SetGrid(\textcolor{keywordtype}{float}\ spacing);}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ spacing()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ spacing\_;\ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_a4fe1c9b8096b3c21d3dd1e19c3eff59f}{operator==}}(\textcolor{keyword}{const}\ SpatialQuantizationOptions\ \&other)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00065\ \ \ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespacedraco_1_1constrained__multi__parallelogram_a11165ae4b823f707c99744a2b6ec53cc}{Mode}}\ \{\ LOCAL\_QUANTIZATION\_BITS,\ GLOBAL\_GRID\ \};}
+\DoxyCodeLine{00066\ \ \ \mbox{\hyperlink{namespacedraco_1_1constrained__multi__parallelogram_a11165ae4b823f707c99744a2b6ec53cc}{Mode}}\ mode\_\ =\ LOCAL\_QUANTIZATION\_BITS;}
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordtype}{int}\ quantization\_bits\_;\ \ \textcolor{comment}{//\ Default\ quantization\ bits\ for\ positions.}}
+\DoxyCodeLine{00068\ \ \ \textcolor{keywordtype}{float}\ spacing\_\ =\ 0.f;}
+\DoxyCodeLine{00069\ \};}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \textcolor{comment}{//\ TODO(fgalligan):\ Add\ support\ for\ unified\_position\_quantization.}}
+\DoxyCodeLine{00072\ \textcolor{comment}{//\ Struct\ to\ hold\ Draco\ compression\ options.}}
+\DoxyCodeLine{00073\ \textcolor{keyword}{struct\ }DracoCompressionOptions\ \{}
+\DoxyCodeLine{00074\ \ \ \textcolor{keywordtype}{int}\ compression\_level\ =\ 7;\ \ \textcolor{comment}{//\ compression\ level\ [0-\/10],\ most=10,\ least=0.}}
+\DoxyCodeLine{00075\ \ \ SpatialQuantizationOptions\ quantization\_position\{11\};}
+\DoxyCodeLine{00076\ \ \ \textcolor{keywordtype}{int}\ quantization\_bits\_normal\ =\ 8;}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordtype}{int}\ quantization\_bits\_tex\_coord\ =\ 10;}
+\DoxyCodeLine{00078\ \ \ \textcolor{keywordtype}{int}\ quantization\_bits\_color\ =\ 8;}
+\DoxyCodeLine{00079\ \ \ \textcolor{keywordtype}{int}\ quantization\_bits\_generic\ =\ 8;}
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordtype}{int}\ quantization\_bits\_tangent\ =\ 8;}
+\DoxyCodeLine{00081\ \ \ \textcolor{keywordtype}{int}\ quantization\_bits\_weight\ =\ 8;}
+\DoxyCodeLine{00082\ \ \ \textcolor{keywordtype}{bool}\ find\_non\_degenerate\_texture\_quantization\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_a4fe1c9b8096b3c21d3dd1e19c3eff59f}{operator==}}(\textcolor{keyword}{const}\ DracoCompressionOptions\ \&other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{keywordflow}{return}\ compression\_level\ ==\ other.compression\_level\ \&\&}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ quantization\_position\ ==\ other.quantization\_position\ \&\&}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ quantization\_bits\_normal\ ==\ other.quantization\_bits\_normal\ \&\&}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \ \ \ quantization\_bits\_tex\_coord\ ==\ other.quantization\_bits\_tex\_coord\ \&\&}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \ \ \ quantization\_bits\_color\ ==\ other.quantization\_bits\_color\ \&\&}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ quantization\_bits\_generic\ ==\ other.quantization\_bits\_generic\ \&\&}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ quantization\_bits\_tangent\ ==\ other.quantization\_bits\_tangent\ \&\&}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ quantization\_bits\_weight\ ==\ other.quantization\_bits\_weight\ \&\&}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ find\_non\_degenerate\_texture\_quantization\ ==}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ other.find\_non\_degenerate\_texture\_quantization;}
+\DoxyCodeLine{00095\ \ \ \}}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_ac45cd9ddda9dd7a4682f0c57f4077fc1}{operator!=}}(\textcolor{keyword}{const}\ DracoCompressionOptions\ \&other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordflow}{return}\ !(*\textcolor{keyword}{this}\ ==\ other);}
+\DoxyCodeLine{00099\ \ \ \}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ Status\ Check()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00102\ \ \ \ \ \mbox{\hyperlink{status_8h_a5a88474d659482a73cdbb50205428b91}{DRACO\_RETURN\_IF\_ERROR}}(}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ Validate(\textcolor{stringliteral}{"{}Compression\ level"{}},\ compression\_level,\ 0,\ 10));}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordflow}{if}\ (quantization\_position.AreQuantizationBitsDefined())\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \mbox{\hyperlink{status_8h_a5a88474d659482a73cdbb50205428b91}{DRACO\_RETURN\_IF\_ERROR}}(Validate(\textcolor{stringliteral}{"{}Position\ quantization"{}},}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ quantization\_position.quantization\_bits(),}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 0,\ 30));}
+\DoxyCodeLine{00108\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (quantization\_position.spacing()\ <=\ 0.f)\ \{}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_abb5e3a519ea336eac0cdebdc362ca8ad}{ErrorStatus}}(\textcolor{stringliteral}{"{}Position\ quantization\ spacing\ is\ invalid."{}});}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00112\ \ \ \ \ \}}
+\DoxyCodeLine{00113\ \ \ \ \ \mbox{\hyperlink{status_8h_a5a88474d659482a73cdbb50205428b91}{DRACO\_RETURN\_IF\_ERROR}}(}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ Validate(\textcolor{stringliteral}{"{}Normals\ quantization"{}},\ quantization\_bits\_normal,\ 0,\ 30));}
+\DoxyCodeLine{00115\ \ \ \ \ \mbox{\hyperlink{status_8h_a5a88474d659482a73cdbb50205428b91}{DRACO\_RETURN\_IF\_ERROR}}(}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ Validate(\textcolor{stringliteral}{"{}Tex\ coord\ quantization"{}},\ quantization\_bits\_tex\_coord,\ 0,\ 30));}
+\DoxyCodeLine{00117\ \ \ \ \ \mbox{\hyperlink{status_8h_a5a88474d659482a73cdbb50205428b91}{DRACO\_RETURN\_IF\_ERROR}}(}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ Validate(\textcolor{stringliteral}{"{}Color\ quantization"{}},\ quantization\_bits\_color,\ 0,\ 30));}
+\DoxyCodeLine{00119\ \ \ \ \ \mbox{\hyperlink{status_8h_a5a88474d659482a73cdbb50205428b91}{DRACO\_RETURN\_IF\_ERROR}}(}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ Validate(\textcolor{stringliteral}{"{}Generic\ quantization"{}},\ quantization\_bits\_generic,\ 0,\ 30));}
+\DoxyCodeLine{00121\ \ \ \ \ \mbox{\hyperlink{status_8h_a5a88474d659482a73cdbb50205428b91}{DRACO\_RETURN\_IF\_ERROR}}(}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ Validate(\textcolor{stringliteral}{"{}Tangent\ quantization"{}},\ quantization\_bits\_tangent,\ 0,\ 30));}
+\DoxyCodeLine{00123\ \ \ \ \ \mbox{\hyperlink{status_8h_a5a88474d659482a73cdbb50205428b91}{DRACO\_RETURN\_IF\_ERROR}}(}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ Validate(\textcolor{stringliteral}{"{}Weights\ quantization"{}},\ quantization\_bits\_weight,\ 0,\ 30));}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_a98fb2c12697393126194bb729d2e4bb8}{OkStatus}}();}
+\DoxyCodeLine{00126\ \ \ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \textcolor{keyword}{static}\ Status\ Validate(\textcolor{keyword}{const}\ std::string\ \&name,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}},\ \textcolor{keywordtype}{int}\ min,\ \textcolor{keywordtype}{int}\ max)\ \{}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value\ <\ min\ ||\ value\ >}}\ max)\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ range\ =}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}["{}}\ +\ std::to\_string(min)\ +\ \textcolor{stringliteral}{"{}-\/"{}}\ +\ std::to\_string(max)\ +\ \textcolor{stringliteral}{"{}]."{}};}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Status(Status::DRACO\_ERROR,\ name\ +\ \textcolor{stringliteral}{"{}\ is\ out\ of\ range\ "{}}\ +\ range);}
+\DoxyCodeLine{00133\ \ \ \ \ \}}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_a98fb2c12697393126194bb729d2e4bb8}{OkStatus}}();}
+\DoxyCodeLine{00135\ \ \ \}}
+\DoxyCodeLine{00136\ \};}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00141\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_DRACO\_COMPRESSION\_OPTIONS\_H\_}}
+
+\end{DoxyCode}

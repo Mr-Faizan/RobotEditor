@@ -1,0 +1,373 @@
+\doxysection{zip.\+h}
+\hypertarget{zlib_2contrib_2minizip_2zip_8h_source}{}\label{zlib_2contrib_2minizip_2zip_8h_source}\index{RobotLib/libraries/assimp/contrib/zlib/contrib/minizip/zip.h@{RobotLib/libraries/assimp/contrib/zlib/contrib/minizip/zip.h}}
+\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ zip.h\ -\/-\/\ IO\ on\ .zip\ files\ using\ zlib}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ \ \ Version\ 1.1,\ February\ 14h,\ 2010}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ \ \ part\ of\ the\ MiniZip\ project\ -\/\ (\ http://www.winimage.com/zLibDll/minizip.html\ )}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ Copyright\ (C)\ 1998-\/2010\ Gilles\ Vollant\ (minizip)\ (\ http://www.winimage.com/zLibDll/minizip.html\ )}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ Modifications\ for\ Zip64\ support}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ Copyright\ (C)\ 2009-\/2010\ Mathias\ Svensson\ (\ http://result42.com\ )}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ For\ more\ info\ read\ MiniZip\_info.txt}}
+\DoxyCodeLine{00011\ \textcolor{comment}{}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ \ Condition\ of\ use\ and\ distribution\ are\ the\ same\ than\ zlib\ :}}
+\DoxyCodeLine{00015\ \textcolor{comment}{}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ \ This\ software\ is\ provided\ 'as-\/is',\ without\ any\ express\ or\ implied}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ \ warranty.\ \ In\ no\ event\ will\ the\ authors\ be\ held\ liable\ for\ any\ damages}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ \ arising\ from\ the\ use\ of\ this\ software.}}
+\DoxyCodeLine{00019\ \textcolor{comment}{}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ Permission\ is\ granted\ to\ anyone\ to\ use\ this\ software\ for\ any\ purpose,}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ \ including\ commercial\ applications,\ and\ to\ alter\ it\ and\ redistribute\ it}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ \ freely,\ subject\ to\ the\ following\ restrictions:}}
+\DoxyCodeLine{00023\ \textcolor{comment}{}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ 1.\ The\ origin\ of\ this\ software\ must\ not\ be\ misrepresented;\ you\ must\ not}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ \ \ \ claim\ that\ you\ wrote\ the\ original\ software.\ If\ you\ use\ this\ software}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ \ \ \ in\ a\ product,\ an\ acknowledgment\ in\ the\ product\ documentation\ would\ be}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ \ \ \ \ appreciated\ but\ is\ not\ required.}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ \ 2.\ Altered\ source\ versions\ must\ be\ plainly\ marked\ as\ such,\ and\ must\ not\ be}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ \ \ \ \ misrepresented\ as\ being\ the\ original\ software.}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ \ 3.\ This\ notice\ may\ not\ be\ removed\ or\ altered\ from\ any\ source\ distribution.}}
+\DoxyCodeLine{00031\ \textcolor{comment}{}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ \ \ \ \ \ \ \ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00033\ \textcolor{comment}{}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ \ \ \ \ \ \ \ Changes}}
+\DoxyCodeLine{00035\ \textcolor{comment}{}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ \ \ \ \ \ \ \ See\ header\ of\ zip.h}}
+\DoxyCodeLine{00037\ \textcolor{comment}{}}
+\DoxyCodeLine{00038\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \textcolor{preprocessor}{\#ifndef\ \_zip12\_H}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#define\ \_zip12\_H}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00044\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{comment}{//\#define\ HAVE\_BZIP2}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#ifndef\ \_ZLIB\_H}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{zlib_8h}{zlib.h}}"{}}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#ifndef\ \_ZLIBIOAPI\_H}}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h}{ioapi.h}}"{}}}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#ifdef\ HAVE\_BZIP2}}
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\#include\ "{}bzlib.h"{}}}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#define\ Z\_BZIP2ED\ 12}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{\#if\ defined(STRICTZIP)\ ||\ defined(STRICTZIPUNZIP)}}
+\DoxyCodeLine{00064\ \textcolor{comment}{/*\ like\ the\ STRICT\ of\ WIN32,\ we\ define\ a\ pointer\ that\ cannot\ be\ converted}}
+\DoxyCodeLine{00065\ \textcolor{comment}{\ \ \ \ from\ (void*)\ without\ cast\ */}}
+\DoxyCodeLine{00066\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }TagzipFile\_\_\ \{\ \textcolor{keywordtype}{int}\ unused;\ \}\ zipFile\_\_;}
+\DoxyCodeLine{00067\ \textcolor{keyword}{typedef}\ zipFile\_\_\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}};}
+\DoxyCodeLine{00068\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00069\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa3397ff439b5e076528b04bc9b8b086a}{voidp}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}};}
+\DoxyCodeLine{00070\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \textcolor{preprocessor}{\#define\ ZIP\_OK\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (0)}}
+\DoxyCodeLine{00073\ \textcolor{preprocessor}{\#define\ ZIP\_EOF\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (0)}}
+\DoxyCodeLine{00074\ \textcolor{preprocessor}{\#define\ ZIP\_ERRNO\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (Z\_ERRNO)}}
+\DoxyCodeLine{00075\ \textcolor{preprocessor}{\#define\ ZIP\_PARAMERROR\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (-\/102)}}
+\DoxyCodeLine{00076\ \textcolor{preprocessor}{\#define\ ZIP\_BADZIPFILE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (-\/103)}}
+\DoxyCodeLine{00077\ \textcolor{preprocessor}{\#define\ ZIP\_INTERNALERROR\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (-\/104)}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\#ifndef\ DEF\_MEM\_LEVEL}}
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\#\ \ if\ MAX\_MEM\_LEVEL\ >=\ 8}}
+\DoxyCodeLine{00081\ \textcolor{preprocessor}{\#\ \ \ \ define\ DEF\_MEM\_LEVEL\ 8}}
+\DoxyCodeLine{00082\ \textcolor{preprocessor}{\#\ \ else}}
+\DoxyCodeLine{00083\ \textcolor{preprocessor}{\#\ \ \ \ define\ DEF\_MEM\_LEVEL\ \ MAX\_MEM\_LEVEL}}
+\DoxyCodeLine{00084\ \textcolor{preprocessor}{\#\ \ endif}}
+\DoxyCodeLine{00085\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00086\ \textcolor{comment}{/*\ default\ memLevel\ */}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \textcolor{comment}{/*\ tm\_zip\ contain\ date/time\ info\ */}}
+\DoxyCodeLine{00089\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structtm__zip__s}{tm\_zip\_s}}}
+\DoxyCodeLine{00090\ \{}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__zip__s_a36f546db2d49b26278faa535548b0430}{tm\_sec}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ seconds\ after\ the\ minute\ -\/\ [0,59]\ */}}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__zip__s_a2337b8ea536c87bec10981305217a93d}{tm\_min}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ minutes\ after\ the\ hour\ -\/\ [0,59]\ */}}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__zip__s_a0f0024cc8b24daa42085974655803422}{tm\_hour}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ hours\ since\ midnight\ -\/\ [0,23]\ */}}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__zip__s_aed1819e9a5bdef4fd466248752b9f659}{tm\_mday}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ day\ of\ the\ month\ -\/\ [1,31]\ */}}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__zip__s_a4859acc1ec5409fd630ebf44337d8a1d}{tm\_mon}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ months\ since\ January\ -\/\ [0,11]\ */}}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__zip__s_ae636e8e363a3cc5b71ab8b91253be2d1}{tm\_year}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ years\ -\/\ [1980..2044]\ */}}
+\DoxyCodeLine{00097\ \}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_a366357ab0ffbbfd360e5bc08a7b798c1}{tm\_zip}};}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{00100\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_a366357ab0ffbbfd360e5bc08a7b798c1}{tm\_zip}}\ \ \ \ \ \ \mbox{\hyperlink{structzip__fileinfo_ae09a694a598b7507d23705764c9e46fb}{tmz\_date}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ date\ in\ understandable\ format\ \ \ \ \ \ \ \ \ \ \ */}}
+\DoxyCodeLine{00102\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \ \ \ \ \ \ \mbox{\hyperlink{structzip__fileinfo_a0541c57e59450fbc17b2f898ca4bc9e8}{dosDate}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ if\ dos\_date\ ==\ 0,\ tmu\_date\ is\ used\ \ \ \ \ \ */}}
+\DoxyCodeLine{00103\ \textcolor{comment}{/*\ \ \ \ uLong\ \ \ \ \ \ \ flag;\ \ \ \ \ \ \ \ */}\ \ \ \textcolor{comment}{/*\ general\ purpose\ bit\ flag\ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \ \ \ \ \ \ \mbox{\hyperlink{structzip__fileinfo_a396175a434b86115ce5600ab1dbb1644}{internal\_fa}};\ \ \ \ \textcolor{comment}{/*\ internal\ file\ attributes\ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00106\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \ \ \ \ \ \ \mbox{\hyperlink{structzip__fileinfo_ac0be78ded330ffd46815bafc5b6b37bb}{external\_fa}};\ \ \ \ \textcolor{comment}{/*\ external\ file\ attributes\ \ \ \ \ \ \ \ 4\ bytes\ */}}
+\DoxyCodeLine{00107\ \}\ \mbox{\hyperlink{structzip__fileinfo}{zip\_fileinfo}};}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_a3fb78711550861eb5b72cff21f1b1a84}{zipcharpc}};}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \textcolor{preprocessor}{\#define\ APPEND\_STATUS\_CREATE\ \ \ \ \ \ \ \ (0)}}
+\DoxyCodeLine{00113\ \textcolor{preprocessor}{\#define\ APPEND\_STATUS\_CREATEAFTER\ \ \ (1)}}
+\DoxyCodeLine{00114\ \textcolor{preprocessor}{\#define\ APPEND\_STATUS\_ADDINZIP\ \ \ \ \ \ (2)}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_ae0bf5ebf414b17a1c343c418d26c1a37}{zipOpen}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *pathname,\ \textcolor{keywordtype}{int}\ append));}
+\DoxyCodeLine{00117\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_afe7bbafff91fba994da2597f646e9548}{zipOpen64}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *pathname,\ \textcolor{keywordtype}{int}\ append));}
+\DoxyCodeLine{00118\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00119\ \textcolor{comment}{\ \ Create\ a\ zipfile.}}
+\DoxyCodeLine{00120\ \textcolor{comment}{\ \ \ \ \ pathname\ contain\ on\ Windows\ XP\ a\ filename\ like\ "{}c:\(\backslash\)\(\backslash\)zlib\(\backslash\)\(\backslash\)zlib113.zip"{}\ or\ on}}
+\DoxyCodeLine{00121\ \textcolor{comment}{\ \ \ \ \ \ \ an\ Unix\ computer\ "{}zlib/zlib113.zip"{}.}}
+\DoxyCodeLine{00122\ \textcolor{comment}{\ \ \ \ \ if\ the\ file\ pathname\ exist\ and\ append==APPEND\_STATUS\_CREATEAFTER,\ the\ zip}}
+\DoxyCodeLine{00123\ \textcolor{comment}{\ \ \ \ \ \ \ will\ be\ created\ at\ the\ end\ of\ the\ file.}}
+\DoxyCodeLine{00124\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ (useful\ if\ the\ file\ contain\ a\ self\ extractor\ code)}}
+\DoxyCodeLine{00125\ \textcolor{comment}{\ \ \ \ \ if\ the\ file\ pathname\ exist\ and\ append==APPEND\_STATUS\_ADDINZIP,\ we\ will}}
+\DoxyCodeLine{00126\ \textcolor{comment}{\ \ \ \ \ \ \ add\ files\ in\ existing\ zip\ (be\ sure\ you\ don't\ add\ file\ that\ doesn't\ exist)}}
+\DoxyCodeLine{00127\ \textcolor{comment}{\ \ \ \ \ If\ the\ zipfile\ cannot\ be\ opened,\ the\ return\ value\ is\ NULL.}}
+\DoxyCodeLine{00128\ \textcolor{comment}{\ \ \ \ \ Else,\ the\ return\ value\ is\ a\ zipFile\ Handle,\ usable\ with\ other\ function}}
+\DoxyCodeLine{00129\ \textcolor{comment}{\ \ \ \ \ \ \ of\ this\ zip\ package.}}
+\DoxyCodeLine{00130\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \textcolor{comment}{/*\ Note\ :\ there\ is\ no\ delete\ function\ into\ a\ zipfile.}}
+\DoxyCodeLine{00133\ \textcolor{comment}{\ \ \ If\ you\ want\ delete\ file\ into\ a\ zipfile,\ you\ must\ open\ a\ zipfile,\ and\ create\ another}}
+\DoxyCodeLine{00134\ \textcolor{comment}{\ \ \ Of\ couse,\ you\ can\ use\ RAW\ reading\ and\ writing\ to\ copy\ the\ file\ you\ did\ not\ want\ delte}}
+\DoxyCodeLine{00135\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a07449509c0da16867d0a8ec94a4d50ae}{zipOpen2}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *pathname,}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ append,}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_a3fb78711550861eb5b72cff21f1b1a84}{zipcharpc}}*\ globalcomment,}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{unzip_2ioapi_8h_aa18c0f63ac4db2874d8f0f31f7c950e4}{zlib\_filefunc\_def}}*\ pzlib\_filefunc\_def));}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a91768e957bb8930ab843aebe4489a7a5}{zipOpen2\_64}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *pathname,}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ append,}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_a3fb78711550861eb5b72cff21f1b1a84}{zipcharpc}}*\ globalcomment,}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{unzip_2ioapi_8h_a19ae20dfb3c6ebc0058b0145d26ef667}{zlib\_filefunc64\_def}}*\ pzlib\_filefunc\_def));}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a7b8827be59c2d88ae6cafed4a32656bd}{zipOpen3}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *pathname,}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ append,}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_a3fb78711550861eb5b72cff21f1b1a84}{zipcharpc}}*\ globalcomment,}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{unzip_2ioapi_8h_aa972735aa3368e0f7141e6c9dc7ccd4f}{zlib\_filefunc64\_32\_def}}*\ pzlib\_filefunc64\_32\_def));}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a14cf664b19f00f41f6865a7c3173e973}{zipOpenNewFileInZip}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structzip__fileinfo}{zip\_fileinfo}}*\ zipfi,}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_local,}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_local,}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_global,}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_global,}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ comment,}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ method,}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ level));}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a180a6d99515153ada3b58349fcee6a4c}{zipOpenNewFileInZip64}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structzip__fileinfo}{zip\_fileinfo}}*\ zipfi,}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_local,}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_local,}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_global,}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_global,}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ comment,}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ method,}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ level,}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ zip64));}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00176\ \textcolor{comment}{\ \ Open\ a\ file\ in\ the\ ZIP\ for\ writing.}}
+\DoxyCodeLine{00177\ \textcolor{comment}{\ \ filename\ :\ the\ filename\ in\ zip\ (if\ NULL,\ '-\/'\ without\ quote\ will\ be\ used}}
+\DoxyCodeLine{00178\ \textcolor{comment}{\ \ *zipfi\ contain\ supplemental\ information}}
+\DoxyCodeLine{00179\ \textcolor{comment}{\ \ if\ extrafield\_local!=NULL\ and\ size\_extrafield\_local>0,\ extrafield\_local}}
+\DoxyCodeLine{00180\ \textcolor{comment}{\ \ \ \ contains\ the\ extrafield\ data\ the\ the\ local\ header}}
+\DoxyCodeLine{00181\ \textcolor{comment}{\ \ if\ extrafield\_global!=NULL\ and\ size\_extrafield\_global>0,\ extrafield\_global}}
+\DoxyCodeLine{00182\ \textcolor{comment}{\ \ \ \ contains\ the\ extrafield\ data\ the\ the\ local\ header}}
+\DoxyCodeLine{00183\ \textcolor{comment}{\ \ if\ comment\ !=\ NULL,\ comment\ contain\ the\ comment\ string}}
+\DoxyCodeLine{00184\ \textcolor{comment}{\ \ method\ contain\ the\ compression\ method\ (0\ for\ store,\ Z\_DEFLATED\ for\ deflate)}}
+\DoxyCodeLine{00185\ \textcolor{comment}{\ \ level\ contain\ the\ level\ of\ compression\ (can\ be\ Z\_DEFAULT\_COMPRESSION)}}
+\DoxyCodeLine{00186\ \textcolor{comment}{\ \ zip64\ is\ set\ to\ 1\ if\ a\ zip64\ extended\ information\ block\ should\ be\ added\ to\ the\ local\ file\ header.}}
+\DoxyCodeLine{00187\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ this\ MUST\ be\ '1'\ if\ the\ uncompressed\ size\ is\ >=\ 0xffffffff.}}
+\DoxyCodeLine{00188\ \textcolor{comment}{}}
+\DoxyCodeLine{00189\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_ae3c822f7ddf7c351e7a6c633ed1590d4}{zipOpenNewFileInZip2}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structzip__fileinfo}{zip\_fileinfo}}*\ zipfi,}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_local,}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_local,}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_global,}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_global,}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ comment,}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ method,}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ level,}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ raw));}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_ad975ed2489784c4ae4847d75bc3fc7bc}{zipOpenNewFileInZip2\_64}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structzip__fileinfo}{zip\_fileinfo}}*\ zipfi,}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_local,}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_local,}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_global,}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_global,}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ comment,}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ method,}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ level,}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ raw,}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ zip64));}
+\DoxyCodeLine{00217\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00218\ \textcolor{comment}{\ \ Same\ than\ zipOpenNewFileInZip,\ except\ if\ raw=1,\ we\ write\ raw\ file}}
+\DoxyCodeLine{00219\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00221\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a6b17cc2fa173054a156218befe2b31f5}{zipOpenNewFileInZip3}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structzip__fileinfo}{zip\_fileinfo}}*\ zipfi,}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_local,}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_local,}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_global,}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_global,}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ comment,}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ method,}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ level,}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ raw,}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ windowBits,}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ memLevel,}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ strategy,}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ password,}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ crcForCrypting));}
+\DoxyCodeLine{00237\ }
+\DoxyCodeLine{00238\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_adef753bf5ddc5752d6069a2d4f3ca0e9}{zipOpenNewFileInZip3\_64}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structzip__fileinfo}{zip\_fileinfo}}*\ zipfi,}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_local,}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_local,}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_global,}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_global,}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ comment,}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ method,}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ level,}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ raw,}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ windowBits,}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ memLevel,}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ strategy,}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ password,}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ crcForCrypting,}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ zip64}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ));}
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00257\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00258\ \textcolor{comment}{\ \ Same\ than\ zipOpenNewFileInZip2,\ except}}
+\DoxyCodeLine{00259\ \textcolor{comment}{\ \ \ \ windowBits,memLevel,,strategy\ :\ see\ parameter\ strategy\ in\ deflateInit2}}
+\DoxyCodeLine{00260\ \textcolor{comment}{\ \ \ \ password\ :\ crypting\ password\ (NULL\ for\ no\ crypting)}}
+\DoxyCodeLine{00261\ \textcolor{comment}{\ \ \ \ crcForCrypting\ :\ crc\ of\ file\ to\ compress\ (needed\ for\ crypting)}}
+\DoxyCodeLine{00262\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00264\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a18b74c0699d8c456b405a0fa43a322e8}{zipOpenNewFileInZip4}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structzip__fileinfo}{zip\_fileinfo}}*\ zipfi,}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_local,}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_local,}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_global,}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_global,}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ comment,}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ method,}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ level,}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ raw,}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ windowBits,}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ memLevel,}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ strategy,}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ password,}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ crcForCrypting,}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ versionMadeBy,}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ flagBase}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ));}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a638e4d5a7305f25e1ef6c2f6f14e2861}{zipOpenNewFileInZip4\_64}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structzip__fileinfo}{zip\_fileinfo}}*\ zipfi,}
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_local,}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_local,}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ extrafield\_global,}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ size\_extrafield\_global,}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ comment,}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ method,}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ level,}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ raw,}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ windowBits,}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ memLevel,}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ strategy,}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ password,}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ crcForCrypting,}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ versionMadeBy,}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ flagBase,}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ zip64}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ));}
+\DoxyCodeLine{00305\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00306\ \textcolor{comment}{\ \ Same\ than\ zipOpenNewFileInZip4,\ except}}
+\DoxyCodeLine{00307\ \textcolor{comment}{\ \ \ \ versionMadeBy\ :\ value\ for\ Version\ made\ by\ field}}
+\DoxyCodeLine{00308\ \textcolor{comment}{\ \ \ \ flag\ :\ value\ for\ flag\ field\ (compression\ level\ info\ will\ be\ added)}}
+\DoxyCodeLine{00309\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00310\ }
+\DoxyCodeLine{00311\ }
+\DoxyCodeLine{00312\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_acc932f54d0746b26f428660c92029a9f}{zipWriteInFileInZip}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ len));}
+\DoxyCodeLine{00315\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00316\ \textcolor{comment}{\ \ Write\ data\ in\ the\ zipfile}}
+\DoxyCodeLine{00317\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00319\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_ae470f753aef4cffe4f77a5ec2bcfbde1}{zipCloseFileInZip}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file));}
+\DoxyCodeLine{00320\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00321\ \textcolor{comment}{\ \ Close\ the\ current\ file\ in\ the\ zipfile}}
+\DoxyCodeLine{00322\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00323\ }
+\DoxyCodeLine{00324\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a43fe6f36cef62c7f34c0fdb4c8288b87}{zipCloseFileInZipRaw}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ uncompressed\_size,}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aa020ce787714a140599b55725bf7c657}{crc32}}));}
+\DoxyCodeLine{00327\ }
+\DoxyCodeLine{00328\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a3bed1cfe7ae981d2a433a1dbdb2cc436}{zipCloseFileInZipRaw64}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{unzip_2ioapi_8h_afffed08ed7f2413fa38e12a223ae0e72}{ZPOS64\_T}}\ uncompressed\_size,}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aa020ce787714a140599b55725bf7c657}{crc32}}));}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00332\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00333\ \textcolor{comment}{\ \ Close\ the\ current\ file\ in\ the\ zipfile,\ for\ file\ opened\ with}}
+\DoxyCodeLine{00334\ \textcolor{comment}{\ \ \ \ parameter\ raw=1\ in\ zipOpenNewFileInZip2}}
+\DoxyCodeLine{00335\ \textcolor{comment}{\ \ uncompressed\_size\ and\ crc32\ are\ value\ for\ the\ uncompressed\ size}}
+\DoxyCodeLine{00336\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00337\ }
+\DoxyCodeLine{00338\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a4fda7a41fa2f57d105ffc7d1cbcf53cc}{zipClose}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8h_af69b9a5ea9aaf8e8f0b7681e451b224c}{zipFile}}\ file,}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ global\_comment));}
+\DoxyCodeLine{00340\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00341\ \textcolor{comment}{\ \ Close\ the\ zipfile}}
+\DoxyCodeLine{00342\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00345\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2zip_8c_a3b7ef1d8f1f51aaa417830ded3a39ab7}{zipRemoveExtraInfoBlock}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\textcolor{keywordtype}{char}*\ pData,\ \textcolor{keywordtype}{int}*\ dataLen,\ \textcolor{keywordtype}{short}\ sHeader));}
+\DoxyCodeLine{00346\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00347\ \textcolor{comment}{\ \ zipRemoveExtraInfoBlock\ -\/\ \ Added\ by\ Mathias\ Svensson}}
+\DoxyCodeLine{00348\ \textcolor{comment}{}}
+\DoxyCodeLine{00349\ \textcolor{comment}{\ \ Remove\ extra\ information\ block\ from\ a\ extra\ information\ data\ for\ the\ local\ file\ header\ or\ central\ directory\ header}}
+\DoxyCodeLine{00350\ \textcolor{comment}{}}
+\DoxyCodeLine{00351\ \textcolor{comment}{\ \ It\ is\ needed\ to\ remove\ ZIP64\ extra\ information\ blocks\ when\ before\ data\ is\ written\ if\ using\ RAW\ mode.}}
+\DoxyCodeLine{00352\ \textcolor{comment}{}}
+\DoxyCodeLine{00353\ \textcolor{comment}{\ \ 0x0001\ is\ the\ signature\ header\ for\ the\ ZIP64\ extra\ information\ blocks}}
+\DoxyCodeLine{00354\ \textcolor{comment}{}}
+\DoxyCodeLine{00355\ \textcolor{comment}{\ \ usage.}}
+\DoxyCodeLine{00356\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Remove\ ZIP64\ Extra\ information\ from\ a\ central\ director\ extra\ field\ data}}
+\DoxyCodeLine{00357\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ zipRemoveExtraInfoBlock(pCenDirExtraFieldData,\ \&nCenDirExtraFieldDataLen,\ 0x0001);}}
+\DoxyCodeLine{00358\ \textcolor{comment}{}}
+\DoxyCodeLine{00359\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Remove\ ZIP64\ Extra\ information\ from\ a\ Local\ File\ Header\ extra\ field\ data}}
+\DoxyCodeLine{00360\ \textcolor{comment}{\ \ \ \ \ \ \ \ zipRemoveExtraInfoBlock(pLocalHeaderExtraFieldData,\ \&nLocalHeaderExtraFieldDataLen,\ 0x0001);}}
+\DoxyCodeLine{00361\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00362\ }
+\DoxyCodeLine{00363\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00364\ \}}
+\DoxyCodeLine{00365\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00366\ }
+\DoxyCodeLine{00367\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ \_zip64\_H\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

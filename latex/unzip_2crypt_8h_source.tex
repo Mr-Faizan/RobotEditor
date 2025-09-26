@@ -1,0 +1,134 @@
+\doxysection{crypt.\+h}
+\hypertarget{unzip_2crypt_8h_source}{}\label{unzip_2crypt_8h_source}\index{RobotLib/libraries/assimp/contrib/unzip/crypt.h@{RobotLib/libraries/assimp/contrib/unzip/crypt.h}}
+\mbox{\hyperlink{unzip_2crypt_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ crypt.h\ -\/-\/\ base\ code\ for\ crypt/uncrypt\ ZIPfile}}
+\DoxyCodeLine{00002\ \textcolor{comment}{}}
+\DoxyCodeLine{00003\ \textcolor{comment}{}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ \ \ Version\ 1.01e,\ February\ 12th,\ 2005}}
+\DoxyCodeLine{00005\ \textcolor{comment}{}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ \ \ Copyright\ (C)\ 1998-\/2005\ Gilles\ Vollant}}
+\DoxyCodeLine{00007\ \textcolor{comment}{}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ \ \ This\ code\ is\ a\ modified\ version\ of\ crypting\ code\ in\ Infozip\ distribution}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ \ \ The\ encryption/decryption\ parts\ of\ this\ source\ code\ (as\ opposed\ to\ the}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ \ \ non-\/echoing\ password\ parts)\ were\ originally\ written\ in\ Europe.\ \ The}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ \ \ whole\ source\ package\ can\ be\ freely\ distributed,\ including\ from\ the\ USA.}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ \ \ (Prior\ to\ January\ 2000,\ re-\/export\ from\ the\ US\ was\ a\ violation\ of\ US\ law.)}}
+\DoxyCodeLine{00014\ \textcolor{comment}{}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ \ This\ encryption\ code\ is\ a\ direct\ transcription\ of\ the\ algorithm\ from}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ \ \ Roger\ Schlafly,\ described\ by\ Phil\ Katz\ in\ the\ file\ appnote.txt.\ \ This}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ \ \ file\ (appnote.txt)\ is\ distributed\ with\ the\ PKZIP\ program\ (even\ in\ the}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ \ \ version\ without\ encryption\ capabilities).}}
+\DoxyCodeLine{00019\ \textcolor{comment}{}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ \ If\ you\ don't\ need\ crypting\ in\ your\ application,\ just\ define\ symbols}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ \ \ NOCRYPT\ and\ NOUNCRYPT.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ \ This\ code\ support\ the\ "{}Traditional\ PKWARE\ Encryption"{}.}}
+\DoxyCodeLine{00024\ \textcolor{comment}{}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ \ The\ new\ AES\ encryption\ added\ on\ Zip\ format\ by\ Winzip\ (see\ the\ page}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ \ http://www.winzip.com/aes\_info.htm\ )\ and\ PKWare\ PKZip\ 5.x\ Strong}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ \ \ Encryption\ is\ not\ supported.}}
+\DoxyCodeLine{00028\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#define\ CRC32(c,\ b)\ ((*(pcrc\_32\_tab+(((int)(c)\ \string^\ (b))\ \&\ 0xff)))\ \string^\ ((c)\ >>\ 8))}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{comment}{/***********************************************************************}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ *\ Return\ the\ next\ byte\ in\ the\ pseudo-\/random\ sequence}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00035\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ decrypt\_byte(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}*\ pkeys,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a4501f2a67e5f6cfd0e273aad0211a347}{z\_crc\_t}}*\ pcrc\_32\_tab)\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ temp;\ \ \textcolor{comment}{/*\ POTENTIAL\ BUG:\ \ temp*(temp\string^1)\ may\ overflow\ in\ an}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *\ unpredictable\ manner\ on\ 16-\/bit\ systems;\ not\ a\ problem}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *\ with\ any\ known\ compiler\ so\ far,\ though\ */}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ (void)pcrc\_32\_tab;}
+\DoxyCodeLine{00041\ \ \ \ \ temp\ =\ ((unsigned)(*(pkeys+2))\ \&\ 0xffff)\ |\ 2;}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordflow}{return}\ (\textcolor{keywordtype}{int})(((temp\ *\ (temp\ \string^\ 1))\ >>\ 8)\ \&\ 0xff);}
+\DoxyCodeLine{00043\ \}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \textcolor{comment}{/***********************************************************************}}
+\DoxyCodeLine{00046\ \textcolor{comment}{\ *\ Update\ the\ encryption\ keys\ with\ the\ next\ byte\ of\ plain\ text}}
+\DoxyCodeLine{00047\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00048\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ update\_keys(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}*\ pkeys,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a4501f2a67e5f6cfd0e273aad0211a347}{z\_crc\_t}}*\ pcrc\_32\_tab,\ \textcolor{keywordtype}{int}\ c)\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ (*(pkeys+0))\ =\ \mbox{\hyperlink{unzip_2crypt_8h_a9f548005c00fa0754e9c23b7726bf741}{CRC32}}((*(pkeys+0)),\ c);}
+\DoxyCodeLine{00050\ \ \ \ \ (*(pkeys+1))\ +=\ (*(pkeys+0))\ \&\ 0xff;}
+\DoxyCodeLine{00051\ \ \ \ \ (*(pkeys+1))\ =\ (*(pkeys+1))\ *\ 134775813L\ +\ 1;}
+\DoxyCodeLine{00052\ \ \ \ \ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \textcolor{keyword}{register}\ \textcolor{keywordtype}{int}\ keyshift\ =\ (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}})((*(pkeys+1))\ >>\ 24);}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ (*(pkeys+2))\ =\ \mbox{\hyperlink{unzip_2crypt_8h_a9f548005c00fa0754e9c23b7726bf741}{CRC32}}((*(pkeys+2)),\ keyshift);}
+\DoxyCodeLine{00055\ \ \ \ \ \}}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordflow}{return}\ c;}
+\DoxyCodeLine{00057\ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \textcolor{comment}{/***********************************************************************}}
+\DoxyCodeLine{00061\ \textcolor{comment}{\ *\ Initialize\ the\ encryption\ keys\ and\ the\ random\ header\ according\ to}}
+\DoxyCodeLine{00062\ \textcolor{comment}{\ *\ the\ given\ password.}}
+\DoxyCodeLine{00063\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00064\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ init\_keys(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ passwd,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}*\ pkeys,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a4501f2a67e5f6cfd0e273aad0211a347}{z\_crc\_t}}*\ pcrc\_32\_tab)\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ *(pkeys+0)\ =\ 305419896L;}
+\DoxyCodeLine{00066\ \ \ \ \ *(pkeys+1)\ =\ 591751049L;}
+\DoxyCodeLine{00067\ \ \ \ \ *(pkeys+2)\ =\ 878082192L;}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{while}\ (*passwd\ !=\ \textcolor{charliteral}{'\(\backslash\)0'})\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ update\_keys(pkeys,pcrc\_32\_tab,(\textcolor{keywordtype}{int})*passwd);}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ passwd++;}
+\DoxyCodeLine{00071\ \ \ \ \ \}}
+\DoxyCodeLine{00072\ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \textcolor{preprocessor}{\#define\ zdecode(pkeys,pcrc\_32\_tab,c)\ \(\backslash\)}}
+\DoxyCodeLine{00075\ \textcolor{preprocessor}{\ \ \ \ (update\_keys(pkeys,pcrc\_32\_tab,c\ \string^=\ decrypt\_byte(pkeys,pcrc\_32\_tab)))}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \textcolor{preprocessor}{\#define\ zencode(pkeys,pcrc\_32\_tab,c,t)\ \(\backslash\)}}
+\DoxyCodeLine{00078\ \textcolor{preprocessor}{\ \ \ \ (t=decrypt\_byte(pkeys,pcrc\_32\_tab),\ update\_keys(pkeys,pcrc\_32\_tab,c),\ (Byte)t\string^(c))}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\#ifdef\ INCLUDECRYPTINGCODE\_IFCRYPTALLOWED}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{preprocessor}{\#define\ RAND\_HEAD\_LEN\ \ 12}}
+\DoxyCodeLine{00083\ \ \ \ \textcolor{comment}{/*\ "{}last\ resort"{}\ source\ for\ second\ part\ of\ crypt\ seed\ pattern\ */}}
+\DoxyCodeLine{00084\ \textcolor{preprocessor}{\#\ \ ifndef\ ZCR\_SEED2}}
+\DoxyCodeLine{00085\ \textcolor{preprocessor}{\#\ \ \ \ define\ ZCR\_SEED2\ 3141592654UL\ \ \ \ \ \ }\textcolor{comment}{/*\ use\ PI\ as\ default\ pattern\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00086\ \textcolor{preprocessor}{\#\ \ endif}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{unsigned}\ crypthead(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ passwd,\ \ \ \ \ \ \ \textcolor{comment}{/*\ password\ string\ */}}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},\ \ \ \ \ \ \ \textcolor{comment}{/*\ where\ to\ write\ header\ */}}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ bufSize,}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}*\ pkeys,}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a4501f2a67e5f6cfd0e273aad0211a347}{z\_crc\_t}}*\ pcrc\_32\_tab,}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ crcForCrypting)\ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ n;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ index\ in\ random\ header\ */}}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordtype}{int}\ t;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ temporary\ */}}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordtype}{int}\ c;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ random\ byte\ */}}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ header[RAND\_HEAD\_LEN-\/2];\ \textcolor{comment}{/*\ random\ header\ */}}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{unsigned}\ calls\ =\ 0;\ \ \ \textcolor{comment}{/*\ ensure\ different\ random\ header\ each\ time\ */}}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordflow}{if}\ (bufSize<RAND\_HEAD\_LEN)}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{comment}{/*\ First\ generate\ RAND\_HEAD\_LEN-\/2\ random\ bytes.\ We\ encrypt\ the}}
+\DoxyCodeLine{00104\ \textcolor{comment}{\ \ \ \ \ *\ output\ of\ rand()\ to\ get\ less\ predictability,\ since\ rand()\ is}}
+\DoxyCodeLine{00105\ \textcolor{comment}{\ \ \ \ \ *\ often\ poorly\ implemented.}}
+\DoxyCodeLine{00106\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordflow}{if}\ (++calls\ ==\ 1)}
+\DoxyCodeLine{00108\ \ \ \ \ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ srand((\textcolor{keywordtype}{unsigned})(time(NULL)\ \string^\ ZCR\_SEED2));}
+\DoxyCodeLine{00110\ \ \ \ \ \}}
+\DoxyCodeLine{00111\ \ \ \ \ init\_keys(passwd,\ pkeys,\ pcrc\_32\_tab);}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordflow}{for}\ (n\ =\ 0;\ n\ <\ RAND\_HEAD\_LEN-\/2;\ n++)}
+\DoxyCodeLine{00113\ \ \ \ \ \{}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ c\ =\ (rand()\ >>\ 7)\ \&\ 0xff;}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ header[n]\ =\ (\textcolor{keywordtype}{unsigned}\ char)\mbox{\hyperlink{unzip_2crypt_8h_ab9d6a91abe3a1127f8b5476ba9ee9316}{zencode}}(pkeys,\ pcrc\_32\_tab,\ c,\ t);}
+\DoxyCodeLine{00116\ \ \ \ \ \}}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{comment}{/*\ Encrypt\ random\ header\ (last\ two\ bytes\ is\ high\ word\ of\ crc)\ */}}
+\DoxyCodeLine{00118\ \ \ \ \ init\_keys(passwd,\ pkeys,\ pcrc\_32\_tab);}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordflow}{for}\ (n\ =\ 0;\ n\ <\ RAND\_HEAD\_LEN-\/2;\ n++)}
+\DoxyCodeLine{00120\ \ \ \ \ \{}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}[n]\ =\ (\textcolor{keywordtype}{unsigned}\ char)\mbox{\hyperlink{unzip_2crypt_8h_ab9d6a91abe3a1127f8b5476ba9ee9316}{zencode}}(pkeys,\ pcrc\_32\_tab,\ header[n],\ t);}
+\DoxyCodeLine{00122\ \ \ \ \ \}}
+\DoxyCodeLine{00123\ \ \ \ \ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}[n++]\ =\ (\textcolor{keywordtype}{unsigned}\ char)\mbox{\hyperlink{unzip_2crypt_8h_ab9d6a91abe3a1127f8b5476ba9ee9316}{zencode}}(pkeys,\ pcrc\_32\_tab,\ (\textcolor{keywordtype}{int})(crcForCrypting\ >>\ 16)\ \&\ 0xff,\ t);}
+\DoxyCodeLine{00124\ \ \ \ \ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}[n++]\ =\ (\textcolor{keywordtype}{unsigned}\ char)\mbox{\hyperlink{unzip_2crypt_8h_ab9d6a91abe3a1127f8b5476ba9ee9316}{zencode}}(pkeys,\ pcrc\_32\_tab,\ (\textcolor{keywordtype}{int})(crcForCrypting\ >>\ 24)\ \&\ 0xff,\ t);}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordflow}{return}\ n;}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

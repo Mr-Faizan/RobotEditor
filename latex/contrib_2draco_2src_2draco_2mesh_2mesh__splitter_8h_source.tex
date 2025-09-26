@@ -1,0 +1,115 @@
+\doxysection{mesh\+\_\+splitter.\+h}
+\hypertarget{contrib_2draco_2src_2draco_2mesh_2mesh__splitter_8h_source}{}\label{contrib_2draco_2src_2draco_2mesh_2mesh__splitter_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/mesh/mesh\_splitter.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/mesh/mesh\_splitter.h}}
+\mbox{\hyperlink{contrib_2draco_2src_2draco_2mesh_2mesh__splitter_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2017\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_MESH\_MESH\_SPLITTER\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_MESH\_MESH\_SPLITTER\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status__or_8h}{draco/core/status\_or.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2mesh_2mesh_8h}{draco/mesh/mesh.h}}"{}}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__connected__components_8h}{draco/mesh/mesh\_connected\_components.h}}"{}}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{triangle__soup__mesh__builder_8h}{draco/mesh/triangle\_soup\_mesh\_builder.h}}"{}}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ Class\ that\ can\ be\ used\ to\ split\ a\ single\ mesh\ into\ multiple\ sub-\/meshes}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ according\ to\ specified\ criteria.}}
+\DoxyCodeLine{00033\ \textcolor{keyword}{class\ }MeshSplitter\ \{}
+\DoxyCodeLine{00034\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00035\ \ \ \textcolor{keyword}{typedef}\ std::vector<std::unique\_ptr<Mesh>>\ MeshVector;}
+\DoxyCodeLine{00036\ \ \ MeshSplitter();}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \textcolor{comment}{//\ Sets\ a\ flag\ that\ tells\ the\ splitter\ to\ preserve\ all\ materials\ on\ the\ input}}
+\DoxyCodeLine{00039\ \ \ \textcolor{comment}{//\ mesh\ during\ mesh\ splitting.\ When\ set,\ the\ materials\ used\ on\ sub-\/meshes\ are}}
+\DoxyCodeLine{00040\ \ \ \textcolor{comment}{//\ going\ to\ be\ copied\ over.\ Any\ redundant\ materials\ on\ sub-\/meshes\ are\ going\ to}}
+\DoxyCodeLine{00041\ \ \ \textcolor{comment}{//\ be\ deleted\ but\ material\ indices\ may\ still\ be\ preserved\ depending\ on\ the}}
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ SetRemoveUnusedMaterialIndices()\ flag.}}
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ Default\ =\ false.}}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{void}\ SetPreserveMaterials(\textcolor{keywordtype}{bool}\ flag)\ \{\ preserve\_materials\_\ =\ flag;\ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ Sets\ a\ flag\ that\ tells\ the\ splitter\ to\ delete\ any\ unused\ material\ indices}}
+\DoxyCodeLine{00047\ \ \ \textcolor{comment}{//\ on\ the\ generated\ sub-\/meshes.\ This\ option\ is\ currently\ used\ only\ when}}
+\DoxyCodeLine{00048\ \ \ \textcolor{comment}{//\ SetPreserveMaterials()\ was\ set\ to\ true.\ If\ this\ option\ is\ set\ to\ false,\ the}}
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//\ material\ indices\ of\ the\ MATERIAL\ attribute\ will\ be\ the\ same\ as\ in\ the}}
+\DoxyCodeLine{00050\ \ \ \textcolor{comment}{//\ source\ mesh.\ If\ the\ flag\ is\ true,\ then\ the\ unused\ material\ indices\ will\ be}}
+\DoxyCodeLine{00051\ \ \ \textcolor{comment}{//\ removed\ and\ they\ may\ no\ longer\ correspond\ to\ the\ source\ mesh.\ Note\ that}}
+\DoxyCodeLine{00052\ \ \ \textcolor{comment}{//\ when\ this\ flag\ is\ false,\ any\ unused\ materials\ would\ be\ replaced\ with\ empty}}
+\DoxyCodeLine{00053\ \ \ \textcolor{comment}{//\ (default)\ materials.}}
+\DoxyCodeLine{00054\ \ \ \textcolor{comment}{//\ Default\ =\ true.}}
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{void}\ SetRemoveUnusedMaterialIndices(\textcolor{keywordtype}{bool}\ flag)\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ remove\_unused\_material\_indices\_\ =\ flag;}
+\DoxyCodeLine{00057\ \ \ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \textcolor{comment}{//\ Sets\ a\ flag\ that\ tells\ the\ splitter\ to\ preserve\ all\ mesh\ features\ on\ the}}
+\DoxyCodeLine{00060\ \ \ \textcolor{comment}{//\ input\ mesh\ during\ mesh\ splitting.\ When\ set,\ the\ mesh\ features\ used\ on}}
+\DoxyCodeLine{00061\ \ \ \textcolor{comment}{//\ sub-\/meshes\ are\ going\ to\ be\ copied\ over.\ Any\ redundant\ mesh\ features\ on}}
+\DoxyCodeLine{00062\ \ \ \textcolor{comment}{//\ sub-\/meshes\ are\ going\ to\ be\ deleted.}}
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//\ Default\ =\ false.}}
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordtype}{void}\ SetPreserveMeshFeatures(\textcolor{keywordtype}{bool}\ flag)\ \{\ preserve\_mesh\_features\_\ =\ flag;\ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ Splits\ the\ input\ |mesh|\ according\ to\ attribute\ values\ stored\ in\ the}}
+\DoxyCodeLine{00067\ \ \ \textcolor{comment}{//\ specified\ attribute.\ If\ the\ |mesh|\ contains\ faces,\ the\ attribute\ values}}
+\DoxyCodeLine{00068\ \ \ \textcolor{comment}{//\ need\ to\ be\ defined\ per-\/face,\ that\ is,\ all\ points\ attached\ to\ a\ single\ face}}
+\DoxyCodeLine{00069\ \ \ \textcolor{comment}{//\ must\ share\ the\ same\ attribute\ value.\ Meshes\ without\ faces\ are\ treated\ as}}
+\DoxyCodeLine{00070\ \ \ \textcolor{comment}{//\ point\ clouds\ and\ the\ attribute\ values\ can\ be\ defined\ per-\/point.\ Each}}
+\DoxyCodeLine{00071\ \ \ \textcolor{comment}{//\ attribute\ value\ (AttributeValueIndex)\ is\ mapped\ to\ a\ single\ output\ mesh.\ If}}
+\DoxyCodeLine{00072\ \ \ \textcolor{comment}{//\ an\ AttributeValueIndex\ is\ unused,\ no\ mesh\ is\ created\ for\ the\ given\ value.}}
+\DoxyCodeLine{00073\ \ \ StatusOr<MeshVector>\ SplitMesh(\textcolor{keyword}{const}\ Mesh\ \&mesh,\ uint32\_t\ split\_attribute\_id);}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \textcolor{comment}{//\ Splits\ the\ input\ |mesh|\ into\ separate\ components\ defined\ in}}
+\DoxyCodeLine{00076\ \ \ \textcolor{comment}{//\ |connected\_components|.\ That\ is,\ all\ faces\ associated\ with\ a\ given}}
+\DoxyCodeLine{00077\ \ \ \textcolor{comment}{//\ component\ index\ will\ be\ stored\ in\ the\ same\ mesh.\ The\ number\ of\ generated}}
+\DoxyCodeLine{00078\ \ \ \textcolor{comment}{//\ meshes\ will\ correspond\ to\ |connected\_components.NumConnectedComponents()|.}}
+\DoxyCodeLine{00079\ \ \ StatusOr<MeshVector>\ SplitMeshToComponents(}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \textcolor{keyword}{const}\ Mesh\ \&mesh,\ \textcolor{keyword}{const}\ MeshConnectedComponents\ \&connected\_components);}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00083\ \ \ \textcolor{keyword}{struct\ }WorkData\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{comment}{//\ Map\ between\ attribute\ ids\ of\ the\ input\ and\ output\ meshes.}}
+\DoxyCodeLine{00085\ \ \ \ \ std::vector<int>\ att\_id\_map;}
+\DoxyCodeLine{00086\ \ \ \ \ std::vector<int>\ num\_sub\_mesh\_elements;}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordtype}{bool}\ split\_by\_materials\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00088\ \ \ \};}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00091\ \ \ StatusOr<MeshVector>\ SplitMeshInternal(\textcolor{keyword}{const}\ Mesh\ \&mesh,}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ split\_attribute\_id);}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ StatusOr<MeshVector>\ FinalizeMeshes(\textcolor{keyword}{const}\ Mesh\ \&mesh,}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ WorkData\ \&work\_data,}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MeshVector\ out\_meshes)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \textcolor{keywordtype}{bool}\ preserve\_materials\_;}
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordtype}{bool}\ remove\_unused\_material\_indices\_;}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordtype}{bool}\ preserve\_mesh\_features\_;}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ BuilderT>}
+\DoxyCodeLine{00103\ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }MeshSplitterInternal;}
+\DoxyCodeLine{00104\ \};}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00109\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_MESH\_MESH\_SPLITTER\_H\_}}
+
+\end{DoxyCode}

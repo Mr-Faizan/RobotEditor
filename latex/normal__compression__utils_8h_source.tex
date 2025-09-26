@@ -1,0 +1,378 @@
+\doxysection{normal\+\_\+compression\+\_\+utils.\+h}
+\hypertarget{normal__compression__utils_8h_source}{}\label{normal__compression__utils_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/normal\_compression\_utils.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/normal\_compression\_utils.h}}
+\mbox{\hyperlink{normal__compression__utils_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ Utilities\ for\ converting\ unit\ vectors\ to\ octahedral\ coordinates\ and\ back.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{//\ For\ more\ details\ about\ octahedral\ coordinates,\ see\ for\ example\ Cigolle}}
+\DoxyCodeLine{00017\ \textcolor{comment}{//\ et\ al.'14\ “A\ Survey\ of\ Efficient\ Representations\ for\ Independent\ Unit}}
+\DoxyCodeLine{00018\ \textcolor{comment}{//\ Vectors”.}}
+\DoxyCodeLine{00019\ \textcolor{comment}{//}}
+\DoxyCodeLine{00020\ \textcolor{comment}{//\ In\ short\ this\ is\ motivated\ by\ an\ octahedron\ inscribed\ into\ a\ sphere.\ The}}
+\DoxyCodeLine{00021\ \textcolor{comment}{//\ direction\ of\ the\ normal\ vector\ can\ be\ defined\ by\ a\ point\ on\ the\ octahedron.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{//\ On\ the\ right\ hemisphere\ (x\ >\ 0)\ this\ point\ is\ projected\ onto\ the\ x\ =\ 0\ plane,}}
+\DoxyCodeLine{00023\ \textcolor{comment}{//\ that\ is,\ the\ right\ side\ of\ the\ octahedron\ forms\ a\ diamond\ like\ shape.\ The}}
+\DoxyCodeLine{00024\ \textcolor{comment}{//\ left\ side\ of\ the\ octahedron\ is\ also\ projected\ onto\ the\ x\ =\ 0\ plane,\ however,}}
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ in\ this\ case\ we\ flap\ the\ triangles\ of\ the\ diamond\ outward.\ Afterwards\ we}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ shift\ the\ resulting\ square\ such\ that\ all\ values\ are\ positive.}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ Important\ values\ in\ this\ file:}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ *\ q:\ number\ of\ quantization\ bits}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ *\ max\_quantized\_value:\ the\ max\ value\ representable\ with\ q\ bits\ (odd)}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ *\ max\_value:\ max\ value\ of\ the\ diamond\ =\ max\_quantized\_value\ -\/\ 1\ \ (even)}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ *\ center\_value:\ center\ of\ the\ diamond\ after\ shift}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ Note\ that\ the\ parameter\ space\ is\ somewhat\ periodic,\ e.g.\ (0,\ 0)\ ==}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ (max\_value,\ max\_value),\ which\ is\ also\ why\ the\ diamond\ is\ one\ smaller\ than\ the}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ maximal\ representable\ value\ in\ order\ to\ have\ an\ odd\ range\ of\ values.}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ATTRIBUTES\_NORMAL\_COMPRESSION\_UTILS\_H\_}}
+\DoxyCodeLine{00039\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ATTRIBUTES\_NORMAL\_COMPRESSION\_UTILS\_H\_}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{inttypes_8h}{inttypes.h}}>}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a02794a0dbb80637d1861e7bd4af57a8f}{OctahedronToolBox}}\ \{}
+\DoxyCodeLine{00051\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00052\ \ \ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a02794a0dbb80637d1861e7bd4af57a8f}{OctahedronToolBox}}()}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ :\ quantization\_bits\_(-\/1),}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ max\_quantized\_value\_(-\/1),}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ max\_value\_(-\/1),}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ dequantization\_scale\_(1.f),}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ center\_value\_(-\/1)\ \{\}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a7c54d3a73be67d7ddd4719317cccfbda}{SetQuantizationBits}}(int32\_t\ q)\ \{}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordflow}{if}\ (q\ <\ 2\ ||\ q\ >\ 30)\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00062\ \ \ \ \ \}}
+\DoxyCodeLine{00063\ \ \ \ \ quantization\_bits\_\ =\ q;}
+\DoxyCodeLine{00064\ \ \ \ \ max\_quantized\_value\_\ =\ (1u\ <<\ quantization\_bits\_)\ -\/\ 1;}
+\DoxyCodeLine{00065\ \ \ \ \ max\_value\_\ =\ max\_quantized\_value\_\ -\/\ 1;}
+\DoxyCodeLine{00066\ \ \ \ \ dequantization\_scale\_\ =\ 2.f\ /\ max\_value\_;}
+\DoxyCodeLine{00067\ \ \ \ \ center\_value\_\ =\ max\_value\_\ /\ 2;}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00069\ \ \ \}}
+\DoxyCodeLine{00070\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_ab363615ed4176842cc40d40a3380e48b}{IsInitialized}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ quantization\_bits\_\ !=\ -\/1;\ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \textcolor{comment}{//\ Convert\ all\ edge\ points\ in\ the\ top\ left\ and\ bottom\ right\ quadrants\ to}}
+\DoxyCodeLine{00073\ \ \ \textcolor{comment}{//\ their\ corresponding\ position\ in\ the\ bottom\ left\ and\ top\ right\ quadrants.}}
+\DoxyCodeLine{00074\ \ \ \textcolor{comment}{//\ Convert\ all\ corner\ edge\ points\ to\ the\ top\ right\ corner.}}
+\DoxyCodeLine{00075\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_aff624f8778318af2f94928d2e3f6d533}{CanonicalizeOctahedralCoords}}(int32\_t\ s,\ int32\_t\ t,\ int32\_t\ *out\_s,}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ int32\_t\ *out\_t)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordflow}{if}\ ((s\ ==\ 0\ \&\&\ t\ ==\ 0)\ ||\ (s\ ==\ 0\ \&\&\ t\ ==\ max\_value\_)\ ||}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ (s\ ==\ max\_value\_\ \&\&\ t\ ==\ 0))\ \{}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ s\ =\ max\_value\_;}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ t\ =\ max\_value\_;}
+\DoxyCodeLine{00081\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (s\ ==\ 0\ \&\&\ t\ >\ center\_value\_)\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ t\ =\ center\_value\_\ -\/\ (t\ -\/\ center\_value\_);}
+\DoxyCodeLine{00083\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (s\ ==\ max\_value\_\ \&\&\ t\ <\ center\_value\_)\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ t\ =\ center\_value\_\ +\ (center\_value\_\ -\/\ t);}
+\DoxyCodeLine{00085\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (t\ ==\ max\_value\_\ \&\&\ s\ <\ center\_value\_)\ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ s\ =\ center\_value\_\ +\ (center\_value\_\ -\/\ s);}
+\DoxyCodeLine{00087\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (t\ ==\ 0\ \&\&\ s\ >\ center\_value\_)\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ s\ =\ center\_value\_\ -\/\ (s\ -\/\ center\_value\_);}
+\DoxyCodeLine{00089\ \ \ \ \ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \ \ *out\_s\ =\ s;}
+\DoxyCodeLine{00092\ \ \ \ \ *out\_t\ =\ t;}
+\DoxyCodeLine{00093\ \ \ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \textcolor{comment}{//\ Converts\ an\ integer\ vector\ to\ octahedral\ coordinates.}}
+\DoxyCodeLine{00096\ \ \ \textcolor{comment}{//\ Precondition:\ |int\_vec|\ abs\ sum\ must\ equal\ center\ value.}}
+\DoxyCodeLine{00097\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_ab2e7e08385a16bf853870c49670ff19d}{IntegerVectorToQuantizedOctahedralCoords}}(\textcolor{keyword}{const}\ int32\_t\ *int\_vec,}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ int32\_t\ *out\_s,}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ int32\_t\ *out\_t)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00100\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ std::abs(int\_vec[0])\ +\ std::abs(int\_vec[1])\ +\ std::abs(int\_vec[2]),}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ center\_value\_);}
+\DoxyCodeLine{00103\ \ \ \ \ int32\_t\ s,\ t;}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordflow}{if}\ (int\_vec[0]\ >=\ 0)\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \textcolor{comment}{//\ Right\ hemisphere.}}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ s\ =\ (int\_vec[1]\ +\ center\_value\_);}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ t\ =\ (int\_vec[2]\ +\ center\_value\_);}
+\DoxyCodeLine{00108\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \textcolor{comment}{//\ Left\ hemisphere.}}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (int\_vec[1]\ <\ 0)\ \{}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ s\ =\ std::abs(int\_vec[2]);}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ s\ =\ (max\_value\_\ -\/\ std::abs(int\_vec[2]));}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (int\_vec[2]\ <\ 0)\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ t\ =\ std::abs(int\_vec[1]);}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ t\ =\ (max\_value\_\ -\/\ std::abs(int\_vec[1]));}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00120\ \ \ \ \ \}}
+\DoxyCodeLine{00121\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_aff624f8778318af2f94928d2e3f6d533}{CanonicalizeOctahedralCoords}}(s,\ t,\ out\_s,\ out\_t);}
+\DoxyCodeLine{00122\ \ \ \}}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00125\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a736b24c8169a3e038752da93fa85694c}{FloatVectorToQuantizedOctahedralCoords}}(\textcolor{keyword}{const}\ T\ *\mbox{\hyperlink{classvector}{vector}},\ int32\_t\ *out\_s,}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ int32\_t\ *out\_t)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ abs\_sum\ =\ std::abs(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(\mbox{\hyperlink{classvector}{vector}}[0]))\ +}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::abs(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(\mbox{\hyperlink{classvector}{vector}}[1]))\ +}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::abs(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(\mbox{\hyperlink{classvector}{vector}}[2]));}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{comment}{//\ Adjust\ values\ such\ that\ abs\ sum\ equals\ 1.}}
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{keywordtype}{double}\ scaled\_vector[3];}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordflow}{if}\ (abs\_sum\ >\ 1e-\/6)\ \{}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \textcolor{comment}{//\ Scale\ needed\ to\ project\ the\ vector\ to\ the\ surface\ of\ an\ octahedron.}}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ scale\ =\ 1.0\ /\ abs\_sum;}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ scaled\_vector[0]\ =\ \mbox{\hyperlink{classvector}{vector}}[0]\ *\ scale;}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ scaled\_vector[1]\ =\ \mbox{\hyperlink{classvector}{vector}}[1]\ *\ scale;}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ scaled\_vector[2]\ =\ \mbox{\hyperlink{classvector}{vector}}[2]\ *\ scale;}
+\DoxyCodeLine{00139\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ scaled\_vector[0]\ =\ 1.0;}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ scaled\_vector[1]\ =\ 0;}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ scaled\_vector[2]\ =\ 0;}
+\DoxyCodeLine{00143\ \ \ \ \ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{comment}{//\ Scale\ vector\ such\ that\ the\ sum\ equals\ the\ center\ value.}}
+\DoxyCodeLine{00146\ \ \ \ \ int32\_t\ int\_vec[3];}
+\DoxyCodeLine{00147\ \ \ \ \ int\_vec[0]\ =}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}int32\_t\textcolor{keyword}{>}(floor(scaled\_vector[0]\ *\ center\_value\_\ +\ 0.5));}
+\DoxyCodeLine{00149\ \ \ \ \ int\_vec[1]\ =}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}int32\_t\textcolor{keyword}{>}(floor(scaled\_vector[1]\ *\ center\_value\_\ +\ 0.5));}
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{comment}{//\ Make\ sure\ the\ sum\ is\ exactly\ the\ center\ value.}}
+\DoxyCodeLine{00152\ \ \ \ \ int\_vec[2]\ =\ center\_value\_\ -\/\ std::abs(int\_vec[0])\ -\/\ std::abs(int\_vec[1]);}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordflow}{if}\ (int\_vec[2]\ <\ 0)\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \textcolor{comment}{//\ If\ the\ sum\ of\ first\ two\ coordinates\ is\ too\ large,\ we\ need\ to\ decrease}}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \textcolor{comment}{//\ the\ length\ of\ one\ of\ the\ coordinates.}}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (int\_vec[1]\ >\ 0)\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ int\_vec[1]\ +=\ int\_vec[2];}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ int\_vec[1]\ -\/=\ int\_vec[2];}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ int\_vec[2]\ =\ 0;}
+\DoxyCodeLine{00162\ \ \ \ \ \}}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{comment}{//\ Take\ care\ of\ the\ sign.}}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordflow}{if}\ (scaled\_vector[2]\ <\ 0)\ \{}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ int\_vec[2]\ *=\ -\/1;}
+\DoxyCodeLine{00166\ \ \ \ \ \}}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_ab2e7e08385a16bf853870c49670ff19d}{IntegerVectorToQuantizedOctahedralCoords}}(int\_vec,\ out\_s,\ out\_t);}
+\DoxyCodeLine{00169\ \ \ \}}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \ \ \textcolor{comment}{//\ Normalize\ |vec|\ such\ that\ its\ abs\ sum\ is\ equal\ to\ the\ center\ value;}}
+\DoxyCodeLine{00172\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00173\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a5d676e9be7de59133ba1d0b29b487ac8}{CanonicalizeIntegerVector}}(T\ *vec)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{keyword}{static\_assert}(std::is\_integral<T>::value,\ \textcolor{stringliteral}{"{}T\ must\ be\ an\ integral\ type."{}});}
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keyword}{static\_assert}(std::is\_signed<T>::value,\ \textcolor{stringliteral}{"{}T\ must\ be\ a\ signed\ type."{}});}
+\DoxyCodeLine{00176\ \ \ \ \ \textcolor{keyword}{const}\ int64\_t\ abs\_sum\ =\ \textcolor{keyword}{static\_cast<}int64\_t\textcolor{keyword}{>}(std::abs(vec[0]))\ +}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}int64\_t\textcolor{keyword}{>}(std::abs(vec[1]))\ +}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}int64\_t\textcolor{keyword}{>}(std::abs(vec[2]));}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordflow}{if}\ (abs\_sum\ ==\ 0)\ \{}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ vec[0]\ =\ center\_value\_;\ \ \textcolor{comment}{//\ vec[1]\ ==\ v[2]\ ==\ 0}}
+\DoxyCodeLine{00182\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ vec[0]\ =}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \ \ (\textcolor{keyword}{static\_cast<}int64\_t\textcolor{keyword}{>}(vec[0])\ *\ \textcolor{keyword}{static\_cast<}int64\_t\textcolor{keyword}{>}(center\_value\_))\ /}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ abs\_sum;}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ vec[1]\ =}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ (\textcolor{keyword}{static\_cast<}int64\_t\textcolor{keyword}{>}(vec[1])\ *\ \textcolor{keyword}{static\_cast<}int64\_t\textcolor{keyword}{>}(center\_value\_))\ /}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \ \ abs\_sum;}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (vec[2]\ >=\ 0)\ \{}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ vec[2]\ =\ center\_value\_\ -\/\ std::abs(vec[0])\ -\/\ std::abs(vec[1]);}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ vec[2]\ =\ -\/(center\_value\_\ -\/\ std::abs(vec[0])\ -\/\ std::abs(vec[1]));}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00194\ \ \ \ \ \}}
+\DoxyCodeLine{00195\ \ \ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_add0a965a4c24b8b71368c54a27000496}{QuantizedOctahedralCoordsToUnitVector}}(int32\_t\ in\_s,\ int32\_t\ in\_t,}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ *out\_vector)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00199\ \ \ \ \ OctahedralCoordsToUnitVector(in\_s\ *\ dequantization\_scale\_\ -\/\ 1.f,}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ in\_t\ *\ dequantization\_scale\_\ -\/\ 1.f,}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_vector);}
+\DoxyCodeLine{00202\ \ \ \}}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \textcolor{comment}{//\ |s|\ and\ |t|\ are\ expected\ to\ be\ signed\ values.}}
+\DoxyCodeLine{00205\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a95f6e2ef8e2d792d5aa3136fc44d34ad}{IsInDiamond}}(\textcolor{keyword}{const}\ int32\_t\ \&s,\ \textcolor{keyword}{const}\ int32\_t\ \&t)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{comment}{//\ Expect\ center\ already\ at\ origin.}}
+\DoxyCodeLine{00207\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(s,\ center\_value\_);}
+\DoxyCodeLine{00208\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(t,\ center\_value\_);}
+\DoxyCodeLine{00209\ \ \ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(s,\ -\/center\_value\_);}
+\DoxyCodeLine{00210\ \ \ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(t,\ -\/center\_value\_);}
+\DoxyCodeLine{00211\ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ st\ =}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(std::abs(s))\ +\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(std::abs(t));}
+\DoxyCodeLine{00213\ \ \ \ \ \textcolor{keywordflow}{return}\ st\ <=\ center\_value\_;}
+\DoxyCodeLine{00214\ \ \ \}}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_aff952cd2aab64c4e87dd905fe0c77633}{InvertDiamond}}(int32\_t\ *s,\ int32\_t\ *t)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{comment}{//\ Expect\ center\ already\ at\ origin.}}
+\DoxyCodeLine{00218\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(*s,\ center\_value\_);}
+\DoxyCodeLine{00219\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(*t,\ center\_value\_);}
+\DoxyCodeLine{00220\ \ \ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(*s,\ -\/center\_value\_);}
+\DoxyCodeLine{00221\ \ \ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(*t,\ -\/center\_value\_);}
+\DoxyCodeLine{00222\ \ \ \ \ int32\_t\ sign\_s\ =\ 0;}
+\DoxyCodeLine{00223\ \ \ \ \ int32\_t\ sign\_t\ =\ 0;}
+\DoxyCodeLine{00224\ \ \ \ \ \textcolor{keywordflow}{if}\ (*s\ >=\ 0\ \&\&\ *t\ >=\ 0)\ \{}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ sign\_s\ =\ 1;}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ sign\_t\ =\ 1;}
+\DoxyCodeLine{00227\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (*s\ <=\ 0\ \&\&\ *t\ <=\ 0)\ \{}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ sign\_s\ =\ -\/1;}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ sign\_t\ =\ -\/1;}
+\DoxyCodeLine{00230\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ sign\_s\ =\ (*s\ >\ 0)\ ?\ 1\ :\ -\/1;}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ sign\_t\ =\ (*t\ >\ 0)\ ?\ 1\ :\ -\/1;}
+\DoxyCodeLine{00233\ \ \ \ \ \}}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00235\ \ \ \ \ \textcolor{comment}{//\ Perform\ the\ addition\ and\ subtraction\ using\ unsigned\ integers\ to\ avoid}}
+\DoxyCodeLine{00236\ \ \ \ \ \textcolor{comment}{//\ signed\ integer\ overflows\ for\ bad\ data.\ Note\ that\ the\ result\ will\ be}}
+\DoxyCodeLine{00237\ \ \ \ \ \textcolor{comment}{//\ unchanged\ for\ non-\/overflowing\ cases.}}
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ corner\_point\_s\ =\ sign\_s\ *\ center\_value\_;}
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ corner\_point\_t\ =\ sign\_t\ *\ center\_value\_;}
+\DoxyCodeLine{00240\ \ \ \ \ uint32\_t\ us\ =\ *s;}
+\DoxyCodeLine{00241\ \ \ \ \ uint32\_t\ ut\ =\ *t;}
+\DoxyCodeLine{00242\ \ \ \ \ us\ =\ us\ +\ us\ -\/\ corner\_point\_s;}
+\DoxyCodeLine{00243\ \ \ \ \ ut\ =\ ut\ +\ ut\ -\/\ corner\_point\_t;}
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{keywordflow}{if}\ (sign\_s\ *\ sign\_t\ >=\ 0)\ \{}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ uint32\_t\ temp\ =\ us;}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ us\ =\ -\/ut;}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ ut\ =\ -\/temp;}
+\DoxyCodeLine{00248\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \mbox{\hyperlink{namespacestd_a4874fd00297ff5aef2872379cb521783}{std::swap}}(us,\ ut);}
+\DoxyCodeLine{00250\ \ \ \ \ \}}
+\DoxyCodeLine{00251\ \ \ \ \ us\ =\ us\ +\ corner\_point\_s;}
+\DoxyCodeLine{00252\ \ \ \ \ ut\ =\ ut\ +\ corner\_point\_t;}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ \ \ *s\ =\ us;}
+\DoxyCodeLine{00255\ \ \ \ \ *t\ =\ ut;}
+\DoxyCodeLine{00256\ \ \ \ \ *s\ /=\ 2;}
+\DoxyCodeLine{00257\ \ \ \ \ *t\ /=\ 2;}
+\DoxyCodeLine{00258\ \ \ \}}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a869e7ee1280fd539214d2eb4b2ef398e}{InvertDirection}}(int32\_t\ *s,\ int32\_t\ *t)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00261\ \ \ \ \ \textcolor{comment}{//\ Expect\ center\ already\ at\ origin.}}
+\DoxyCodeLine{00262\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(*s,\ center\_value\_);}
+\DoxyCodeLine{00263\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(*t,\ center\_value\_);}
+\DoxyCodeLine{00264\ \ \ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(*s,\ -\/center\_value\_);}
+\DoxyCodeLine{00265\ \ \ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(*t,\ -\/center\_value\_);}
+\DoxyCodeLine{00266\ \ \ \ \ *s\ *=\ -\/1;}
+\DoxyCodeLine{00267\ \ \ \ \ *t\ *=\ -\/1;}
+\DoxyCodeLine{00268\ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_aff952cd2aab64c4e87dd905fe0c77633}{InvertDiamond}}(s,\ t);}
+\DoxyCodeLine{00269\ \ \ \}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \ \ \textcolor{comment}{//\ For\ correction\ values.}}
+\DoxyCodeLine{00272\ \ \ int32\_t\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a6045c6e4e53acef3bad8155d9ce2c5e6}{ModMax}}(int32\_t\ x)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00273\ \ \ \ \ \textcolor{keywordflow}{if}\ (x\ >\ this-\/>\mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a6b3f51fd6ac1954a2b3c906e462655ac}{center\_value}}())\ \{}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ x\ -\/\ this-\/>\mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a1f3930b514222c2181cb70b80200d5e9}{max\_quantized\_value}}();}
+\DoxyCodeLine{00275\ \ \ \ \ \}}
+\DoxyCodeLine{00276\ \ \ \ \ \textcolor{keywordflow}{if}\ (x\ <\ -\/this-\/>\mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a6b3f51fd6ac1954a2b3c906e462655ac}{center\_value}}())\ \{}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ x\ +\ this-\/>\mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a1f3930b514222c2181cb70b80200d5e9}{max\_quantized\_value}}();}
+\DoxyCodeLine{00278\ \ \ \ \ \}}
+\DoxyCodeLine{00279\ \ \ \ \ \textcolor{keywordflow}{return}\ x;}
+\DoxyCodeLine{00280\ \ \ \}}
+\DoxyCodeLine{00281\ }
+\DoxyCodeLine{00282\ \ \ \textcolor{comment}{//\ For\ correction\ values.}}
+\DoxyCodeLine{00283\ \ \ int32\_t\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a76d85bb657a090c8eb03aae5d296cd1b}{MakePositive}}(int32\_t\ x)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00284\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(x,\ this-\/>\mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a6b3f51fd6ac1954a2b3c906e462655ac}{center\_value}}()\ *\ 2);}
+\DoxyCodeLine{00285\ \ \ \ \ \textcolor{keywordflow}{if}\ (x\ <\ 0)\ \{}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ x\ +\ this-\/>\mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a1f3930b514222c2181cb70b80200d5e9}{max\_quantized\_value}}();}
+\DoxyCodeLine{00287\ \ \ \ \ \}}
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{keywordflow}{return}\ x;}
+\DoxyCodeLine{00289\ \ \ \}}
+\DoxyCodeLine{00290\ }
+\DoxyCodeLine{00291\ \ \ int32\_t\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a87beb6e42e59e525b0cfa65f0051fa7a}{quantization\_bits}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ quantization\_bits\_;\ \}}
+\DoxyCodeLine{00292\ \ \ int32\_t\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a1f3930b514222c2181cb70b80200d5e9}{max\_quantized\_value}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ max\_quantized\_value\_;\ \}}
+\DoxyCodeLine{00293\ \ \ int32\_t\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a1fa5be691e2be4076773581fd9ad376b}{max\_value}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ max\_value\_;\ \}}
+\DoxyCodeLine{00294\ \ \ int32\_t\ \mbox{\hyperlink{classdraco_1_1_octahedron_tool_box_a6b3f51fd6ac1954a2b3c906e462655ac}{center\_value}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ center\_value\_;\ \}}
+\DoxyCodeLine{00295\ }
+\DoxyCodeLine{00296\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00297\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ OctahedralCoordsToUnitVector(\textcolor{keywordtype}{float}\ in\_s\_scaled,\ \textcolor{keywordtype}{float}\ in\_t\_scaled,}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ *out\_vector)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00299\ \ \ \ \ \textcolor{comment}{//\ Background\ about\ the\ encoding:}}
+\DoxyCodeLine{00300\ \ \ \ \ \textcolor{comment}{//\ \ \ A\ normal\ is\ encoded\ in\ a\ normalized\ space\ <s,\ t>\ depicted\ below.\ The}}
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{comment}{//\ \ \ encoding\ correponds\ to\ an\ octahedron\ that\ is\ unwrapped\ to\ a\ 2D\ plane.}}
+\DoxyCodeLine{00302\ \ \ \ \ \textcolor{comment}{//\ \ \ During\ encoding,\ a\ normal\ is\ projected\ to\ the\ surface\ of\ the\ octahedron}}
+\DoxyCodeLine{00303\ \ \ \ \ \textcolor{comment}{//\ \ \ and\ the\ projection\ is\ then\ unwrapped\ to\ the\ 2D\ plane.\ Decoding\ is\ the}}
+\DoxyCodeLine{00304\ \ \ \ \ \textcolor{comment}{//\ \ \ reverse\ of\ this\ process.}}
+\DoxyCodeLine{00305\ \ \ \ \ \textcolor{comment}{//\ \ \ All\ points\ in\ the\ central\ diamond\ are\ located\ on\ triangles\ on\ the}}
+\DoxyCodeLine{00306\ \ \ \ \ \textcolor{comment}{//\ \ \ right\ "{}hemisphere"{}\ of\ the\ octahedron\ while\ all\ points\ outside\ of\ the}}
+\DoxyCodeLine{00307\ \ \ \ \ \textcolor{comment}{//\ \ \ diamond\ are\ on\ the\ left\ hemisphere\ (basically,\ they\ would\ have\ to\ be}}
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{comment}{//\ \ \ wrapped\ along\ the\ diagonal\ edges\ to\ form\ the\ octahedron).\ The\ central}}
+\DoxyCodeLine{00309\ \ \ \ \ \textcolor{comment}{//\ \ \ point\ corresponds\ to\ the\ right\ most\ vertex\ of\ the\ octahedron\ and\ all}}
+\DoxyCodeLine{00310\ \ \ \ \ \textcolor{comment}{//\ \ \ corners\ of\ the\ plane\ correspond\ to\ the\ left\ most\ vertex\ of\ the}}
+\DoxyCodeLine{00311\ \ \ \ \ \textcolor{comment}{//\ \ \ octahedron.}}
+\DoxyCodeLine{00312\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00313\ \ \ \ \ \textcolor{comment}{//\ t}}
+\DoxyCodeLine{00314\ \ \ \ \ \textcolor{comment}{//\ \string^\ *-\/-\/-\/-\/-\/*-\/-\/-\/-\/-\/*}}
+\DoxyCodeLine{00315\ \ \ \ \ \textcolor{comment}{//\ |\ |\ \ \ \ /|\(\backslash\)\ \ \ \ |}}
+\DoxyCodeLine{00316\ \ \ \ \ \textcolor{comment}{//\ \ \ |\ \ \ /\ |\ \(\backslash\)\ \ \ |}}
+\DoxyCodeLine{00317\ \ \ \ \ \textcolor{comment}{//\ \ \ |\ \ /\ \ |\ \ \(\backslash\)\ \ |}}
+\DoxyCodeLine{00318\ \ \ \ \ \textcolor{comment}{//\ \ \ |\ /\ \ \ |\ \ \ \(\backslash\)\ |}}
+\DoxyCodeLine{00319\ \ \ \ \ \textcolor{comment}{//\ \ \ *-\/-\/-\/-\/-\/*-\/-\/-\/-\/\ *}}
+\DoxyCodeLine{00320\ \ \ \ \ \textcolor{comment}{//\ \ \ |\ \(\backslash\)\ \ \ |\ \ \ /\ |}}
+\DoxyCodeLine{00321\ \ \ \ \ \textcolor{comment}{//\ \ \ |\ \ \(\backslash\)\ \ |\ \ /\ \ |}}
+\DoxyCodeLine{00322\ \ \ \ \ \textcolor{comment}{//\ \ \ |\ \ \ \(\backslash\)\ |\ /\ \ \ |}}
+\DoxyCodeLine{00323\ \ \ \ \ \textcolor{comment}{//\ \ \ |\ \ \ \ \(\backslash\)|/\ \ \ \ |}}
+\DoxyCodeLine{00324\ \ \ \ \ \textcolor{comment}{//\ \ \ *-\/-\/-\/-\/-\/*-\/-\/-\/-\/-\/*\ \ -\/-\/>\ s}}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00326\ \ \ \ \ \textcolor{comment}{//\ Note\ that\ the\ input\ |in\_s\_scaled|\ and\ |in\_t\_scaled|\ are\ already\ scaled\ to}}
+\DoxyCodeLine{00327\ \ \ \ \ \textcolor{comment}{//\ <-\/1,\ 1>\ range.\ This\ way,\ the\ central\ point\ is\ at\ coordinate\ (0,\ 0).}}
+\DoxyCodeLine{00328\ \ \ \ \ \textcolor{keywordtype}{float}\ y\ =\ in\_s\_scaled;}
+\DoxyCodeLine{00329\ \ \ \ \ \textcolor{keywordtype}{float}\ z\ =\ in\_t\_scaled;}
+\DoxyCodeLine{00330\ }
+\DoxyCodeLine{00331\ \ \ \ \ \textcolor{comment}{//\ Remaining\ coordinate\ can\ be\ computed\ by\ projecting\ the\ (y,\ z)\ values\ onto}}
+\DoxyCodeLine{00332\ \ \ \ \ \textcolor{comment}{//\ the\ surface\ of\ the\ octahedron.}}
+\DoxyCodeLine{00333\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ x\ =\ 1.f\ -\/\ std::abs(y)\ -\/\ std::abs(z);}
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00335\ \ \ \ \ \textcolor{comment}{//\ |x|\ is\ essentially\ a\ signed\ distance\ from\ the\ diagonal\ edges\ of\ the}}
+\DoxyCodeLine{00336\ \ \ \ \ \textcolor{comment}{//\ diamond\ shown\ on\ the\ figure\ above.\ It\ is\ positive\ for\ all\ points\ in\ the}}
+\DoxyCodeLine{00337\ \ \ \ \ \textcolor{comment}{//\ diamond\ (right\ hemisphere)\ and\ negative\ for\ all\ points\ outside\ the}}
+\DoxyCodeLine{00338\ \ \ \ \ \textcolor{comment}{//\ diamond\ (left\ hemisphere).\ For\ all\ points\ on\ the\ left\ hemisphere\ we\ need}}
+\DoxyCodeLine{00339\ \ \ \ \ \textcolor{comment}{//\ to\ update\ their\ (y,\ z)\ coordinates\ to\ account\ for\ the\ wrapping\ along}}
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{comment}{//\ the\ edges\ of\ the\ diamond.}}
+\DoxyCodeLine{00341\ \ \ \ \ \textcolor{keywordtype}{float}\ x\_offset\ =\ -\/x;}
+\DoxyCodeLine{00342\ \ \ \ \ x\_offset\ =\ x\_offset\ <\ 0\ ?\ 0\ :\ x\_offset;}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00344\ \ \ \ \ \textcolor{comment}{//\ This\ will\ do\ nothing\ for\ the\ points\ on\ the\ right\ hemisphere\ but\ it\ will}}
+\DoxyCodeLine{00345\ \ \ \ \ \textcolor{comment}{//\ mirror\ the\ (y,\ z)\ location\ along\ the\ nearest\ diagonal\ edge\ of\ the}}
+\DoxyCodeLine{00346\ \ \ \ \ \textcolor{comment}{//\ diamond.}}
+\DoxyCodeLine{00347\ \ \ \ \ y\ +=\ y\ <\ 0\ ?\ x\_offset\ :\ -\/x\_offset;}
+\DoxyCodeLine{00348\ \ \ \ \ z\ +=\ z\ <\ 0\ ?\ x\_offset\ :\ -\/x\_offset;}
+\DoxyCodeLine{00349\ }
+\DoxyCodeLine{00350\ \ \ \ \ \textcolor{comment}{//\ Normalize\ the\ computed\ vector.}}
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ norm\_squared\ =\ x\ *\ x\ +\ y\ *\ y\ +\ z\ *\ z;}
+\DoxyCodeLine{00352\ \ \ \ \ \textcolor{keywordflow}{if}\ (norm\_squared\ <\ 1e-\/6)\ \{}
+\DoxyCodeLine{00353\ \ \ \ \ \ \ out\_vector[0]\ =\ 0;}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ out\_vector[1]\ =\ 0;}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ out\_vector[2]\ =\ 0;}
+\DoxyCodeLine{00356\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ d\ =\ 1.0f\ /\ std::sqrt(norm\_squared);}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ out\_vector[0]\ =\ x\ *\ d;}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ out\_vector[1]\ =\ y\ *\ d;}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ out\_vector[2]\ =\ z\ *\ d;}
+\DoxyCodeLine{00361\ \ \ \ \ \}}
+\DoxyCodeLine{00362\ \ \ \}}
+\DoxyCodeLine{00363\ }
+\DoxyCodeLine{00364\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af478a748dec7d15ffbb4818b675b5dac}{int32\_t}}\ quantization\_bits\_;}
+\DoxyCodeLine{00365\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af478a748dec7d15ffbb4818b675b5dac}{int32\_t}}\ max\_quantized\_value\_;}
+\DoxyCodeLine{00366\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af478a748dec7d15ffbb4818b675b5dac}{int32\_t}}\ max\_value\_;}
+\DoxyCodeLine{00367\ \ \ \textcolor{keywordtype}{float}\ dequantization\_scale\_;}
+\DoxyCodeLine{00368\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af478a748dec7d15ffbb4818b675b5dac}{int32\_t}}\ center\_value\_;}
+\DoxyCodeLine{00369\ \};}
+\DoxyCodeLine{00370\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ATTRIBUTES\_NORMAL\_COMPRESSION\_UTILS\_H\_}}
+
+\end{DoxyCode}

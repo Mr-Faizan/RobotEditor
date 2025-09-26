@@ -1,0 +1,70 @@
+\doxysection{hash\+\_\+utils.\+h}
+\hypertarget{hash__utils_8h_source}{}\label{hash__utils_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/core/hash\_utils.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/core/hash\_utils.h}}
+\mbox{\hyperlink{hash__utils_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_CORE\_HASH\_UTILS\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_CORE\_HASH\_UTILS\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{stdint_8h}{stdint.h}}>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ <cstddef>}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <functional>}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T1,\ \textcolor{keyword}{typename}\ T2>}
+\DoxyCodeLine{00026\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(T1\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},\ T2\ b)\ \{}
+\DoxyCodeLine{00027\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ hash1\ =\ std::hash<T1>()(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}});}
+\DoxyCodeLine{00028\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ hash2\ =\ std::hash<T2>()(b);}
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordflow}{return}\ (hash1\ <<\ 2)\ \string^\ (hash2\ <<\ 1);}
+\DoxyCodeLine{00030\ \}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00033\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(T\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},\ \textcolor{keywordtype}{size\_t}\ hash)\ \{}
+\DoxyCodeLine{00034\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ hasha\ =\ std::hash<T>()(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}});}
+\DoxyCodeLine{00035\ \ \ \textcolor{keywordflow}{return}\ (hash)\ \string^\ (hasha\ +\ 239);}
+\DoxyCodeLine{00036\ \}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \textcolor{keyword}{inline}\ uint64\_t\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(uint64\_t\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},\ uint64\_t\ b)\ \{}
+\DoxyCodeLine{00039\ \ \ \textcolor{keywordflow}{return}\ (\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}\ +\ 1013)\ \string^\ (b\ +\ 107)\ <<\ 1;}
+\DoxyCodeLine{00040\ \}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{comment}{//\ Will\ never\ return\ 1\ or\ 0.}}
+\DoxyCodeLine{00043\ uint64\_t\ \mbox{\hyperlink{namespacedraco_a164f26ed60b7d5616ca97c2c33f14f8d}{FingerprintString}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *s,\ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \textcolor{comment}{//\ Hash\ for\ std::array.}}
+\DoxyCodeLine{00046\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00047\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_hash_array}{HashArray}}\ \{}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structdraco_1_1_hash_array_a7109adf9e781c7bc8384378e48e6b24b}{operator()}}(\textcolor{keyword}{const}\ T\ \&\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}})\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ hash\ =\ 79;\ \ \textcolor{comment}{//\ Magic\ number.}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ std::tuple\_size<T>::value;\ ++i)\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(hash,\ \mbox{\hyperlink{structdraco_1_1_hash_array_a5049f9565e256d7155cf495eda98fc03}{ValueHash}}(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}[i]));}
+\DoxyCodeLine{00052\ \ \ \ \ \}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordflow}{return}\ hash;}
+\DoxyCodeLine{00054\ \ \ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ V>}
+\DoxyCodeLine{00057\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structdraco_1_1_hash_array_a5049f9565e256d7155cf495eda98fc03}{ValueHash}}(\textcolor{keyword}{const}\ V\ \&val)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordflow}{return}\ std::hash<V>()(val);}
+\DoxyCodeLine{00059\ \ \ \}}
+\DoxyCodeLine{00060\ \};}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_CORE\_HASH\_UTILS\_H\_}}
+
+\end{DoxyCode}
