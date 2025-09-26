@@ -1,0 +1,130 @@
+\doxysection{trs\+\_\+matrix.\+h}
+\hypertarget{trs__matrix_8h_source}{}\label{trs__matrix_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/scene/trs\_matrix.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/scene/trs\_matrix.h}}
+\mbox{\hyperlink{trs__matrix_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2019\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_SCENE\_TRS\_MATRIX\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_SCENE\_TRS\_MATRIX\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}Eigen/Geometry"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status__or_8h}{draco/core/status\_or.h}}"{}}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ This\ class\ is\ used\ to\ store\ one\ or\ more\ of\ a\ translation,\ rotation,\ scale}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ vectors\ or\ a\ transformation\ matrix.}}
+\DoxyCodeLine{00028\ \textcolor{keyword}{class\ }TrsMatrix\ \{}
+\DoxyCodeLine{00029\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00030\ \ \ TrsMatrix()}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ :\ matrix\_(Eigen::Matrix4d::Identity()),}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ translation\_(0.0,\ 0.0,\ 0.0),}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ rotation\_(1.0,\ 0.0,\ 0.0,\ 0.0),\ \ \textcolor{comment}{//\ (w,\ x,\ y,\ z)}}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ scale\_(1.0,\ 1.0,\ 1.0),}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ matrix\_set\_(false),}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ translation\_set\_(false),}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ rotation\_set\_(false),}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ scale\_set\_(false)\ \{\}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a36c6bee907ea7cf3070444e1f3db3413}{Copy}}(\textcolor{keyword}{const}\ TrsMatrix\ \&tm);}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordtype}{void}\ SetMatrix(\textcolor{keyword}{const}\ Eigen::Matrix4d\ \&matrix)\ \{}
+\DoxyCodeLine{00043\ \ \ \ \ matrix\_\ =\ matrix;}
+\DoxyCodeLine{00044\ \ \ \ \ matrix\_set\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00045\ \ \ \}}
+\DoxyCodeLine{00046\ \ \ \textcolor{keywordtype}{bool}\ MatrixSet()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ matrix\_set\_;\ \}}
+\DoxyCodeLine{00047\ \ \ StatusOr<const\ Eigen::Matrix4d>\ Matrix()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordflow}{if}\ (!matrix\_set\_)\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Status(Status::DRACO\_ERROR,\ \textcolor{stringliteral}{"{}Matrix\ is\ not\ set."{}});}
+\DoxyCodeLine{00050\ \ \ \ \ \}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordflow}{return}\ matrix\_;}
+\DoxyCodeLine{00052\ \ \ \}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordtype}{void}\ SetTranslation(\textcolor{keyword}{const}\ Eigen::Vector3d\ \&translation)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ translation\_\ =\ translation;}
+\DoxyCodeLine{00056\ \ \ \ \ translation\_set\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00057\ \ \ \}}
+\DoxyCodeLine{00058\ \ \ \textcolor{keywordtype}{bool}\ TranslationSet()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ translation\_set\_;\ \}}
+\DoxyCodeLine{00059\ \ \ StatusOr<const\ Eigen::Vector3d>\ Translation()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordflow}{if}\ (!translation\_set\_)\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Status(Status::DRACO\_ERROR,\ \textcolor{stringliteral}{"{}Translation\ is\ not\ set."{}});}
+\DoxyCodeLine{00062\ \ \ \ \ \}}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordflow}{return}\ translation\_;}
+\DoxyCodeLine{00064\ \ \ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{keywordtype}{void}\ SetRotation(\textcolor{keyword}{const}\ Eigen::Quaterniond\ \&rotation)\ \{}
+\DoxyCodeLine{00067\ \ \ \ \ rotation\_\ =\ rotation;}
+\DoxyCodeLine{00068\ \ \ \ \ rotation\_set\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00069\ \ \ \}}
+\DoxyCodeLine{00070\ \ \ \textcolor{keywordtype}{bool}\ RotationSet()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ rotation\_set\_;\ \}}
+\DoxyCodeLine{00071\ \ \ StatusOr<const\ Eigen::Quaterniond>\ \mbox{\hyperlink{namespacepmd_a4e561d88294d09ea166a5db5c2e54a21af1a42bd417390fc63b030a519624607a}{Rotation}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordflow}{if}\ (!rotation\_set\_)\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Status(Status::DRACO\_ERROR,\ \textcolor{stringliteral}{"{}Rotation\ is\ not\ set."{}});}
+\DoxyCodeLine{00074\ \ \ \ \ \}}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordflow}{return}\ rotation\_;}
+\DoxyCodeLine{00076\ \ \ \}}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \textcolor{keywordtype}{void}\ SetScale(\textcolor{keyword}{const}\ Eigen::Vector3d\ \&scale)\ \{}
+\DoxyCodeLine{00079\ \ \ \ \ scale\_\ =\ scale;}
+\DoxyCodeLine{00080\ \ \ \ \ scale\_set\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00081\ \ \ \}}
+\DoxyCodeLine{00082\ \ \ \textcolor{keywordtype}{bool}\ ScaleSet()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ scale\_set\_;\ \}}
+\DoxyCodeLine{00083\ \ \ StatusOr<const\ Eigen::Vector3d>\ Scale()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordflow}{if}\ (!scale\_set\_)\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Status(Status::DRACO\_ERROR,\ \textcolor{stringliteral}{"{}Scale\ is\ not\ set."{}});}
+\DoxyCodeLine{00086\ \ \ \ \ \}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{return}\ scale\_;}
+\DoxyCodeLine{00088\ \ \ \}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \textcolor{comment}{//\ Returns\ true\ if\ the\ matrix\ is\ not\ set\ or\ if\ matrix\ is\ set\ and\ is\ equal\ to}}
+\DoxyCodeLine{00091\ \ \ \textcolor{comment}{//\ identity.}}
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordtype}{bool}\ IsMatrixIdentity()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ \textcolor{comment}{//\ Returns\ true\ if\ matrix\ is\ set\ and\ only\ the\ translation\ elements\ may\ differ}}
+\DoxyCodeLine{00095\ \ \ \textcolor{comment}{//\ from\ identity.\ Returns\ false\ if\ matrix\ is\ not\ set.}}
+\DoxyCodeLine{00096\ \ \ \textcolor{keywordtype}{bool}\ IsMatrixTranslationOnly()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \ \ \textcolor{comment}{//\ Returns\ transformation\ matrix\ if\ it\ has\ been\ set.\ Otherwise,\ computes}}
+\DoxyCodeLine{00099\ \ \ \textcolor{comment}{//\ transformation\ matrix\ from\ TRS\ vectors\ and\ returns\ it.}}
+\DoxyCodeLine{00100\ \ \ Eigen::Matrix4d\ ComputeTransformationMatrix()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \textcolor{comment}{//\ Returns\ a\ boolean\ indicating\ whether\ any\ of\ the\ transforms\ have\ been\ set.}}
+\DoxyCodeLine{00103\ \ \ \textcolor{comment}{//\ Can\ be\ used\ to\ check\ whether\ this\ object\ represents\ a\ default\ transform.}}
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordtype}{bool}\ TransformSet()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keywordflow}{return}\ matrix\_set\_\ ||\ translation\_set\_\ ||\ rotation\_set\_\ ||\ scale\_set\_;}
+\DoxyCodeLine{00106\ \ \ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{json_8hpp_a4fe1c9b8096b3c21d3dd1e19c3eff59f}{operator==}}(\textcolor{keyword}{const}\ TrsMatrix\ \&trs\_matrix)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00111\ \ \ Eigen::Matrix4d\ matrix\_;}
+\DoxyCodeLine{00112\ \ \ Eigen::Vector3d\ translation\_;}
+\DoxyCodeLine{00113\ \ \ Eigen::Quaterniond\ rotation\_;}
+\DoxyCodeLine{00114\ \ \ Eigen::Vector3d\ scale\_;}
+\DoxyCodeLine{00115\ \ \ \textcolor{keywordtype}{bool}\ matrix\_set\_;}
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordtype}{bool}\ translation\_set\_;}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordtype}{bool}\ rotation\_set\_;}
+\DoxyCodeLine{00118\ \ \ \textcolor{keywordtype}{bool}\ scale\_set\_;}
+\DoxyCodeLine{00119\ \};}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00124\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_SCENE\_TRS\_MATRIX\_H\_}}
+
+\end{DoxyCode}

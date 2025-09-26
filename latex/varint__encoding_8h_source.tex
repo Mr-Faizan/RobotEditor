@@ -1,0 +1,67 @@
+\doxysection{varint\+\_\+encoding.\+h}
+\hypertarget{varint__encoding_8h_source}{}\label{varint__encoding_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/core/varint\_encoding.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/core/varint\_encoding.h}}
+\mbox{\hyperlink{varint__encoding_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_CORE\_VARINT\_ENCODING\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_CORE\_VARINT\_ENCODING\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <type\_traits>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{bit__utils_8h}{draco/core/bit\_utils.h}}"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{encoder__buffer_8h}{draco/core/encoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ Encodes\ a\ specified\ integer\ as\ varint.\ Note\ that\ different\ coding\ is\ used}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ when\ IntTypeT\ is\ an\ unsigned\ data\ type.}}
+\DoxyCodeLine{00027\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ IntTypeT>}
+\DoxyCodeLine{00028\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespacedraco_ad135bf1d60a87d3249b924ea416efec7}{EncodeVarint}}(IntTypeT\ val,\ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *out\_buffer)\ \{}
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordflow}{if}\ (std::is\_unsigned<IntTypeT>::value)\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//\ Coding\ of\ unsigned\ values.}}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{comment}{//\ 0-\/6\ bit\ -\/\ data}}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{//\ 7\ bit\ -\/\ next\ byte?}}
+\DoxyCodeLine{00033\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ 0;}
+\DoxyCodeLine{00034\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ |=\ val\ \&\ ((1\ <<\ 7)\ -\/\ 1);}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keywordflow}{if}\ (val\ >=\ (1\ <<\ 7))\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ |=\ (1\ <<\ 7);}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!out\_buffer-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}))\ \{}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{namespacedraco_ad135bf1d60a87d3249b924ea416efec7}{EncodeVarint<IntTypeT>}}(val\ >>\ 7,\ out\_buffer))\ \{}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00044\ \ \ \ \ \}}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordflow}{if}\ (!out\_buffer-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}))\ \{}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00047\ \ \ \ \ \}}
+\DoxyCodeLine{00048\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{comment}{//\ IntTypeT\ is\ a\ signed\ value.\ Convert\ to\ unsigned\ symbol\ and\ encode.}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{typename}\ std::make\_unsigned<IntTypeT>::type\ symbol\ =}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_a10efee0fbf3f8f3fce1c83a5f2a5fc46}{ConvertSignedIntToSymbol}}(val);}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{namespacedraco_ad135bf1d60a87d3249b924ea416efec7}{EncodeVarint}}(symbol,\ out\_buffer))\ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00054\ \ \ \ \ \}}
+\DoxyCodeLine{00055\ \ \ \}}
+\DoxyCodeLine{00056\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00057\ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_CORE\_VARINT\_ENCODING\_H\_}}
+
+\end{DoxyCode}

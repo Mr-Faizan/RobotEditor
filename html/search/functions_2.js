@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['deletecurrentjoint_0',['deleteCurrentJoint',['../class_main_window.html#ab8d94108fd9c2f66daa10f03f0f2c0ff',1,'MainWindow']]],
-  ['deletecurrentobjfile_1',['deleteCurrentObjFile',['../class_main_window.html#a7170fa8fa312c524d56b08959ba93b6d',1,'MainWindow']]],
-  ['deletecurrentpayload_2',['deleteCurrentPayload',['../class_main_window.html#adf458668ec1995ceffbe4cc0fe13ec86',1,'MainWindow']]],
-  ['deletecurrentrobot_3',['deleteCurrentRobot',['../class_main_window.html#a3a7f9031bad81af6d9a4247adccba728',1,'MainWindow']]]
+  ['dhcalculator_0',['dhCalculator',['../classdh_calculator.html#ac42050041d8d0dde4a9efdfdaef55525',1,'dhCalculator']]],
+  ['dhparameters_1',['DHParameters',['../struct_joint_kinematics_1_1_d_h_parameters.html#a0f56085651bb64fabac97aa8af5e2ac3',1,'JointKinematics::DHParameters::DHParameters()'],['../struct_joint_kinematics_1_1_d_h_parameters.html#a40fe97c847691b29ade9609f93a587d4',1,'JointKinematics::DHParameters::DHParameters(double alpha, double d, double theta, double a, const string &amp;dhType, bool modifiedDh)']]]
 ];

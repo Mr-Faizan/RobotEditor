@@ -1,0 +1,378 @@
+\doxysection{dynamic\+\_\+integer\+\_\+points\+\_\+kd\+\_\+tree\+\_\+encoder.\+h}
+\hypertarget{dynamic__integer__points__kd__tree__encoder_8h_source}{}\label{dynamic__integer__points__kd__tree__encoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/point\_cloud/algorithms/dynamic\_integer\_points\_kd\_tree\_encoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/point\_cloud/algorithms/dynamic\_integer\_points\_kd\_tree\_encoder.h}}
+\mbox{\hyperlink{dynamic__integer__points__kd__tree__encoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_POINT\_CLOUD\_ALGORITHMS\_DYNAMIC\_INTEGER\_POINTS\_KD\_TREE\_ENCODER\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_POINT\_CLOUD\_ALGORITHMS\_DYNAMIC\_INTEGER\_POINTS\_KD\_TREE\_ENCODER\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <array>}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <stack>}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{adaptive__rans__bit__encoder_8h}{draco/compression/bit\_coders/adaptive\_rans\_bit\_encoder.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{direct__bit__encoder_8h}{draco/compression/bit\_coders/direct\_bit\_encoder.h}}"{}}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{folded__integer__bit__encoder_8h}{draco/compression/bit\_coders/folded\_integer\_bit\_encoder.h}}"{}}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{rans__bit__encoder_8h}{draco/compression/bit\_coders/rans\_bit\_encoder.h}}"{}}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{point__cloud__types_8h}{draco/compression/point\_cloud/algorithms/point\_cloud\_types.h}}"{}}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{bit__utils_8h}{draco/core/bit\_utils.h}}"{}}}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{encoder__buffer_8h}{draco/core/encoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{math__utils_8h}{draco/core/math\_utils.h}}"{}}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ This\ policy\ class\ provides\ several\ configurations\ for\ the\ encoder\ that\ allow}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ to\ trade\ speed\ vs\ compression\ rate.\ Level\ 0\ is\ fastest\ while\ 6\ is\ the\ best}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ compression\ rate.\ The\ decoder\ must\ select\ the\ same\ level.}}
+\DoxyCodeLine{00038\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ compression\_level\_t>}
+\DoxyCodeLine{00039\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy}{DynamicIntegerPointsKdTreeEncoderCompressionPolicy}}}
+\DoxyCodeLine{00040\ \ \ \ \ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy}{DynamicIntegerPointsKdTreeEncoderCompressionPolicy}}<}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ compression\_level\_t\ -\/\ 1>\ \{\};}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{keyword}{template}\ <>}
+\DoxyCodeLine{00044\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy}{DynamicIntegerPointsKdTreeEncoderCompressionPolicy}}<0>\ \{}
+\DoxyCodeLine{00045\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_encoder}{DirectBitEncoder}}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy_3_010_01_4_aa3f6e81a0a09a18f8cf9e64c9596e002}{NumbersEncoder}};}
+\DoxyCodeLine{00046\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_encoder}{DirectBitEncoder}}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy_3_010_01_4_a0d67f888c0836bc4904d4dbc9e7d0bff}{AxisEncoder}};}
+\DoxyCodeLine{00047\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_encoder}{DirectBitEncoder}}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy_3_010_01_4_a1eb39f1bfdeea48487abba23060a9a40}{HalfEncoder}};}
+\DoxyCodeLine{00048\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_encoder}{DirectBitEncoder}}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy_3_010_01_4_abd52be49653b3d8e1812315427679e05}{RemainingBitsEncoder}};}
+\DoxyCodeLine{00049\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy_3_010_01_4_adea67685bb2727d07daf62ca3cbdece1}{select\_axis}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00050\ \};}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \textcolor{keyword}{template}\ <>}
+\DoxyCodeLine{00053\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy}{DynamicIntegerPointsKdTreeEncoderCompressionPolicy}}<2>}
+\DoxyCodeLine{00054\ \ \ \ \ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy}{DynamicIntegerPointsKdTreeEncoderCompressionPolicy}}<1>\ \{}
+\DoxyCodeLine{00055\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_r_ans_bit_encoder}{RAnsBitEncoder}}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy_3_012_01_4_aad4eef468920f58b6ab91416ac93ecc9}{NumbersEncoder}};}
+\DoxyCodeLine{00056\ \};}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{keyword}{template}\ <>}
+\DoxyCodeLine{00059\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy}{DynamicIntegerPointsKdTreeEncoderCompressionPolicy}}<4>}
+\DoxyCodeLine{00060\ \ \ \ \ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy}{DynamicIntegerPointsKdTreeEncoderCompressionPolicy}}<3>\ \{}
+\DoxyCodeLine{00061\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_folded_bit32_encoder}{FoldedBit32Encoder<RAnsBitEncoder>}}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy_3_014_01_4_ad299cdc3cce1cf3bfa5ed03798e8adbd}{NumbersEncoder}};}
+\DoxyCodeLine{00062\ \};}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \textcolor{keyword}{template}\ <>}
+\DoxyCodeLine{00065\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy}{DynamicIntegerPointsKdTreeEncoderCompressionPolicy}}<6>}
+\DoxyCodeLine{00066\ \ \ \ \ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy}{DynamicIntegerPointsKdTreeEncoderCompressionPolicy}}<5>\ \{}
+\DoxyCodeLine{00067\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy_3_016_01_4_a6f8731bd4931edd373eea707ce902cc3}{select\_axis}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00068\ \};}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \textcolor{comment}{//\ This\ class\ encodes\ a\ given\ integer\ point\ cloud\ based\ on\ the\ point\ cloud}}
+\DoxyCodeLine{00071\ \textcolor{comment}{//\ compression\ algorithm\ in:}}
+\DoxyCodeLine{00072\ \textcolor{comment}{//\ Olivier\ Devillers\ and\ Pierre-\/Marie\ Gandoin}}
+\DoxyCodeLine{00073\ \textcolor{comment}{//\ "{}Geometric\ compression\ for\ interactive\ transmission"{}}}
+\DoxyCodeLine{00074\ \textcolor{comment}{//}}
+\DoxyCodeLine{00075\ \textcolor{comment}{//\ In\ principle\ the\ algorithm\ keeps\ on\ splitting\ the\ point\ cloud\ in\ the\ middle}}
+\DoxyCodeLine{00076\ \textcolor{comment}{//\ while\ alternating\ the\ axes.\ In\ 3D\ this\ results\ in\ an\ Octree\ like\ structure.}}
+\DoxyCodeLine{00077\ \textcolor{comment}{//\ In\ each\ step\ we\ encode\ the\ number\ of\ points\ in\ the\ first\ half.}}
+\DoxyCodeLine{00078\ \textcolor{comment}{//\ The\ algorithm\ does\ not\ preserve\ the\ order\ of\ points.}}
+\DoxyCodeLine{00079\ \textcolor{comment}{//}}
+\DoxyCodeLine{00080\ \textcolor{comment}{//\ However,\ the\ algorithm\ here\ differs\ from\ the\ original\ as\ follows:}}
+\DoxyCodeLine{00081\ \textcolor{comment}{//\ The\ algorithm\ keeps\ on\ splitting\ the\ point\ cloud\ in\ the\ middle\ of\ the\ axis}}
+\DoxyCodeLine{00082\ \textcolor{comment}{//\ that\ keeps\ the\ point\ cloud\ as\ clustered\ as\ possible,\ which\ gives\ a\ better}}
+\DoxyCodeLine{00083\ \textcolor{comment}{//\ compression\ rate.}}
+\DoxyCodeLine{00084\ \textcolor{comment}{//\ The\ number\ of\ points\ is\ encode\ by\ the\ deviation\ from\ the\ half\ of\ the\ points}}
+\DoxyCodeLine{00085\ \textcolor{comment}{//\ in\ the\ smaller\ half\ of\ the\ two.\ This\ results\ in\ a\ better\ compression\ rate\ as}}
+\DoxyCodeLine{00086\ \textcolor{comment}{//\ there\ are\ more\ leading\ zeros,\ which\ is\ then\ compressed\ better\ by\ the}}
+\DoxyCodeLine{00087\ \textcolor{comment}{//\ arithmetic\ encoding.}}
+\DoxyCodeLine{00088\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ compression\_level\_t>}
+\DoxyCodeLine{00089\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a8612df01029529fbc7c91f4f513cc6dd}{DynamicIntegerPointsKdTreeEncoder}}\ \{}
+\DoxyCodeLine{00090\ \ \ \textcolor{keyword}{static\_assert}(compression\_level\_t\ >=\ 0,\ \textcolor{stringliteral}{"{}Compression\ level\ must\ in\ [0..6]."{}});}
+\DoxyCodeLine{00091\ \ \ \textcolor{keyword}{static\_assert}(compression\_level\_t\ <=\ 6,\ \textcolor{stringliteral}{"{}Compression\ level\ must\ in\ [0..6]."{}});}
+\DoxyCodeLine{00092\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{structdraco_1_1_dynamic_integer_points_kd_tree_encoder_compression_policy}{DynamicIntegerPointsKdTreeEncoderCompressionPolicy}}<}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ compression\_level\_t>}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ Policy;}
+\DoxyCodeLine{00095\ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{typename}\ Policy::NumbersEncoder\ NumbersEncoder;}
+\DoxyCodeLine{00096\ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{typename}\ Policy::AxisEncoder\ AxisEncoder;}
+\DoxyCodeLine{00097\ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{typename}\ Policy::HalfEncoder\ HalfEncoder;}
+\DoxyCodeLine{00098\ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{typename}\ Policy::RemainingBitsEncoder\ RemainingBitsEncoder;}
+\DoxyCodeLine{00099\ \ \ \textcolor{keyword}{typedef}\ std::vector<uint32\_t>\ VectorUint32;}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00102\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a8612df01029529fbc7c91f4f513cc6dd}{DynamicIntegerPointsKdTreeEncoder}}(uint32\_t\ \mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a1bed1a019dcd88e9095d3fd680da125f}{dimension}})}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ :\ bit\_length\_(0),}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ dimension\_(\mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a1bed1a019dcd88e9095d3fd680da125f}{dimension}}),}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ deviations\_(\mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a1bed1a019dcd88e9095d3fd680da125f}{dimension}},\ 0),}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ num\_remaining\_bits\_(\mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a1bed1a019dcd88e9095d3fd680da125f}{dimension}},\ 0),}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ axes\_(\mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a1bed1a019dcd88e9095d3fd680da125f}{dimension}},\ 0),}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ base\_stack\_(32\ *\ \mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a1bed1a019dcd88e9095d3fd680da125f}{dimension}}\ +\ 1,\ VectorUint32(\mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a1bed1a019dcd88e9095d3fd680da125f}{dimension}},\ 0)),}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ levels\_stack\_(32\ *\ \mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a1bed1a019dcd88e9095d3fd680da125f}{dimension}}\ +\ 1,\ VectorUint32(\mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a1bed1a019dcd88e9095d3fd680da125f}{dimension}},\ 0))\ \{\}}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \textcolor{comment}{//\ Encodes\ an\ integer\ point\ cloud\ given\ by\ [begin,end)\ into\ buffer.}}
+\DoxyCodeLine{00112\ \ \ \textcolor{comment}{//\ |bit\_length|\ gives\ the\ highest\ bit\ used\ for\ all\ coordinates.}}
+\DoxyCodeLine{00113\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ RandomAccessIteratorT>}
+\DoxyCodeLine{00114\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a730905e38fdbb2aab8d176adeb9a37ac}{EncodePoints}}(RandomAccessIteratorT\ begin,\ RandomAccessIteratorT\ end,}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ \&bit\_length,\ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *buffer);}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \ \ \textcolor{comment}{//\ Encodes\ an\ integer\ point\ cloud\ given\ by\ [begin,end)\ into\ buffer.}}
+\DoxyCodeLine{00118\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ RandomAccessIteratorT>}
+\DoxyCodeLine{00119\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a2e5fee3fe8027decccfd47e0d7c94592}{EncodePoints}}(RandomAccessIteratorT\ begin,\ RandomAccessIteratorT\ end,}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *buffer)\ \{}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a730905e38fdbb2aab8d176adeb9a37ac}{EncodePoints}}(begin,\ end,\ 32,\ buffer);}
+\DoxyCodeLine{00122\ \ \ \}}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \textcolor{keyword}{const}\ uint32\_t\ \mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a1bed1a019dcd88e9095d3fd680da125f}{dimension}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ dimension\_;\ \}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00127\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ RandomAccessIteratorT>}
+\DoxyCodeLine{00128\ \ \ uint32\_t\ GetAndEncodeAxis(RandomAccessIteratorT\ begin,}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ RandomAccessIteratorT\ end,}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ VectorUint32\ \&old\_base,}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ VectorUint32\ \&levels,\ uint32\_t\ last\_axis);}
+\DoxyCodeLine{00132\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ RandomAccessIteratorT>}
+\DoxyCodeLine{00133\ \ \ \textcolor{keywordtype}{void}\ EncodeInternal(RandomAccessIteratorT\ begin,\ RandomAccessIteratorT\ end);}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \textcolor{keyword}{class\ }Splitter\ \{}
+\DoxyCodeLine{00136\ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00137\ \ \ \ \ Splitter(uint32\_t\ \mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}},\ uint32\_t\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ :\ axis\_(\mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}}),\ value\_(\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{\}}
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ Po\textcolor{keywordtype}{int}T>}
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keywordtype}{bool}\ operator()(\textcolor{keyword}{const}\ PointT\ \&\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}})\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}[axis\_]\ <\ value\_;}
+\DoxyCodeLine{00141\ \ \ \ \ \}}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ axis\_;}
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ value\_;}
+\DoxyCodeLine{00146\ \ \ \};}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \textcolor{keywordtype}{void}\ EncodeNumber(\textcolor{keywordtype}{int}\ nbits,\ uint32\_t\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{}
+\DoxyCodeLine{00149\ \ \ \ \ numbers\_encoder\_.EncodeLeastSignificantBits32(nbits,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00150\ \ \ \}}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ RandomAccessIteratorT>}
+\DoxyCodeLine{00153\ \ \ \textcolor{keyword}{struct\ }EncodingStatus\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ EncodingStatus(RandomAccessIteratorT\ begin\_,\ RandomAccessIteratorT\ end\_,}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ last\_axis\_,\ uint32\_t\ stack\_pos\_)}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ :\ begin(begin\_),}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ end(end\_),}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ last\_axis(last\_axis\_),}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \ \ stack\_pos(stack\_pos\_)\ \{}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ num\_remaining\_points\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\textcolor{keyword}{>}(end\ -\/\ begin);}
+\DoxyCodeLine{00161\ \ \ \ \ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \ \ \ \ RandomAccessIteratorT\ begin;}
+\DoxyCodeLine{00164\ \ \ \ \ RandomAccessIteratorT\ end;}
+\DoxyCodeLine{00165\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ last\_axis;}
+\DoxyCodeLine{00166\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ num\_remaining\_points;}
+\DoxyCodeLine{00167\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ stack\_pos;\ \ \textcolor{comment}{//\ used\ to\ get\ base\ and\ levels}}
+\DoxyCodeLine{00168\ \ \ \};}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ bit\_length\_;}
+\DoxyCodeLine{00171\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ num\_points\_;}
+\DoxyCodeLine{00172\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ dimension\_;}
+\DoxyCodeLine{00173\ \ \ NumbersEncoder\ numbers\_encoder\_;}
+\DoxyCodeLine{00174\ \ \ RemainingBitsEncoder\ remaining\_bits\_encoder\_;}
+\DoxyCodeLine{00175\ \ \ AxisEncoder\ axis\_encoder\_;}
+\DoxyCodeLine{00176\ \ \ HalfEncoder\ half\_encoder\_;}
+\DoxyCodeLine{00177\ \ \ VectorUint32\ deviations\_;}
+\DoxyCodeLine{00178\ \ \ VectorUint32\ num\_remaining\_bits\_;}
+\DoxyCodeLine{00179\ \ \ VectorUint32\ axes\_;}
+\DoxyCodeLine{00180\ \ \ std::vector<VectorUint32>\ base\_stack\_;}
+\DoxyCodeLine{00181\ \ \ std::vector<VectorUint32>\ levels\_stack\_;}
+\DoxyCodeLine{00182\ \};}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ compression\_level\_t>}
+\DoxyCodeLine{00185\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ RandomAccessIteratorT>}
+\DoxyCodeLine{00186\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder_a730905e38fdbb2aab8d176adeb9a37ac}{DynamicIntegerPointsKdTreeEncoder<compression\_level\_t>::EncodePoints}}(}
+\DoxyCodeLine{00187\ \ \ \ \ RandomAccessIteratorT\ begin,\ RandomAccessIteratorT\ end,}
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ \&bit\_length,\ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *buffer)\ \{}
+\DoxyCodeLine{00189\ \ \ bit\_length\_\ =\ bit\_length;}
+\DoxyCodeLine{00190\ \ \ num\_points\_\ =\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(end\ -\/\ begin);}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ buffer-\/>Encode(bit\_length\_);}
+\DoxyCodeLine{00193\ \ \ buffer-\/>Encode(num\_points\_);}
+\DoxyCodeLine{00194\ \ \ \textcolor{keywordflow}{if}\ (num\_points\_\ ==\ 0)\ \{}
+\DoxyCodeLine{00195\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00196\ \ \ \}}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ numbers\_encoder\_.StartEncoding();}
+\DoxyCodeLine{00199\ \ \ remaining\_bits\_encoder\_.StartEncoding();}
+\DoxyCodeLine{00200\ \ \ axis\_encoder\_.StartEncoding();}
+\DoxyCodeLine{00201\ \ \ half\_encoder\_.StartEncoding();}
+\DoxyCodeLine{00202\ }
+\DoxyCodeLine{00203\ \ \ EncodeInternal(begin,\ end);}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \ \ numbers\_encoder\_.EndEncoding(buffer);}
+\DoxyCodeLine{00206\ \ \ remaining\_bits\_encoder\_.EndEncoding(buffer);}
+\DoxyCodeLine{00207\ \ \ axis\_encoder\_.EndEncoding(buffer);}
+\DoxyCodeLine{00208\ \ \ half\_encoder\_.EndEncoding(buffer);}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00211\ \}}
+\DoxyCodeLine{00212\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ compression\_level\_t>}
+\DoxyCodeLine{00213\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ RandomAccessIteratorT>}
+\DoxyCodeLine{00214\ uint32\_t}
+\DoxyCodeLine{00215\ DynamicIntegerPointsKdTreeEncoder<compression\_level\_t>::GetAndEncodeAxis(}
+\DoxyCodeLine{00216\ \ \ \ \ RandomAccessIteratorT\ begin,\ RandomAccessIteratorT\ end,}
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{keyword}{const}\ VectorUint32\ \&old\_base,\ \textcolor{keyword}{const}\ VectorUint32\ \&levels,}
+\DoxyCodeLine{00218\ \ \ \ \ uint32\_t\ last\_axis)\ \{}
+\DoxyCodeLine{00219\ \ \ \textcolor{keywordflow}{if}\ (!Policy::select\_axis)\ \{}
+\DoxyCodeLine{00220\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{math__utils_8h_aa0a3dbb1208c6af0d92c429451926608}{DRACO\_INCREMENT\_MOD}}(last\_axis,\ dimension\_);}
+\DoxyCodeLine{00221\ \ \ \}}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \ \ \textcolor{comment}{//\ For\ many\ points\ this\ function\ selects\ the\ axis\ that\ should\ be\ used}}
+\DoxyCodeLine{00224\ \ \ \textcolor{comment}{//\ for\ the\ split\ by\ keeping\ as\ many\ points\ as\ possible\ bundled.}}
+\DoxyCodeLine{00225\ \ \ \textcolor{comment}{//\ In\ the\ best\ case\ we\ do\ not\ split\ the\ point\ cloud\ at\ all.}}
+\DoxyCodeLine{00226\ \ \ \textcolor{comment}{//\ For\ lower\ number\ of\ points,\ we\ simply\ choose\ the\ axis\ that\ is\ refined\ the}}
+\DoxyCodeLine{00227\ \ \ \textcolor{comment}{//\ least\ so\ far.}}
+\DoxyCodeLine{00228\ }
+\DoxyCodeLine{00229\ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\textcolor{keyword}{true},\ end\ -\/\ begin\ !=\ 0);}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00231\ \ \ uint32\_t\ best\_axis\ =\ 0;}
+\DoxyCodeLine{00232\ \ \ \textcolor{keywordflow}{if}\ (end\ -\/\ begin\ <\ 64)\ \{}
+\DoxyCodeLine{00233\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ \mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}}\ =\ 1;\ \mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}}\ <\ dimension\_;\ ++\mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}})\ \{}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (levels[best\_axis]\ >\ levels[\mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}}])\ \{}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ best\_axis\ =\ \mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}};}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00237\ \ \ \ \ \}}
+\DoxyCodeLine{00238\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}}\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\textcolor{keyword}{>}(end\ -\/\ begin);}
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 0;\ i\ <\ dimension\_;\ i++)\ \{}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ deviations\_[i]\ =\ 0;}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ num\_remaining\_bits\_[i]\ =\ bit\_length\_\ -\/\ levels[i];}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_remaining\_bits\_[i]\ >\ 0)\ \{}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ split\ =}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ old\_base[i]\ +\ (1\ <<\ (num\_remaining\_bits\_[i]\ -\/\ 1));}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ it\ =\ begin;\ it\ !=\ end;\ ++it)\ \{}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ deviations\_[i]\ +=\ ((*it)[i]\ <\ split);}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ deviations\_[i]\ =\ std::max(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}}\ -\/\ deviations\_[i],\ deviations\_[i]);}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00251\ \ \ \ \ \}}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00253\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ max\_value\ =\ 0;}
+\DoxyCodeLine{00254\ \ \ \ \ best\_axis\ =\ 0;}
+\DoxyCodeLine{00255\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 0;\ i\ <\ dimension\_;\ i++)\ \{}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \textcolor{comment}{//\ If\ axis\ can\ be\ subdivided.}}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_remaining\_bits\_[i])\ \{}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ if\ this\ is\ the\ better\ axis.}}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (max\_value\ <\ deviations\_[i])\ \{}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \ \ max\_value\ =\ deviations\_[i];}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \ \ \ \ best\_axis\ =\ i;}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00264\ \ \ \ \ \}}
+\DoxyCodeLine{00265\ \ \ \ \ axis\_encoder\_.EncodeLeastSignificantBits32(4,\ best\_axis);}
+\DoxyCodeLine{00266\ \ \ \}}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ \ \ \textcolor{keywordflow}{return}\ best\_axis;}
+\DoxyCodeLine{00269\ \}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ compression\_level\_t>}
+\DoxyCodeLine{00272\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ RandomAccessIteratorT>}
+\DoxyCodeLine{00273\ \textcolor{keywordtype}{void}\ DynamicIntegerPointsKdTreeEncoder<compression\_level\_t>::EncodeInternal(}
+\DoxyCodeLine{00274\ \ \ \ \ RandomAccessIteratorT\ begin,\ RandomAccessIteratorT\ end)\ \{}
+\DoxyCodeLine{00275\ \ \ \textcolor{keyword}{typedef}\ EncodingStatus<RandomAccessIteratorT>\ \mbox{\hyperlink{classdraco_1_1_status}{Status}};}
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00277\ \ \ base\_stack\_[0]\ =\ VectorUint32(dimension\_,\ 0);}
+\DoxyCodeLine{00278\ \ \ levels\_stack\_[0]\ =\ VectorUint32(dimension\_,\ 0);}
+\DoxyCodeLine{00279\ \ \ \mbox{\hyperlink{classdraco_1_1_status}{Status}}\ init\_status(begin,\ end,\ 0,\ 0);}
+\DoxyCodeLine{00280\ \ \ std::stack<Status>\ status\_stack;}
+\DoxyCodeLine{00281\ \ \ status\_stack.push(init\_status);}
+\DoxyCodeLine{00282\ }
+\DoxyCodeLine{00283\ \ \ \textcolor{comment}{//\ TODO(b/199760123):\ Use\ preallocated\ vector\ instead\ of\ stack.}}
+\DoxyCodeLine{00284\ \ \ \textcolor{keywordflow}{while}\ (!status\_stack.empty())\ \{}
+\DoxyCodeLine{00285\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_status}{Status}}\ status\ =\ status\_stack.top();}
+\DoxyCodeLine{00286\ \ \ \ \ status\_stack.pop();}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \ \ \ \ begin\ =\ status.begin;}
+\DoxyCodeLine{00289\ \ \ \ \ end\ =\ status.end;}
+\DoxyCodeLine{00290\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ last\_axis\ =\ status.last\_axis;}
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ stack\_pos\ =\ status.stack\_pos;}
+\DoxyCodeLine{00292\ \ \ \ \ \textcolor{keyword}{const}\ VectorUint32\ \&old\_base\ =\ base\_stack\_[stack\_pos];}
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{keyword}{const}\ VectorUint32\ \&levels\ =\ levels\_stack\_[stack\_pos];}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ \mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}}\ =}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ GetAndEncodeAxis(begin,\ end,\ old\_base,\ levels,\ last\_axis);}
+\DoxyCodeLine{00297\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ \mbox{\hyperlink{namespace3d__viewer_a6d816bf6b709547ce853116f5389e4b9}{level}}\ =\ levels[\mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}}];}
+\DoxyCodeLine{00298\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ num\_remaining\_points\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\textcolor{keyword}{>}(end\ -\/\ begin);}
+\DoxyCodeLine{00299\ }
+\DoxyCodeLine{00300\ \ \ \ \ \textcolor{comment}{//\ If\ this\ happens\ all\ axis\ are\ subdivided\ to\ the\ end.}}
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{keywordflow}{if}\ ((bit\_length\_\ -\/\ level)\ ==\ 0)\ \{}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00303\ \ \ \ \ \}}
+\DoxyCodeLine{00304\ }
+\DoxyCodeLine{00305\ \ \ \ \ \textcolor{comment}{//\ Fast\ encoding\ of\ remaining\ bits\ if\ number\ of\ points\ is\ 1\ or\ 2.}}
+\DoxyCodeLine{00306\ \ \ \ \ \textcolor{comment}{//\ Doing\ this\ also\ for\ 2\ gives\ a\ slight\ additional\ speed\ up.}}
+\DoxyCodeLine{00307\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_remaining\_points\ <=\ 2)\ \{}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \textcolor{comment}{//\ TODO(b/199760123):\ |axes\_|\ not\ necessary,\ remove\ would\ change}}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \textcolor{comment}{//\ bitstream!}}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ axes\_[0]\ =\ \mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}};}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 1;\ i\ <\ dimension\_;\ i++)\ \{}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ axes\_[i]\ =\ \mbox{\hyperlink{math__utils_8h_aa0a3dbb1208c6af0d92c429451926608}{DRACO\_INCREMENT\_MOD}}(axes\_[i\ -\/\ 1],\ dimension\_);}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 0;\ i\ <\ num\_remaining\_points;\ ++i)\ \{}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ \&p\ =\ *(begin\ +\ i);}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ j\ =\ 0;\ j\ <\ dimension\_;\ j++)\ \{}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ num\_remaining\_bits\ =\ bit\_length\_\ -\/\ levels[axes\_[j]];}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_remaining\_bits)\ \{}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \ \ \ \ remaining\_bits\_encoder\_.EncodeLeastSignificantBits32(}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_remaining\_bits,\ p[axes\_[j]]);}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00325\ \ \ \ \ \}}
+\DoxyCodeLine{00326\ }
+\DoxyCodeLine{00327\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ num\_remaining\_bits\ =\ bit\_length\_\ -\/\ \mbox{\hyperlink{namespace3d__viewer_a6d816bf6b709547ce853116f5389e4b9}{level}};}
+\DoxyCodeLine{00328\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ modifier\ =\ 1\ <<\ (num\_remaining\_bits\ -\/\ 1);}
+\DoxyCodeLine{00329\ \ \ \ \ base\_stack\_[stack\_pos\ +\ 1]\ =\ old\_base;\ \ \textcolor{comment}{//\ copy}}
+\DoxyCodeLine{00330\ \ \ \ \ base\_stack\_[stack\_pos\ +\ 1][\mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}}]\ +=\ modifier;}
+\DoxyCodeLine{00331\ \ \ \ \ \textcolor{keyword}{const}\ VectorUint32\ \&new\_base\ =\ base\_stack\_[stack\_pos\ +\ 1];}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00333\ \ \ \ \ \textcolor{keyword}{const}\ RandomAccessIteratorT\ split\ =}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ std::partition(begin,\ end,\ Splitter(\mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}},\ new\_base[\mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}}]));}
+\DoxyCodeLine{00335\ }
+\DoxyCodeLine{00336\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\textcolor{keyword}{true},\ (end\ -\/\ begin)\ >\ 0);}
+\DoxyCodeLine{00337\ }
+\DoxyCodeLine{00338\ \ \ \ \ \textcolor{comment}{//\ Encode\ number\ of\ points\ in\ first\ and\ second\ half.}}
+\DoxyCodeLine{00339\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ required\_bits\ =\ \mbox{\hyperlink{namespacedraco_a07a0f2b537ca0d20da554a2a9ec421eb}{MostSignificantBit}}(num\_remaining\_points);}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00341\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ first\_half\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\textcolor{keyword}{>}(split\ -\/\ begin);}
+\DoxyCodeLine{00342\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ second\_half\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\textcolor{keyword}{>}(end\ -\/\ split);}
+\DoxyCodeLine{00343\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ left\ =\ first\_half\ <\ second\_half;}
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00345\ \ \ \ \ \textcolor{keywordflow}{if}\ (first\_half\ !=\ second\_half)\ \{}
+\DoxyCodeLine{00346\ \ \ \ \ \ \ half\_encoder\_.EncodeBit(left);}
+\DoxyCodeLine{00347\ \ \ \ \ \}}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \ \ \ \ \textcolor{keywordflow}{if}\ (left)\ \{}
+\DoxyCodeLine{00350\ \ \ \ \ \ \ EncodeNumber(required\_bits,\ num\_remaining\_points\ /\ 2\ -\/\ first\_half);}
+\DoxyCodeLine{00351\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ EncodeNumber(required\_bits,\ num\_remaining\_points\ /\ 2\ -\/\ second\_half);}
+\DoxyCodeLine{00353\ \ \ \ \ \}}
+\DoxyCodeLine{00354\ }
+\DoxyCodeLine{00355\ \ \ \ \ levels\_stack\_[stack\_pos][\mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}}]\ +=\ 1;}
+\DoxyCodeLine{00356\ \ \ \ \ levels\_stack\_[stack\_pos\ +\ 1]\ =\ levels\_stack\_[stack\_pos];\ \ \textcolor{comment}{//\ copy}}
+\DoxyCodeLine{00357\ \ \ \ \ \textcolor{keywordflow}{if}\ (split\ !=\ begin)\ \{}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ status\_stack.push(\mbox{\hyperlink{classdraco_1_1_status}{Status}}(begin,\ split,\ \mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}},\ stack\_pos));}
+\DoxyCodeLine{00359\ \ \ \ \ \}}
+\DoxyCodeLine{00360\ \ \ \ \ \textcolor{keywordflow}{if}\ (split\ !=\ end)\ \{}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ status\_stack.push(\mbox{\hyperlink{classdraco_1_1_status}{Status}}(split,\ end,\ \mbox{\hyperlink{pugixml_8cpp_a3c135a38076c146287fe254355778a4a}{axis}},\ stack\_pos\ +\ 1));}
+\DoxyCodeLine{00362\ \ \ \ \ \}}
+\DoxyCodeLine{00363\ \ \ \}}
+\DoxyCodeLine{00364\ \}}
+\DoxyCodeLine{00365\ \textcolor{keyword}{extern}\ \textcolor{keyword}{template}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder}{DynamicIntegerPointsKdTreeEncoder<0>}};}
+\DoxyCodeLine{00366\ \textcolor{keyword}{extern}\ \textcolor{keyword}{template}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder}{DynamicIntegerPointsKdTreeEncoder<2>}};}
+\DoxyCodeLine{00367\ \textcolor{keyword}{extern}\ \textcolor{keyword}{template}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder}{DynamicIntegerPointsKdTreeEncoder<4>}};}
+\DoxyCodeLine{00368\ \textcolor{keyword}{extern}\ \textcolor{keyword}{template}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_dynamic_integer_points_kd_tree_encoder}{DynamicIntegerPointsKdTreeEncoder<6>}};}
+\DoxyCodeLine{00369\ }
+\DoxyCodeLine{00370\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_POINT\_CLOUD\_ALGORITHMS\_DYNAMIC\_INTEGER\_POINTS\_KD\_TREE\_ENCODER\_H\_}}
+
+\end{DoxyCode}

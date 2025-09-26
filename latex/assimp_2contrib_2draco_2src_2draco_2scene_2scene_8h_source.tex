@@ -1,0 +1,264 @@
+\doxysection{scene.\+h}
+\hypertarget{assimp_2contrib_2draco_2src_2draco_2scene_2scene_8h_source}{}\label{assimp_2contrib_2draco_2src_2draco_2scene_2scene_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/scene/scene.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/scene/scene.h}}
+\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2scene_2scene_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2019\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_SCENE\_SCENE\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_SCENE\_SCENE\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{animation_8h}{draco/animation/animation.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{skin_8h}{draco/animation/skin.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2mesh_2mesh_8h}{draco/mesh/mesh.h}}"{}}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{structural__metadata_8h}{draco/metadata/structural\_metadata.h}}"{}}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{instance__array_8h}{draco/scene/instance\_array.h}}"{}}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2scene_2light_8h}{draco/scene/light.h}}"{}}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__group_8h}{draco/scene/mesh\_group.h}}"{}}}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{scene__indices_8h}{draco/scene/scene\_indices.h}}"{}}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{scene__node_8h}{draco/scene/scene\_node.h}}"{}}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ Class\ used\ to\ hold\ all\ of\ the\ geometry\ to\ create\ a\ scene.\ A\ scene\ is}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ comprised\ of\ one\ or\ more\ meshes,\ one\ or\ more\ scene\ nodes,\ one\ or\ more}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ mesh\ groups,\ and\ a\ material\ library.\ The\ meshes\ are\ defined\ in\ their}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ local\ space.\ A\ mesh\ group\ is\ a\ list\ of\ meshes.\ The\ scene\ nodes\ create}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ a\ scene\ hierarchy\ to\ transform\ meshes\ in\ their\ local\ space\ into\ scene\ space.}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ The\ material\ library\ contains\ all\ of\ the\ materials\ and\ textures\ used\ by\ the}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ meshes\ in\ this\ scene.}}
+\DoxyCodeLine{00042\ \textcolor{keyword}{class\ }Scene\ \{}
+\DoxyCodeLine{00043\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00044\ \ \ Scene()\ \{\}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a36c6bee907ea7cf3070444e1f3db3413}{Copy}}(\textcolor{keyword}{const}\ Scene\ \&s);}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \textcolor{comment}{//\ Adds\ a\ Draco\ |mesh|\ to\ the\ scene.\ Returns\ the\ index\ to\ the\ stored\ mesh\ or}}
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//\ |kInvalidMeshIndex|\ if\ the\ mesh\ is\ a\ nullptr.}}
+\DoxyCodeLine{00050\ \ \ MeshIndex\ AddMesh(std::unique\_ptr<Mesh>\ mesh)\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordflow}{if}\ (mesh\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kInvalidMeshIndex;}
+\DoxyCodeLine{00053\ \ \ \ \ \}}
+\DoxyCodeLine{00054\ \ \ \ \ meshes\_.push\_back(std::move(mesh));}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordflow}{return}\ MeshIndex(meshes\_.size()\ -\/\ 1);}
+\DoxyCodeLine{00056\ \ \ \}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \textcolor{comment}{//\ Removes\ base\ mesh\ and\ corresponding\ material\ at\ |index|,\ removes\ references}}
+\DoxyCodeLine{00059\ \ \ \textcolor{comment}{//\ to\ removed\ base\ mesh\ and\ corresponding\ materials\ from\ mesh\ groups,\ and}}
+\DoxyCodeLine{00060\ \ \ \textcolor{comment}{//\ updates\ references\ to\ remaining\ base\ meshes\ in\ mesh\ groups.}}
+\DoxyCodeLine{00061\ \ \ Status\ RemoveMesh(MeshIndex\ index);}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ meshes\ in\ a\ scene\ before\ instancing\ is\ applied.}}
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordtype}{int}\ NumMeshes()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ meshes\_.size();\ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ Returns\ a\ mesh\ in\ the\ scene\ before\ instancing\ is\ applied.\ The\ mesh}}
+\DoxyCodeLine{00067\ \ \ \textcolor{comment}{//\ coordinates\ are\ local\ to\ the\ mesh.}}
+\DoxyCodeLine{00068\ \ \ Mesh\ \&GetMesh(MeshIndex\ index)\ \{\ \textcolor{keywordflow}{return}\ *meshes\_[index];\ \}}
+\DoxyCodeLine{00069\ \ \ \textcolor{keyword}{const}\ Mesh\ \&GetMesh(MeshIndex\ index)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ *meshes\_[index];\ \}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{comment}{//\ Creates\ a\ mesh\ group\ and\ returns\ the\ index\ to\ the\ mesh\ group.}}
+\DoxyCodeLine{00072\ \ \ MeshGroupIndex\ AddMeshGroup()\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ std::unique\_ptr<MeshGroup>\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_ad9f0d5ab7bc3ac857aadf720d06cc0c0}{mesh}}(\textcolor{keyword}{new}\ MeshGroup());}
+\DoxyCodeLine{00074\ \ \ \ \ mesh\_groups\_.push\_back(std::move(mesh));}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordflow}{return}\ MeshGroupIndex(mesh\_groups\_.size()\ -\/\ 1);}
+\DoxyCodeLine{00076\ \ \ \}}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \textcolor{comment}{//\ Removes\ mesh\ group\ at\ |index|,\ invalidates\ references\ to\ removed\ mesh\ group}}
+\DoxyCodeLine{00079\ \ \ \textcolor{comment}{//\ in\ scene\ nodes,\ and\ updates\ references\ to\ remaining\ mesh\ groups\ in\ scene}}
+\DoxyCodeLine{00080\ \ \ \textcolor{comment}{//\ nodes.}}
+\DoxyCodeLine{00081\ \ \ Status\ RemoveMeshGroup(MeshGroupIndex\ index);}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \textcolor{comment}{//\ Removes\ unused\ material\ at\ |index|\ and\ updates\ references\ to\ materials\ at}}
+\DoxyCodeLine{00084\ \ \ \textcolor{comment}{//\ indices\ greater\ than\ |index|.\ Returns\ error\ status\ when\ |index|\ is\ out\ of}}
+\DoxyCodeLine{00085\ \ \ \textcolor{comment}{//\ valid\ range\ and\ when\ material\ at\ |index|\ is\ used\ in\ the\ scene.}}
+\DoxyCodeLine{00086\ \ \ Status\ RemoveMaterial(\textcolor{keywordtype}{int}\ index);}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ mesh\ groups\ in\ a\ scene.}}
+\DoxyCodeLine{00089\ \ \ \textcolor{keywordtype}{int}\ NumMeshGroups()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mesh\_groups\_.size();\ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \textcolor{comment}{//\ Returns\ a\ mesh\ group\ in\ the\ scene.}}
+\DoxyCodeLine{00092\ \ \ MeshGroup\ *GetMeshGroup(MeshGroupIndex\ index)\ \{}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordflow}{return}\ mesh\_groups\_[index].get();}
+\DoxyCodeLine{00094\ \ \ \}}
+\DoxyCodeLine{00095\ \ \ \textcolor{keyword}{const}\ MeshGroup\ *GetMeshGroup(MeshGroupIndex\ index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordflow}{return}\ mesh\_groups\_[index].get();}
+\DoxyCodeLine{00097\ \ \ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \textcolor{comment}{//\ Creates\ a\ scene\ node\ and\ returns\ the\ index\ to\ the\ node.}}
+\DoxyCodeLine{00100\ \ \ SceneNodeIndex\ AddNode()\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ std::unique\_ptr<SceneNode>\ node(\textcolor{keyword}{new}\ SceneNode());}
+\DoxyCodeLine{00102\ \ \ \ \ nodes\_.push\_back(std::move(node));}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordflow}{return}\ SceneNodeIndex(nodes\_.size()\ -\/\ 1);}
+\DoxyCodeLine{00104\ \ \ \}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ nodes\ in\ a\ scene.}}
+\DoxyCodeLine{00107\ \ \ \textcolor{keywordtype}{int}\ NumNodes()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ nodes\_.size();\ \}}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \textcolor{comment}{//\ Returns\ a\ node\ in\ the\ scene.}}
+\DoxyCodeLine{00110\ \ \ SceneNode\ *GetNode(SceneNodeIndex\ index)\ \{\ \textcolor{keywordflow}{return}\ nodes\_[index].get();\ \}}
+\DoxyCodeLine{00111\ \ \ \textcolor{keyword}{const}\ SceneNode\ *GetNode(SceneNodeIndex\ index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordflow}{return}\ nodes\_[index].get();}
+\DoxyCodeLine{00113\ \ \ \}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ \textcolor{comment}{//\ Either\ allocates\ new\ nodes\ or\ removes\ existing\ nodes\ that\ are\ beyond}}
+\DoxyCodeLine{00116\ \ \ \textcolor{comment}{//\ |num\_nodes|.}}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordtype}{void}\ ResizeNodes(\textcolor{keywordtype}{int}\ num\_nodes)\ \{}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ old\_num\_nodes\ =\ nodes\_.size();}
+\DoxyCodeLine{00119\ \ \ \ \ nodes\_.resize(num\_nodes);}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordflow}{for}\ (SceneNodeIndex\ i(old\_num\_nodes);\ i\ <\ num\_nodes;\ ++i)\ \{}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ nodes\_[i].reset(\textcolor{keyword}{new}\ SceneNode());}
+\DoxyCodeLine{00122\ \ \ \ \ \}}
+\DoxyCodeLine{00123\ \ \ \}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ root\ node\ indices\ in\ a\ scene.}}
+\DoxyCodeLine{00126\ \ \ \textcolor{keywordtype}{int}\ NumRootNodes()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ root\_node\_indices\_.size();\ \}}
+\DoxyCodeLine{00127\ \ \ SceneNodeIndex\ GetRootNodeIndex(\textcolor{keywordtype}{int}\ i)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ root\_node\_indices\_[i];\ \}}
+\DoxyCodeLine{00128\ \ \ \textcolor{keyword}{const}\ std::vector<SceneNodeIndex>\ \&GetRootNodeIndices()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordflow}{return}\ root\_node\_indices\_;}
+\DoxyCodeLine{00130\ \ \ \}}
+\DoxyCodeLine{00131\ \ \ \textcolor{keywordtype}{void}\ AddRootNodeIndex(SceneNodeIndex\ index)\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ root\_node\_indices\_.push\_back(index);}
+\DoxyCodeLine{00133\ \ \ \}}
+\DoxyCodeLine{00134\ \ \ \textcolor{keywordtype}{void}\ SetRootNodeIndex(\textcolor{keywordtype}{int}\ i,\ SceneNodeIndex\ index)\ \{}
+\DoxyCodeLine{00135\ \ \ \ \ root\_node\_indices\_[i]\ =\ index;}
+\DoxyCodeLine{00136\ \ \ \}}
+\DoxyCodeLine{00137\ \ \ \textcolor{keywordtype}{void}\ RemoveAllRootNodeIndices()\ \{\ root\_node\_indices\_.clear();\ \}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \textcolor{keyword}{const}\ MaterialLibrary\ \&GetMaterialLibrary()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keywordflow}{return}\ material\_library\_;}
+\DoxyCodeLine{00141\ \ \ \}}
+\DoxyCodeLine{00142\ \ \ MaterialLibrary\ \&GetMaterialLibrary()\ \{\ \textcolor{keywordflow}{return}\ material\_library\_;\ \}}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \textcolor{comment}{//\ Library\ that\ contains\ non-\/material\ textures.}}
+\DoxyCodeLine{00145\ \ \ \textcolor{keyword}{const}\ TextureLibrary\ \&GetNonMaterialTextureLibrary()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keywordflow}{return}\ non\_material\_texture\_library\_;}
+\DoxyCodeLine{00147\ \ \ \}}
+\DoxyCodeLine{00148\ \ \ TextureLibrary\ \&GetNonMaterialTextureLibrary()\ \{}
+\DoxyCodeLine{00149\ \ \ \ \ \textcolor{keywordflow}{return}\ non\_material\_texture\_library\_;}
+\DoxyCodeLine{00150\ \ \ \}}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \textcolor{comment}{//\ Structural\ metadata.}}
+\DoxyCodeLine{00153\ \ \ \textcolor{keyword}{const}\ StructuralMetadata\ \&GetStructuralMetadata()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{keywordflow}{return}\ structural\_metadata\_;}
+\DoxyCodeLine{00155\ \ \ \}}
+\DoxyCodeLine{00156\ \ \ StructuralMetadata\ \&GetStructuralMetadata()\ \{\ \textcolor{keywordflow}{return}\ structural\_metadata\_;\ \}}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \ \ \textcolor{comment}{//\ Creates\ an\ animation\ and\ returns\ the\ index\ to\ the\ animation.}}
+\DoxyCodeLine{00159\ \ \ AnimationIndex\ AddAnimation()\ \{}
+\DoxyCodeLine{00160\ \ \ \ \ std::unique\_ptr<Animation>\ animation(\textcolor{keyword}{new}\ Animation());}
+\DoxyCodeLine{00161\ \ \ \ \ animations\_.push\_back(std::move(animation));}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordflow}{return}\ AnimationIndex(animations\_.size()\ -\/\ 1);}
+\DoxyCodeLine{00163\ \ \ \}}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ animations\ in\ a\ scene.}}
+\DoxyCodeLine{00166\ \ \ \textcolor{keywordtype}{int}\ NumAnimations()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ animations\_.size();\ \}}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ \textcolor{comment}{//\ Returns\ an\ animation\ in\ the\ scene.}}
+\DoxyCodeLine{00169\ \ \ Animation\ *GetAnimation(AnimationIndex\ index)\ \{}
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{keywordflow}{return}\ animations\_[index].get();}
+\DoxyCodeLine{00171\ \ \ \}}
+\DoxyCodeLine{00172\ \ \ \textcolor{keyword}{const}\ Animation\ *GetAnimation(AnimationIndex\ index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00173\ \ \ \ \ \textcolor{keywordflow}{return}\ animations\_[index].get();}
+\DoxyCodeLine{00174\ \ \ \}}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \ \ \textcolor{comment}{//\ Creates\ a\ skin\ and\ returns\ the\ index\ to\ the\ skin.}}
+\DoxyCodeLine{00177\ \ \ SkinIndex\ AddSkin()\ \{}
+\DoxyCodeLine{00178\ \ \ \ \ std::unique\_ptr<Skin>\ skin(\textcolor{keyword}{new}\ \mbox{\hyperlink{namespace_assimp_1_1_collada_ad5d8dc3ad0988cb2b4089240b1b51a17a9e9feabb6d21ccbdd5ec69524988a0cb}{Skin}}());}
+\DoxyCodeLine{00179\ \ \ \ \ skins\_.push\_back(std::move(skin));}
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordflow}{return}\ SkinIndex(skins\_.size()\ -\/\ 1);}
+\DoxyCodeLine{00181\ \ \ \}}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ skins\ in\ a\ scene.}}
+\DoxyCodeLine{00184\ \ \ \textcolor{keywordtype}{int}\ NumSkins()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ skins\_.size();\ \}}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \ \ \textcolor{comment}{//\ Returns\ a\ skin\ in\ the\ scene.}}
+\DoxyCodeLine{00187\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_collada_ad5d8dc3ad0988cb2b4089240b1b51a17a9e9feabb6d21ccbdd5ec69524988a0cb}{Skin}}\ *GetSkin(SkinIndex\ index)\ \{\ \textcolor{keywordflow}{return}\ skins\_[index].get();\ \}}
+\DoxyCodeLine{00188\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_collada_ad5d8dc3ad0988cb2b4089240b1b51a17a9e9feabb6d21ccbdd5ec69524988a0cb}{Skin}}\ *GetSkin(SkinIndex\ index)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ skins\_[index].get();\ \}}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \textcolor{comment}{//\ Creates\ a\ light\ and\ returns\ the\ index\ to\ the\ light.}}
+\DoxyCodeLine{00191\ \ \ LightIndex\ AddLight()\ \{}
+\DoxyCodeLine{00192\ \ \ \ \ std::unique\_ptr<Light>\ light(\textcolor{keyword}{new}\ Light());}
+\DoxyCodeLine{00193\ \ \ \ \ lights\_.push\_back(std::move(light));}
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keywordflow}{return}\ LightIndex(lights\_.size()\ -\/\ 1);}
+\DoxyCodeLine{00195\ \ \ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ lights\ in\ a\ scene.}}
+\DoxyCodeLine{00198\ \ \ \textcolor{keywordtype}{int}\ NumLights()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ lights\_.size();\ \}}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00200\ \ \ \textcolor{comment}{//\ Returns\ a\ light\ in\ the\ scene.}}
+\DoxyCodeLine{00201\ \ \ Light\ *GetLight(LightIndex\ index)\ \{\ \textcolor{keywordflow}{return}\ lights\_[index].get();\ \}}
+\DoxyCodeLine{00202\ \ \ \textcolor{keyword}{const}\ Light\ *GetLight(LightIndex\ index)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ lights\_[index].get();\ \}}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \textcolor{comment}{//\ Creates\ a\ mesh\ group\ instance\ array\ and\ returns\ the\ index\ to\ it.\ This\ array}}
+\DoxyCodeLine{00205\ \ \ \textcolor{comment}{//\ is\ used\ for\ storing\ the\ attributes\ of\ the\ EXT\_mesh\_gpu\_instancing\ glTF}}
+\DoxyCodeLine{00206\ \ \ \textcolor{comment}{//\ extension.}}
+\DoxyCodeLine{00207\ \ \ InstanceArrayIndex\ AddInstanceArray()\ \{}
+\DoxyCodeLine{00208\ \ \ \ \ std::unique\_ptr<InstanceArray>\ \mbox{\hyperlink{namespacedetail_a917c3efabea8a20dc72d9ae2c673d632af1f713c9e000f5d3f280adbd124df4f5}{array}}(\textcolor{keyword}{new}\ InstanceArray());}
+\DoxyCodeLine{00209\ \ \ \ \ instance\_arrays\_.push\_back(std::move(array));}
+\DoxyCodeLine{00210\ \ \ \ \ \textcolor{keywordflow}{return}\ InstanceArrayIndex(instance\_arrays\_.size()\ -\/\ 1);}
+\DoxyCodeLine{00211\ \ \ \}}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00213\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ mesh\ group\ instance\ arrays\ in\ a\ scene.}}
+\DoxyCodeLine{00214\ \ \ \textcolor{keywordtype}{int}\ NumInstanceArrays()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ instance\_arrays\_.size();\ \}}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \ \ \textcolor{comment}{//\ Returns\ a\ mesh\ group\ instance\ array\ in\ the\ scene.}}
+\DoxyCodeLine{00217\ \ \ InstanceArray\ *GetInstanceArray(InstanceArrayIndex\ index)\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ \textcolor{keywordflow}{return}\ instance\_arrays\_[index].get();}
+\DoxyCodeLine{00219\ \ \ \}}
+\DoxyCodeLine{00220\ \ \ \textcolor{keyword}{const}\ InstanceArray\ *GetInstanceArray(InstanceArrayIndex\ index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00221\ \ \ \ \ \textcolor{keywordflow}{return}\ instance\_arrays\_[index].get();}
+\DoxyCodeLine{00222\ \ \ \}}
+\DoxyCodeLine{00223\ }
+\DoxyCodeLine{00224\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00225\ \ \ IndexTypeVector<MeshIndex,\ std::unique\_ptr<Mesh>>\ meshes\_;}
+\DoxyCodeLine{00226\ \ \ IndexTypeVector<MeshGroupIndex,\ std::unique\_ptr<MeshGroup>>\ mesh\_groups\_;}
+\DoxyCodeLine{00227\ \ \ IndexTypeVector<SceneNodeIndex,\ std::unique\_ptr<SceneNode>>\ nodes\_;}
+\DoxyCodeLine{00228\ \ \ std::vector<SceneNodeIndex>\ root\_node\_indices\_;}
+\DoxyCodeLine{00229\ \ \ IndexTypeVector<AnimationIndex,\ std::unique\_ptr<Animation>>\ animations\_;}
+\DoxyCodeLine{00230\ \ \ IndexTypeVector<SkinIndex,\ std::unique\_ptr<Skin>>\ skins\_;}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \ \ \textcolor{comment}{//\ The\ lights\ will\ be\ written\ to\ the\ output\ scene\ but\ not\ used\ for\ internal}}
+\DoxyCodeLine{00233\ \ \ \textcolor{comment}{//\ rendering\ in\ Draco,\ e.g,\ while\ computing\ distortion\ metric.}}
+\DoxyCodeLine{00234\ \ \ IndexTypeVector<LightIndex,\ std::unique\_ptr<Light>>\ lights\_;}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00236\ \ \ \textcolor{comment}{//\ The\ mesh\ group\ instance\ array\ information\ will\ be\ written\ to\ the\ output}}
+\DoxyCodeLine{00237\ \ \ \textcolor{comment}{//\ scene\ but\ not\ processed\ by\ Draco\ simplifier\ modules.}}
+\DoxyCodeLine{00238\ \ \ IndexTypeVector<InstanceArrayIndex,\ std::unique\_ptr<InstanceArray>>}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ instance\_arrays\_;}
+\DoxyCodeLine{00240\ }
+\DoxyCodeLine{00241\ \ \ \textcolor{comment}{//\ Materials\ used\ by\ this\ scene.}}
+\DoxyCodeLine{00242\ \ \ MaterialLibrary\ material\_library\_;}
+\DoxyCodeLine{00243\ }
+\DoxyCodeLine{00244\ \ \ \textcolor{comment}{//\ Texture\ library\ for\ storing\ non-\/material\ textures\ used\ by\ this\ scene,\ e.g.,}}
+\DoxyCodeLine{00245\ \ \ \textcolor{comment}{//\ textures\ containing\ mesh\ feature\ IDs\ of\ EXT\_mesh\_features\ glTF\ extension.}}
+\DoxyCodeLine{00246\ \ \ \textcolor{comment}{//\ Note\ that\ scene\ meshes\ contain\ pointers\ to\ non-\/material\ textures.\ It\ is}}
+\DoxyCodeLine{00247\ \ \ \textcolor{comment}{//\ responsibility\ of\ class\ user\ to\ update\ these\ pointers\ when\ updating\ the}}
+\DoxyCodeLine{00248\ \ \ \textcolor{comment}{//\ textures.\ See\ Scene::Copy()\ for\ example.}}
+\DoxyCodeLine{00249\ \ \ TextureLibrary\ non\_material\_texture\_library\_;}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00251\ \ \ \textcolor{comment}{//\ Structural\ metadata\ defined\ by\ the\ EXT\_structural\_metadata\ glTF\ extension.}}
+\DoxyCodeLine{00252\ \ \ StructuralMetadata\ structural\_metadata\_;}
+\DoxyCodeLine{00253\ \};}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00255\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00257\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00258\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_SCENE\_SCENE\_H\_}}
+
+\end{DoxyCode}

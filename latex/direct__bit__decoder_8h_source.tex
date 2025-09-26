@@ -1,0 +1,95 @@
+\doxysection{direct\+\_\+bit\+\_\+decoder.\+h}
+\hypertarget{direct__bit__decoder_8h_source}{}\label{direct__bit__decoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/bit\_coders/direct\_bit\_decoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/bit\_coders/direct\_bit\_decoder.h}}
+\mbox{\hyperlink{direct__bit__decoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ File\ provides\ direct\ encoding\ of\ bits\ with\ arithmetic\ encoder\ interface.}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_BIT\_CODERS\_DIRECT\_BIT\_DECODER\_H\_}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_BIT\_CODERS\_DIRECT\_BIT\_DECODER\_H\_}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{decoder__buffer_8h}{draco/core/decoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_direct_bit_decoder_ab2050fbdced59b66655b38076aa2eec3}{DirectBitDecoder}}\ \{}
+\DoxyCodeLine{00026\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00027\ \ \ \mbox{\hyperlink{classdraco_1_1_direct_bit_decoder_ab2050fbdced59b66655b38076aa2eec3}{DirectBitDecoder}}();}
+\DoxyCodeLine{00028\ \ \ \mbox{\hyperlink{classdraco_1_1_direct_bit_decoder_a2bde27113e44d22c39b8aab8d1c31bc8}{\string~DirectBitDecoder}}();}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \textcolor{comment}{//\ Sets\ |source\_buffer|\ as\ the\ buffer\ to\ decode\ bits\ from.}}
+\DoxyCodeLine{00031\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_decoder_ad803e0ca5a704a199475da45009efaec}{StartDecoding}}(\mbox{\hyperlink{classdraco_1_1_decoder_buffer}{DecoderBuffer}}\ *source\_buffer);}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \textcolor{comment}{//\ Decode\ one\ bit.\ Returns\ true\ if\ the\ bit\ is\ a\ 1,\ otherwise\ false.}}
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_decoder_a909ce1d5be96323390d797cfb5352383}{DecodeNextBit}}()\ \{}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ selector\ =\ 1\ <<\ (31\ -\/\ num\_used\_bits\_);}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keywordflow}{if}\ (pos\_\ ==\ bits\_.end())\ \{}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00038\ \ \ \ \ \}}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ bit\ =\ *pos\_\ \&\ selector;}
+\DoxyCodeLine{00040\ \ \ \ \ ++num\_used\_bits\_;}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_used\_bits\_\ ==\ 32)\ \{}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ ++pos\_;}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ num\_used\_bits\_\ =\ 0;}
+\DoxyCodeLine{00044\ \ \ \ \ \}}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordflow}{return}\ bit;}
+\DoxyCodeLine{00046\ \ \ \}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \textcolor{comment}{//\ Decode\ the\ next\ |nbits|\ and\ return\ the\ sequence\ in\ |value|.\ |nbits|\ must\ be}}
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//\ >\ 0\ and\ <=\ 32.}}
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_decoder_a5ad16f5da33b2a6304eee18671459557}{DecodeLeastSignificantBits32}}(\textcolor{keywordtype}{int}\ nbits,\ uint32\_t\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\textcolor{keyword}{true},\ nbits\ <=\ 32);}
+\DoxyCodeLine{00052\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\textcolor{keyword}{true},\ nbits\ >\ 0);}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ remaining\ =\ 32\ -\/\ num\_used\_bits\_;}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordflow}{if}\ (nbits\ <=\ remaining)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pos\_\ ==\ bits\_.end())\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ (*pos\_\ <<\ num\_used\_bits\_)\ >>\ (32\ -\/\ nbits);}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ num\_used\_bits\_\ +=\ nbits;}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_used\_bits\_\ ==\ 32)\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ ++pos\_;}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ num\_used\_bits\_\ =\ 0;}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00064\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pos\_\ +\ 1\ ==\ bits\_.end())\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ value\_l\ =\ ((*pos\_)\ <<\ num\_used\_bits\_);}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ num\_used\_bits\_\ =\ nbits\ -\/\ remaining;}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ ++pos\_;}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ value\_r\ =\ (*pos\_)\ >>\ (32\ -\/\ num\_used\_bits\_);}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ (value\_l\ >>\ (32\ -\/\ num\_used\_bits\_\ -\/\ remaining))\ |\ value\_r;}
+\DoxyCodeLine{00073\ \ \ \ \ \}}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00075\ \ \ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_decoder_abad17acb79710c503ca222c2104594d9}{EndDecoding}}()\ \{\}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordtype}{void}\ Clear();}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ std::vector<uint32\_t>\ bits\_;}
+\DoxyCodeLine{00083\ \ \ std::vector<uint32\_t>::const\_iterator\ pos\_;}
+\DoxyCodeLine{00084\ \ \ uint32\_t\ num\_used\_bits\_;}
+\DoxyCodeLine{00085\ \};}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_BIT\_CODERS\_DIRECT\_BIT\_DECODER\_H\_}}
+
+\end{DoxyCode}

@@ -1,0 +1,441 @@
+\doxysection{unzip.\+h}
+\hypertarget{unzip_2unzip_8h_source}{}\label{unzip_2unzip_8h_source}\index{RobotLib/libraries/assimp/contrib/unzip/unzip.h@{RobotLib/libraries/assimp/contrib/unzip/unzip.h}}
+\mbox{\hyperlink{unzip_2unzip_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ unzip.h\ -\/-\/\ IO\ for\ uncompress\ .zip\ files\ using\ zlib}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ \ \ Version\ 1.1,\ February\ 14h,\ 2010}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ \ \ part\ of\ the\ MiniZip\ project\ -\/\ (\ http://www.winimage.com/zLibDll/minizip.html\ )}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ Copyright\ (C)\ 1998-\/2010\ Gilles\ Vollant\ (minizip)\ (\ http://www.winimage.com/zLibDll/minizip.html\ )}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ Modifications\ of\ Unzip\ for\ Zip64}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ Copyright\ (C)\ 2007-\/2008\ Even\ Rouault}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ Modifications\ for\ Zip64\ support\ on\ both\ zip\ and\ unzip}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ Copyright\ (C)\ 2009-\/2010\ Mathias\ Svensson\ (\ http://result42.com\ )}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ For\ more\ info\ read\ MiniZip\_info.txt}}
+\DoxyCodeLine{00014\ \textcolor{comment}{}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ \ \ \ \ \ \ \ Condition\ of\ use\ and\ distribution\ are\ the\ same\ than\ zlib\ :}}
+\DoxyCodeLine{00018\ \textcolor{comment}{}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ This\ software\ is\ provided\ 'as-\/is',\ without\ any\ express\ or\ implied}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ warranty.\ \ In\ no\ event\ will\ the\ authors\ be\ held\ liable\ for\ any\ damages}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ \ arising\ from\ the\ use\ of\ this\ software.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ Permission\ is\ granted\ to\ anyone\ to\ use\ this\ software\ for\ any\ purpose,}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ including\ commercial\ applications,\ and\ to\ alter\ it\ and\ redistribute\ it}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ freely,\ subject\ to\ the\ following\ restrictions:}}
+\DoxyCodeLine{00026\ \textcolor{comment}{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ \ 1.\ The\ origin\ of\ this\ software\ must\ not\ be\ misrepresented;\ you\ must\ not}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ \ \ \ \ claim\ that\ you\ wrote\ the\ original\ software.\ If\ you\ use\ this\ software}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ \ \ \ \ in\ a\ product,\ an\ acknowledgment\ in\ the\ product\ documentation\ would\ be}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ \ \ \ \ appreciated\ but\ is\ not\ required.}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ \ 2.\ Altered\ source\ versions\ must\ be\ plainly\ marked\ as\ such,\ and\ must\ not\ be}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ \ \ \ \ misrepresented\ as\ being\ the\ original\ software.}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ \ 3.\ This\ notice\ may\ not\ be\ removed\ or\ altered\ from\ any\ source\ distribution.}}
+\DoxyCodeLine{00034\ \textcolor{comment}{}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ \ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00036\ \textcolor{comment}{}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ \ \ \ \ \ \ \ Changes}}
+\DoxyCodeLine{00038\ \textcolor{comment}{}}
+\DoxyCodeLine{00039\ \textcolor{comment}{\ \ \ \ \ \ \ \ See\ header\ of\ unzip64.c}}
+\DoxyCodeLine{00040\ \textcolor{comment}{}}
+\DoxyCodeLine{00041\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#ifndef\ \_unz64\_H}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#define\ \_unz64\_H}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00047\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#ifndef\ \_ZLIB\_H}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{zlib_8h}{zlib.h}}"{}}}
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#ifndef\ \ \_ZLIBIOAPI\_H}}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{unzip_2ioapi_8h}{ioapi.h}}"{}}}
+\DoxyCodeLine{00056\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\#ifdef\ HAVE\_BZIP2}}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#include\ "{}bzlib.h"{}}}
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \textcolor{preprocessor}{\#define\ Z\_BZIP2ED\ 12}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \textcolor{preprocessor}{\#if\ defined(STRICTUNZIP)\ ||\ defined(STRICTZIPUNZIP)}}
+\DoxyCodeLine{00065\ \textcolor{comment}{/*\ like\ the\ STRICT\ of\ WIN32,\ we\ define\ a\ pointer\ that\ cannot\ be\ converted}}
+\DoxyCodeLine{00066\ \textcolor{comment}{\ \ \ \ from\ (void*)\ without\ cast\ */}}
+\DoxyCodeLine{00067\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }TagunzFile\_\_\ \{\ \textcolor{keywordtype}{int}\ unused;\ \}\ unzFile\_\_;}
+\DoxyCodeLine{00068\ \textcolor{keyword}{typedef}\ unzFile\_\_\ *\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}};}
+\DoxyCodeLine{00069\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00070\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa3397ff439b5e076528b04bc9b8b086a}{voidp}}\ \mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}};}
+\DoxyCodeLine{00071\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \textcolor{preprocessor}{\#define\ UNZ\_OK\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (0)}}
+\DoxyCodeLine{00075\ \textcolor{preprocessor}{\#define\ UNZ\_END\_OF\_LIST\_OF\_FILE\ \ \ \ \ \ \ \ \ (-\/100)}}
+\DoxyCodeLine{00076\ \textcolor{preprocessor}{\#define\ UNZ\_ERRNO\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (Z\_ERRNO)}}
+\DoxyCodeLine{00077\ \textcolor{preprocessor}{\#define\ UNZ\_EOF\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (0)}}
+\DoxyCodeLine{00078\ \textcolor{preprocessor}{\#define\ UNZ\_PARAMERROR\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (-\/102)}}
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\#define\ UNZ\_BADZIPFILE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (-\/103)}}
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\#define\ UNZ\_INTERNALERROR\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (-\/104)}}
+\DoxyCodeLine{00081\ \textcolor{preprocessor}{\#define\ UNZ\_CRCERROR\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (-\/105)}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \textcolor{comment}{/*\ tm\_unz\ contain\ date/time\ info\ */}}
+\DoxyCodeLine{00084\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structtm__unz__s}{tm\_unz\_s}}}
+\DoxyCodeLine{00085\ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__unz__s_a6abad2d0164857cd20cbcddae358a587}{tm\_sec}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ seconds\ after\ the\ minute\ -\/\ [0,59]\ */}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__unz__s_a7ff485c5e596cf56bc2daa7f4e83018e}{tm\_min}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ minutes\ after\ the\ hour\ -\/\ [0,59]\ */}}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__unz__s_a577d381c3485e699e85a1caaf092f09f}{tm\_hour}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ hours\ since\ midnight\ -\/\ [0,23]\ */}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__unz__s_a0839f7334dd26b2721355a2b9afe5d9f}{tm\_mday}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ day\ of\ the\ month\ -\/\ [1,31]\ */}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__unz__s_a3349d174b56095130dc0679914a6e804}{tm\_mon}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ months\ since\ January\ -\/\ [0,11]\ */}}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtm__unz__s_a5a53869f29fb979ccfa5288d4223646e}{tm\_year}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ years\ -\/\ [1980..2044]\ */}}
+\DoxyCodeLine{00092\ \}\ \mbox{\hyperlink{unzip_2unzip_8h_a117f894d51042f871652e9397574cc17}{tm\_unz}};}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \textcolor{comment}{/*\ unz\_global\_info\ structure\ contain\ global\ data\ about\ the\ ZIPfile}}
+\DoxyCodeLine{00095\ \textcolor{comment}{\ \ \ These\ data\ comes\ from\ the\ end\ of\ central\ dir\ */}}
+\DoxyCodeLine{00096\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structunz__global__info64__s}{unz\_global\_info64\_s}}}
+\DoxyCodeLine{00097\ \{}
+\DoxyCodeLine{00098\ \ \ \ \ \mbox{\hyperlink{unzip_2ioapi_8h_afffed08ed7f2413fa38e12a223ae0e72}{ZPOS64\_T}}\ \mbox{\hyperlink{structunz__global__info64__s_a628f94ac445f2a6cd64c9e82d481e738}{number\_entry}};\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ total\ number\ of\ entries\ in}}
+\DoxyCodeLine{00099\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ the\ central\ dir\ on\ this\ disk\ */}}
+\DoxyCodeLine{00100\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__global__info64__s_ad9440fb3b019cfdac9ba8b8d83026ffc}{size\_comment}};\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ size\ of\ the\ global\ comment\ of\ the\ zipfile\ */}}
+\DoxyCodeLine{00101\ \}\ \mbox{\hyperlink{unzip_2unzip_8h_a9d954c2b7b79c5a169ed6b369d81c5a7}{unz\_global\_info64}};}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structunz__global__info__s}{unz\_global\_info\_s}}}
+\DoxyCodeLine{00104\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__global__info__s_a827d1cd1d09f12acd6c2ee12494cb320}{number\_entry}};\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ total\ number\ of\ entries\ in}}
+\DoxyCodeLine{00106\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ the\ central\ dir\ on\ this\ disk\ */}}
+\DoxyCodeLine{00107\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__global__info__s_a10b58ab57b62301de813ecac0e974363}{size\_comment}};\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ size\ of\ the\ global\ comment\ of\ the\ zipfile\ */}}
+\DoxyCodeLine{00108\ \}\ \mbox{\hyperlink{unzip_2unzip_8h_a7c8089af2571c5d6e22302525ec43f93}{unz\_global\_info}};}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \textcolor{comment}{/*\ unz\_file\_info\ contain\ information\ about\ a\ file\ in\ the\ zipfile\ */}}
+\DoxyCodeLine{00111\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structunz__file__info64__s}{unz\_file\_info64\_s}}}
+\DoxyCodeLine{00112\ \{}
+\DoxyCodeLine{00113\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_a4262e51be02716b887447e68c231006b}{version}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ version\ made\ by\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00114\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_ad0041eacba37cb431242d9bd9c86d264}{version\_needed}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ version\ needed\ to\ extract\ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00115\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_a9432647db394dbfd2a415d6c1184db92}{flag}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ general\ purpose\ bit\ flag\ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00116\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_ac25e6f99bc51d046b8871ddbb4b5f9f7}{compression\_method}};\ \ \ \textcolor{comment}{/*\ compression\ method\ \ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00117\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_a96e084f75d7f08f546789a0a4525470f}{dosDate}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ last\ mod\ file\ date\ in\ Dos\ fmt\ \ \ 4\ bytes\ */}}
+\DoxyCodeLine{00118\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_a3026bf850e727543d9304c8deaf9eb27}{crc}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ crc-\/32\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 4\ bytes\ */}}
+\DoxyCodeLine{00119\ \ \ \ \ \mbox{\hyperlink{unzip_2ioapi_8h_afffed08ed7f2413fa38e12a223ae0e72}{ZPOS64\_T}}\ \mbox{\hyperlink{structunz__file__info64__s_afefa321d4008a52a609d437ed4b4e03f}{compressed\_size}};\ \ \ \textcolor{comment}{/*\ compressed\ size\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 8\ bytes\ */}}
+\DoxyCodeLine{00120\ \ \ \ \ \mbox{\hyperlink{unzip_2ioapi_8h_afffed08ed7f2413fa38e12a223ae0e72}{ZPOS64\_T}}\ \mbox{\hyperlink{structunz__file__info64__s_a8cf74465a9d0641cdf1bb22c33f09b42}{uncompressed\_size}};\ \textcolor{comment}{/*\ uncompressed\ size\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 8\ bytes\ */}}
+\DoxyCodeLine{00121\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_ac09e3b96910b5f98ec73688116b6b3fd}{size\_filename}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ filename\ length\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00122\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_a12af3fa77dc4f7f28448d68703eb8c18}{size\_file\_extra}};\ \ \ \ \ \ \textcolor{comment}{/*\ extra\ field\ length\ \ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00123\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_aff23e3bb5b9a3a8a26aa4f4cfcca7c9c}{size\_file\_comment}};\ \ \ \ \textcolor{comment}{/*\ file\ comment\ length\ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_ad6ed48daf96d59f810a1ef5167ad39db}{disk\_num\_start}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ disk\ number\ start\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00126\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_a408c5cd87b4894359e91dcab506212cc}{internal\_fa}};\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ internal\ file\ attributes\ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00127\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info64__s_ac9e0fa204fc992beb62b86163f4736ac}{external\_fa}};\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ external\ file\ attributes\ \ \ \ \ \ \ \ 4\ bytes\ */}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \ \ \mbox{\hyperlink{zlib_2contrib_2minizip_2unzip_8h_a117f894d51042f871652e9397574cc17}{tm\_unz}}\ \mbox{\hyperlink{structunz__file__info64__s_a9bf3787641ee4345df714293ee31c51e}{tmu\_date}};}
+\DoxyCodeLine{00130\ \}\ \mbox{\hyperlink{unzip_2unzip_8h_ab4a2ca19254030434060b1099dba07d1}{unz\_file\_info64}};}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structunz__file__info__s}{unz\_file\_info\_s}}}
+\DoxyCodeLine{00133\ \{}
+\DoxyCodeLine{00134\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_a635f933b26b636d8314cef61af62fcef}{version}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ version\ made\ by\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00135\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_a1578aca2bb7fed658f9f94c78d00288e}{version\_needed}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ version\ needed\ to\ extract\ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00136\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_adff7171a3114d55e5532c593b1779ecc}{flag}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ general\ purpose\ bit\ flag\ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00137\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_aaaca88f0ebec5c1cfebb436b8e70a774}{compression\_method}};\ \ \ \textcolor{comment}{/*\ compression\ method\ \ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00138\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_a14bd7da84cada0f4b1455d60274eef91}{dosDate}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ last\ mod\ file\ date\ in\ Dos\ fmt\ \ \ 4\ bytes\ */}}
+\DoxyCodeLine{00139\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_a6d741cb2df07794d7a4794841148893b}{crc}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ crc-\/32\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 4\ bytes\ */}}
+\DoxyCodeLine{00140\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_a35ee9d733879c87565e40a545fe46fb6}{compressed\_size}};\ \ \ \ \ \ \textcolor{comment}{/*\ compressed\ size\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 4\ bytes\ */}}
+\DoxyCodeLine{00141\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_a7696a98511bc57e389485e5313a9c2bf}{uncompressed\_size}};\ \ \ \ \textcolor{comment}{/*\ uncompressed\ size\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 4\ bytes\ */}}
+\DoxyCodeLine{00142\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_ae4f2f81a5301f7df9014838a56a496c6}{size\_filename}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ filename\ length\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00143\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_a479402dcb3555c922e3ce87c8f967990}{size\_file\_extra}};\ \ \ \ \ \ \textcolor{comment}{/*\ extra\ field\ length\ \ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00144\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_afa9feffb3b9c9c03e02599118d5f548e}{size\_file\_comment}};\ \ \ \ \textcolor{comment}{/*\ file\ comment\ length\ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_ab7bfba2b7d0cdb7260a7cd9f9ccd00ff}{disk\_num\_start}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ disk\ number\ start\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00147\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_aa20738bf82bca71cc950b9475b5d8c3c}{internal\_fa}};\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ internal\ file\ attributes\ \ \ \ \ \ \ \ 2\ bytes\ */}}
+\DoxyCodeLine{00148\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__info__s_ae3365fdb260668fca60bfb975b1513aa}{external\_fa}};\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ external\ file\ attributes\ \ \ \ \ \ \ \ 4\ bytes\ */}}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \ \ \ \ \mbox{\hyperlink{zlib_2contrib_2minizip_2unzip_8h_a117f894d51042f871652e9397574cc17}{tm\_unz}}\ \mbox{\hyperlink{structunz__file__info__s_ad52c08c65349f674b00244d81cdb1736}{tmu\_date}};}
+\DoxyCodeLine{00151\ \}\ \mbox{\hyperlink{unzip_2unzip_8h_aa9b75394286455c3bca2694abc339626}{unz\_file\_info}};}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a271f325759b3251ee728a8f850291dcf}{unzStringFileNameCompare}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ fileName1,}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ fileName2,}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ iCaseSensitivity);}
+\DoxyCodeLine{00156\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00157\ \textcolor{comment}{\ \ \ Compare\ two\ filenames\ (fileName1,fileName2).}}
+\DoxyCodeLine{00158\ \textcolor{comment}{\ \ \ If\ iCaseSensitivity\ =\ 1,\ comparison\ is\ case\ sensitive\ (like\ strcmp)}}
+\DoxyCodeLine{00159\ \textcolor{comment}{\ \ \ If\ iCaseSensitivity\ =\ 2,\ comparison\ is\ not\ case\ sensitive\ (like\ strcmpi}}
+\DoxyCodeLine{00160\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ or\ strcasecmp)}}
+\DoxyCodeLine{00161\ \textcolor{comment}{\ \ \ If\ iCaseSensitivity\ =\ 0,\ case\ sensitivity\ is\ default\ of\ your\ operating\ system}}
+\DoxyCodeLine{00162\ \textcolor{comment}{\ \ \ \ (like\ 1\ on\ Unix,\ 2\ on\ Windows)}}
+\DoxyCodeLine{00163\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a4efe7bf26960a0a0c66122788b175f97}{unzOpen}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *path);}
+\DoxyCodeLine{00167\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_aa531745d380211390eb114f1870ef824}{unzOpen64}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *path);}
+\DoxyCodeLine{00168\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00169\ \textcolor{comment}{\ \ Open\ a\ Zip\ file.\ path\ contain\ the\ full\ pathname\ (by\ example,}}
+\DoxyCodeLine{00170\ \textcolor{comment}{\ \ \ \ \ on\ a\ Windows\ XP\ computer\ "{}c:\(\backslash\)\(\backslash\)zlib\(\backslash\)\(\backslash\)zlib113.zip"{}\ or\ on\ an\ Unix\ computer}}
+\DoxyCodeLine{00171\ \textcolor{comment}{\ \ \ \ \ "{}zlib/zlib113.zip"{}.}}
+\DoxyCodeLine{00172\ \textcolor{comment}{\ \ \ \ \ If\ the\ zipfile\ cannot\ be\ opened\ (file\ don't\ exist\ or\ in\ not\ valid),\ the}}
+\DoxyCodeLine{00173\ \textcolor{comment}{\ \ \ \ \ \ \ return\ value\ is\ NULL.}}
+\DoxyCodeLine{00174\ \textcolor{comment}{\ \ \ \ \ Else,\ the\ return\ value\ is\ a\ unzFile\ Handle,\ usable\ with\ other\ function}}
+\DoxyCodeLine{00175\ \textcolor{comment}{\ \ \ \ \ \ \ of\ this\ unzip\ package.}}
+\DoxyCodeLine{00176\ \textcolor{comment}{\ \ \ \ \ the\ "{}64"{}\ function\ take\ a\ const\ void*\ pointer,\ because\ the\ path\ is\ just\ the}}
+\DoxyCodeLine{00177\ \textcolor{comment}{\ \ \ \ \ \ \ value\ passed\ to\ the\ open64\_file\_func\ callback.}}
+\DoxyCodeLine{00178\ \textcolor{comment}{\ \ \ \ \ Under\ Windows,\ if\ UNICODE\ is\ defined,\ using\ fill\_fopen64\_filefunc,\ the\ path}}
+\DoxyCodeLine{00179\ \textcolor{comment}{\ \ \ \ \ \ \ is\ a\ pointer\ to\ a\ wide\ unicode\ string\ (LPCTSTR\ is\ LPCWSTR),\ so\ const\ char*}}
+\DoxyCodeLine{00180\ \textcolor{comment}{\ \ \ \ \ \ \ does\ not\ describe\ the\ reality}}
+\DoxyCodeLine{00181\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_ab8429adfccd60f80d67b3f5d6264c7a1}{unzOpen2}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *path,}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{unzip_2ioapi_8h_aa18c0f63ac4db2874d8f0f31f7c950e4}{zlib\_filefunc\_def}}*\ pzlib\_filefunc\_def);}
+\DoxyCodeLine{00186\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00187\ \textcolor{comment}{\ \ \ Open\ a\ Zip\ file,\ like\ unzOpen,\ but\ provide\ a\ set\ of\ file\ low\ level\ API}}
+\DoxyCodeLine{00188\ \textcolor{comment}{\ \ \ \ \ \ for\ read/write\ the\ zip\ file\ (see\ ioapi.h)}}
+\DoxyCodeLine{00189\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a3c2961b4d84447e2d4ab06835c30fa23}{unzOpen2\_64}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *path,}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{unzip_2ioapi_8h_a19ae20dfb3c6ebc0058b0145d26ef667}{zlib\_filefunc64\_def}}*\ pzlib\_filefunc\_def);}
+\DoxyCodeLine{00193\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00194\ \textcolor{comment}{\ \ \ Open\ a\ Zip\ file,\ like\ unz64Open,\ but\ provide\ a\ set\ of\ file\ low\ level\ API}}
+\DoxyCodeLine{00195\ \textcolor{comment}{\ \ \ \ \ \ for\ read/write\ the\ zip\ file\ (see\ ioapi.h)}}
+\DoxyCodeLine{00196\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_af6ab0ba88ab5da62747df8f9336f1bb3}{unzClose}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file);}
+\DoxyCodeLine{00199\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00200\ \textcolor{comment}{\ \ Close\ a\ ZipFile\ opened\ with\ unzOpen.}}
+\DoxyCodeLine{00201\ \textcolor{comment}{\ \ If\ there\ is\ files\ inside\ the\ .Zip\ opened\ with\ unzOpenCurrentFile\ (see\ later),}}
+\DoxyCodeLine{00202\ \textcolor{comment}{\ \ \ \ these\ files\ MUST\ be\ closed\ with\ unzCloseCurrentFile\ before\ call\ unzClose.}}
+\DoxyCodeLine{00203\ \textcolor{comment}{\ \ return\ UNZ\_OK\ if\ there\ is\ no\ problem.\ */}}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_af05d6e3eac6ec396d9d134ca140fec61}{unzGetGlobalInfo}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{unzip_2unzip_8h_a7c8089af2571c5d6e22302525ec43f93}{unz\_global\_info}}\ *pglobal\_info);}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00208\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a81a5c686e1ee59531e4aa9f592310dc3}{unzGetGlobalInfo64}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{unzip_2unzip_8h_a9d954c2b7b79c5a169ed6b369d81c5a7}{unz\_global\_info64}}\ *pglobal\_info);}
+\DoxyCodeLine{00210\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00211\ \textcolor{comment}{\ \ Write\ info\ about\ the\ ZipFile\ in\ the\ *pglobal\_info\ structure.}}
+\DoxyCodeLine{00212\ \textcolor{comment}{\ \ No\ preparation\ of\ the\ structure\ is\ needed}}
+\DoxyCodeLine{00213\ \textcolor{comment}{\ \ return\ UNZ\_OK\ if\ there\ is\ no\ problem.\ */}}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_adc36ff0866254ca420c9cd9d7dccfa99}{unzGetGlobalComment}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *szComment,}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ uSizeBuf);}
+\DoxyCodeLine{00219\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00220\ \textcolor{comment}{\ \ Get\ the\ global\ comment\ string\ of\ the\ ZipFile,\ in\ the\ szComment\ buffer.}}
+\DoxyCodeLine{00221\ \textcolor{comment}{\ \ uSizeBuf\ is\ the\ size\ of\ the\ szComment\ buffer.}}
+\DoxyCodeLine{00222\ \textcolor{comment}{\ \ return\ the\ number\ of\ byte\ copied\ or\ an\ error\ code\ <0}}
+\DoxyCodeLine{00223\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00224\ }
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \textcolor{comment}{/***************************************************************************/}}
+\DoxyCodeLine{00227\ \textcolor{comment}{/*\ Unzip\ package\ allow\ you\ browse\ the\ directory\ of\ the\ zipfile\ */}}
+\DoxyCodeLine{00228\ }
+\DoxyCodeLine{00229\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a54821c0b6da683800164a56f2ae14f33}{unzGoToFirstFile}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file);}
+\DoxyCodeLine{00230\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00231\ \textcolor{comment}{\ \ Set\ the\ current\ file\ of\ the\ zipfile\ to\ the\ first\ file.}}
+\DoxyCodeLine{00232\ \textcolor{comment}{\ \ return\ UNZ\_OK\ if\ there\ is\ no\ problem}}
+\DoxyCodeLine{00233\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00235\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_acb457ebeaee7cb850c11a4a3d4b58201}{unzGoToNextFile}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file);}
+\DoxyCodeLine{00236\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00237\ \textcolor{comment}{\ \ Set\ the\ current\ file\ of\ the\ zipfile\ to\ the\ next\ file.}}
+\DoxyCodeLine{00238\ \textcolor{comment}{\ \ return\ UNZ\_OK\ if\ there\ is\ no\ problem}}
+\DoxyCodeLine{00239\ \textcolor{comment}{\ \ return\ UNZ\_END\_OF\_LIST\_OF\_FILE\ if\ the\ actual\ file\ was\ the\ latest.}}
+\DoxyCodeLine{00240\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a22730edef5a8a98b367bb30a0d619608}{unzLocateFile}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *szFileName,}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ iCaseSensitivity);}
+\DoxyCodeLine{00245\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00246\ \textcolor{comment}{\ \ Try\ locate\ the\ file\ szFileName\ in\ the\ zipfile.}}
+\DoxyCodeLine{00247\ \textcolor{comment}{\ \ For\ the\ iCaseSensitivity\ signification,\ see\ unzStringFileNameCompare}}
+\DoxyCodeLine{00248\ \textcolor{comment}{}}
+\DoxyCodeLine{00249\ \textcolor{comment}{\ \ return\ value\ :}}
+\DoxyCodeLine{00250\ \textcolor{comment}{\ \ UNZ\_OK\ if\ the\ file\ is\ found.\ It\ becomes\ the\ current\ file.}}
+\DoxyCodeLine{00251\ \textcolor{comment}{\ \ UNZ\_END\_OF\_LIST\_OF\_FILE\ if\ the\ file\ is\ not\ found}}
+\DoxyCodeLine{00252\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00255\ \textcolor{comment}{/*\ ******************************************\ */}}
+\DoxyCodeLine{00256\ \textcolor{comment}{/*\ Ryan\ supplied\ functions\ */}}
+\DoxyCodeLine{00257\ \textcolor{comment}{/*\ unz\_file\_info\ contain\ information\ about\ a\ file\ in\ the\ zipfile\ */}}
+\DoxyCodeLine{00258\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structunz__file__pos__s}{unz\_file\_pos\_s}}}
+\DoxyCodeLine{00259\ \{}
+\DoxyCodeLine{00260\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__pos__s_a87d193346d3825363f899f574a2f3cb2}{pos\_in\_zip\_directory}};\ \ \ \textcolor{comment}{/*\ offset\ in\ zip\ file\ directory\ */}}
+\DoxyCodeLine{00261\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{structunz__file__pos__s_a771dc0b7dba811b6174382f87f6800fc}{num\_of\_file}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ \#\ of\ file\ */}}
+\DoxyCodeLine{00262\ \}\ \mbox{\hyperlink{unzip_2unzip_8h_aa5d955860c4ad3c659eec972faa3419f}{unz\_file\_pos}};}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00264\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a236d033d9a360b7753fcb0fcef988cbf}{unzGetFilePos}}(}
+\DoxyCodeLine{00265\ \ \ \ \ \mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00266\ \ \ \ \ \mbox{\hyperlink{unzip_2unzip_8h_aa5d955860c4ad3c659eec972faa3419f}{unz\_file\_pos}}*\ file\_pos);}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a67559097ba938e4e85257da3fc6d827d}{unzGoToFilePos}}(}
+\DoxyCodeLine{00269\ \ \ \ \ \mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00270\ \ \ \ \ \mbox{\hyperlink{unzip_2unzip_8h_aa5d955860c4ad3c659eec972faa3419f}{unz\_file\_pos}}*\ file\_pos);}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00272\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structunz64__file__pos__s}{unz64\_file\_pos\_s}}}
+\DoxyCodeLine{00273\ \{}
+\DoxyCodeLine{00274\ \ \ \ \ \mbox{\hyperlink{unzip_2ioapi_8h_afffed08ed7f2413fa38e12a223ae0e72}{ZPOS64\_T}}\ \mbox{\hyperlink{structunz64__file__pos__s_a56b202151059b18903fe46dacbfbf12d}{pos\_in\_zip\_directory}};\ \ \ \textcolor{comment}{/*\ offset\ in\ zip\ file\ directory\ */}}
+\DoxyCodeLine{00275\ \ \ \ \ \mbox{\hyperlink{unzip_2ioapi_8h_afffed08ed7f2413fa38e12a223ae0e72}{ZPOS64\_T}}\ \mbox{\hyperlink{structunz64__file__pos__s_a3750057b6e72229a7acfb12b23bcb2fb}{num\_of\_file}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ \#\ of\ file\ */}}
+\DoxyCodeLine{00276\ \}\ \mbox{\hyperlink{unzip_2unzip_8h_ad2ad4b9938f800f60f38076b20838f13}{unz64\_file\_pos}};}
+\DoxyCodeLine{00277\ }
+\DoxyCodeLine{00278\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a455a15e23936251eb614675b2e7bae64}{unzGetFilePos64}}(}
+\DoxyCodeLine{00279\ \ \ \ \ \mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00280\ \ \ \ \ \mbox{\hyperlink{unzip_2unzip_8h_ad2ad4b9938f800f60f38076b20838f13}{unz64\_file\_pos}}*\ file\_pos);}
+\DoxyCodeLine{00281\ }
+\DoxyCodeLine{00282\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a667afaf715015b8195e2f6f22390202d}{unzGoToFilePos64}}(}
+\DoxyCodeLine{00283\ \ \ \ \ \mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00284\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{unzip_2unzip_8h_ad2ad4b9938f800f60f38076b20838f13}{unz64\_file\_pos}}*\ file\_pos);}
+\DoxyCodeLine{00285\ }
+\DoxyCodeLine{00286\ \textcolor{comment}{/*\ ******************************************\ */}}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a530654c7abbcd1c432942eb41f613d48}{unzGetCurrentFileInfo64}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{unzip_2unzip_8h_ab4a2ca19254030434060b1099dba07d1}{unz\_file\_info64}}\ *pfile\_info,}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *szFileName,}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ fileNameBufferSize,}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ *extraField,}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ extraFieldBufferSize,}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *szComment,}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ commentBufferSize);}
+\DoxyCodeLine{00296\ }
+\DoxyCodeLine{00297\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_ac99166540260b60340f4787af0a90029}{unzGetCurrentFileInfo}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{unzip_2unzip_8h_aa9b75394286455c3bca2694abc339626}{unz\_file\_info}}\ *pfile\_info,}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *szFileName,}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ fileNameBufferSize,}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ *extraField,}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ extraFieldBufferSize,}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *szComment,}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ commentBufferSize);}
+\DoxyCodeLine{00305\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00306\ \textcolor{comment}{\ \ Get\ Info\ about\ the\ current\ file}}
+\DoxyCodeLine{00307\ \textcolor{comment}{\ \ if\ pfile\_info!=NULL,\ the\ *pfile\_info\ structure\ will\ contain\ some\ info\ about}}
+\DoxyCodeLine{00308\ \textcolor{comment}{\ \ \ \ \ \ \ \ the\ current\ file}}
+\DoxyCodeLine{00309\ \textcolor{comment}{\ \ if\ szFileName!=NULL,\ the\ filename\ string\ will\ be\ copied\ in\ szFileName}}
+\DoxyCodeLine{00310\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ (fileNameBufferSize\ is\ the\ size\ of\ the\ buffer)}}
+\DoxyCodeLine{00311\ \textcolor{comment}{\ \ if\ extraField!=NULL,\ the\ extra\ field\ information\ will\ be\ copied\ in\ extraField}}
+\DoxyCodeLine{00312\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ (extraFieldBufferSize\ is\ the\ size\ of\ the\ buffer).}}
+\DoxyCodeLine{00313\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ This\ is\ the\ Central-\/header\ version\ of\ the\ extra\ field}}
+\DoxyCodeLine{00314\ \textcolor{comment}{\ \ if\ szComment!=NULL,\ the\ comment\ string\ of\ the\ file\ will\ be\ copied\ in\ szComment}}
+\DoxyCodeLine{00315\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ (commentBufferSize\ is\ the\ size\ of\ the\ buffer)}}
+\DoxyCodeLine{00316\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00317\ }
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00321\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{unzip_2ioapi_8h_afffed08ed7f2413fa38e12a223ae0e72}{ZPOS64\_T}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_aa2ffdf3d549d332acfe742a9198b730c}{unzGetCurrentFileZStreamPos64}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file);}
+\DoxyCodeLine{00322\ }
+\DoxyCodeLine{00324\ }
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00326\ \textcolor{comment}{/***************************************************************************/}}
+\DoxyCodeLine{00327\ \textcolor{comment}{/*\ for\ reading\ the\ content\ of\ the\ current\ zipfile,\ you\ can\ open\ it,\ read\ data}}
+\DoxyCodeLine{00328\ \textcolor{comment}{\ \ \ from\ it,\ and\ close\ it\ (you\ can\ close\ it\ before\ reading\ all\ the\ file)}}
+\DoxyCodeLine{00329\ \textcolor{comment}{\ \ \ */}}
+\DoxyCodeLine{00330\ }
+\DoxyCodeLine{00331\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a65deebb4ecb3ba110c343c21a4cd9a75}{unzOpenCurrentFile}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file);}
+\DoxyCodeLine{00332\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00333\ \textcolor{comment}{\ \ Open\ for\ reading\ data\ the\ current\ file\ in\ the\ zipfile.}}
+\DoxyCodeLine{00334\ \textcolor{comment}{\ \ If\ there\ is\ no\ error,\ the\ return\ value\ is\ UNZ\_OK.}}
+\DoxyCodeLine{00335\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00336\ }
+\DoxyCodeLine{00337\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a0c26b010e6cf7e58cd558426f280fa98}{unzOpenCurrentFilePassword}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ password);}
+\DoxyCodeLine{00339\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00340\ \textcolor{comment}{\ \ Open\ for\ reading\ data\ the\ current\ file\ in\ the\ zipfile.}}
+\DoxyCodeLine{00341\ \textcolor{comment}{\ \ password\ is\ a\ crypting\ password}}
+\DoxyCodeLine{00342\ \textcolor{comment}{\ \ If\ there\ is\ no\ error,\ the\ return\ value\ is\ UNZ\_OK.}}
+\DoxyCodeLine{00343\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00345\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a5881cddc4d4941ff604508ee4a564c25}{unzOpenCurrentFile2}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}*\ method,}
+\DoxyCodeLine{00347\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}*\ level,}
+\DoxyCodeLine{00348\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ raw);}
+\DoxyCodeLine{00349\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00350\ \textcolor{comment}{\ \ Same\ than\ unzOpenCurrentFile,\ but\ open\ for\ read\ raw\ the\ file\ (not\ uncompress)}}
+\DoxyCodeLine{00351\ \textcolor{comment}{\ \ \ \ if\ raw==1}}
+\DoxyCodeLine{00352\ \textcolor{comment}{\ \ *method\ will\ receive\ method\ of\ compression,\ *level\ will\ receive\ level\ of}}
+\DoxyCodeLine{00353\ \textcolor{comment}{\ \ \ \ \ compression}}
+\DoxyCodeLine{00354\ \textcolor{comment}{\ \ note\ :\ you\ can\ set\ level\ parameter\ as\ NULL\ (if\ you\ did\ not\ want\ known\ level,}}
+\DoxyCodeLine{00355\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ but\ you\ CANNOT\ set\ method\ parameter\ as\ NULL}}
+\DoxyCodeLine{00356\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00357\ }
+\DoxyCodeLine{00358\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a5eb86267fb9a5e4f52a123df606b2af5}{unzOpenCurrentFile3}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}*\ method,}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}*\ level,}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ raw,}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ password);}
+\DoxyCodeLine{00363\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00364\ \textcolor{comment}{\ \ Same\ than\ unzOpenCurrentFile,\ but\ open\ for\ read\ raw\ the\ file\ (not\ uncompress)}}
+\DoxyCodeLine{00365\ \textcolor{comment}{\ \ \ \ if\ raw==1}}
+\DoxyCodeLine{00366\ \textcolor{comment}{\ \ *method\ will\ receive\ method\ of\ compression,\ *level\ will\ receive\ level\ of}}
+\DoxyCodeLine{00367\ \textcolor{comment}{\ \ \ \ \ compression}}
+\DoxyCodeLine{00368\ \textcolor{comment}{\ \ note\ :\ you\ can\ set\ level\ parameter\ as\ NULL\ (if\ you\ did\ not\ want\ known\ level,}}
+\DoxyCodeLine{00369\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ but\ you\ CANNOT\ set\ method\ parameter\ as\ NULL}}
+\DoxyCodeLine{00370\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ }
+\DoxyCodeLine{00373\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_ac48279e5325cfdabbc67a312b1d32700}{unzCloseCurrentFile}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file);}
+\DoxyCodeLine{00374\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00375\ \textcolor{comment}{\ \ Close\ the\ file\ in\ zip\ opened\ with\ unzOpenCurrentFile}}
+\DoxyCodeLine{00376\ \textcolor{comment}{\ \ Return\ UNZ\_CRCERROR\ if\ all\ the\ file\ was\ read\ but\ the\ CRC\ is\ not\ good}}
+\DoxyCodeLine{00377\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00378\ }
+\DoxyCodeLine{00379\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a782029e380dc5ab5dab00361c9c14f58}{unzReadCurrentFile}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa3397ff439b5e076528b04bc9b8b086a}{voidp}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ len);}
+\DoxyCodeLine{00382\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00383\ \textcolor{comment}{\ \ Read\ bytes\ from\ the\ current\ file\ (opened\ by\ unzOpenCurrentFile)}}
+\DoxyCodeLine{00384\ \textcolor{comment}{\ \ buf\ contain\ buffer\ where\ data\ must\ be\ copied}}
+\DoxyCodeLine{00385\ \textcolor{comment}{\ \ len\ the\ size\ of\ buf.}}
+\DoxyCodeLine{00386\ \textcolor{comment}{}}
+\DoxyCodeLine{00387\ \textcolor{comment}{\ \ return\ the\ number\ of\ byte\ copied\ if\ some\ bytes\ are\ copied}}
+\DoxyCodeLine{00388\ \textcolor{comment}{\ \ return\ 0\ if\ the\ end\ of\ file\ was\ reached}}
+\DoxyCodeLine{00389\ \textcolor{comment}{\ \ return\ <0\ with\ error\ code\ if\ there\ is\ an\ error}}
+\DoxyCodeLine{00390\ \textcolor{comment}{\ \ \ \ (UNZ\_ERRNO\ for\ IO\ error,\ or\ zLib\ error\ for\ uncompress\ error)}}
+\DoxyCodeLine{00391\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00392\ }
+\DoxyCodeLine{00393\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a8cf4661a88ec12823d7cbdd3fa629eb0}{z\_off\_t}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a17362e5016023e9424a318d93c0475d4}{unztell}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file);}
+\DoxyCodeLine{00394\ }
+\DoxyCodeLine{00395\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{unzip_2ioapi_8h_afffed08ed7f2413fa38e12a223ae0e72}{ZPOS64\_T}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a325d191701e096aa0bc171069eba5ff2}{unztell64}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file);}
+\DoxyCodeLine{00396\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00397\ \textcolor{comment}{\ \ Give\ the\ current\ position\ in\ uncompressed\ data}}
+\DoxyCodeLine{00398\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00399\ }
+\DoxyCodeLine{00400\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a564f8ada96a5b2e3c5815306fa146d68}{unzeof}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file);}
+\DoxyCodeLine{00401\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00402\ \textcolor{comment}{\ \ return\ 1\ if\ the\ end\ of\ file\ was\ reached,\ 0\ elsewhere}}
+\DoxyCodeLine{00403\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00404\ }
+\DoxyCodeLine{00405\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a012cad9a0262291930ec7e34cd7c5bea}{unzGetLocalExtrafield}}(\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa3397ff439b5e076528b04bc9b8b086a}{voidp}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ len);}
+\DoxyCodeLine{00408\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00409\ \textcolor{comment}{\ \ Read\ extra\ field\ from\ the\ current\ file\ (opened\ by\ unzOpenCurrentFile)}}
+\DoxyCodeLine{00410\ \textcolor{comment}{\ \ This\ is\ the\ local-\/header\ version\ of\ the\ extra\ field\ (sometimes,\ there\ is}}
+\DoxyCodeLine{00411\ \textcolor{comment}{\ \ \ \ more\ info\ in\ the\ local-\/header\ version\ than\ in\ the\ central-\/header)}}
+\DoxyCodeLine{00412\ \textcolor{comment}{}}
+\DoxyCodeLine{00413\ \textcolor{comment}{\ \ if\ buf==NULL,\ it\ return\ the\ size\ of\ the\ local\ extra\ field}}
+\DoxyCodeLine{00414\ \textcolor{comment}{}}
+\DoxyCodeLine{00415\ \textcolor{comment}{\ \ if\ buf!=NULL,\ len\ is\ the\ size\ of\ the\ buffer,\ the\ extra\ header\ is\ copied\ in}}
+\DoxyCodeLine{00416\ \textcolor{comment}{\ \ \ \ buf.}}
+\DoxyCodeLine{00417\ \textcolor{comment}{\ \ the\ return\ value\ is\ the\ number\ of\ bytes\ copied\ in\ buf,\ or\ (if\ <0)}}
+\DoxyCodeLine{00418\ \textcolor{comment}{\ \ \ \ the\ error\ code}}
+\DoxyCodeLine{00419\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00420\ }
+\DoxyCodeLine{00421\ \textcolor{comment}{/***************************************************************************/}}
+\DoxyCodeLine{00422\ }
+\DoxyCodeLine{00423\ \textcolor{comment}{/*\ Get\ the\ current\ file\ offset\ */}}
+\DoxyCodeLine{00424\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{unzip_2ioapi_8h_afffed08ed7f2413fa38e12a223ae0e72}{ZPOS64\_T}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a647d2a5638d133b58a868d9d2c4d33ab}{unzGetOffset64}}\ (\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file);}
+\DoxyCodeLine{00425\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a1c325877d63ca4e205424add563ae01d}{unzGetOffset}}\ (\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file);}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00427\ \textcolor{comment}{/*\ Set\ the\ current\ file\ offset\ */}}
+\DoxyCodeLine{00428\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a9e2be3b57e0041c3da2c15277c4e85c1}{unzSetOffset64}}\ (\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,\ \mbox{\hyperlink{unzip_2ioapi_8h_afffed08ed7f2413fa38e12a223ae0e72}{ZPOS64\_T}}\ pos);}
+\DoxyCodeLine{00429\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a181415878f03b95a7094309d824a14b6}{ZEXPORT}}\ \mbox{\hyperlink{unzip_2unzip_8h_a12c4062aa3dae4cddf7527c3caf8c519}{unzSetOffset}}\ (\mbox{\hyperlink{unzip_2unzip_8h_ad578db1d36691a2a244482a3b2360ca3}{unzFile}}\ file,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ pos);}
+\DoxyCodeLine{00430\ }
+\DoxyCodeLine{00431\ }
+\DoxyCodeLine{00432\ }
+\DoxyCodeLine{00433\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00434\ \}}
+\DoxyCodeLine{00435\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00436\ }
+\DoxyCodeLine{00437\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ \_unz64\_H\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

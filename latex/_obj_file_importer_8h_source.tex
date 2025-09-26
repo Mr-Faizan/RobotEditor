@@ -1,0 +1,110 @@
+\doxysection{Obj\+File\+Importer.\+h}
+\hypertarget{_obj_file_importer_8h_source}{}\label{_obj_file_importer_8h_source}\index{RobotLib/libraries/assimp/code/AssetLib/Obj/ObjFileImporter.h@{RobotLib/libraries/assimp/code/AssetLib/Obj/ObjFileImporter.h}}
+\mbox{\hyperlink{_obj_file_importer_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2020,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00011\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ following\ disclaimer.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00028\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00029\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00030\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00031\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00032\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00033\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00034\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00035\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00037\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{}}
+\DoxyCodeLine{00039\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\#ifndef\ OBJ\_FILE\_IMPORTER\_H\_INC}}
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#define\ OBJ\_FILE\_IMPORTER\_H\_INC}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#include\ <assimp/BaseImporter.h>}}
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#include\ <assimp/material.h>}}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_mesh}{aiMesh}};}
+\DoxyCodeLine{00051\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_node}{aiNode}};}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \textcolor{keyword}{namespace\ }ObjFile\ \{}
+\DoxyCodeLine{00056\ \textcolor{keyword}{struct\ }Object;}
+\DoxyCodeLine{00057\ \textcolor{keyword}{struct\ }Model;}
+\DoxyCodeLine{00058\ \}\ \textcolor{comment}{//\ namespace\ ObjFile}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00063\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00064\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_assimp_1_1_obj_file_importer_a99f0782dcf13ea55b0cc98723de23a88}{ObjFileImporter}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_assimp_1_1_base_importer_a3a26428f61d7bebdc477c4d0add9da30}{BaseImporter}}\ \{}
+\DoxyCodeLine{00065\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00067\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_obj_file_importer_a99f0782dcf13ea55b0cc98723de23a88}{ObjFileImporter}}();}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00070\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_obj_file_importer_a1c3348beedc20f2f5a1a51aad1ed4078}{\string~ObjFileImporter}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_obj_file_importer_a07733757d0254ddffe16e5f1afb88f8d}{CanRead}}(\textcolor{keyword}{const}\ std::string\ \&pFile,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler,\ \textcolor{keywordtype}{bool}\ checkSig)\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_importer_desc}{aiImporterDesc}}\ *\mbox{\hyperlink{class_assimp_1_1_obj_file_importer_a39192f409c01643ae87de54dd4fbbbb6}{GetInfo}}()\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_obj_file_importer_aeed5ebec072cccdfecfc7cc0c26c18be}{InternReadFile}}(\textcolor{keyword}{const}\ std::string\ \&pFile,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_obj_file_importer_acaa325d73e8924041ab4bb95d930b7c8}{CreateDataFromImport}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_obj_file_1_1_model}{ObjFile::Model}}\ *pModel,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00087\ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *\mbox{\hyperlink{class_assimp_1_1_obj_file_importer_a1ff70ac393ccdefa3b5b30df64e036c8}{createNodes}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_obj_file_1_1_model}{ObjFile::Model}}\ *pModel,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_obj_file_1_1_object}{ObjFile::Object}}\ *pData,}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *pParent,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene,\ std::vector<std::unique\_ptr<aiMesh>>\ \&\mbox{\hyperlink{namespace_assimp_1_1_m_d5_aecef498b6deec045f5e5c5bc849c3be2}{MeshArray}});}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00091\ \ \ \ \ std::unique\_ptr<aiMesh>\ \mbox{\hyperlink{class_assimp_1_1_obj_file_importer_aa67db4d15dd8cb11420db1da8bb0c0ba}{createTopology}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_obj_file_1_1_model}{ObjFile::Model}}\ *pModel,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_obj_file_1_1_object}{ObjFile::Object}}\ *pData,}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ uiMeshIndex);}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_obj_file_importer_a7333c6ddf9bda97e347bb7323c228358}{createVertexArray}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_obj_file_1_1_model}{ObjFile::Model}}\ *pModel,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_obj_file_1_1_object}{ObjFile::Object}}\ *pCurrentObject,}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ uiMeshIndex,\ \mbox{\hyperlink{structai_mesh}{aiMesh}}\ *pMesh,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ numIndices);}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_obj_file_importer_a5b850d4d6f95e74554fb5376497d2d00}{countObjects}}(\textcolor{keyword}{const}\ std::vector<ObjFile::Object\ *>\ \&rObjects,\ \textcolor{keywordtype}{int}\ \&iNumMeshes);}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_obj_file_importer_a99689ab55dbbf16745a81bc7231e6fdd}{createMaterials}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_obj_file_1_1_model}{ObjFile::Model}}\ *pModel,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_obj_file_importer_a9e9b57161ca703e474d74c78be53627d}{addTextureMappingModeProperty}}(\mbox{\hyperlink{structai_material}{aiMaterial}}\ *mat,\ \mbox{\hyperlink{assimp-install_2include_2assimp_2material_8h_a7dd415ff703a2cc53d1c22ddbbd7dde0}{aiTextureType}}\ type,\ \textcolor{keywordtype}{int}\ clampMode\ =\ 1,\ \textcolor{keywordtype}{int}\ index\ =\ 0);}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_obj_file_importer_a1aa37e19db0624a088a2f41048fb2572}{appendChildToParentNode}}(\mbox{\hyperlink{structai_node}{aiNode}}\ *pParent,\ \mbox{\hyperlink{structai_node}{aiNode}}\ *pChild);}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00112\ \ \ \ \ std::vector<char>\ m\_Buffer;}
+\DoxyCodeLine{00114\ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_obj_file_1_1_object}{ObjFile::Object}}\ *m\_pRootObject;}
+\DoxyCodeLine{00116\ \ \ \ \ std::string\ m\_strAbsPath;}
+\DoxyCodeLine{00117\ \};}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \}\ \textcolor{comment}{//\ Namespace\ Assimp}}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

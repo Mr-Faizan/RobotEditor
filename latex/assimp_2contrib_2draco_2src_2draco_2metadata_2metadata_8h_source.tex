@@ -1,0 +1,215 @@
+\doxysection{metadata.\+h}
+\hypertarget{assimp_2contrib_2draco_2src_2draco_2metadata_2metadata_8h_source}{}\label{assimp_2contrib_2draco_2src_2draco_2metadata_2metadata_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/metadata/metadata.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/metadata/metadata.h}}
+\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2metadata_2metadata_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2017\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_METADATA\_METADATA\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_METADATA\_METADATA\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <cstring>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{hash__utils_8h}{draco/core/hash\_utils.h}}"{}}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ Class\ for\ storing\ a\ value\ of\ an\ entry\ in\ Metadata.\ Internally\ it\ is}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ represented\ by\ a\ buffer\ of\ data.\ It\ can\ be\ accessed\ by\ various\ data\ types,}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ e.g.\ int,\ float,\ binary\ data\ or\ string.}}
+\DoxyCodeLine{00031\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_entry_value_adbd5f352ec50bf6da34e14b28e58265d}{EntryValue}}\ \{}
+\DoxyCodeLine{00032\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00033\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT>}
+\DoxyCodeLine{00034\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_entry_value_adbd5f352ec50bf6da34e14b28e58265d}{EntryValue}}(\textcolor{keyword}{const}\ DataTypeT\ \&\mbox{\hyperlink{classdraco_1_1_entry_value_ad785e1ffb3b4fafb49ac4e9aa1998a9f}{data}})\ \{}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ data\_type\_size\ =\ \textcolor{keyword}{sizeof}(DataTypeT);}
+\DoxyCodeLine{00036\ \ \ \ \ data\_.resize(data\_type\_size);}
+\DoxyCodeLine{00037\ \ \ \ \ memcpy(\&data\_[0],\ \&\mbox{\hyperlink{classdraco_1_1_entry_value_ad785e1ffb3b4fafb49ac4e9aa1998a9f}{data}},\ data\_type\_size);}
+\DoxyCodeLine{00038\ \ \ \}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT>}
+\DoxyCodeLine{00041\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_entry_value_a1cf3ac2f200a327069811083edc2f6f3}{EntryValue}}(\textcolor{keyword}{const}\ std::vector<DataTypeT>\ \&\mbox{\hyperlink{classdraco_1_1_entry_value_ad785e1ffb3b4fafb49ac4e9aa1998a9f}{data}})\ \{}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ total\_size\ =\ \textcolor{keyword}{sizeof}(DataTypeT)\ *\ \mbox{\hyperlink{classdraco_1_1_entry_value_ad785e1ffb3b4fafb49ac4e9aa1998a9f}{data}}.size();}
+\DoxyCodeLine{00043\ \ \ \ \ data\_.resize(total\_size);}
+\DoxyCodeLine{00044\ \ \ \ \ memcpy(\&data\_[0],\ \&\mbox{\hyperlink{classdraco_1_1_entry_value_ad785e1ffb3b4fafb49ac4e9aa1998a9f}{data}}[0],\ total\_size);}
+\DoxyCodeLine{00045\ \ \ \}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \mbox{\hyperlink{classdraco_1_1_entry_value_adbd5f352ec50bf6da34e14b28e58265d}{EntryValue}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_entry_value}{EntryValue}}\ \&\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00048\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_entry_value_adbd5f352ec50bf6da34e14b28e58265d}{EntryValue}}(\textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT>}
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_entry_value_ad5c5623c98a772cbf65de8805d451ab3}{GetValue}}(DataTypeT\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ data\_type\_size\ =\ \textcolor{keyword}{sizeof}(DataTypeT);}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordflow}{if}\ (data\_type\_size\ !=\ data\_.size())\ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00055\ \ \ \ \ \}}
+\DoxyCodeLine{00056\ \ \ \ \ memcpy(\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}},\ \&data\_[0],\ data\_type\_size);}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00058\ \ \ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT>}
+\DoxyCodeLine{00061\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_entry_value_aadc0a4d8f70c88c6cca586874f0a6834}{GetValue}}(std::vector<DataTypeT>\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordflow}{if}\ (data\_.empty())\ \{}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00064\ \ \ \ \ \}}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ data\_type\_size\ =\ \textcolor{keyword}{sizeof}(DataTypeT);}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keywordflow}{if}\ (data\_.size()\ \%\ data\_type\_size\ !=\ 0)\ \{}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00068\ \ \ \ \ \}}
+\DoxyCodeLine{00069\ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}-\/>resize(data\_.size()\ /\ data\_type\_size);}
+\DoxyCodeLine{00070\ \ \ \ \ memcpy(\&\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}-\/>at(0),\ \&data\_[0],\ data\_.size());}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00072\ \ \ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \textcolor{keyword}{const}\ std::vector<uint8\_t>\ \&\mbox{\hyperlink{classdraco_1_1_entry_value_ad785e1ffb3b4fafb49ac4e9aa1998a9f}{data}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ data\_;\ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00077\ \ \ std::vector<uint8\_t>\ data\_;}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{classdraco_1_1_entry_value_a25072c3bb645cd776c0df04547826bee}{EntryValueHasher}};}
+\DoxyCodeLine{00080\ \};}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{comment}{//\ Functor\ for\ computing\ a\ hash\ from\ data\ stored\ within\ an\ EntryValue.}}
+\DoxyCodeLine{00083\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_entry_value_hasher}{EntryValueHasher}}\ \{}
+\DoxyCodeLine{00084\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structdraco_1_1_entry_value_hasher_af7419d9bc2777e31720f0eb3b1b92b55}{operator()}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_entry_value}{EntryValue}}\ \&ev)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ hash\ =\ ev.data\_.size();}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ ev.data\_.size();\ ++i)\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(ev.data\_[i],\ hash);}
+\DoxyCodeLine{00088\ \ \ \ \ \}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{return}\ hash;}
+\DoxyCodeLine{00090\ \ \ \}}
+\DoxyCodeLine{00091\ \};}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \textcolor{comment}{//\ Class\ for\ holding\ generic\ metadata.\ It\ has\ a\ list\ of\ entries\ which\ consist\ of}}
+\DoxyCodeLine{00094\ \textcolor{comment}{//\ an\ entry\ name\ and\ an\ entry\ value.\ Each\ Metadata\ could\ also\ have\ nested}}
+\DoxyCodeLine{00095\ \textcolor{comment}{//\ metadata.}}
+\DoxyCodeLine{00096\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_metadata_a5924f8caa14443e212c24f93828e853f}{Metadata}}\ \{}
+\DoxyCodeLine{00097\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00098\ \ \ \mbox{\hyperlink{classdraco_1_1_metadata_a5924f8caa14443e212c24f93828e853f}{Metadata}}()\ \{\}}
+\DoxyCodeLine{00099\ \ \ \mbox{\hyperlink{classdraco_1_1_metadata_a5924f8caa14443e212c24f93828e853f}{Metadata}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_metadata}{Metadata}}\ \&metadata);}
+\DoxyCodeLine{00100\ \ \ \textcolor{comment}{//\ In\ theory,\ we\ support\ all\ types\ of\ data\ as\ long\ as\ it\ could\ be\ serialized}}
+\DoxyCodeLine{00101\ \ \ \textcolor{comment}{//\ to\ binary\ data.\ We\ provide\ the\ following\ functions\ for\ inserting\ and}}
+\DoxyCodeLine{00102\ \ \ \textcolor{comment}{//\ accessing\ entries\ of\ common\ data\ types.\ For\ now,\ developers\ need\ to\ know}}
+\DoxyCodeLine{00103\ \ \ \textcolor{comment}{//\ the\ type\ of\ entries\ they\ are\ requesting.}}
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_metadata_aa2f9952e2ad9ccadee34daac0b1d0758}{AddEntryInt}}(\textcolor{keyword}{const}\ std::string\ \&name,\ int32\_t\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \textcolor{comment}{//\ Returns\ false\ if\ Metadata\ does\ not\ contain\ an\ entry\ with\ a\ key\ of\ |name|.}}
+\DoxyCodeLine{00107\ \ \ \textcolor{comment}{//\ This\ function\ does\ not\ guarantee\ that\ entry's\ type\ is\ int32\_t.}}
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_metadata_af7a350cd2e7711d7c834a88cbc833c09}{GetEntryInt}}(\textcolor{keyword}{const}\ std::string\ \&name,\ int32\_t\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_metadata_a4e20b46eddea31298e4d145f5bdfdb30}{AddEntryIntArray}}(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<int32\_t>\ \&\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \textcolor{comment}{//\ Returns\ false\ if\ Metadata\ does\ not\ contain\ an\ entry\ with\ a\ key\ of\ |name|.}}
+\DoxyCodeLine{00114\ \ \ \textcolor{comment}{//\ This\ function\ does\ not\ guarantee\ that\ entry's\ type\ is\ a\ vector\ of\ int32\_t.}}
+\DoxyCodeLine{00115\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_metadata_ac5dbc30fe53fecb0f8c1545376d9236e}{GetEntryIntArray}}(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<int32\_t>\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_metadata_ad45eb9cafb8a924d7c20d70a9603ce0d}{AddEntryDouble}}(\textcolor{keyword}{const}\ std::string\ \&name,\ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \textcolor{comment}{//\ Returns\ false\ if\ Metadata\ does\ not\ contain\ an\ entry\ with\ a\ key\ of\ |name|.}}
+\DoxyCodeLine{00121\ \ \ \textcolor{comment}{//\ This\ function\ does\ not\ guarantee\ that\ entry's\ type\ is\ double.}}
+\DoxyCodeLine{00122\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_metadata_a20a21436e88487d1dbc28a92ff05f350}{GetEntryDouble}}(\textcolor{keyword}{const}\ std::string\ \&name,\ \textcolor{keywordtype}{double}\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_metadata_a533c301aaab7722d41dc56ada509d17b}{AddEntryDoubleArray}}(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<double>\ \&\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ \textcolor{comment}{//\ Returns\ false\ if\ Metadata\ does\ not\ contain\ an\ entry\ with\ a\ key\ of\ |name|.}}
+\DoxyCodeLine{00128\ \ \ \textcolor{comment}{//\ This\ function\ does\ not\ guarantee\ that\ entry's\ type\ is\ a\ vector\ of\ double.}}
+\DoxyCodeLine{00129\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_metadata_a21b9885a0b6e5414c67a4ef60aecb70b}{GetEntryDoubleArray}}(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<double>\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_metadata_afa3a94d5ed400c5ca7546b336b739351}{AddEntryString}}(\textcolor{keyword}{const}\ std::string\ \&name,\ \textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ \textcolor{comment}{//\ Returns\ false\ if\ Metadata\ does\ not\ contain\ an\ entry\ with\ a\ key\ of\ |name|.}}
+\DoxyCodeLine{00135\ \ \ \textcolor{comment}{//\ This\ function\ does\ not\ guarantee\ that\ entry's\ type\ is\ std::string.}}
+\DoxyCodeLine{00136\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_metadata_a20c860ad81d2a465eda5114fae588f48}{GetEntryString}}(\textcolor{keyword}{const}\ std::string\ \&name,\ std::string\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \textcolor{comment}{//\ Add\ a\ blob\ of\ data\ as\ an\ entry.}}
+\DoxyCodeLine{00139\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_metadata_ad4db6b5f9c7cc49c13d4de6734a50889}{AddEntryBinary}}(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<uint8\_t>\ \&\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \textcolor{comment}{//\ Returns\ false\ if\ Metadata\ does\ not\ contain\ an\ entry\ with\ a\ key\ of\ |name|.}}
+\DoxyCodeLine{00143\ \ \ \textcolor{comment}{//\ This\ function\ does\ not\ guarantee\ that\ entry's\ type\ is\ a\ vector\ of\ uint8\_t.}}
+\DoxyCodeLine{00144\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_metadata_a90eb3fe9b216009279a17e4b9472770e}{GetEntryBinary}}(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<uint8\_t>\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_metadata_a6c304397fbdd8a7b095cf37ab31f4582}{AddSubMetadata}}(\textcolor{keyword}{const}\ std::string\ \&name,}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::unique\_ptr<Metadata>\ \mbox{\hyperlink{classdraco_1_1_metadata_abfbb5c69e9dd1c2d9afac2c4e22aece6}{sub\_metadata}});}
+\DoxyCodeLine{00149\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_metadata}{Metadata}}\ *\mbox{\hyperlink{classdraco_1_1_metadata_a22b408109f7c7a2f975ed2774cb85d41}{GetSubMetadata}}(\textcolor{keyword}{const}\ std::string\ \&name)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00150\ \ \ \mbox{\hyperlink{classdraco_1_1_metadata}{Metadata}}\ *\mbox{\hyperlink{classdraco_1_1_metadata_abfbb5c69e9dd1c2d9afac2c4e22aece6}{sub\_metadata}}(\textcolor{keyword}{const}\ std::string\ \&name);}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_metadata_a86439d52d0f0de6f5f12e67cce4d04fa}{RemoveEntry}}(\textcolor{keyword}{const}\ std::string\ \&name);}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_metadata_ae7d12b54b231ef4214cde52dbb0a975f}{num\_entries}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(entries\_.size());\ \}}
+\DoxyCodeLine{00155\ \ \ \textcolor{keyword}{const}\ std::map<std::string,\ EntryValue>\ \&\mbox{\hyperlink{classdraco_1_1_metadata_a542928aadcb40f5fab6b75da1eeafaaa}{entries}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ entries\_;\ \}}
+\DoxyCodeLine{00156\ \ \ \textcolor{keyword}{const}\ std::map<std::string,\ std::unique\_ptr<Metadata>>\ \&\mbox{\hyperlink{classdraco_1_1_metadata_a71990eefe2681f835bdb4c3b787bfa1f}{sub\_metadatas}}()\textcolor{keyword}{}}
+\DoxyCodeLine{00157\ \textcolor{keyword}{\ \ \ \ \ \ const\ }\{}
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{keywordflow}{return}\ sub\_metadatas\_;}
+\DoxyCodeLine{00159\ \ \ \}}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00162\ \ \ \textcolor{comment}{//\ Make\ this\ function\ private\ to\ avoid\ adding\ undefined\ data\ types.}}
+\DoxyCodeLine{00163\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT>}
+\DoxyCodeLine{00164\ \ \ \textcolor{keywordtype}{void}\ AddEntry(\textcolor{keyword}{const}\ std::string\ \&entry\_name,\ \textcolor{keyword}{const}\ DataTypeT\ \&entry\_value)\ \{}
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ itr\ =\ entries\_.find(entry\_name);}
+\DoxyCodeLine{00166\ \ \ \ \ \textcolor{keywordflow}{if}\ (itr\ !=\ entries\_.end())\ \{}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ entries\_.erase(itr);}
+\DoxyCodeLine{00168\ \ \ \ \ \}}
+\DoxyCodeLine{00169\ \ \ \ \ entries\_.insert(std::make\_pair(entry\_name,\ EntryValue(entry\_value)));}
+\DoxyCodeLine{00170\ \ \ \}}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \ \ \textcolor{comment}{//\ Make\ this\ function\ private\ to\ avoid\ adding\ undefined\ data\ types.}}
+\DoxyCodeLine{00173\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT>}
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordtype}{bool}\ GetEntry(\textcolor{keyword}{const}\ std::string\ \&entry\_name,\ DataTypeT\ *entry\_value)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ itr\ =\ entries\_.find(entry\_name);}
+\DoxyCodeLine{00176\ \ \ \ \ \textcolor{keywordflow}{if}\ (itr\ ==\ entries\_.end())\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00178\ \ \ \ \ \}}
+\DoxyCodeLine{00179\ \ \ \ \ \textcolor{keywordflow}{return}\ itr-\/>second.GetValue(entry\_value);}
+\DoxyCodeLine{00180\ \ \ \}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \ \ std::map<std::string,\ EntryValue>\ entries\_;}
+\DoxyCodeLine{00183\ \ \ std::map<std::string,\ std::unique\_ptr<Metadata>>\ sub\_metadatas\_;}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{classdraco_1_1_metadata_a480a1ddead51fd1ce3ea7d7e7a6a6cf3}{MetadataHasher}};}
+\DoxyCodeLine{00186\ \};}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \textcolor{comment}{//\ Functor\ for\ computing\ a\ hash\ from\ data\ stored\ within\ a\ metadata\ class.}}
+\DoxyCodeLine{00189\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_metadata_hasher}{MetadataHasher}}\ \{}
+\DoxyCodeLine{00190\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structdraco_1_1_metadata_hasher_a9084baf1afe4d73ae6561e67d711e190}{operator()}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_metadata}{Metadata}}\ \&metadata)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ hash\ =}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(metadata.entries\_.size(),\ metadata.sub\_metadatas\_.size());}
+\DoxyCodeLine{00193\ \ \ \ \ \mbox{\hyperlink{structdraco_1_1_entry_value_hasher}{EntryValueHasher}}\ entry\_value\_hasher;}
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ \&entry\ :\ metadata.entries\_)\ \{}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(entry.first,\ hash);}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(entry\_value\_hasher(entry.second),\ hash);}
+\DoxyCodeLine{00197\ \ \ \ \ \}}
+\DoxyCodeLine{00198\ \ \ \ \ \mbox{\hyperlink{structdraco_1_1_metadata_hasher}{MetadataHasher}}\ metadata\_hasher;}
+\DoxyCodeLine{00199\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ \&\&sub\_metadata\ :\ metadata.sub\_metadatas\_)\ \{}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(sub\_metadata.first,\ hash);}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(metadata\_hasher(*sub\_metadata.second),\ hash);}
+\DoxyCodeLine{00202\ \ \ \ \ \}}
+\DoxyCodeLine{00203\ \ \ \ \ \textcolor{keywordflow}{return}\ hash;}
+\DoxyCodeLine{00204\ \ \ \}}
+\DoxyCodeLine{00205\ \};}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00207\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_METADATA\_METADATA\_H\_}}
+
+\end{DoxyCode}

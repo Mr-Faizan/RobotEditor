@@ -1,0 +1,169 @@
+\doxysection{FBXTokenizer.\+h}
+\hypertarget{_f_b_x_tokenizer_8h_source}{}\label{_f_b_x_tokenizer_8h_source}\index{RobotLib/libraries/assimp/code/AssetLib/FBX/FBXTokenizer.h@{RobotLib/libraries/assimp/code/AssetLib/FBX/FBXTokenizer.h}}
+\mbox{\hyperlink{_f_b_x_tokenizer_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{}}
+\DoxyCodeLine{00008\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00012\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ \ following\ disclaimer.}}
+\DoxyCodeLine{00017\ \textcolor{comment}{}}
+\DoxyCodeLine{00018\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ \ materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{}}
+\DoxyCodeLine{00023\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00027\ \textcolor{comment}{}}
+\DoxyCodeLine{00028\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00029\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00030\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00031\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00032\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00033\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00034\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00035\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00036\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00037\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00038\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00039\ \textcolor{comment}{}}
+\DoxyCodeLine{00040\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00041\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#ifndef\ INCLUDED\_AI\_FBX\_TOKENIZER\_H}}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#define\ INCLUDED\_AI\_FBX\_TOKENIZER\_H}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_f_b_x_compile_config_8h}{FBXCompileConfig.h}}"{}}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_stack_allocator_8h}{Common/StackAllocator.h}}"{}}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#include\ <assimp/ai\_assert.h>}}
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#include\ <assimp/defs.h>}}
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00057\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp_1_1_f_b_x}{FBX}}\ \{}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00061\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a36d296046411b9c84ce6382e8d947dcd}{TokenType}}}
+\DoxyCodeLine{00062\ \{}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{comment}{//\ \{}}
+\DoxyCodeLine{00064\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a36d296046411b9c84ce6382e8d947dcda840824fdc9471642157461e9adae5206}{TokenType\_OPEN\_BRACKET}}\ =\ 0,}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ \}}}
+\DoxyCodeLine{00067\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a36d296046411b9c84ce6382e8d947dcdaf803d0a52cfec40f991732db5924fa5a}{TokenType\_CLOSE\_BRACKET}},}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{comment}{//\ '"{}blablubb"{}',\ '2',\ '*14'\ -\/\ very\ general\ token\ class,}}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{comment}{//\ further\ processing\ happens\ at\ a\ later\ stage.}}
+\DoxyCodeLine{00071\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a36d296046411b9c84ce6382e8d947dcdab76381ab3e62263f165a4c438742fb48}{TokenType\_DATA}},}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00074\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a36d296046411b9c84ce6382e8d947dcda6d98787b1270cf461166a04041475d66}{TokenType\_BINARY\_DATA}},}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{comment}{//\ ,}}
+\DoxyCodeLine{00077\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a36d296046411b9c84ce6382e8d947dcda159299ebded830e894425ff07060171b}{TokenType\_COMMA}},}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//\ blubb:}}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a36d296046411b9c84ce6382e8d947dcdaeace48473332bca7c2823926dbb5f038}{TokenType\_KEY}}}
+\DoxyCodeLine{00081\ \};}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00088\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a1dc588235cf5d92795169751a7e8da04}{Token}}}
+\DoxyCodeLine{00089\ \{}
+\DoxyCodeLine{00090\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ BINARY\_MARKER\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\textcolor{keyword}{>}(-\/1);}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00095\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a1dc588235cf5d92795169751a7e8da04}{Token}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ sbegin,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ send,\ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a36d296046411b9c84ce6382e8d947dcd}{TokenType}}\ type,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a1f729d13450c4070f0371104542b6a99}{line}},\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ column);}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00098\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a1dc588235cf5d92795169751a7e8da04}{Token}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ sbegin,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ send,\ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a36d296046411b9c84ce6382e8d947dcd}{TokenType}}\ type,\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a25794cdd3ee9ad96d43872106a2158d9}{offset}});}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a7b645cb0cc7fea1d96c6e27b84f37480}{\string~Token}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00103\ \ \ \ \ std::string\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a63c151ca4d67485a9d193b8660c30d86}{StringContents}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::string(\mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_ac52a5fd6598f096368a083d8b4b72388}{begin}}(),\mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_adeaa886ec8b934d3b2d4d17f9c482d79}{end}}());}
+\DoxyCodeLine{00105\ \ \ \ \ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a3be4b946ed5d7e28f16a3c7c929647ba}{IsBinary}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ column\ ==\ BINARY\_MARKER;}
+\DoxyCodeLine{00109\ \ \ \ \ \}}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_ac52a5fd6598f096368a083d8b4b72388}{begin}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ sbegin;}
+\DoxyCodeLine{00113\ \ \ \ \ \}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_adeaa886ec8b934d3b2d4d17f9c482d79}{end}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ send;}
+\DoxyCodeLine{00117\ \ \ \ \ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a36d296046411b9c84ce6382e8d947dcd}{TokenType}}\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a9a4769901216aa10a80bd7c7316a5a99}{Type}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ type;}
+\DoxyCodeLine{00121\ \ \ \ \ \}}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a7ff3acac520d28ea89ffbb2954056589}{Offset}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2ai__assert_8h_a8cda16916af68d32c6add71ef3bb7af3}{ai\_assert}}(\mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a3be4b946ed5d7e28f16a3c7c929647ba}{IsBinary}}());}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a25794cdd3ee9ad96d43872106a2158d9}{offset}};}
+\DoxyCodeLine{00126\ \ \ \ \ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a6ece86efe4def69e946ef598b52ffeae}{Line}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2ai__assert_8h_a8cda16916af68d32c6add71ef3bb7af3}{ai\_assert}}(!\mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a3be4b946ed5d7e28f16a3c7c929647ba}{IsBinary}}());}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\textcolor{keyword}{>}(\mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a1f729d13450c4070f0371104542b6a99}{line}});}
+\DoxyCodeLine{00131\ \ \ \ \ \}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a9fdf7e7e8059372c0a657dccacd6ee12}{Column}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2ai__assert_8h_a8cda16916af68d32c6add71ef3bb7af3}{ai\_assert}}(!\mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a3be4b946ed5d7e28f16a3c7c929647ba}{IsBinary}}());}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ column;}
+\DoxyCodeLine{00136\ \ \ \ \ \}}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \textcolor{preprocessor}{\#ifdef\ DEBUG}}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{comment}{//\ full\ string\ copy\ for\ the\ sole\ purpose\ that\ it\ nicely\ appears}}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{comment}{//\ in\ msvc's\ debugger\ window.}}
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{keyword}{const}\ std::string\ contents;}
+\DoxyCodeLine{00144\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \textcolor{keyword}{const}\ sbegin;}
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \textcolor{keyword}{const}\ send;}
+\DoxyCodeLine{00149\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a36d296046411b9c84ce6382e8d947dcd}{TokenType}}\ type;}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{keyword}{union\ }\{}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a1f729d13450c4070f0371104542b6a99}{line}};}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token_a25794cdd3ee9ad96d43872106a2158d9}{offset}};}
+\DoxyCodeLine{00154\ \ \ \ \ \};}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ column;}
+\DoxyCodeLine{00156\ \};}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}}*\ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a03e48417e85bb3dfa03a6b0f94f56828}{TokenPtr}};}
+\DoxyCodeLine{00159\ \textcolor{keyword}{typedef}\ std::vector<\ TokenPtr\ >\ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a1abd5560fd67ecc1a7d357cbf7f3658a}{TokenList}};}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \textcolor{preprocessor}{\#define\ new\_Token\ new\ (token\_allocator.Allocate(sizeof(Token)))\ Token}}
+\DoxyCodeLine{00162\ \textcolor{preprocessor}{\#define\ delete\_Token(\_p)\ (\_p)-\/>\string~Token()}}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00172\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_ae33a307160bfd88d3e780b8b9ee0d828}{Tokenize}}(\mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a1abd5560fd67ecc1a7d357cbf7f3658a}{TokenList}}\ \&output\_tokens,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *input,\ \mbox{\hyperlink{class_assimp_1_1_stack_allocator}{StackAllocator}}\ \&tokenAllocator);}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00183\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a40f851ee3bd6480b4ed1989c82e1e9f3}{TokenizeBinary}}(\mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a1abd5560fd67ecc1a7d357cbf7f3658a}{TokenList}}\ \&output\_tokens,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *input,\ \textcolor{keywordtype}{size\_t}\ length,\ \mbox{\hyperlink{class_assimp_1_1_stack_allocator}{StackAllocator}}\ \&tokenAllocator);}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \}\ \textcolor{comment}{//\ !\ FBX}}
+\DoxyCodeLine{00187\ \}\ \textcolor{comment}{//\ !\ Assimp}}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ !\ INCLUDED\_AI\_FBX\_PARSER\_H}}
+
+\end{DoxyCode}

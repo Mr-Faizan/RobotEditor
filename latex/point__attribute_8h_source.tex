@@ -1,0 +1,202 @@
+\doxysection{point\+\_\+attribute.\+h}
+\hypertarget{point__attribute_8h_source}{}\label{point__attribute_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/attributes/point\_attribute.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/attributes/point\_attribute.h}}
+\mbox{\hyperlink{point__attribute_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_ATTRIBUTES\_POINT\_ATTRIBUTE\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_ATTRIBUTES\_POINT\_ATTRIBUTE\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{attribute__transform__data_8h}{draco/attributes/attribute\_transform\_data.h}}"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{geometry__attribute_8h}{draco/attributes/geometry\_attribute.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{draco__index__type__vector_8h}{draco/core/draco\_index\_type\_vector.h}}"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{hash__utils_8h}{draco/core/hash\_utils.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ Class\ for\ storing\ point\ specific\ data\ about\ each\ attribute.\ In\ general,}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ multiple\ points\ stored\ in\ a\ point\ cloud\ can\ share\ the\ same\ attribute\ value}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ and\ this\ class\ provides\ the\ necessary\ mapping\ between\ point\ ids\ and\ attribute}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ value\ ids.}}
+\DoxyCodeLine{00033\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_point_attribute_af6c0320602b3020477071d1821c12fd0}{PointAttribute}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a7f1fee5dd769b5a13cfa5e4e422edfd7}{GeometryAttribute}}\ \{}
+\DoxyCodeLine{00034\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{classdraco_1_1_point_attribute_af6c0320602b3020477071d1821c12fd0}{PointAttribute}}();}
+\DoxyCodeLine{00036\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_af6c0320602b3020477071d1821c12fd0}{PointAttribute}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a7f1fee5dd769b5a13cfa5e4e422edfd7}{GeometryAttribute}}\ \&att);}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \textcolor{comment}{//\ Make\ sure\ the\ move\ constructor\ is\ defined\ (needed\ for\ better\ performance}}
+\DoxyCodeLine{00039\ \ \ \textcolor{comment}{//\ when\ new\ attributes\ are\ added\ to\ PointCloud).}}
+\DoxyCodeLine{00040\ \ \ \mbox{\hyperlink{classdraco_1_1_point_attribute_acb6464b8c96c762569530a80fb992451}{PointAttribute}}(\mbox{\hyperlink{classdraco_1_1_point_attribute_af6c0320602b3020477071d1821c12fd0}{PointAttribute}}\ \&\&attribute)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{classdraco_1_1_point_attribute_af6c0320602b3020477071d1821c12fd0}{PointAttribute}}\ \&\mbox{\hyperlink{classdraco_1_1_point_attribute_a54677e1936697b6b3eae5a13afeb3fc0}{operator=}}(\mbox{\hyperlink{classdraco_1_1_point_attribute_af6c0320602b3020477071d1821c12fd0}{PointAttribute}}\ \&\&attribute)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ Initializes\ a\ point\ attribute.\ By\ default\ the\ attribute\ will\ be\ set\ to}}
+\DoxyCodeLine{00044\ \ \ \textcolor{comment}{//\ identity\ mapping\ between\ point\ indices\ and\ attribute\ values.\ To\ set\ custom}}
+\DoxyCodeLine{00045\ \ \ \textcolor{comment}{//\ mapping\ use\ SetExplicitMapping()\ function.}}
+\DoxyCodeLine{00046\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_a473e62ad9770ed262b7b231938d525e6}{Init}}(\mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800}{Type}}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a5d6c636a7c62abf5249906203d4d6036}{attribute\_type}},\ int8\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a232064d60edaad1dba572da058382925}{num\_components}},\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_afa175b1981dd07b76deb06dd32350326}{data\_type}},}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a6215daf81992ebe34f929be823764c61}{normalized}},\ \textcolor{keywordtype}{size\_t}\ num\_attribute\_values);}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//\ Copies\ attribute\ data\ from\ the\ provided\ |src\_att|\ attribute.}}
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_a37e0c72c3c9f3282137664abed9252ac}{CopyFrom}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_af6c0320602b3020477071d1821c12fd0}{PointAttribute}}\ \&src\_att);}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \textcolor{comment}{//\ Prepares\ the\ attribute\ storage\ for\ the\ specified\ number\ of\ entries.}}
+\DoxyCodeLine{00053\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_ac1d144d94525be2a4615b10b543f8cb4}{Reset}}(\textcolor{keywordtype}{size\_t}\ num\_attribute\_values);}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_aff3e413142778a44f9f7952656dc1019}{size}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ num\_unique\_entries\_;\ \}}
+\DoxyCodeLine{00056\ \ \ AttributeValueIndex\ \mbox{\hyperlink{classdraco_1_1_point_attribute_a7d6f9d6b243c2c8fe3869e59486613c2}{mapped\_index}}(PointIndex\ point\_index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keywordflow}{if}\ (identity\_mapping\_)\ \{}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ AttributeValueIndex(point\_index.value());}
+\DoxyCodeLine{00059\ \ \ \ \ \}}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordflow}{return}\ indices\_map\_[point\_index];}
+\DoxyCodeLine{00061\ \ \ \}}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{classdraco_1_1_data_buffer}{DataBuffer}}\ *\mbox{\hyperlink{classdraco_1_1_point_attribute_aff818cf0d7d3c7e0f2c298a14d8ece27}{buffer}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ attribute\_buffer\_.get();\ \}}
+\DoxyCodeLine{00063\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_a59d02bb2e18e7cb449e750458f11e973}{is\_mapping\_identity}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ identity\_mapping\_;\ \}}
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_a2cb3ca1d5f4ce2db5f18ca95823078bb}{indices\_map\_size}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classdraco_1_1_point_attribute_a59d02bb2e18e7cb449e750458f11e973}{is\_mapping\_identity}}())\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00067\ \ \ \ \ \}}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{return}\ indices\_map\_.size();}
+\DoxyCodeLine{00069\ \ \ \}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{keyword}{const}\ uint8\_t\ *\mbox{\hyperlink{classdraco_1_1_point_attribute_a1b1a9a5ced3c98e3d787e9472ca16b03}{GetAddressOfMappedIndex}}(PointIndex\ point\_index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ae8960947ee53692f4b3f2f35a8639e8d}{GetAddress}}(\mbox{\hyperlink{classdraco_1_1_point_attribute_a7d6f9d6b243c2c8fe3869e59486613c2}{mapped\_index}}(point\_index));}
+\DoxyCodeLine{00073\ \ \ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \textcolor{comment}{//\ Sets\ the\ new\ number\ of\ unique\ attribute\ entries\ for\ the\ attribute.\ The}}
+\DoxyCodeLine{00076\ \ \ \textcolor{comment}{//\ function\ resizes\ the\ attribute\ storage\ to\ hold\ |num\_attribute\_values|}}
+\DoxyCodeLine{00077\ \ \ \textcolor{comment}{//\ entries.}}
+\DoxyCodeLine{00078\ \ \ \textcolor{comment}{//\ All\ previous\ entries\ with\ AttributeValueIndex\ <\ |num\_attribute\_values|}}
+\DoxyCodeLine{00079\ \ \ \textcolor{comment}{//\ are\ preserved.\ Caller\ needs\ to\ ensure\ that\ the\ PointAttribute\ is\ still}}
+\DoxyCodeLine{00080\ \ \ \textcolor{comment}{//\ valid\ after\ the\ resizing\ operation\ (that\ is,\ each\ point\ is\ mapped\ to\ a}}
+\DoxyCodeLine{00081\ \ \ \textcolor{comment}{//\ valid\ attribute\ value).}}
+\DoxyCodeLine{00082\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_a54e64e7b41f5548702d01a78f0186e99}{Resize}}(\textcolor{keywordtype}{size\_t}\ new\_num\_unique\_entries);}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \textcolor{comment}{//\ Functions\ for\ setting\ the\ type\ of\ mapping\ between\ point\ indices\ and}}
+\DoxyCodeLine{00085\ \ \ \textcolor{comment}{//\ attribute\ entry\ ids.}}
+\DoxyCodeLine{00086\ \ \ \textcolor{comment}{//\ This\ function\ sets\ the\ mapping\ to\ implicit,\ where\ point\ indices\ are\ equal}}
+\DoxyCodeLine{00087\ \ \ \textcolor{comment}{//\ to\ attribute\ entry\ indices.}}
+\DoxyCodeLine{00088\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_ae91c2be5c00fcc0b73ec8a2624cb1a19}{SetIdentityMapping}}()\ \{}
+\DoxyCodeLine{00089\ \ \ \ \ identity\_mapping\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00090\ \ \ \ \ indices\_map\_.clear();}
+\DoxyCodeLine{00091\ \ \ \}}
+\DoxyCodeLine{00092\ \ \ \textcolor{comment}{//\ This\ function\ sets\ the\ mapping\ to\ be\ explicitly\ using\ the\ indices\_map\_}}
+\DoxyCodeLine{00093\ \ \ \textcolor{comment}{//\ array\ that\ needs\ to\ be\ initialized\ by\ the\ caller.}}
+\DoxyCodeLine{00094\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_a7b6915d573a0c3e51afa6e5a5909fdac}{SetExplicitMapping}}(\textcolor{keywordtype}{size\_t}\ num\_points)\ \{}
+\DoxyCodeLine{00095\ \ \ \ \ identity\_mapping\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00096\ \ \ \ \ indices\_map\_.resize(num\_points,\ kInvalidAttributeValueIndex);}
+\DoxyCodeLine{00097\ \ \ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \textcolor{comment}{//\ Set\ an\ explicit\ map\ entry\ for\ a\ specific\ point\ index.}}
+\DoxyCodeLine{00100\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_a4a22fd5c70989f2aab17350653b9c5eb}{SetPointMapEntry}}(PointIndex\ point\_index,}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ AttributeValueIndex\ entry\_index)\ \{}
+\DoxyCodeLine{00102\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(!identity\_mapping\_);}
+\DoxyCodeLine{00103\ \ \ \ \ indices\_map\_[point\_index]\ =\ entry\_index;}
+\DoxyCodeLine{00104\ \ \ \}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \textcolor{comment}{//\ Same\ as\ GeometryAttribute::GetValue(),\ but\ using\ point\ id\ as\ the\ input.}}
+\DoxyCodeLine{00107\ \ \ \textcolor{comment}{//\ Mapping\ to\ attribute\ value\ index\ is\ performed\ automatically.}}
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_adb6ff0698f66c27c1bc586d6e4e31cd7}{GetMappedValue}}(PointIndex\ point\_index,\ \textcolor{keywordtype}{void}\ *out\_data)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ad237825f31228ceefaf445fe6ef1394f}{GetValue}}(\mbox{\hyperlink{classdraco_1_1_point_attribute_a7d6f9d6b243c2c8fe3869e59486613c2}{mapped\_index}}(point\_index),\ out\_data);}
+\DoxyCodeLine{00110\ \ \ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \textcolor{preprocessor}{\#ifdef\ DRACO\_ATTRIBUTE\_VALUES\_DEDUPLICATION\_SUPPORTED}}
+\DoxyCodeLine{00113\ \ \ \textcolor{comment}{//\ Deduplicate\ |in\_att|\ values\ into\ |this|\ attribute.\ |in\_att|\ can\ be\ equal}}
+\DoxyCodeLine{00114\ \ \ \textcolor{comment}{//\ to\ |this|.}}
+\DoxyCodeLine{00115\ \ \ \textcolor{comment}{//\ Returns\ -\/1\ if\ the\ deduplication\ failed.}}
+\DoxyCodeLine{00116\ \ \ AttributeValueIndex::ValueType\ DeduplicateValues(}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute}{GeometryAttribute}}\ \&in\_att);}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \textcolor{comment}{//\ Same\ as\ above\ but\ the\ values\ read\ from\ |in\_att|\ are\ sampled\ with\ the}}
+\DoxyCodeLine{00120\ \ \ \textcolor{comment}{//\ provided\ offset\ |in\_att\_offset|.}}
+\DoxyCodeLine{00121\ \ \ AttributeValueIndex::ValueType\ DeduplicateValues(}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute}{GeometryAttribute}}\ \&in\_att,\ AttributeValueIndex\ in\_att\_offset);}
+\DoxyCodeLine{00123\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \textcolor{comment}{//\ Set\ attribute\ transform\ data\ for\ the\ attribute.\ The\ data\ is\ used\ to\ store}}
+\DoxyCodeLine{00126\ \ \ \textcolor{comment}{//\ the\ type\ and\ parameters\ of\ the\ transform\ that\ is\ applied\ on\ the\ attribute}}
+\DoxyCodeLine{00127\ \ \ \textcolor{comment}{//\ data\ (optional).}}
+\DoxyCodeLine{00128\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_point_attribute_aad39e48f1553369329f45e45a112b041}{SetAttributeTransformData}}(}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ std::unique\_ptr<AttributeTransformData>\ transform\_data)\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ attribute\_transform\_data\_\ =\ std::move(transform\_data);}
+\DoxyCodeLine{00131\ \ \ \}}
+\DoxyCodeLine{00132\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_attribute_transform_data}{AttributeTransformData}}\ *\mbox{\hyperlink{classdraco_1_1_point_attribute_a6d77dbecf4c2940ca831e6ce0277b26b}{GetAttributeTransformData}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordflow}{return}\ attribute\_transform\_data\_.get();}
+\DoxyCodeLine{00134\ \ \ \}}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00137\ \ \ \textcolor{comment}{//\ Removes\ unused\ values\ from\ the\ attribute.\ Value\ is\ unused\ when\ no\ point}}
+\DoxyCodeLine{00138\ \ \ \textcolor{comment}{//\ is\ mapped\ to\ the\ value.\ Only\ applicable\ when\ the\ mapping\ is\ not\ identity.}}
+\DoxyCodeLine{00139\ \ \ \textcolor{keywordtype}{void}\ RemoveUnusedValues();}
+\DoxyCodeLine{00140\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00143\ \textcolor{preprocessor}{\#ifdef\ DRACO\_ATTRIBUTE\_VALUES\_DEDUPLICATION\_SUPPORTED}}
+\DoxyCodeLine{00144\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00145\ \ \ AttributeValueIndex::ValueType\ DeduplicateTypedValues(}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute}{GeometryAttribute}}\ \&in\_att,\ AttributeValueIndex\ in\_att\_offset);}
+\DoxyCodeLine{00147\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T,\ \textcolor{keywordtype}{int}\ COMPONENTS\_COUNT>}
+\DoxyCodeLine{00148\ \ \ AttributeValueIndex::ValueType\ DeduplicateFormattedValues(}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute}{GeometryAttribute}}\ \&in\_att,\ AttributeValueIndex\ in\_att\_offset);}
+\DoxyCodeLine{00150\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \textcolor{comment}{//\ Data\ storage\ for\ attribute\ values.\ GeometryAttribute\ itself\ doesn't\ own\ its}}
+\DoxyCodeLine{00153\ \ \ \textcolor{comment}{//\ buffer\ so\ we\ need\ to\ allocate\ it\ here.}}
+\DoxyCodeLine{00154\ \ \ std::unique\_ptr<DataBuffer>\ attribute\_buffer\_;}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \ \ \textcolor{comment}{//\ Mapping\ between\ point\ ids\ and\ attribute\ value\ ids.}}
+\DoxyCodeLine{00157\ \ \ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<PointIndex,\ AttributeValueIndex>}}\ indices\_map\_;}
+\DoxyCodeLine{00158\ \ \ AttributeValueIndex::ValueType\ num\_unique\_entries\_;}
+\DoxyCodeLine{00159\ \ \ \textcolor{comment}{//\ Flag\ when\ the\ mapping\ between\ point\ ids\ and\ attribute\ values\ is\ identity.}}
+\DoxyCodeLine{00160\ \ \ \textcolor{keywordtype}{bool}\ identity\_mapping\_;}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ \textcolor{comment}{//\ If\ an\ attribute\ contains\ transformed\ data\ (e.g.\ quantized),\ we\ can\ specify}}
+\DoxyCodeLine{00163\ \ \ \textcolor{comment}{//\ the\ attribute\ transform\ here\ and\ use\ it\ to\ transform\ the\ attribute\ back\ to}}
+\DoxyCodeLine{00164\ \ \ \textcolor{comment}{//\ its\ original\ format.}}
+\DoxyCodeLine{00165\ \ \ std::unique\_ptr<AttributeTransformData>\ attribute\_transform\_data\_;}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{classdraco_1_1_point_attribute_abc73d14e42af61e186a7fe60c36cfbcd}{PointAttributeHasher}};}
+\DoxyCodeLine{00168\ \};}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \textcolor{comment}{//\ Hash\ functor\ for\ the\ PointAttribute\ class.}}
+\DoxyCodeLine{00171\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_point_attribute_hasher}{PointAttributeHasher}}\ \{}
+\DoxyCodeLine{00172\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structdraco_1_1_point_attribute_hasher_a7dd7a7b42ace0df0ee62b32faa3a81ab}{operator()}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_attribute}{PointAttribute}}\ \&attribute)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00173\ \ \ \ \ \mbox{\hyperlink{structdraco_1_1_geometry_attribute_hasher}{GeometryAttributeHasher}}\ base\_hasher;}
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ hash\ =\ base\_hasher(attribute);}
+\DoxyCodeLine{00175\ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(attribute.identity\_mapping\_,\ hash);}
+\DoxyCodeLine{00176\ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(attribute.num\_unique\_entries\_,\ hash);}
+\DoxyCodeLine{00177\ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(attribute.indices\_map\_.\mbox{\hyperlink{classdraco_1_1_index_type_vector_a26db08674f466b285ab33f4be15b0771}{size}}(),\ hash);}
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{keywordflow}{if}\ (!attribute.indices\_map\_.\mbox{\hyperlink{classdraco_1_1_index_type_vector_a20e731b5f5495f917fbc0a46081c72ff}{empty}}())\ \{}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint64\_t\ indices\_hash\ =\ \mbox{\hyperlink{namespacedraco_a164f26ed60b7d5616ca97c2c33f14f8d}{FingerprintString}}(}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{reinterpret\_cast<}\textcolor{keyword}{const\ }\textcolor{keywordtype}{char}\ *\textcolor{keyword}{>}(attribute.indices\_map\_.\mbox{\hyperlink{classdraco_1_1_index_type_vector_a0da38d8821ba58878d876f718d851c9e}{data}}()),}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ attribute.indices\_map\_.\mbox{\hyperlink{classdraco_1_1_index_type_vector_a26db08674f466b285ab33f4be15b0771}{size}}());}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(indices\_hash,\ hash);}
+\DoxyCodeLine{00183\ \ \ \ \ \}}
+\DoxyCodeLine{00184\ \ \ \ \ \textcolor{keywordflow}{if}\ (attribute.attribute\_buffer\_\ !=\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint64\_t\ buffer\_hash\ =\ \mbox{\hyperlink{namespacedraco_a164f26ed60b7d5616ca97c2c33f14f8d}{FingerprintString}}(}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{reinterpret\_cast<}\textcolor{keyword}{const\ }\textcolor{keywordtype}{char}\ *\textcolor{keyword}{>}(attribute.attribute\_buffer\_-\/>data()),}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ attribute.attribute\_buffer\_-\/>data\_size());}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(buffer\_hash,\ hash);}
+\DoxyCodeLine{00189\ \ \ \ \ \}}
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{keywordflow}{return}\ hash;}
+\DoxyCodeLine{00191\ \ \ \}}
+\DoxyCodeLine{00192\ \};}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_ATTRIBUTES\_POINT\_ATTRIBUTE\_H\_}}
+
+\end{DoxyCode}

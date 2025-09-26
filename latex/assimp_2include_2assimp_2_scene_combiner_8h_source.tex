@@ -1,0 +1,255 @@
+\doxysection{Scene\+Combiner.\+h}
+\hypertarget{assimp_2include_2assimp_2_scene_combiner_8h_source}{}\label{assimp_2include_2assimp_2_scene_combiner_8h_source}\index{RobotLib/libraries/assimp/include/assimp/SceneCombiner.h@{RobotLib/libraries/assimp/include/assimp/SceneCombiner.h}}
+\mbox{\hyperlink{assimp_2include_2assimp_2_scene_combiner_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{}}
+\DoxyCodeLine{00008\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00012\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ \ following\ disclaimer.}}
+\DoxyCodeLine{00017\ \textcolor{comment}{}}
+\DoxyCodeLine{00018\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ \ materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{}}
+\DoxyCodeLine{00023\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00027\ \textcolor{comment}{}}
+\DoxyCodeLine{00028\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00029\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00030\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00031\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00032\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00033\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00034\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00035\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00036\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00037\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00038\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00039\ \textcolor{comment}{}}
+\DoxyCodeLine{00040\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00041\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#ifndef\ AI\_SCENE\_COMBINER\_H\_INC}}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#define\ AI\_SCENE\_COMBINER\_H\_INC}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#ifdef\ \_\_GNUC\_\_}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#pragma\ GCC\ system\_header}}
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#include\ <assimp/ai\_assert.h>}}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#include\ <assimp/types.h>}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#include\ <cstddef>}}
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\#include\ <cstdint>}}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#include\ <list>}}
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\#include\ <set>}}
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_scene}{aiScene}};}
+\DoxyCodeLine{00064\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_node}{aiNode}};}
+\DoxyCodeLine{00065\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_material}{aiMaterial}};}
+\DoxyCodeLine{00066\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_texture}{aiTexture}};}
+\DoxyCodeLine{00067\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_camera}{aiCamera}};}
+\DoxyCodeLine{00068\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_light}{aiLight}};}
+\DoxyCodeLine{00069\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_metadata}{aiMetadata}};}
+\DoxyCodeLine{00070\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_bone}{aiBone}};}
+\DoxyCodeLine{00071\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_mesh}{aiMesh}};}
+\DoxyCodeLine{00072\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_anim_mesh}{aiAnimMesh}};}
+\DoxyCodeLine{00073\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_animation}{aiAnimation}};}
+\DoxyCodeLine{00074\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_node_anim}{aiNodeAnim}};}
+\DoxyCodeLine{00075\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_mesh_morph_anim}{aiMeshMorphAnim}};}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00084\ \textcolor{keyword}{struct\ }AttachmentInfo\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_attachment_info_a9bb6a814dd37f6524f82c04b4c939369}{AttachmentInfo}}()\ :}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_attachment_info_a677e2b5d560cb287dae765c5be0f2cce}{scene}}(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_attachment_info_afa7113cfa68b413eea6f7962d7ba4f9f}{attachToNode}}(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}})\ \{\}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_attachment_info_adcaaddd711aff0c20397036665a7f4ac}{AttachmentInfo}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *\_scene,\ \mbox{\hyperlink{structai_node}{aiNode}}\ *\_attachToNode)\ :}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_attachment_info_a677e2b5d560cb287dae765c5be0f2cce}{scene}}(\_scene),\ \mbox{\hyperlink{struct_assimp_1_1_attachment_info_afa7113cfa68b413eea6f7962d7ba4f9f}{attachToNode}}(\_attachToNode)\ \{\}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \ \ \mbox{\hyperlink{structai_scene}{aiScene}}\ *\mbox{\hyperlink{_sample___simple_open_g_l_8c_a619ab59111512ab3962ba200beed7cf9}{scene}};}
+\DoxyCodeLine{00093\ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *\mbox{\hyperlink{struct_assimp_1_1_attachment_info_afa7113cfa68b413eea6f7962d7ba4f9f}{attachToNode}};}
+\DoxyCodeLine{00094\ \};}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00097\ \textcolor{keyword}{struct\ }NodeAttachmentInfo\ \{}
+\DoxyCodeLine{00098\ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_a780337eceb42e4f8299e9363d5fcc5aa}{NodeAttachmentInfo}}()\ :}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_a7b0c862e6c55e5340675b5a86dc271ad}{node}}(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_a7921a1f8e7d96ae45c43345dc9a9fd0c}{attachToNode}}(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_aa07184db24c9825bf472cc0e2600685f}{resolved}}(false),}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_a2b23573e4d700ade25f347734d1ce4cd}{src\_idx}}(\mbox{\hyperlink{assimp-install_2include_2assimp_2_compiler_2pstdint_8h_a3c75bb398badb69c7577b21486f9963f}{SIZE\_MAX}})\ \{\}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_a298323abc2277b4b2b64893c0bad8135}{NodeAttachmentInfo}}(\mbox{\hyperlink{structai_node}{aiNode}}\ *\_scene,\ \mbox{\hyperlink{structai_node}{aiNode}}\ *\_attachToNode,\ \textcolor{keywordtype}{size\_t}\ idx)\ :}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_a7b0c862e6c55e5340675b5a86dc271ad}{node}}(\_scene),\ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_a7921a1f8e7d96ae45c43345dc9a9fd0c}{attachToNode}}(\_attachToNode),\ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_aa07184db24c9825bf472cc0e2600685f}{resolved}}(false),\ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_a2b23573e4d700ade25f347734d1ce4cd}{src\_idx}}(idx)\ \{\}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *\mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_a7b0c862e6c55e5340675b5a86dc271ad}{node}};}
+\DoxyCodeLine{00108\ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *\mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_a7921a1f8e7d96ae45c43345dc9a9fd0c}{attachToNode}};}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_aa07184db24c9825bf472cc0e2600685f}{resolved}};}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{struct_assimp_1_1_node_attachment_info_a2b23573e4d700ade25f347734d1ce4cd}{src\_idx}};}
+\DoxyCodeLine{00111\ \};}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00117\ \textcolor{preprocessor}{\#define\ AI\_INT\_MERGE\_SCENE\_GEN\_UNIQUE\_NAMES\ 0x1}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00123\ \textcolor{preprocessor}{\#define\ AI\_INT\_MERGE\_SCENE\_GEN\_UNIQUE\_MATNAMES\ 0x2}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00128\ \textcolor{preprocessor}{\#define\ AI\_INT\_MERGE\_SCENE\_DUPLICATES\_DEEP\_CPY\ 0x4}}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00134\ \textcolor{preprocessor}{\#define\ AI\_INT\_MERGE\_SCENE\_RESOLVE\_CROSS\_ATTACHMENTS\ 0x8}}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00141\ \textcolor{preprocessor}{\#define\ AI\_INT\_MERGE\_SCENE\_GEN\_UNIQUE\_NAMES\_IF\_NECESSARY\ 0x10}}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \textcolor{keyword}{typedef}\ std::pair<aiBone\ *,\ unsigned\ int>\ \mbox{\hyperlink{namespace_assimp_ab47d29e283b76e1f746e5c7af78277a3}{BoneSrcIndex}};}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00148\ \textcolor{keyword}{struct\ }BoneWithHash\ :\ \textcolor{keyword}{public}\ std::pair<uint32\_t,\ aiString\ *>\ \{}
+\DoxyCodeLine{00149\ \ \ \ \ std::vector<BoneSrcIndex>\ \mbox{\hyperlink{struct_assimp_1_1_bone_with_hash_ad42617adef0d5133f6e9d55a5e94e1c8}{pSrcBones}};}
+\DoxyCodeLine{00150\ \};}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00155\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_assimp_1_1_scene_helper}{SceneHelper}}\ \{}
+\DoxyCodeLine{00156\ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_scene_helper_a583cb53e7766eb63f778af5db3b9fffb}{SceneHelper}}()\ :}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_scene_helper_a63d9381e283360ef224590a75b91cf48}{scene}}(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_scene_helper_a3853430382eab7d36d6dcee26e4ab883}{idlen}}(0)\ \{}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{id}[0]\ =\ 0;}
+\DoxyCodeLine{00160\ \ \ \ \ \}}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{struct_assimp_1_1_scene_helper_a494def1cee5aee3098275b04acad6aa3}{SceneHelper}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *\_scene)\ :}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_scene_helper_a63d9381e283360ef224590a75b91cf48}{scene}}(\_scene),\ \mbox{\hyperlink{struct_assimp_1_1_scene_helper_a3853430382eab7d36d6dcee26e4ab883}{idlen}}(0)\ \{}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{id}[0]\ =\ 0;}
+\DoxyCodeLine{00165\ \ \ \ \ \}}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\_FORCE\_INLINE}}\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *\mbox{\hyperlink{struct_assimp_1_1_scene_helper_a314496140a3f244d4be574ba6d6287a2}{operator-\/>}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{struct_assimp_1_1_scene_helper_a63d9381e283360ef224590a75b91cf48}{scene}};}
+\DoxyCodeLine{00169\ \ \ \ \ \}}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{comment}{//\ scene\ we're\ working\ on}}
+\DoxyCodeLine{00172\ \ \ \ \ \mbox{\hyperlink{structai_scene}{aiScene}}\ *\mbox{\hyperlink{_sample___simple_open_g_l_8c_a619ab59111512ab3962ba200beed7cf9}{scene}};}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{comment}{//\ prefix\ to\ be\ added\ to\ all\ identifiers\ in\ the\ scene\ ...}}
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keywordtype}{char}\ \textcolor{keywordtype}{id}[32];}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{comment}{//\ and\ its\ strlen()}}
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_assimp_1_1_scene_helper_a3853430382eab7d36d6dcee26e4ab883}{idlen}};}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{comment}{//\ hash\ table\ to\ quickly\ check\ whether\ a\ name\ is\ contained\ in\ the\ scene}}
+\DoxyCodeLine{00181\ \ \ \ \ std::set<unsigned\ int>\ \mbox{\hyperlink{struct_assimp_1_1_scene_helper_a66497583a89ae81624d0319b0f92f588}{hashes}};}
+\DoxyCodeLine{00182\ \};}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00192\ \textcolor{keyword}{class\ }\mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a7d617d307e656cb6ff315ba71ff958d4}{ASSIMP\_API}}\ SceneCombiner\ \{}
+\DoxyCodeLine{00193\ \ \ \ \ \textcolor{comment}{//\ class\ cannot\ be\ instanced}}
+\DoxyCodeLine{00194\ \ \ \ \ SceneCombiner()\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \ \ \ \ \string~SceneCombiner()\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00199\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_ab399fdea5846bc969a021a39f5a11276}{MergeScenes}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ **dest,\ std::vector<aiScene\ *>\ \&src,}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ flags\ =\ 0);}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a49af3c46e42d4da59bb1a488e517618c}{MergeScenes}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ **dest,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *master,}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<AttachmentInfo>\ \&src,}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ flags\ =\ 0);}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a3486044d9e2213bb8c408d8e8ef906f4}{MergeMeshes}}(\mbox{\hyperlink{structai_mesh}{aiMesh}}\ **dest,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ flags,}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<aiMesh\ *>::const\_iterator\ begin,}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<aiMesh\ *>::const\_iterator\ end);}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00248\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00256\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_aa42d5370510db89cbdd739617a617d4e}{MergeBones}}(\mbox{\hyperlink{structai_mesh}{aiMesh}}\ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},\ std::vector<aiMesh\ *>::const\_iterator\ it,}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<aiMesh\ *>::const\_iterator\ end);}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00270\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a9ebdb2b454f84032f2cfb51ebd7d5716}{MergeMaterials}}(\mbox{\hyperlink{structai_material}{aiMaterial}}\ **dest,}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<aiMaterial\ *>::const\_iterator\ begin,}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<aiMaterial\ *>::const\_iterator\ end);}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00281\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a9bfbbbab2ece2925fc3628c587ea9dcc}{BuildUniqueBoneList}}(std::list<BoneWithHash>\ \&asBones,}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<aiMesh\ *>::const\_iterator\ it,}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<aiMesh\ *>::const\_iterator\ end);}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00292\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a5e4ec755bb270b894e37d20938a4a88b}{AddNodePrefixes}}(\mbox{\hyperlink{structai_node}{aiNode}}\ *node,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *prefix,}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ len);}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a0c52e873dfdd0c71f7f2bae06bcbb865}{OffsetNodeMeshIndices}}(\mbox{\hyperlink{structai_node}{aiNode}}\ *node,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}});}
+\DoxyCodeLine{00302\ }
+\DoxyCodeLine{00303\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00315\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a1672dc80009a8183edbabc4ef262b5c5}{AttachToGraph}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *master,}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<NodeAttachmentInfo>\ \&srcList);}
+\DoxyCodeLine{00317\ }
+\DoxyCodeLine{00318\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a269f58bf3cd9d0e2841488a83e265785}{AttachToGraph}}(\mbox{\hyperlink{structai_node}{aiNode}}\ *attach,}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<NodeAttachmentInfo>\ \&srcList);}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00321\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00327\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a855a472e4848d737ef1ff091363f3a7c}{CopyScene}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *\mbox{\hyperlink{pointer_8h_adb82dfe18535e9a30aa97d275f82bd55}{source}},\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{pugixml_8cpp_adb88b1319e2db9110dfb794d51e1eb93}{allocate}}\ =\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00328\ }
+\DoxyCodeLine{00329\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00339\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_afd836d513bc02da4c40d1432bf687f3e}{CopySceneFlat}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *\mbox{\hyperlink{pointer_8h_adb82dfe18535e9a30aa97d275f82bd55}{source}});}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00341\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00347\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_aabed196fdfb16f82873ec811c6a64bfc}{Copy}}(\mbox{\hyperlink{structai_mesh}{aiMesh}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_mesh}{aiMesh}}\ *src);}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \ \ \ \ \textcolor{comment}{//\ similar\ to\ Copy():}}
+\DoxyCodeLine{00350\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_acfcbaaf94a026c06148bccb070a49d09}{Copy}}(\mbox{\hyperlink{structai_anim_mesh}{aiAnimMesh}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_anim_mesh}{aiAnimMesh}}\ *src);}
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_ada94b6a9447bcf44b16c26517af347b5}{Copy}}(\mbox{\hyperlink{structai_material}{aiMaterial}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_material}{aiMaterial}}\ *src);}
+\DoxyCodeLine{00352\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a5a28e4264b5449e8fa789b07649f105d}{Copy}}(\mbox{\hyperlink{structai_texture}{aiTexture}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_texture}{aiTexture}}\ *src);}
+\DoxyCodeLine{00353\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_af9d3dfc83ee46803849e3c72ba5b3f41}{Copy}}(\mbox{\hyperlink{structai_animation}{aiAnimation}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_animation}{aiAnimation}}\ *src);}
+\DoxyCodeLine{00354\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a7b898d651efd801cbd13c55af0cc9e0f}{Copy}}(\mbox{\hyperlink{structai_camera}{aiCamera}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_camera}{aiCamera}}\ *src);}
+\DoxyCodeLine{00355\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a9e36195e75b13510f1d81e6b0bc53778}{Copy}}(\mbox{\hyperlink{structai_bone}{aiBone}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_bone}{aiBone}}\ *src);}
+\DoxyCodeLine{00356\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a4fa124aea5032357294ecbe48f572611}{Copy}}(\mbox{\hyperlink{structai_light}{aiLight}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_light}{aiLight}}\ *src);}
+\DoxyCodeLine{00357\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_afbebe1cefa45eece9ebe4bcd8c7e3e65}{Copy}}(\mbox{\hyperlink{structai_node_anim}{aiNodeAnim}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_node_anim}{aiNodeAnim}}\ *src);}
+\DoxyCodeLine{00358\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a55f8edf157fec67f0c49c363ec37bad7}{Copy}}(\mbox{\hyperlink{structai_mesh_morph_anim}{aiMeshMorphAnim}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_mesh_morph_anim}{aiMeshMorphAnim}}\ *src);}
+\DoxyCodeLine{00359\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a70a442fed79eda7f99852a3daa064a0b}{Copy}}(\mbox{\hyperlink{structai_metadata}{aiMetadata}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_metadata}{aiMetadata}}\ *src);}
+\DoxyCodeLine{00360\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_a7031937fb7808dcb7a2f1a59cc4c16f5}{Copy}}(\mbox{\hyperlink{structai_string}{aiString}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_string}{aiString}}\ *src);}
+\DoxyCodeLine{00361\ }
+\DoxyCodeLine{00362\ \ \ \ \ \textcolor{comment}{//\ recursive,\ of\ course}}
+\DoxyCodeLine{00363\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_scene_combiner_ac6b44e00c4bab88e9c84f0a53ad14e29}{Copy}}(\mbox{\hyperlink{structai_node}{aiNode}}\ **dest,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_node}{aiNode}}\ *src);}
+\DoxyCodeLine{00364\ }
+\DoxyCodeLine{00365\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00366\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00367\ \ \ \ \ \textcolor{comment}{//\ Same\ as\ AddNodePrefixes,\ but\ with\ an\ additional\ check}}
+\DoxyCodeLine{00368\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ AddNodePrefixesChecked(\mbox{\hyperlink{structai_node}{aiNode}}\ *node,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *prefix,}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ len,}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<SceneHelper>\ \&input,}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ cur);}
+\DoxyCodeLine{00372\ }
+\DoxyCodeLine{00373\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00374\ \ \ \ \ \textcolor{comment}{//\ Add\ node\ identifiers\ to\ a\ hashing\ set}}
+\DoxyCodeLine{00375\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ AddNodeHashes(\mbox{\hyperlink{structai_node}{aiNode}}\ *node,\ std::set<unsigned\ int>\ \&hashes);}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00377\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00378\ \ \ \ \ \textcolor{comment}{//\ Search\ for\ duplicate\ names}}
+\DoxyCodeLine{00379\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ FindNameMatch(\textcolor{keyword}{const}\ \mbox{\hyperlink{structai_string}{aiString}}\ \&name,}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<SceneHelper>\ \&input,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ cur);}
+\DoxyCodeLine{00381\ \};}
+\DoxyCodeLine{00382\ }
+\DoxyCodeLine{00383\ \}\ \textcolor{comment}{//\ namespace\ Assimp}}
+\DoxyCodeLine{00384\ }
+\DoxyCodeLine{00385\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ !!\ AI\_SCENE\_COMBINER\_H\_INC}}
+
+\end{DoxyCode}

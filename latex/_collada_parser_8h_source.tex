@@ -1,0 +1,263 @@
+\doxysection{Collada\+Parser.\+h}
+\hypertarget{_collada_parser_8h_source}{}\label{_collada_parser_8h_source}\index{RobotLib/libraries/assimp/code/AssetLib/Collada/ColladaParser.h@{RobotLib/libraries/assimp/code/AssetLib/Collada/ColladaParser.h}}
+\mbox{\hyperlink{_collada_parser_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ All\ rights\ reserved.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ following\ conditions\ are\ met:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ following\ disclaimer.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ "{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ (INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{}}
+\DoxyCodeLine{00039\ \textcolor{comment}{\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#ifndef\ AI\_COLLADAPARSER\_H\_INC}}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#define\ AI\_COLLADAPARSER\_H\_INC}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_collada_helper_8h}{ColladaHelper.h}}"{}}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#include\ <assimp/TinyFormatter.h>}}
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#include\ <assimp/ai\_assert.h>}}
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#include\ <assimp/XmlParser.h>}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \textcolor{keyword}{class\ }ZipArchiveIOSystem;}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00067\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_a1567efb45f7129a79e9c93a782338b37}{ColladaParser}}\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_a8170d72d85780f69be2f95a5337c5813}{ColladaLoader}};}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ UriDecodePath(\mbox{\hyperlink{structai_string}{aiString}}\ \&ss);}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keyword}{typedef}\ std::map<std::string,\ aiString>\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a3da66252a4aaa21552e671c226686663}{StringMetaData}};}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00078\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a1567efb45f7129a79e9c93a782338b37}{ColladaParser}}(\mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler,\ \textcolor{keyword}{const}\ std::string\ \&pFile);}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00081\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a563745bb6c9316cd0a934ebb8e934316}{\string~ColladaParser}}();}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keyword}{static}\ std::string\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a58ab75e88af20f1c8d66c0fbe534fc2f}{ReadZaeManifest}}(\mbox{\hyperlink{class_assimp_1_1_zip_archive_i_o_system}{ZipArchiveIOSystem}}\ \&zip\_archive);}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a8c863c0b6a995be10273070666a712d9}{ReadContents}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ad1f65ff3ddce76b4076e61dcd3684d30}{ReadStructure}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ad96f3a003aa4d6bfce525d16269d02b6}{ReadAssetInfo}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a451053e860ebf9e416169166ae79c005}{ReadContributorInfo}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a63fb589f5fed0fae0e910d179e60797c}{ReadMetaDataItem}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a3da66252a4aaa21552e671c226686663}{StringMetaData}}\ \&metadata);}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a3e5f6630ab587c3fb3821eee9282cc63}{ReadAnimationLibrary}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a2db2ac7afb166c603be678a84335ba77}{ReadAnimationClipLibrary}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ae52b9afb0daf34532b8798c1d9cb5665}{PostProcessControllers}}();}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a5d60a6ce222e72ccc421a52a0ed3e080}{PostProcessRootAnimations}}();}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ac99bdda3702c75145b70da5b64f0a60f}{ReadAnimation}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_animation}{Collada::Animation}}\ *pParent);}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_aeb94fe6359b7cf802e0177756fbd783a}{ReadAnimationSampler}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_animation_channel}{Collada::AnimationChannel}}\ \&pChannel);}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a90fe73c63b6e5730a1b85186d2875203}{ReadControllerLibrary}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ae5eebff3bfade73b68c9719c9369b6ae}{ReadController}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_controller}{Collada::Controller}}\ \&pController);}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a5aa14c20034b9d91bcd7b48327c1bab5}{ReadControllerJoints}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_controller}{Collada::Controller}}\ \&pController);}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a87fba3f14eff3e21c69f292bbfb9e810}{ReadControllerWeights}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_controller}{Collada::Controller}}\ \&pController);}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a23cc8ccab52804c20d7d9753a56ba1a2}{ReadImageLibrary}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a4abb171ba36ca112767504dda0e02a43}{ReadImage}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_image}{Collada::Image}}\ \&pImage);}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_aacf29af73fbfd9d4f15206c4b9e6c48c}{ReadMaterialLibrary}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a90006929356c2d4b9ef700eadc582f67}{ReadMaterial}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_material}{Collada::Material}}\ \&pMaterial);}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a85c0b0f5645af3692f45a0a8234cc3f9}{ReadCameraLibrary}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ab7f61be89d961b26bc682739b18e20bf}{ReadCamera}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_camera}{Collada::Camera}}\ \&pCamera);}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ab2cea870f0fb43bccd320e65a4e5f9da}{ReadLightLibrary}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a2cb9b1bfa34d24d33c945d52f626657e}{ReadLight}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_light}{Collada::Light}}\ \&pLight);}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a6f22a0a284e1207665103149d335d52f}{ReadEffectLibrary}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a32830fa58c400352911441a9b4a566b6}{ReadEffect}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_effect}{Collada::Effect}}\ \&pEffect);}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a746073776e421f2366dfcb9c1be5052a}{ReadEffectProfileCommon}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_effect}{Collada::Effect}}\ \&pEffect);}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ab1263040c31a6b79fbbd7e385009af84}{ReadSamplerProperties}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_sampler}{Collada::Sampler}}\ \&pSampler);}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_af38dd152f94487929115d1db983726f8}{ReadEffectColor}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}\ \&pColor,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_sampler}{Collada::Sampler}}\ \&pSampler);}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a046e1bac7dd157e5dde1c05bbc6601d2}{ReadEffectFloat}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ \&pFloat);}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a5ecac238dd1a89ade6d8b2cd9d9bd2df}{ReadEffectParam}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_effect_param}{Collada::EffectParam}}\ \&pParam);}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a2007d1911e572019edc9d7ca91a9039a}{ReadGeometryLibrary}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a1998794215ae8b3d25768325997f0e44}{ReadGeometry}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_mesh}{Collada::Mesh}}\ \&pMesh);}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a40ab65048528b1cd2640791c89be9105}{ReadMesh}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_mesh}{Collada::Mesh}}\ \&pMesh);}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a7d3c67cd31869eace9ba42fe112ebdaa}{ReadSource}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00193\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a1c48f520ab1f2161c678791c344976a8}{ReadDataArray}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a83380c12f71a4967536becc82591d450}{ReadAccessor}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \textcolor{keyword}{const}\ std::string\ \&pID);}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00201\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ac63eae27266909b5d6ed39b0e79b9c6b}{ReadVertexData}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_mesh}{Collada::Mesh}}\ \&pMesh);}
+\DoxyCodeLine{00202\ }
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_aff162f1fa1cd57f08347c48c98235a26}{ReadIndexData}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_mesh}{Collada::Mesh}}\ \&pMesh);}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a0a6c24b00f4e7586e945a71ae50ec49f}{ReadInputChannel}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ std::vector<Collada::InputChannel>\ \&poChannels);}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00210\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a53032a673dcc936dc358aff4dcf657c1}{ReadPrimitives}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_mesh}{Collada::Mesh}}\ \&pMesh,\ std::vector<Collada::InputChannel>\ \&pPerIndexChannels,}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ pNumPrimitives,\ \textcolor{keyword}{const}\ std::vector<size\_t>\ \&pVCount,\ \mbox{\hyperlink{namespace_assimp_1_1_collada_a9ef31e73074b6c92c42284441f048143}{Collada::PrimitiveType}}\ pPrimType);}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00214\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a81b9002e1cceeac62bf2bd1d24db327d}{CopyVertex}}(\textcolor{keywordtype}{size\_t}\ currentVertex,\ \textcolor{keywordtype}{size\_t}\ numOffsets,\ \textcolor{keywordtype}{size\_t}\ numPoints,\ \textcolor{keywordtype}{size\_t}\ perVertexOffset,}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_mesh}{Collada::Mesh}}\ \&pMesh,\ std::vector<Collada::InputChannel>\ \&pPerIndexChannels,}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ currentPrimitive,\ \textcolor{keyword}{const}\ std::vector<size\_t>\ \&indices);}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00219\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a2424a9869d8aae7024671172000af00e}{ReadPrimTriStrips}}(\textcolor{keywordtype}{size\_t}\ numOffsets,\ \textcolor{keywordtype}{size\_t}\ perVertexOffset,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_mesh}{Collada::Mesh}}\ \&pMesh,}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<Collada::InputChannel>\ \&pPerIndexChannels,\ \textcolor{keywordtype}{size\_t}\ currentPrimitive,\ \textcolor{keyword}{const}\ std::vector<size\_t>\ \&indices);}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00223\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a359192187de44c9a6124e9002ee271c1}{ExtractDataObjectFromChannel}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_input_channel}{Collada::InputChannel}}\ \&pInput,\ \textcolor{keywordtype}{size\_t}\ pLocalIndex,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_mesh}{Collada::Mesh}}\ \&pMesh);}
+\DoxyCodeLine{00224\ }
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_aab167f6c57755bc766424f89c4cfafeb}{ReadSceneLibrary}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00229\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_aa3d67fd0138aa1941881a86c55306892}{ReadSceneNode}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *pNode);}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00232\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ad3a92d425f9e1e19a3391c1a7172b9cd}{ReadNodeTransformation}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *pNode,\ \mbox{\hyperlink{namespace_assimp_1_1_collada_a7a5099a9ac2aee98eae115d076583a2b}{Collada::TransformType}}\ pType);}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00235\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_aadb63f47c76ff1e638c4019226750c47}{ReadNodeGeometry}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *pNode);}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a3796d6371019801307278816ed39c63b}{ReadScene}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{comment}{//\ Processes\ bind\_vertex\_input\ and\ bind\ elements}}
+\DoxyCodeLine{00241\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_aa338ef1b99437ddfdc274a8cae8f054d}{ReadMaterialVertexInputBinding}}(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_semantic_mapping_table}{Collada::SemanticMappingTable}}\ \&tbl);}
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a8d81e75d0130cad3c04a43823cc38ed4}{ReadEmbeddedTextures}}(\mbox{\hyperlink{class_assimp_1_1_zip_archive_i_o_system}{ZipArchiveIOSystem}}\ \&zip\_archive);}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00246\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00248\ \ \ \ \ \mbox{\hyperlink{structai_matrix4x4}{aiMatrix4x4}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_abfce87ebe67f5fad5b830c6a9806b33b}{CalculateResultTransform}}(\textcolor{keyword}{const}\ std::vector<Collada::Transform>\ \&pTransforms)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00251\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_collada_ad5361e484600f08dfce480747352b7c3}{Collada::InputType}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a19e1f4a4b9f64cef91add1d6dcdc2234}{GetTypeForSemantic}}(\textcolor{keyword}{const}\ std::string\ \&pSemantic);}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00254\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ Type>}
+\DoxyCodeLine{00255\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_type}{Type}}\ \&\mbox{\hyperlink{class_assimp_1_1_collada_parser_a3dd723197811f6db2d48ac4386d88040}{ResolveLibraryReference}}(\textcolor{keyword}{const}\ std::map<std::string,\ Type>\ \&pLibrary,\ \textcolor{keyword}{const}\ std::string\ \&pURL)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00257\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00258\ \ \ \ \ \textcolor{comment}{//\ Filename,\ for\ a\ verbose\ error\ message}}
+\DoxyCodeLine{00259\ \ \ \ \ std::string\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_afcdf4ce3664ba28ccc83c3e3e186bca7}{mFileName}};}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00261\ \ \ \ \ \textcolor{comment}{//\ XML\ reader,\ member\ for\ everyday\ use}}
+\DoxyCodeLine{00262\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_a0484448f9ec9eab92e527c9897f0a2ed}{XmlParser}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a5e536f6ccf2acbd7bc328a35ce0771cf}{mXmlParser}};}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00266\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_a88b31aad31e4e1bd8e62f2079f8a9e17}{DataLibrary}}\ =\ std::map<std::string,\ Collada::Data>\ ;}
+\DoxyCodeLine{00267\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a88b31aad31e4e1bd8e62f2079f8a9e17}{DataLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a014c0ae203f22e25ef8bfdb063aa07d2}{mDataLibrary}};}
+\DoxyCodeLine{00268\ }
+\DoxyCodeLine{00270\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_ae1550b905dc0f6bb537d79f211e54b98}{AccessorLibrary}}\ =\ std::map<std::string,\ Collada::Accessor>\ ;}
+\DoxyCodeLine{00271\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ae1550b905dc0f6bb537d79f211e54b98}{AccessorLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_af815f3e1c8372f66315e7c3ac60534a7}{mAccessorLibrary}};}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_a744d1774aac7ef9ad44735f7829dda45}{MeshLibrary}}\ =\ std::map<std::string,\ Collada::Mesh\ *>;}
+\DoxyCodeLine{00275\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a744d1774aac7ef9ad44735f7829dda45}{MeshLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_af274e379f138996c444d60410606a9a3}{mMeshLibrary}};}
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00278\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_a1e18c1b414d4714022d34b5ab839a2ce}{NodeLibrary}}\ =\ std::map<std::string,\ Collada::Node\ *>;}
+\DoxyCodeLine{00279\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a1e18c1b414d4714022d34b5ab839a2ce}{NodeLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ae75c245187fed0d4723c98774d394a23}{mNodeLibrary}};}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_a4134863fbbd6f61a9eefe86e58fd995a}{ImageLibrary}}\ =\ std::map<std::string,\ Collada::Image>\ ;}
+\DoxyCodeLine{00283\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a4134863fbbd6f61a9eefe86e58fd995a}{ImageLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_abb6aa92653ca88121f7fcff072bdf116}{mImageLibrary}};}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00286\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_aaa0daf7e065b77d21cc1eb415c708b5d}{EffectLibrary}}\ =\ std::map<std::string,\ Collada::Effect>\ ;}
+\DoxyCodeLine{00287\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_aaa0daf7e065b77d21cc1eb415c708b5d}{EffectLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ab03cf5acfa4311bb0b42ed0d9a615421}{mEffectLibrary}};}
+\DoxyCodeLine{00288\ }
+\DoxyCodeLine{00290\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_a8ca620d370d1c79ea6d93f5d4b679eda}{MaterialLibrary}}\ =\ std::map<std::string,\ Collada::Material>\ ;}
+\DoxyCodeLine{00291\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a8ca620d370d1c79ea6d93f5d4b679eda}{MaterialLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a548792ef6c647d999dcfee731a0f8277}{mMaterialLibrary}};}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00294\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_a083c5a44245a4a74dd8657b846a3bb58}{LightLibrary}}\ =\ std::map<std::string,\ Collada::Light>\ ;}
+\DoxyCodeLine{00295\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a083c5a44245a4a74dd8657b846a3bb58}{LightLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a366a49acaba9da1e68142e574a2b6e65}{mLightLibrary}};}
+\DoxyCodeLine{00296\ }
+\DoxyCodeLine{00298\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_a5436b980b83bdc67eed7b0f74f92d7e2}{CameraLibrary}}\ =\ std::map<std::string,\ Collada::Camera>\ ;}
+\DoxyCodeLine{00299\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a5436b980b83bdc67eed7b0f74f92d7e2}{CameraLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_acd4d614ca7181cfce184889cc664702c}{mCameraLibrary}};}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00302\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_a09aed6341187c6f92d9c95dffd0ff0d1}{ControllerLibrary}}\ =\ std::map<std::string,\ Collada::Controller>\ ;}
+\DoxyCodeLine{00303\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a09aed6341187c6f92d9c95dffd0ff0d1}{ControllerLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_afc8255946f9f58148fdfecbc293aa272}{mControllerLibrary}};}
+\DoxyCodeLine{00304\ }
+\DoxyCodeLine{00306\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_ace1016c6eb85b1c9644a7edec364c28a}{AnimationLibrary}}\ =\ std::map<std::string,\ Collada::Animation\ *>\ ;}
+\DoxyCodeLine{00307\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ace1016c6eb85b1c9644a7edec364c28a}{AnimationLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ae4e7ef7e44b417294535efc89aaa6580}{mAnimationLibrary}};}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00310\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{class_assimp_1_1_collada_parser_a60c8f2d8bc9f6613260bf7e8c1eb0d50}{AnimationClipLibrary}}\ =\ std::vector<std::pair<std::string,\ std::vector<std::string>>>\ ;}
+\DoxyCodeLine{00311\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a60c8f2d8bc9f6613260bf7e8c1eb0d50}{AnimationClipLibrary}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_af3c6d519807ad88529f0e08895a18c73}{mAnimationClipLibrary}};}
+\DoxyCodeLine{00312\ }
+\DoxyCodeLine{00315\ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *\mbox{\hyperlink{class_assimp_1_1_collada_parser_aaa1d9b95575cdc3312544f22e38ba497}{mRootNode}};}
+\DoxyCodeLine{00316\ }
+\DoxyCodeLine{00318\ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_animation}{Collada::Animation}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a4cf75e2eba91d97c265b165e30bcb220}{mAnims}};}
+\DoxyCodeLine{00319\ }
+\DoxyCodeLine{00321\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a1e3cf978741af0f8a0d687e52debdd14}{mUnitSize}};}
+\DoxyCodeLine{00322\ }
+\DoxyCodeLine{00324\ \ \ \ \ \textcolor{keyword}{enum}\ \{\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a8d36acb0b4ec3594d32292a78e5bbaa6ace94400975e5ab0ad3a013e72db5efd5}{UP\_X}},}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a8d36acb0b4ec3594d32292a78e5bbaa6a4a9de3370e197a29bbfd6a38aeebf49b}{UP\_Y}},}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a8d36acb0b4ec3594d32292a78e5bbaa6aecce3f45e54b0c888b39b179b5379c5d}{UP\_Z}}\ \}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_ac4b36fbe7cc431fd5b6fe6bba18a3256}{mUpDirection}};}
+\DoxyCodeLine{00327\ }
+\DoxyCodeLine{00329\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a3da66252a4aaa21552e671c226686663}{StringMetaData}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a076260abd9fe4438cdcf271406883598}{mAssetMetaData}};}
+\DoxyCodeLine{00330\ }
+\DoxyCodeLine{00332\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_collada_a62a6430fa260591ef89fd4ca5403d3c4}{Collada::FormatVersion}}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser_a519c82e2ac698efb01663da278ad2e40}{mFormat}};}
+\DoxyCodeLine{00333\ \};}
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00335\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00336\ \textcolor{comment}{//\ Finds\ the\ item\ in\ the\ given\ library\ by\ its\ reference,\ throws\ if\ not\ found}}
+\DoxyCodeLine{00337\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ Type>}
+\DoxyCodeLine{00338\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_type}{Type}}\ \&\mbox{\hyperlink{class_assimp_1_1_collada_parser_a3dd723197811f6db2d48ac4386d88040}{ColladaParser::ResolveLibraryReference}}(\textcolor{keyword}{const}\ std::map<std::string,\ Type>\ \&pLibrary,\ \textcolor{keyword}{const}\ std::string\ \&pURL)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00339\ \ \ \ \ \textcolor{keyword}{typename}\ std::map<std::string,\ Type>::const\_iterator\ it\ =\ pLibrary.find(pURL);}
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ ==\ pLibrary.end())\ \{}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}Unable\ to\ resolve\ library\ reference\ \(\backslash\)"{}"{}},\ pURL,\ \textcolor{stringliteral}{"{}\(\backslash\)"{}."{}});}
+\DoxyCodeLine{00342\ \ \ \ \ \}}
+\DoxyCodeLine{00343\ \ \ \ \ \textcolor{keywordflow}{return}\ it-\/>second;}
+\DoxyCodeLine{00344\ \}}
+\DoxyCodeLine{00345\ }
+\DoxyCodeLine{00346\ \}\ \textcolor{comment}{//\ end\ of\ namespace\ Assimp}}
+\DoxyCodeLine{00347\ }
+\DoxyCodeLine{00348\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ AI\_COLLADAPARSER\_H\_INC}}
+
+\end{DoxyCode}

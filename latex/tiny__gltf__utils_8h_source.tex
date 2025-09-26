@@ -1,0 +1,146 @@
+\doxysection{tiny\+\_\+gltf\+\_\+utils.\+h}
+\hypertarget{tiny__gltf__utils_8h_source}{}\label{tiny__gltf__utils_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/io/tiny\_gltf\_utils.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/io/tiny\_gltf\_utils.h}}
+\mbox{\hyperlink{tiny__gltf__utils_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2019\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_IO\_TINY\_GLTF\_UTILS\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_IO\_TINY\_GLTF\_UTILS\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}Eigen/Geometry"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{animation_8h}{draco/animation/animation.h}}"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status_8h}{draco/core/status.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status__or_8h}{draco/core/status\_or.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2material_2material_8h}{draco/material/material.h}}"{}}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#define\ TINYGLTF\_ENCLOSING\_NAMESPACE\ draco}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}tiny\_gltf.h"{}}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{keyword}{class\ }TinyGltfUtils\ \{}
+\DoxyCodeLine{00033\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00034\ \ \ TinyGltfUtils()\ \{\}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ components\ for\ the\ attribute\ type.}}
+\DoxyCodeLine{00037\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ GetNumComponentsForType(\textcolor{keywordtype}{int}\ type);}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \textcolor{comment}{//\ Returns\ the\ material\ transparency\ mode\ in\ |mode|.}}
+\DoxyCodeLine{00040\ \ \ \textcolor{keyword}{static}\ Material::TransparencyMode\ TextToMaterialMode(\textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}});}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ Returns\ the\ animation\ sampler\ interpolation\ in\ |interpolation|.}}
+\DoxyCodeLine{00043\ \ \ \textcolor{keyword}{static}\ AnimationSampler::SamplerInterpolation\ TextToSamplerInterpolation(}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&interpolation);}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ Returns\ the\ animation\ channel\ transformation\ in\ |path|.}}
+\DoxyCodeLine{00047\ \ \ \textcolor{keyword}{static}\ AnimationChannel::ChannelTransformation\ TextToChannelTransformation(}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&path);}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \textcolor{comment}{//\ Adds\ all\ of\ the\ animation\ data\ associated\ with\ a\ channel.}}
+\DoxyCodeLine{00051\ \ \ \textcolor{comment}{//\ The\ channel\ references\ a\ sampler,\ whose\ data\ will\ be\ added\ to\ the}}
+\DoxyCodeLine{00052\ \ \ \textcolor{comment}{//\ |animation|.\ The\ sampler\ references\ input\ and\ output\ accessors,}}
+\DoxyCodeLine{00053\ \ \ \textcolor{comment}{//\ whose\ data\ will\ be\ added\ to\ the\ |animation|.}}
+\DoxyCodeLine{00054\ \ \ \textcolor{keyword}{static}\ Status\ AddChannelToAnimation(}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Model\ \&model,\ \textcolor{keyword}{const}\ tinygltf::Animation\ \&input\_animation,}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::AnimationChannel\ \&channel,\ \textcolor{keywordtype}{int}\ node\_index,}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ Animation\ *animation);}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \textcolor{comment}{//\ Adds\ all\ of\ the\ sampler\ data.\ The\ sampler\ references}}
+\DoxyCodeLine{00060\ \ \ \textcolor{comment}{//\ input\ and\ output\ accessors,\ whose\ data\ will\ be\ added\ to\ the\ |animation|.}}
+\DoxyCodeLine{00061\ \ \ \textcolor{keyword}{static}\ Status\ AddSamplerToAnimation(\textcolor{keyword}{const}\ tinygltf::Model\ \&model,}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::AnimationSampler\ \&sampler,}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Animation\ *animation);}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \textcolor{comment}{//\ Converts\ the\ gltf2\ animation\ accessor\ and\ adds\ it\ to}}
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ |node\_animation\_data|.}}
+\DoxyCodeLine{00067\ \ \ \textcolor{keyword}{static}\ Status\ AddAccessorToAnimationData(}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Model\ \&model,\ \textcolor{keyword}{const}\ tinygltf::Accessor\ \&accessor,}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ NodeAnimationData\ *node\_animation\_data);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{comment}{//\ Returns\ the\ data\ from\ |accessor|\ as\ a\ vector\ of\ |T|.}}
+\DoxyCodeLine{00072\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00073\ \ \ \textcolor{keyword}{static}\ StatusOr<std::vector<T>>\ CopyDataAsFloat(}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Model\ \&model,\ \textcolor{keyword}{const}\ tinygltf::Accessor\ \&accessor)\ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ num\_components\ =\ GetNumComponentsForType(accessor.type);}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_components\ !=\ T::dimension)\ \{}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Status(Status::DRACO\_ERROR,}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Dimension\ does\ not\ equal\ num\ components."{}});}
+\DoxyCodeLine{00079\ \ \ \ \ \}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordflow}{return}\ CopyDataAsFloatImpl<T>(model,\ accessor);}
+\DoxyCodeLine{00081\ \ \ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00084\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00085\ \ \ \textcolor{keyword}{static}\ StatusOr<std::vector<T>>\ CopyDataAsFloatImpl(}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Model\ \&model,\ \textcolor{keyword}{const}\ tinygltf::Accessor\ \&accessor)\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{if}\ (accessor.componentType\ !=\ TINYGLTF\_COMPONENT\_TYPE\_FLOAT)\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Status(Status::DRACO\_ERROR,}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Non-\/float\ data\ is\ not\ supported\ by\ CopyDataAsFloat()."{}});}
+\DoxyCodeLine{00090\ \ \ \ \ \}}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordflow}{if}\ (accessor.bufferView\ <\ 0)\ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Status(Status::DRACO\_ERROR,}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Error\ CopyDataAsFloat()\ bufferView\ <\ 0."{}});}
+\DoxyCodeLine{00094\ \ \ \ \ \}}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::BufferView\ \&buffer\_view\ =}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_abf9c010900311d82f1abedf03d4e250d}{model}}.bufferViews[accessor.bufferView];}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordflow}{if}\ (buffer\_view.buffer\ <\ 0)\ \{}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Status(Status::DRACO\_ERROR,\ \textcolor{stringliteral}{"{}Error\ CopyDataAsFloat()\ buffer\ <\ 0."{}});}
+\DoxyCodeLine{00100\ \ \ \ \ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keyword}{const}\ tinygltf::Buffer\ \&buffer\ =\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_abf9c010900311d82f1abedf03d4e250d}{model}}.buffers[buffer\_view.buffer];}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *\textcolor{keyword}{const}\ data\_start\ =}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ buffer.data.data()\ +\ buffer\_view.byteOffset\ +\ accessor.byteOffset;}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ byte\_stride\ =\ accessor.ByteStride(buffer\_view);}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ component\_size\ =}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ tinygltf::GetComponentSizeInBytes(accessor.componentType);}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ std::vector<T>\ \mbox{\hyperlink{namespacegmock__output__test_a4277f8598ba3835393fe82e82d09375d}{output}};}
+\DoxyCodeLine{00111\ \ \ \ \ \mbox{\hyperlink{namespacegmock__output__test_a4277f8598ba3835393fe82e82d09375d}{output}}.resize(accessor.count);}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ num\_components\ =\ GetNumComponentsForType(accessor.type);}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}\ =\ data\_start;}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ accessor.count;\ ++i)\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ T\ values;}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ c\ =\ 0;\ c\ <\ num\_components;\ ++c)\ \{}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ 0.0f;}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ memcpy(\&\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}},\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}\ +\ (c\ *\ component\_size),\ component\_size);}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ SetDataImpl<T>(\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}},\ c,\ \&values);}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \mbox{\hyperlink{namespacegmock__output__test_a4277f8598ba3835393fe82e82d09375d}{output}}[i]\ =\ values;}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}\ +=\ byte\_stride;}
+\DoxyCodeLine{00126\ \ \ \ \ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacegmock__output__test_a4277f8598ba3835393fe82e82d09375d}{output}};}
+\DoxyCodeLine{00129\ \ \ \}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00132\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ SetDataImpl(\textcolor{keywordtype}{float}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}},\ \textcolor{keywordtype}{int}\ index,\ T\ *values)\ \{}
+\DoxyCodeLine{00133\ \ \ \ \ (*values)[index]\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00134\ \ \ \}}
+\DoxyCodeLine{00135\ \};}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00140\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_IO\_TINY\_GLTF\_UTILS\_H\_}}
+
+\end{DoxyCode}

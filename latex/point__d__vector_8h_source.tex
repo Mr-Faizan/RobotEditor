@@ -1,0 +1,293 @@
+\doxysection{point\+\_\+d\+\_\+vector.\+h}
+\hypertarget{point__d__vector_8h_source}{}\label{point__d__vector_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/point\_d\_vector.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/point\_d\_vector.h}}
+\mbox{\hyperlink{point__d__vector_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2018\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ATTRIBUTES\_POINT\_D\_VECTOR\_H\_}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ATTRIBUTES\_POINT\_D\_VECTOR\_H\_}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <cstddef>}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ <cstring>}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <iterator>}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ The\ main\ class\ of\ this\ file\ is\ PointDVector\ providing\ an\ interface\ similar\ to}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ std::vector<PointD>\ for\ arbitrary\ number\ of\ dimensions\ (without\ a\ template}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ argument).\ PointDVectorIterator\ is\ a\ random\ access\ iterator,\ which\ allows\ for}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ compatibility\ with\ existing\ algorithms.\ PseudoPointD\ provides\ for\ a\ view\ on}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ the\ individual\ items\ in\ a\ contiguous\ block\ of\ memory,\ which\ is\ compatible}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ with\ the\ swap\ function\ and\ is\ returned\ by\ a\ dereference\ of}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ PointDVectorIterator.\ Swap\ functions\ provide\ for\ compatibility/specialization}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ that\ allows\ these\ classes\ to\ work\ with\ currently\ utilized\ STL\ functions.}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ This\ class\ allows\ for\ swap\ functionality\ from\ the\ RandomIterator}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ It\ seems\ problematic\ to\ bring\ this\ inside\ PointDVector\ due\ to\ templating.}}
+\DoxyCodeLine{00040\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ \textcolor{keywordtype}{int}ernal\_t>}
+\DoxyCodeLine{00041\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_pseudo_point_d_a9feeddd28e5fee47756b5504abd0bea3}{PseudoPointD}}\ \{}
+\DoxyCodeLine{00042\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00043\ \ \ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d_a9feeddd28e5fee47756b5504abd0bea3}{PseudoPointD}}(internal\_t\ *mem,\ internal\_t\ dimension)}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ :\ mem\_(mem),\ dimension\_(dimension)\ \{\}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ Specifically\ copies\ referenced\ memory}}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d_ac562f9d8f0c8284266216384908294b7}{swap}}(\mbox{\hyperlink{classdraco_1_1_pseudo_point_d_a9feeddd28e5fee47756b5504abd0bea3}{PseudoPointD}}\ \&other)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordflow}{for}\ (internal\_t\ dim\ =\ 0;\ dim\ <\ dimension\_;\ dim\ +=\ 1)\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \mbox{\hyperlink{namespacestd_a4874fd00297ff5aef2872379cb521783}{std::swap}}(mem\_[dim],\ other.mem\_[dim]);}
+\DoxyCodeLine{00050\ \ \ \ \ \}}
+\DoxyCodeLine{00051\ \ \ \}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d_a77b7ac2cb88884e6c306f07135c997bd}{PseudoPointD}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d_a9feeddd28e5fee47756b5504abd0bea3}{PseudoPointD}}\ \&other)}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ :\ mem\_(other.mem\_),\ dimension\_(other.dimension\_)\ \{\}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \textcolor{keyword}{const}\ internal\_t\ \&\mbox{\hyperlink{classdraco_1_1_pseudo_point_d_aea13fe92dfe16831a8efd35937d05313}{operator[]}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ \&n)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00057\ \ \ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(n,\ dimension\_);}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordflow}{return}\ mem\_[n];}
+\DoxyCodeLine{00059\ \ \ \}}
+\DoxyCodeLine{00060\ \ \ internal\_t\ \&\mbox{\hyperlink{classdraco_1_1_pseudo_point_d_adb5ccafed9fe76e3e5d6eba1465ecb7d}{operator[]}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ \&n)\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(n,\ dimension\_);}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordflow}{return}\ mem\_[n];}
+\DoxyCodeLine{00063\ \ \ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d_ac87f466311f58164b24a2c03119bc61f}{operator==}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d_a9feeddd28e5fee47756b5504abd0bea3}{PseudoPointD}}\ \&other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ dim\ =\ 0;\ dim\ <\ dimension\_;\ dim\ +=\ 1)\ \{}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (mem\_[dim]\ !=\ other.mem\_[dim])\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00070\ \ \ \ \ \}}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00072\ \ \ \}}
+\DoxyCodeLine{00073\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d_aa3d78bf6457d01539d3467c61e4354c6}{operator!=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d_a9feeddd28e5fee47756b5504abd0bea3}{PseudoPointD}}\ \&other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordflow}{return}\ !this-\/>\mbox{\hyperlink{classdraco_1_1_pseudo_point_d_ac87f466311f58164b24a2c03119bc61f}{operator==}}(other);}
+\DoxyCodeLine{00075\ \ \ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00078\ \ \ internal\_t\ *\textcolor{keyword}{const}\ mem\_;}
+\DoxyCodeLine{00079\ \ \ \textcolor{keyword}{const}\ internal\_t\ dimension\_;}
+\DoxyCodeLine{00080\ \};}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{comment}{//\ It\ seems\ problematic\ to\ bring\ this\ inside\ PointDVector\ due\ to\ templating.}}
+\DoxyCodeLine{00083\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ \textcolor{keywordtype}{int}ernal\_t>}
+\DoxyCodeLine{00084\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacedraco_af496b19c51e068673a0d543107675ab9}{swap}}(\mbox{\hyperlink{classdraco_1_1_pseudo_point_d}{draco::PseudoPointD<internal\_t>}}\ \&\&\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d}{draco::PseudoPointD<internal\_t>}}\ \&\&b)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00086\ \ \ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.swap(b);}
+\DoxyCodeLine{00087\ \};}
+\DoxyCodeLine{00088\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ \textcolor{keywordtype}{int}ernal\_t>}
+\DoxyCodeLine{00089\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacedraco_af496b19c51e068673a0d543107675ab9}{swap}}(\mbox{\hyperlink{classdraco_1_1_pseudo_point_d}{draco::PseudoPointD<internal\_t>}}\ \&\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d}{draco::PseudoPointD<internal\_t>}}\ \&b)\ \textcolor{keyword}{noexcept}\ \{}
+\DoxyCodeLine{00091\ \ \ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.swap(b);}
+\DoxyCodeLine{00092\ \};}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ \textcolor{keywordtype}{int}ernal\_t>}
+\DoxyCodeLine{00095\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_point_d_vector_ac775e2ef3784ccbae8a17384521827c9}{PointDVector}}\ \{}
+\DoxyCodeLine{00096\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00097\ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_ac775e2ef3784ccbae8a17384521827c9}{PointDVector}}(\textcolor{keyword}{const}\ uint32\_t\ n\_items,\ \textcolor{keyword}{const}\ uint32\_t\ dimensionality)}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ :\ n\_items\_(n\_items),}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ dimensionality\_(dimensionality),}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ item\_size\_bytes\_(dimensionality\ *\ sizeof(internal\_t)),}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ data\_(n\_items\ *\ dimensionality),}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ data0\_(data\_.\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}())\ \{\}}
+\DoxyCodeLine{00103\ \ \ \textcolor{comment}{//\ random\ access\ iterator}}
+\DoxyCodeLine{00104\ \ \ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a38669002e72e0e37548e673a5c31c5d1}{PointDVector}};}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{comment}{//\ Iterator\ traits\ expected\ by\ std\ libraries.}}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a762f9cb408b8c7c38d2a7d9859c783ba}{iterator\_category}}\ =\ std::random\_access\_iterator\_tag;}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_ab76f8469abcacf1b8c81834dff7a13bf}{value\_type}}\ =\ size\_t;}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a06eb10509883d488c8d3225520682088}{difference\_type}}\ =\ size\_t;}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af58004c87a678a255d8243debfae5006}{pointer}}\ =\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a38669002e72e0e37548e673a5c31c5d1}{PointDVector}}\ *;}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a7b94cdd38b4f294482d2b972142f8ed8}{reference}}\ =\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a38669002e72e0e37548e673a5c31c5d1}{PointDVector}}\ \&;}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{comment}{//\ std::iter\_swap\ is\ called\ inside\ of\ std::partition\ and\ needs\ this}}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{comment}{//\ specialized\ support}}
+\DoxyCodeLine{00117\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d}{PseudoPointD<internal\_t>}}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_aa926817c88bb6910fcc61ab6b9a235c5}{operator*}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_pseudo_point_d}{PseudoPointD<internal\_t>}}(vec\_-\/>data0\_\ +\ item\_\ *\ dimensionality\_,}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dimensionality\_);}
+\DoxyCodeLine{00120\ \ \ \ \ \}}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_ac14cddcae273dbb0175d333c148a277b}{operator++}}()\ \{}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ item\_\ +=\ 1;}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00124\ \ \ \ \ \}}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af1bd2297d885298380ca2b998ca4133d}{operator-\/-\/}}()\ \{}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ item\_\ -\/=\ 1;}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00128\ \ \ \ \ \}}
+\DoxyCodeLine{00129\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_aec073a733e5cf1ec7686660960b4f30e}{operator++}}(int32\_t)\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ copy(*\textcolor{keyword}{this});}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ item\_\ +=\ 1;}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ copy;}
+\DoxyCodeLine{00133\ \ \ \ \ \}}
+\DoxyCodeLine{00134\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_aa70bdd0a3f40b762d54d280756f874c2}{operator-\/-\/}}(int32\_t)\ \{}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ copy(*\textcolor{keyword}{this});}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ item\_\ -\/=\ 1;}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ copy;}
+\DoxyCodeLine{00138\ \ \ \ \ \}}
+\DoxyCodeLine{00139\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a3c3aa8e21ba41f351ac08fbff813673f}{operator=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&other)\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ this-\/>item\_\ =\ other.item\_;}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00142\ \ \ \ \ \}}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a4097166146c6ce6a5a00eb7fa6d04a85}{operator==}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&ref)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ item\_\ ==\ ref.item\_;}
+\DoxyCodeLine{00146\ \ \ \ \ \}}
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a48e461e49978b505ad22949bb5597f5a}{operator!=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&ref)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ item\_\ !=\ ref.item\_;}
+\DoxyCodeLine{00149\ \ \ \ \ \}}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a49719ca1ef923af7848a06675a094469}{operator<}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&ref)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ item\_\ <\ ref.item\_;}
+\DoxyCodeLine{00152\ \ \ \ \ \}}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a31cf243a0a0289c1cc37514a99677402}{operator>}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&ref)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ item\_\ >\ ref.item\_;}
+\DoxyCodeLine{00155\ \ \ \ \ \}}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a9e8f461bd91e69ad12a28a21e6b34283}{operator<=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&ref)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ item\_\ <=\ ref.item\_;}
+\DoxyCodeLine{00158\ \ \ \ \ \}}
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_abf0e4308eb4e4cbd045e1ed69b240248}{operator>=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&ref)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ item\_\ >=\ ref.item\_;}
+\DoxyCodeLine{00161\ \ \ \ \ \}}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_aad9f4dfabf91434424b8f96065b83ec2}{operator+}}(\textcolor{keyword}{const}\ int32\_t\ \&add)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ copy(vec\_,\ item\_\ +\ add);}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ copy;}
+\DoxyCodeLine{00166\ \ \ \ \ \}}
+\DoxyCodeLine{00167\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a18d388452fc224a76d9ef8c5c084852c}{operator+=}}(\textcolor{keyword}{const}\ int32\_t\ \&add)\ \{}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ item\_\ +=\ add;}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00170\ \ \ \ \ \}}
+\DoxyCodeLine{00171\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a5ed2d953943f90a5afb63aa78fd438c9}{operator-\/}}(\textcolor{keyword}{const}\ int32\_t\ \&sub)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ copy(vec\_,\ item\_\ -\/\ sub);}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ copy;}
+\DoxyCodeLine{00174\ \ \ \ \ \}}
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a6505087291f2e1ee353f6c9016cbfa22}{operator-\/}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&sub)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (item\_\ -\/\ sub.item\_);}
+\DoxyCodeLine{00177\ \ \ \ \ \}}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00179\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}\ \&\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_adfd21e1a37ab63ae3b99bd31bf8794ff}{operator-\/=}}(\textcolor{keyword}{const}\ int32\_t\ \&sub)\ \{}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ item\_\ -\/=\ sub;}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00182\ \ \ \ \ \}}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \ \ internal\_t\ *\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_ac1e212421241f056c995ecbdaacb3a5e}{operator[]}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ \&n)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vec\_-\/>data0\_\ +\ (item\_\ +\ n)\ *\ dimensionality\_;}
+\DoxyCodeLine{00186\ \ \ \ \ \}}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \ \ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00189\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_af2c03e34407d9d1e05af957f6d641e1c}{PointDVectorIterator}}(\mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator_a38669002e72e0e37548e673a5c31c5d1}{PointDVector}}\ *vec,\ \textcolor{keywordtype}{size\_t}\ start\_item)}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ :\ item\_(start\_item),\ vec\_(vec),\ dimensionality\_(vec-\/>dimensionality\_)\ \{\}}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00193\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ item\_;\ \ \textcolor{comment}{//\ this\ counts\ the\ item\ that\ should\ be\ referenced.}}
+\DoxyCodeLine{00194\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_ac775e2ef3784ccbae8a17384521827c9}{PointDVector}}\ *\textcolor{keyword}{const}\ vec\_;\ \ \ \ \ \ \ \ \textcolor{comment}{//\ the\ thing\ that\ we're\ iterating\ on}}
+\DoxyCodeLine{00195\ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ dimensionality\_;\ \ \textcolor{comment}{//\ local\ copy\ from\ vec\_}}
+\DoxyCodeLine{00196\ \ \ \};}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator}{PointDVectorIterator}}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_aa38b5b349d8931c962219cb1e2151773}{begin}}()\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator}{PointDVectorIterator}}(\textcolor{keyword}{this},\ 0);\ \}}
+\DoxyCodeLine{00199\ \ \ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator}{PointDVectorIterator}}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_acd288c60c11fb71e31f0f2600cd8b463}{end}}()\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_1_1_point_d_vector_iterator}{PointDVectorIterator}}(\textcolor{keyword}{this},\ n\_items\_);\ \}}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \textcolor{comment}{//\ operator[]\ allows\ for\ unprotected\ user-\/side\ usage\ of\ operator[]\ on\ the}}
+\DoxyCodeLine{00202\ \ \ \textcolor{comment}{//\ return\ value\ AS\ IF\ it\ were\ a\ natively\ indexable\ type\ like\ Point3*}}
+\DoxyCodeLine{00203\ \ \ internal\_t\ *\mbox{\hyperlink{classdraco_1_1_point_d_vector_ad506e546f6b09ebdff7d0777eee03448}{operator[]}}(\textcolor{keyword}{const}\ uint32\_t\ index)\ \{}
+\DoxyCodeLine{00204\ \ \ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(index,\ n\_items\_);}
+\DoxyCodeLine{00205\ \ \ \ \ \textcolor{keywordflow}{return}\ data0\_\ +\ index\ *\ dimensionality\_;}
+\DoxyCodeLine{00206\ \ \ \}}
+\DoxyCodeLine{00207\ \ \ \textcolor{keyword}{const}\ internal\_t\ *\mbox{\hyperlink{classdraco_1_1_point_d_vector_acd618d97db10279c626c1e28bf855f22}{operator[]}}(\textcolor{keyword}{const}\ uint32\_t\ index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00208\ \ \ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(index,\ n\_items\_);}
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keywordflow}{return}\ data0\_\ +\ index\ *\ dimensionality\_;}
+\DoxyCodeLine{00210\ \ \ \}}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00212\ \ \ uint32\_t\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_a8860065ad726be5fb5c8d507989b8859}{size}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ n\_items\_;\ \}}
+\DoxyCodeLine{00213\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_af506364124cc83fc038ed19d223025d9}{GetBufferSize}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ data\_.size();\ \}}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \ \ \textcolor{comment}{//\ copy\ a\ single\ contiguous\ 'item'\ from\ one\ PointDVector\ into\ this\ one.}}
+\DoxyCodeLine{00216\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_a29f09547715de79b645c341c2053d761}{CopyItem}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_ac775e2ef3784ccbae8a17384521827c9}{PointDVector}}\ \&\mbox{\hyperlink{pointer_8h_adb82dfe18535e9a30aa97d275f82bd55}{source}},\ \textcolor{keyword}{const}\ internal\_t\ source\_index,}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ internal\_t\ destination\_index)\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\&\mbox{\hyperlink{pointer_8h_adb82dfe18535e9a30aa97d275f82bd55}{source}}\ !=\ \textcolor{keyword}{this}\ ||}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (\&\mbox{\hyperlink{pointer_8h_adb82dfe18535e9a30aa97d275f82bd55}{source}}\ ==\ \textcolor{keyword}{this}\ \&\&\ source\_index\ !=\ destination\_index));}
+\DoxyCodeLine{00220\ \ \ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(destination\_index,\ n\_items\_);}
+\DoxyCodeLine{00221\ \ \ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(source\_index,\ \mbox{\hyperlink{pointer_8h_adb82dfe18535e9a30aa97d275f82bd55}{source}}.n\_items\_);}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \ \ \ \ \textcolor{comment}{//\ DRACO\_DCHECK\_EQ(source.n\_items\_,\ n\_items\_);\ //\ not\ technically\ necessary}}
+\DoxyCodeLine{00224\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\mbox{\hyperlink{pointer_8h_adb82dfe18535e9a30aa97d275f82bd55}{source}}.dimensionality\_,\ dimensionality\_);}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keyword}{const}\ internal\_t\ *ref\ =\ \mbox{\hyperlink{pointer_8h_adb82dfe18535e9a30aa97d275f82bd55}{source}}[source\_index];}
+\DoxyCodeLine{00227\ \ \ \ \ internal\_t\ *\textcolor{keyword}{const}\ dest\ =\ this-\/>\mbox{\hyperlink{classdraco_1_1_point_d_vector_ad506e546f6b09ebdff7d0777eee03448}{operator[]}}(destination\_index);}
+\DoxyCodeLine{00228\ \ \ \ \ std::memcpy(dest,\ ref,\ item\_size\_bytes\_);}
+\DoxyCodeLine{00229\ \ \ \}}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00231\ \ \ \textcolor{comment}{//\ Copy\ data\ directly\ off\ of\ an\ attribute\ buffer\ interleaved\ into\ internal}}
+\DoxyCodeLine{00232\ \ \ \textcolor{comment}{//\ memory.}}
+\DoxyCodeLine{00233\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_aaf9cfd44acd4bdfd9e679febe059c76f}{CopyAttribute}}(}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \textcolor{comment}{//\ The\ dimensionality\ of\ the\ attribute\ being\ integrated}}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \textcolor{keyword}{const}\ internal\_t\ attribute\_dimensionality,}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \textcolor{comment}{//\ The\ offset\ in\ dimensions\ to\ insert\ this\ attribute.}}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \textcolor{keyword}{const}\ internal\_t\ offset\_dimensionality,\ \textcolor{keyword}{const}\ internal\_t\ index,}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \textcolor{comment}{//\ The\ direct\ pointer\ to\ the\ data}}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *\textcolor{keyword}{const}\ attribute\_item\_data)\ \{}
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{comment}{//\ chunk\ copy}}
+\DoxyCodeLine{00241\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ copy\_size\ =\ \textcolor{keyword}{sizeof}(internal\_t)\ *\ attribute\_dimensionality;}
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00243\ \ \ \ \ \textcolor{comment}{//\ a\ multiply\ and\ add\ can\ be\ optimized\ away\ with\ an\ iterator}}
+\DoxyCodeLine{00244\ \ \ \ \ std::memcpy(data0\_\ +\ index\ *\ dimensionality\_\ +\ offset\_dimensionality,}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attribute\_item\_data,\ copy\_size);}
+\DoxyCodeLine{00246\ \ \ \}}
+\DoxyCodeLine{00247\ \ \ \textcolor{comment}{//\ Copy\ data\ off\ of\ a\ contiguous\ buffer\ interleaved\ into\ internal\ memory}}
+\DoxyCodeLine{00248\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_point_d_vector_a1e57fd906f5c2e82a65ff172b7c64c84}{CopyAttribute}}(}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \textcolor{comment}{//\ The\ dimensionality\ of\ the\ attribute\ being\ integrated}}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \textcolor{keyword}{const}\ internal\_t\ attribute\_dimensionality,}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \textcolor{comment}{//\ The\ offset\ in\ dimensions\ to\ insert\ this\ attribute.}}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \textcolor{keyword}{const}\ internal\_t\ offset\_dimensionality,}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \textcolor{keyword}{const}\ internal\_t\ *\textcolor{keyword}{const}\ attribute\_mem)\ \{}
+\DoxyCodeLine{00254\ \ \ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(offset\_dimensionality,}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dimensionality\_\ -\/\ attribute\_dimensionality);}
+\DoxyCodeLine{00256\ \ \ \ \ \textcolor{comment}{//\ degenerate\ case\ block\ copy\ the\ whole\ buffer.}}
+\DoxyCodeLine{00257\ \ \ \ \ \textcolor{keywordflow}{if}\ (dimensionality\_\ ==\ attribute\_dimensionality)\ \{}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(offset\_dimensionality,\ 0);}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ copy\_size\ =}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{sizeof}(internal\_t)\ *\ attribute\_dimensionality\ *\ n\_items\_;}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ std::memcpy(data0\_,\ attribute\_mem,\ copy\_size);}
+\DoxyCodeLine{00262\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{\ \ \textcolor{comment}{//\ chunk\ copy}}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ copy\_size\ =\ \textcolor{keyword}{sizeof}(internal\_t)\ *\ attribute\_dimensionality;}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ internal\_t\ *internal\_data;}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \textcolor{keyword}{const}\ internal\_t\ *attribute\_data;}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ internal\_t\ item;}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (internal\_data\ =\ data0\_\ +\ offset\_dimensionality,}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \ \ attribute\_data\ =\ attribute\_mem,\ item\ =\ 0;}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \ \ \ \ \ item\ <\ n\_items\_;\ internal\_data\ +=\ dimensionality\_,}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ attribute\_data\ +=\ attribute\_dimensionality,\ item\ +=\ 1)\ \{}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ std::memcpy(internal\_data,\ attribute\_data,\ copy\_size);}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00273\ \ \ \ \ \}}
+\DoxyCodeLine{00274\ \ \ \}}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00276\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00277\ \ \ \textcolor{comment}{//\ internal\ parameters.}}
+\DoxyCodeLine{00278\ \ \ \textcolor{keyword}{const}\ uint32\_t\ n\_items\_;}
+\DoxyCodeLine{00279\ \ \ \textcolor{keyword}{const}\ uint32\_t\ dimensionality\_;\ \ \textcolor{comment}{//\ The\ dimension\ of\ the\ points\ in\ the\ buffer}}
+\DoxyCodeLine{00280\ \ \ \textcolor{keyword}{const}\ uint32\_t\ item\_size\_bytes\_;}
+\DoxyCodeLine{00281\ \ \ std::vector<internal\_t>\ data\_;\ \ \textcolor{comment}{//\ contiguously\ stored\ data.\ \ Never\ resized.}}
+\DoxyCodeLine{00282\ \ \ internal\_t\ *\textcolor{keyword}{const}\ data0\_;\ \ \ \ \ \ \ \textcolor{comment}{//\ raw\ pointer\ to\ base\ data.}}
+\DoxyCodeLine{00283\ \};}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00286\ }
+\DoxyCodeLine{00287\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ATTRIBUTES\_POINT\_D\_VECTOR\_H\_}}
+
+\end{DoxyCode}

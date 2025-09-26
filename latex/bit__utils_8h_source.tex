@@ -1,0 +1,130 @@
+\doxysection{bit\+\_\+utils.\+h}
+\hypertarget{bit__utils_8h_source}{}\label{bit__utils_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/core/bit\_utils.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/core/bit\_utils.h}}
+\mbox{\hyperlink{bit__utils_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ File\ containing\ a\ basic\ set\ of\ bit\ manipulation\ utilities\ used\ within\ the}}
+\DoxyCodeLine{00016\ \textcolor{comment}{//\ Draco\ library.}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#ifndef\ DRACO\_CORE\_BIT\_UTILS\_H\_}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#define\ DRACO\_CORE\_BIT\_UTILS\_H\_}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{inttypes_8h}{inttypes.h}}>}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{stdint_8h}{stdint.h}}>}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ <type\_traits>}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#if\ defined(\_MSC\_VER)}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ <intrin.h>}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ defined(\_MSC\_VER)}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ Returns\ the\ number\ of\ '1'\ bits\ within\ the\ input\ 32\ bit\ integer.}}
+\DoxyCodeLine{00033\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{namespacedraco_a83e6395cea528c29fe783ecf08313069}{CountOneBits32}}(uint32\_t\ n)\ \{}
+\DoxyCodeLine{00034\ \ \ n\ -\/=\ ((n\ >>\ 1)\ \&\ 0x55555555);}
+\DoxyCodeLine{00035\ \ \ n\ =\ ((n\ >>\ 2)\ \&\ 0x33333333)\ +\ (n\ \&\ 0x33333333);}
+\DoxyCodeLine{00036\ \ \ \textcolor{keywordflow}{return}\ (((n\ +\ (n\ >>\ 4))\ \&\ 0xF0F0F0F)\ *\ 0x1010101)\ >>\ 24;}
+\DoxyCodeLine{00037\ \}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \textcolor{keyword}{inline}\ uint32\_t\ \mbox{\hyperlink{namespacedraco_aa88cfd1a9fdd0dd650cea312c0563a21}{ReverseBits32}}(uint32\_t\ n)\ \{}
+\DoxyCodeLine{00040\ \ \ n\ =\ ((n\ >>\ 1)\ \&\ 0x55555555)\ |\ ((n\ \&\ 0x55555555)\ <<\ 1);}
+\DoxyCodeLine{00041\ \ \ n\ =\ ((n\ >>\ 2)\ \&\ 0x33333333)\ |\ ((n\ \&\ 0x33333333)\ <<\ 2);}
+\DoxyCodeLine{00042\ \ \ n\ =\ ((n\ >>\ 4)\ \&\ 0x0F0F0F0F)\ |\ ((n\ \&\ 0x0F0F0F0F)\ <<\ 4);}
+\DoxyCodeLine{00043\ \ \ n\ =\ ((n\ >>\ 8)\ \&\ 0x00FF00FF)\ |\ ((n\ \&\ 0x00FF00FF)\ <<\ 8);}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordflow}{return}\ (n\ >>\ 16)\ |\ (n\ <<\ 16);}
+\DoxyCodeLine{00045\ \}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{comment}{//\ Copies\ the\ |nbits|\ from\ the\ src\ integer\ into\ the\ |dst|\ integer\ using\ the}}
+\DoxyCodeLine{00048\ \textcolor{comment}{//\ provided\ bit\ offsets\ |dst\_offset|\ and\ |src\_offset|.}}
+\DoxyCodeLine{00049\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacedraco_a4b84c56f927b626ee93c90faf94be8d7}{CopyBits32}}(uint32\_t\ *dst,\ \textcolor{keywordtype}{int}\ dst\_offset,\ uint32\_t\ src,}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ src\_offset,\ \textcolor{keywordtype}{int}\ nbits)\ \{}
+\DoxyCodeLine{00051\ \ \ \textcolor{keyword}{const}\ uint32\_t\ mask\ =\ (\string~static\_cast<uint32\_t>(0))\ >>\ (32\ -\/\ nbits)}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ dst\_offset;}
+\DoxyCodeLine{00053\ \ \ *dst\ =\ (*dst\ \&\ (\string~mask))\ |\ (((src\ >>\ src\_offset)\ <<\ dst\_offset)\ \&\ mask);}
+\DoxyCodeLine{00054\ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{comment}{//\ Returns\ the\ location\ of\ the\ most\ significant\ bit\ in\ the\ input\ integer\ |n|.}}
+\DoxyCodeLine{00057\ \textcolor{comment}{//\ The\ functionality\ is\ not\ defined\ for\ |n\ ==\ 0|.}}
+\DoxyCodeLine{00058\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{namespacedraco_a07a0f2b537ca0d20da554a2a9ec421eb}{MostSignificantBit}}(uint32\_t\ n)\ \{}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#if\ defined(\_\_GNUC\_\_)}}
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordflow}{return}\ 31\ \string^\ \_\_builtin\_clz(n);}
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#elif\ defined(\_MSC\_VER)}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ where;}
+\DoxyCodeLine{00064\ \ \ \_BitScanReverse(\&where,\ n);}
+\DoxyCodeLine{00065\ \ \ \textcolor{keywordflow}{return}\ (\textcolor{keywordtype}{int})where;}
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00067\ \ \ \textcolor{comment}{//\ TODO(fgalligan):\ Optimize\ this\ code.}}
+\DoxyCodeLine{00068\ \ \ \textcolor{keywordtype}{int}\ msb\ =\ -\/1;}
+\DoxyCodeLine{00069\ \ \ \textcolor{keywordflow}{while}\ (n\ !=\ 0)\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ msb++;}
+\DoxyCodeLine{00071\ \ \ \ \ n\ >>=\ 1;}
+\DoxyCodeLine{00072\ \ \ \}}
+\DoxyCodeLine{00073\ \ \ \textcolor{keywordflow}{return}\ msb;}
+\DoxyCodeLine{00074\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00075\ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \textcolor{comment}{//\ Helper\ function\ that\ converts\ signed\ integer\ values\ into\ unsigned\ integer}}
+\DoxyCodeLine{00078\ \textcolor{comment}{//\ symbols\ that\ can\ be\ encoded\ using\ an\ entropy\ encoder.}}
+\DoxyCodeLine{00079\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacedraco_a7369bcdd45dd988c6c66b23f41d44f09}{ConvertSignedIntsToSymbols}}(\textcolor{keyword}{const}\ int32\_t\ *in,\ \textcolor{keywordtype}{int}\ in\_values,}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}});}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{comment}{//\ Converts\ unsigned\ integer\ symbols\ encoded\ with\ an\ entropy\ encoder\ back\ to}}
+\DoxyCodeLine{00083\ \textcolor{comment}{//\ signed\ values.}}
+\DoxyCodeLine{00084\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacedraco_a8f9fe348f2d72125f30f30fd9a189cbc}{ConvertSymbolsToSignedInts}}(\textcolor{keyword}{const}\ uint32\_t\ *in,\ \textcolor{keywordtype}{int}\ in\_values,}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ int32\_t\ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}});}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \textcolor{comment}{//\ Helper\ function\ that\ converts\ a\ single\ signed\ integer\ value\ into\ an\ unsigned}}
+\DoxyCodeLine{00088\ \textcolor{comment}{//\ integer\ symbol\ that\ can\ be\ encoded\ using\ an\ entropy\ encoder.}}
+\DoxyCodeLine{00089\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ IntTypeT>}
+\DoxyCodeLine{00090\ \textcolor{keyword}{typename}\ std::make\_unsigned<IntTypeT>::type\ \mbox{\hyperlink{namespacedraco_a10efee0fbf3f8f3fce1c83a5f2a5fc46}{ConvertSignedIntToSymbol}}(}
+\DoxyCodeLine{00091\ \ \ \ \ IntTypeT\ val)\ \{}
+\DoxyCodeLine{00092\ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{typename}\ std::make\_unsigned<IntTypeT>::type\ UnsignedType;}
+\DoxyCodeLine{00093\ \ \ \textcolor{keyword}{static\_assert}(std::is\_integral<IntTypeT>::value,\ \textcolor{stringliteral}{"{}IntTypeT\ is\ not\ integral."{}});}
+\DoxyCodeLine{00094\ \ \ \textcolor{comment}{//\ Early\ exit\ if\ val\ is\ positive.}}
+\DoxyCodeLine{00095\ \ \ \textcolor{keywordflow}{if}\ (val\ >=\ 0)\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}UnsignedType\textcolor{keyword}{>}(val)\ <<\ 1;}
+\DoxyCodeLine{00097\ \ \ \}}
+\DoxyCodeLine{00098\ \ \ val\ =\ -\/(val\ +\ 1);\ \ \textcolor{comment}{//\ Map\ -\/1\ to\ 0,\ -\/2\ to\ -\/1,\ etc..}}
+\DoxyCodeLine{00099\ \ \ UnsignedType\ ret\ =\ \textcolor{keyword}{static\_cast<}UnsignedType\textcolor{keyword}{>}(val);}
+\DoxyCodeLine{00100\ \ \ ret\ <<=\ 1;}
+\DoxyCodeLine{00101\ \ \ ret\ |=\ 1;}
+\DoxyCodeLine{00102\ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00103\ \}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \textcolor{comment}{//\ Converts\ a\ single\ unsigned\ integer\ symbol\ encoded\ with\ an\ entropy\ encoder}}
+\DoxyCodeLine{00106\ \textcolor{comment}{//\ back\ to\ a\ signed\ value.}}
+\DoxyCodeLine{00107\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ IntTypeT>}
+\DoxyCodeLine{00108\ \textcolor{keyword}{typename}\ std::make\_signed<IntTypeT>::type\ \mbox{\hyperlink{namespacedraco_a8815ee7bd893125efcbaa3ae5ad0cec0}{ConvertSymbolToSignedInt}}(}
+\DoxyCodeLine{00109\ \ \ \ \ IntTypeT\ val)\ \{}
+\DoxyCodeLine{00110\ \ \ \textcolor{keyword}{static\_assert}(std::is\_integral<IntTypeT>::value,\ \textcolor{stringliteral}{"{}IntTypeT\ is\ not\ integral."{}});}
+\DoxyCodeLine{00111\ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{typename}\ std::make\_signed<IntTypeT>::type\ SignedType;}
+\DoxyCodeLine{00112\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ is\_positive\ =\ !\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{bool}\textcolor{keyword}{>}(val\ \&\ 1);}
+\DoxyCodeLine{00113\ \ \ val\ >>=\ 1;}
+\DoxyCodeLine{00114\ \ \ \textcolor{keywordflow}{if}\ (is\_positive)\ \{}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}SignedType\textcolor{keyword}{>}(val);}
+\DoxyCodeLine{00116\ \ \ \}}
+\DoxyCodeLine{00117\ \ \ SignedType\ ret\ =\ \textcolor{keyword}{static\_cast<}SignedType\textcolor{keyword}{>}(val);}
+\DoxyCodeLine{00118\ \ \ ret\ =\ -\/ret\ -\/\ 1;}
+\DoxyCodeLine{00119\ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00120\ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_CORE\_BIT\_UTILS\_H\_}}
+
+\end{DoxyCode}

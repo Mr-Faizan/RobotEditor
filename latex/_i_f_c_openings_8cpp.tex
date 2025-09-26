@@ -1,0 +1,122 @@
+\doxysection{Robot\+Lib/libraries/assimp/code/\+Asset\+Lib/\+IFC/\+IFCOpenings.cpp File Reference}
+\hypertarget{_i_f_c_openings_8cpp}{}\label{_i_f_c_openings_8cpp}\index{RobotLib/libraries/assimp/code/AssetLib/IFC/IFCOpenings.cpp@{RobotLib/libraries/assimp/code/AssetLib/IFC/IFCOpenings.cpp}}
+
+
+Implements a subset of Ifc CSG operations for pouring holes for windows and doors into walls.  
+
+
+{\ttfamily \#include "{}IFCUtil.\+h"{}}\newline
+{\ttfamily \#include "{}Common/\+Poly\+Tools.\+h"{}}\newline
+{\ttfamily \#include "{}Post\+Processing/\+Process\+Helper.\+h"{}}\newline
+{\ttfamily \#include "{}contrib/poly2tri/poly2tri/poly2tri.\+h"{}}\newline
+{\ttfamily \#include "{}contrib/clipper/clipper.\+hpp"{}}\newline
+{\ttfamily \#include $<$deque$>$}\newline
+{\ttfamily \#include $<$forward\+\_\+list$>$}\newline
+{\ttfamily \#include $<$iterator$>$}\newline
+{\ttfamily \#include $<$utility$>$}\newline
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_projected_window_contour}{Assimp\+::\+IFC\+::\+Projected\+Window\+Contour}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespace_assimp}{Assimp}}
+\item 
+namespace \mbox{\hyperlink{namespace_assimp_1_1_i_f_c}{Assimp\+::\+IFC}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a7d082e9cde40d198ea1786d68243fa10}{Assimp\+::\+IFC\+::\+Bounding\+Box}} = std\+::pair$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}}, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$
+\item 
+using \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ab4fab4f9bf60d36f129f2a3abe0c91b1}{Assimp\+::\+IFC\+::\+XYSorted\+Field}} = std\+::map$<$\mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}},size\+\_\+t,\mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_x_y_sorter}{XYSorter}}$>$
+\item 
+using \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a2dd91bf8895f3c6d7e5d3f2ce2e94115}{Assimp\+::\+IFC\+::\+Contour}} = std\+::vector$<$\mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}}$>$
+\item 
+using \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a86311887061302c5326b4e8959cab2ce}{Assimp\+::\+IFC\+::\+Skip\+List}} = std\+::vector$<$bool$>$
+\item 
+using \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a751d15010fa01ea764ecf54a5d640289}{Assimp\+::\+IFC\+::\+Contour\+Vector}} = std\+::vector$<$\mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_projected_window_contour}{Projected\+Window\+Contour}}$>$
+\item 
+using \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a066d8d4125101bbf56c8c72031d1ba4c}{Assimp\+::\+IFC\+::\+Opening\+Refs}} = std\+::vector$<$\mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_opening}{Temp\+Opening}}\texorpdfstring{$\ast$}{*}$>$
+\item 
+using \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a57b56c1c6a22a09996737dcb5bd19ac0}{Assimp\+::\+IFC\+::\+Opening\+Ref\+Vector}} = std\+::vector$<$\mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a066d8d4125101bbf56c8c72031d1ba4c}{Opening\+Refs}} $>$
+\item 
+using \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a58c97553139bfafebb26c7cffb07e589}{Assimp\+::\+IFC\+::\+Contour\+Ref\+Vector}}
+\item 
+typedef unsigned \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a031fec5e97eb7e08708f1cafa53a232d}{Assimp\+::\+IFC\+::ulong64}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\+\_\+\+FORCE\+\_\+\+INLINE}} \mbox{\hyperlink{namespace_clipper_lib_a031fec5e97eb7e08708f1cafa53a232d}{ulong64}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_aece1ed472ead403f8b5847e0c888250b}{Assimp\+::\+IFC\+::to\+\_\+int64}} (\mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ab4dbca80665de60d3951e12c89043346}{Ifc\+Float}} p)
+\item 
+\mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\+\_\+\+FORCE\+\_\+\+INLINE}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ab4dbca80665de60d3951e12c89043346}{Ifc\+Float}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a2400b613dd6887e8eba4410b86e54020}{Assimp\+::\+IFC\+::from\+\_\+int64}} (\mbox{\hyperlink{namespace_clipper_lib_a031fec5e97eb7e08708f1cafa53a232d}{ulong64}} p)
+\item 
+\mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\+\_\+\+FORCE\+\_\+\+INLINE}} void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a60b786968b1df182287c31503be6a148}{Assimp\+::\+IFC\+::fill\+Rectangle}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \&pmin, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \&pmax, std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})
+\item 
+\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ab7468a8e63438c56e54fe1bece4ece85}{Assimp\+::\+IFC\+::one\+\_\+vec}} (\mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}}(static\+\_\+cast$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ab4dbca80665de60d3951e12c89043346}{Ifc\+Float}} $>$(1.\+0), static\+\_\+cast$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ab4dbca80665de60d3951e12c89043346}{Ifc\+Float}} $>$(1.\+0)))
+\item 
+bool \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_abfe304b0dc0def4c8b4beb748cff1487}{Assimp\+::\+IFC\+::\+Try\+Add\+Openings\+\_\+\+Poly2\+Tri}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::vector$<$ \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_opening}{Temp\+Opening}} $>$ \&openings, \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_mesh}{Temp\+Mesh}} \&curmesh)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a6b2f007868d8e10822756b51972a028a}{Assimp\+::\+IFC\+::\+Quadrify\+Part}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \&pmin, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \&pmax, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ab4fab4f9bf60d36f129f2a3abe0c91b1}{XYSorted\+Field}} \&field, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a7d082e9cde40d198ea1786d68243fa10}{Bounding\+Box}} $>$ \&bbs, std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_aeb5d69cf198ba74059bcdc454ce3a325}{Assimp\+::\+IFC\+::\+Extract\+Vertices\+From\+Clipper}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Clipper\+Lib\+::\+Path}} \&poly, std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ \&temp\+\_\+contour, bool filter\+\_\+duplicates=false)
+\item 
+\mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a7d082e9cde40d198ea1786d68243fa10}{Bounding\+Box}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ac8ecece4ad21fc01ce7b86c422e099c2}{Assimp\+::\+IFC\+::\+Get\+Bounding\+Box}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_clipper_lib_af39c8fe00f278f18cc8142fef41242da}{Clipper\+Lib\+::\+Path}} \&poly)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1c44686be6b07208ad6a48fe68687613}{Assimp\+::\+IFC\+::\+Insert\+Window\+Contours}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a751d15010fa01ea764ecf54a5d640289}{Contour\+Vector}} \&contours, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::vector$<$ \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_opening}{Temp\+Opening}} $>$ \&, \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_mesh}{Temp\+Mesh}} \&curmesh)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_afa0e5889ae0ccc8d99b83060f6e1fd4c}{Assimp\+::\+IFC\+::\+Merge\+Window\+Contours}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ \&\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ \&b, \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Clipper\+Lib\+::\+Paths}} \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a4473132be6f9ffac4d7550a5d84fc964}{Assimp\+::\+IFC\+::\+Make\+Disjunct\+Window\+Contours}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ \&\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ \&b, \mbox{\hyperlink{namespace_clipper_lib_a4bab1d9e10805fa6f1fd3b78c56efcfe}{Clipper\+Lib\+::\+Paths}} \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a0a63da321e559fc3e863941ed21fc75b}{Assimp\+::\+IFC\+::\+Cleanup\+Window\+Contour}} (\mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_projected_window_contour}{Projected\+Window\+Contour}} \&window)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a3c95c436286100af388a569114725fcb}{Assimp\+::\+IFC\+::\+Cleanup\+Window\+Contours}} (\mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a751d15010fa01ea764ecf54a5d640289}{Contour\+Vector}} \&contours)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a0605132a62fb19995f794614eab834a3}{Assimp\+::\+IFC\+::\+Cleanup\+Outer\+Contour}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ \&contour\+\_\+flat, \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_mesh}{Temp\+Mesh}} \&curmesh)
+\item 
+bool \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a92f7acfe2d339de3b9544245d25223d3}{Assimp\+::\+IFC\+::\+Bounding\+Boxes\+Adjacent}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a7d082e9cde40d198ea1786d68243fa10}{Bounding\+Box}} \&bb, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a7d082e9cde40d198ea1786d68243fa10}{Bounding\+Box}} \&ibb)
+\item 
+bool \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a6333bfdc5f4bbc9b1972ce1465dec8fc}{Assimp\+::\+IFC\+::\+Intersecting\+Line\+Segments}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \&n0, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \&n1, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \&m0, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \&m1, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \&out0, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \&out1)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a286fe1cc0c221167e9cc0403bb4ec8c7}{Assimp\+::\+IFC\+::\+Find\+Adjacent\+Contours}} (Contour\+Vector\+::iterator current, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a751d15010fa01ea764ecf54a5d640289}{Contour\+Vector}} \&contours)
+\item 
+\mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\+\_\+\+FORCE\+\_\+\+INLINE}} bool \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a75c4cfa222357803248e412e1e758e74}{Assimp\+::\+IFC\+::\+Likely\+Border}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} \&vdelta)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1414b73007d56112cc01bcce6f247a2d}{Assimp\+::\+IFC\+::\+Find\+Border\+Contours}} (Contour\+Vector\+::iterator current)
+\item 
+\mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a61d239a320b58eca56bacc46fc2c79b8}{AI\+\_\+\+FORCE\+\_\+\+INLINE}} bool \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_aa0ab54acd96bedf7456be891a59113aa}{Assimp\+::\+IFC\+::\+Likely\+Diagonal}} (\mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} vdelta)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a73bebb50771f17ec78a3dedc01b5f3eb}{Assimp\+::\+IFC\+::\+Find\+Likely\+Crossing\+Lines}} (Contour\+Vector\+::iterator current)
+\item 
+size\+\_\+t \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a87cfec6d21d2e83b3096dc52ef6ad6bf}{Assimp\+::\+IFC\+::\+Close\+Windows}} (\mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a751d15010fa01ea764ecf54a5d640289}{Contour\+Vector}} \&contours, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a8bca4f54a9020a9cb02e789763cba6cb}{Ifc\+Matrix4}} \&minv, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a57b56c1c6a22a09996737dcb5bd19ac0}{Opening\+Ref\+Vector}} \&contours\+\_\+to\+\_\+openings, \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_mesh}{Temp\+Mesh}} \&curmesh)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a772bd63f9ccc94e4fe5359a5e4a1a615}{Assimp\+::\+IFC\+::\+Quadrify}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a7d082e9cde40d198ea1786d68243fa10}{Bounding\+Box}} $>$ \&bbs, \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_mesh}{Temp\+Mesh}} \&curmesh)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_afd0e0bf9cc58ee6835e52d0dfa1a0fb6}{Assimp\+::\+IFC\+::\+Quadrify}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a751d15010fa01ea764ecf54a5d640289}{Contour\+Vector}} \&contours, \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_mesh}{Temp\+Mesh}} \&curmesh)
+\item 
+\mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a8bca4f54a9020a9cb02e789763cba6cb}{Ifc\+Matrix4}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a486e27b6231978dcbb8d4a125e9944bd}{Assimp\+::\+IFC\+::\+Project\+Onto\+Plane}} (std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ \&out\+\_\+contour, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_mesh}{Temp\+Mesh}} \&in\+\_\+mesh, bool \&ok, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a6399b569a82ece51acd44b72d77ff1c2}{Ifc\+Vector3}} \&nor\+\_\+out)
+\item 
+bool \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a79e611f040fbaad91dbcec01aa8f6fc6}{Assimp\+::\+IFC\+::\+Generate\+Openings}} (std\+::vector$<$ \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_opening}{Temp\+Opening}} $>$ \&openings, \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_mesh}{Temp\+Mesh}} \&curmesh, bool check\+\_\+intersection, bool generate\+\_\+connection\+\_\+geometry, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a6399b569a82ece51acd44b72d77ff1c2}{Ifc\+Vector3}} \&wall\+\_\+extrusion\+\_\+axis)
+\item 
+std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ad7bc6860e50ddd95f7746e55979fa287}{Assimp\+::\+IFC\+::\+Get\+Contour\+In\+Plane2D}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_mesh}{Temp\+Mesh}} $>$ \&mesh, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_abbae34c82aefec7628eb8eee086b0595}{Ifc\+Matrix3}} plane\+Space, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a6399b569a82ece51acd44b72d77ff1c2}{Ifc\+Vector3}} plane\+Nor, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ab4dbca80665de60d3951e12c89043346}{Ifc\+Float}} plane\+Offset, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a6399b569a82ece51acd44b72d77ff1c2}{Ifc\+Vector3}} extrusion\+Dir, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a6399b569a82ece51acd44b72d77ff1c2}{Ifc\+Vector3}} \&wall\+\_\+extrusion, bool \&first, bool \&ok)
+\item 
+std\+::vector$<$ std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ $>$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a09c02045535bbc10909f5a8ba3279236}{Assimp\+::\+IFC\+::\+Get\+Contours\+In\+Plane3D}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_mesh}{Temp\+Mesh}} $>$ \&mesh, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_abbae34c82aefec7628eb8eee086b0595}{Ifc\+Matrix3}} plane\+Space, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ab4dbca80665de60d3951e12c89043346}{Ifc\+Float}} plane\+Offset)
+\item 
+std\+::vector$<$ std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1315e393226ddca5514b7eb50a0637bf}{Ifc\+Vector2}} $>$ $>$ \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ade87fb8813746a14681b4514515a3385}{Assimp\+::\+IFC\+::\+Get\+Contours\+In\+Plane}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{struct_assimp_1_1_i_f_c_1_1_temp_mesh}{Temp\+Mesh}} $>$ \&mesh, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_abbae34c82aefec7628eb8eee086b0595}{Ifc\+Matrix3}} plane\+Space, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a6399b569a82ece51acd44b72d77ff1c2}{Ifc\+Vector3}} plane\+Nor, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_ab4dbca80665de60d3951e12c89043346}{Ifc\+Float}} plane\+Offset, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a6399b569a82ece51acd44b72d77ff1c2}{Ifc\+Vector3}} extrusion\+Dir, \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a6399b569a82ece51acd44b72d77ff1c2}{Ifc\+Vector3}} \&wall\+\_\+extrusion, bool \&first)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{namespace_clipper_lib_a7fd564bf34d174b6c96e07d01e5e7a0a}{Clipper\+Lib\+::long64}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_a1c430b2d229133507448962e5029ad9b}{Assimp\+::\+IFC\+::max\+\_\+ulong64}} = 1518500249
+\item 
+\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\+\_\+real}} \mbox{\hyperlink{namespace_assimp_1_1_i_f_c_aaccf10cd438426bb86ebd2a5f066da1f}{Assimp\+::\+IFC\+::close}} \{ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_acb916693da7ef13a2350c170af2418aa}{ai\+\_\+epsilon}} \}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implements a subset of Ifc CSG operations for pouring holes for windows and doors into walls. 
+

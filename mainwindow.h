@@ -2,6 +2,10 @@
 #define MAINWINDOW_H
 
 /*!
+ * This Documentations is written in the Doxygen format. So that it can be easily converted to HTML or PDF documentation.
+ * If you did not find the documentation please install doxygen and run doxygen on the source code. 
+ * You will see documentation in a great way :D
+ * 
  * \file mainwindow.h
  * \brief Declaration of the MainWindow class for the RobotEditor application.
  *

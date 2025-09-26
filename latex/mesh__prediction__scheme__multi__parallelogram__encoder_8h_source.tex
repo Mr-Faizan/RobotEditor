@@ -1,0 +1,139 @@
+\doxysection{mesh\+\_\+prediction\+\_\+scheme\+\_\+multi\+\_\+parallelogram\+\_\+encoder.\+h}
+\hypertarget{mesh__prediction__scheme__multi__parallelogram__encoder_8h_source}{}\label{mesh__prediction__scheme__multi__parallelogram__encoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_multi\_parallelogram\_encoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_multi\_parallelogram\_encoder.h}}
+\mbox{\hyperlink{mesh__prediction__scheme__multi__parallelogram__encoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_MESH\_PREDICTION\_SCHEME\_MULTI\_PARALLELOGRAM\_ENCODER\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_MESH\_PREDICTION\_SCHEME\_MULTI\_PARALLELOGRAM\_ENCODER\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__prediction__scheme__encoder_8h}{draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_encoder.h}}"{}}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__prediction__scheme__parallelogram__shared_8h}{draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_parallelogram\_shared.h}}"{}}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{comment}{//\ Multi\ parallelogram\ prediction\ predicts\ attribute\ values\ using\ information}}
+\DoxyCodeLine{00024\ \textcolor{comment}{//\ from\ all\ opposite\ faces\ to\ the\ predicted\ vertex,\ compared\ to\ the\ standard}}
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ prediction\ scheme,\ where\ only\ one\ opposite\ face\ is\ used\ (see}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ prediction\_scheme\_parallelogram.h).\ This\ approach\ is\ generally\ slower\ than}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ the\ standard\ parallelogram\ prediction,\ but\ it\ usually\ results\ in\ better}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ prediction\ (5\ -\/\ 20\%\ based\ on\ the\ quantization\ level.\ Better\ gains\ can\ be}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ achieved\ when\ more\ aggressive\ quantization\ is\ used).}}
+\DoxyCodeLine{00030\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT,\ \textcolor{keyword}{class}\ TransformT,\ \textcolor{keyword}{class}\ MeshDataT>}
+\DoxyCodeLine{00031\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_multi_parallelogram_encoder_a5f4889f1ea39f7c04662653a5ffad2e8}{MeshPredictionSchemeMultiParallelogramEncoder}}}
+\DoxyCodeLine{00032\ \ \ \ \ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_encoder_a17e2f6e154064c0b33ff11e81333650b}{MeshPredictionSchemeEncoder}}<DataTypeT,\ TransformT,\ MeshDataT>\ \{}
+\DoxyCodeLine{00033\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00034\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_multi_parallelogram_encoder_a6cb37a3d8d9b3838e5857a12df2f80d2}{CorrType}}\ =}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \textcolor{keyword}{typename}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_encoder_a3cac7d5998dd697ade3948a0e2a4add8}{PredictionSchemeEncoder<DataTypeT,\ TransformT>::CorrType}};}
+\DoxyCodeLine{00036\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_multi_parallelogram_encoder_a285332df7c7570616381fbabae1c2e9c}{CornerTable}}\ =\ \textcolor{keyword}{typename}\ MeshDataT::CornerTable;}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_multi_parallelogram_encoder_a5f4889f1ea39f7c04662653a5ffad2e8}{MeshPredictionSchemeMultiParallelogramEncoder}}(}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_attribute}{PointAttribute}}\ *\mbox{\hyperlink{classdraco_1_1_prediction_scheme_encoder_a032a5fa188193e71004b8904e68a11a4}{attribute}})}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ :\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_encoder_a17e2f6e154064c0b33ff11e81333650b}{MeshPredictionSchemeEncoder}}<DataTypeT,\ TransformT,\ MeshDataT>(}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_encoder_a032a5fa188193e71004b8904e68a11a4}{attribute}})\ \{\}}
+\DoxyCodeLine{00042\ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_multi_parallelogram_encoder_a5a9512f73ba2e5ee685fe7c2b560b30a}{MeshPredictionSchemeMultiParallelogramEncoder}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_attribute}{PointAttribute}}\ *\mbox{\hyperlink{classdraco_1_1_prediction_scheme_encoder_a032a5fa188193e71004b8904e68a11a4}{attribute}},}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ TransformT\ \&\mbox{\hyperlink{classdraco_1_1_prediction_scheme_encoder_ad3cfd36b54b7311a6715f6c56bb48901}{transform}},}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ MeshDataT\ \&\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_encoder_aa5de9e489c4764a366788e21ea6203ce}{mesh\_data}})}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ :\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_encoder_a17e2f6e154064c0b33ff11e81333650b}{MeshPredictionSchemeEncoder}}<DataTypeT,\ TransformT,\ MeshDataT>(}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_encoder_a032a5fa188193e71004b8904e68a11a4}{attribute}},\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_encoder_ad3cfd36b54b7311a6715f6c56bb48901}{transform}},\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_encoder_aa5de9e489c4764a366788e21ea6203ce}{mesh\_data}})\ \{\}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_multi_parallelogram_encoder_a88805e525fbde41c14622963b694df1e}{ComputeCorrectionValues}}(}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \textcolor{keyword}{const}\ DataTypeT\ *in\_data,\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_multi_parallelogram_encoder_a6cb37a3d8d9b3838e5857a12df2f80d2}{CorrType}}\ *out\_corr,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}},}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\_components,\ \textcolor{keyword}{const}\ PointIndex\ *entry\_to\_point\_id\_map)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00051\ \ \ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91b}{PredictionSchemeMethod}}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_multi_parallelogram_encoder_acf18cebd76e403ea90114c3ba2c86f1b}{GetPredictionMethod}}()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba98c6d95a8483740f9436687f1cd48b79}{MESH\_PREDICTION\_MULTI\_PARALLELOGRAM}};}
+\DoxyCodeLine{00053\ \ \ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_multi_parallelogram_encoder_a5d4e4e2329b1259a3877f410485cb48f}{IsInitialized}}()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_encoder_aa5de9e489c4764a366788e21ea6203ce}{mesh\_data}}().IsInitialized();}
+\DoxyCodeLine{00057\ \ \ \}}
+\DoxyCodeLine{00058\ \};}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT,\ \textcolor{keyword}{class}\ TransformT,\ \textcolor{keyword}{class}\ MeshDataT>}
+\DoxyCodeLine{00061\ \textcolor{keywordtype}{bool}\ MeshPredictionSchemeMultiParallelogramEncoder<DataTypeT,\ TransformT,}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MeshDataT>::}
+\DoxyCodeLine{00063\ \ \ \ \ ComputeCorrectionValues(\textcolor{keyword}{const}\ DataTypeT\ *in\_data,\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_multi_parallelogram_encoder_a6cb37a3d8d9b3838e5857a12df2f80d2}{CorrType}}\ *out\_corr,}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}},\ \textcolor{keywordtype}{int}\ num\_components,}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ PointIndex\ *\ \textcolor{comment}{/*\ entry\_to\_point\_id\_map\ */})\ \{}
+\DoxyCodeLine{00066\ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_encoder_ad3cfd36b54b7311a6715f6c56bb48901}{transform}}().Init(in\_data,\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}},\ num\_components);}
+\DoxyCodeLine{00067\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_multi_parallelogram_encoder_a285332df7c7570616381fbabae1c2e9c}{CornerTable}}\ *\textcolor{keyword}{const}\ table\ =\ this-\/>\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_encoder_aa5de9e489c4764a366788e21ea6203ce}{mesh\_data}}().corner\_table();}
+\DoxyCodeLine{00068\ \ \ \textcolor{keyword}{const}\ std::vector<int32\_t>\ *\textcolor{keyword}{const}\ vertex\_to\_data\_map\ =}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_encoder_aa5de9e489c4764a366788e21ea6203ce}{mesh\_data}}().vertex\_to\_data\_map();}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{comment}{//\ For\ storage\ of\ prediction\ values\ (already\ initialized\ to\ zero).}}
+\DoxyCodeLine{00072\ \ \ std::unique\_ptr<DataTypeT[]>\ pred\_vals(\textcolor{keyword}{new}\ DataTypeT[num\_components]());}
+\DoxyCodeLine{00073\ \ \ std::unique\_ptr<DataTypeT[]>\ parallelogram\_pred\_vals(}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \textcolor{keyword}{new}\ DataTypeT[num\_components]());}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \textcolor{comment}{//\ We\ start\ processing\ from\ the\ end\ because\ this\ prediction\ uses\ data\ from}}
+\DoxyCodeLine{00077\ \ \ \textcolor{comment}{//\ previous\ entries\ that\ could\ be\ overwritten\ when\ an\ entry\ is\ processed.}}
+\DoxyCodeLine{00078\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ p\ =}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(this-\/>\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_encoder_aa5de9e489c4764a366788e21ea6203ce}{mesh\_data}}().data\_to\_corner\_map()-\/>\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}}()\ -\/\ 1);}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ p\ >\ 0;\ -\/-\/p)\ \{}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ start\_corner\_id\ =}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_encoder_aa5de9e489c4764a366788e21ea6203ce}{mesh\_data}}().data\_to\_corner\_map()-\/>at(p);}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{comment}{//\ Go\ over\ all\ corners\ attached\ to\ the\ vertex\ and\ compute\ the\ predicted}}
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{comment}{//\ value\ from\ the\ parallelograms\ defined\ by\ their\ opposite\ faces.}}
+\DoxyCodeLine{00086\ \ \ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_id(start\_corner\_id);}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_parallelograms\ =\ 0;}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_components;\ ++i)\ \{}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ pred\_vals[i]\ =\ \textcolor{keyword}{static\_cast<}DataTypeT\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{00090\ \ \ \ \ \}}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordflow}{while}\ (corner\_id\ !=\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespacedraco_a19c34e27ea8d885714d11286fae6c110}{ComputeParallelogramPrediction}}(}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ p,\ corner\_id,\ table,\ *vertex\_to\_data\_map,\ in\_data,\ num\_components,}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ parallelogram\_pred\_vals.get()))\ \{}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ c\ =\ 0;\ c\ <\ num\_components;\ ++c)\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ pred\_vals[c]\ +=\ parallelogram\_pred\_vals[c];}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ ++num\_parallelograms;}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \textcolor{comment}{//\ Proceed\ to\ the\ next\ corner\ attached\ to\ the\ vertex.}}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ corner\_id\ =\ table-\/>SwingRight(corner\_id);}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_id\ ==\ start\_corner\_id)\ \{}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ corner\_id\ =\ kInvalidCornerIndex;}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00106\ \ \ \ \ \}}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ dst\_offset\ =\ p\ *\ num\_components;}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_parallelograms\ ==\ 0)\ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \textcolor{comment}{//\ No\ parallelogram\ was\ valid.}}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \textcolor{comment}{//\ We\ use\ the\ last\ encoded\ point\ as\ a\ reference.}}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ src\_offset\ =\ (p\ -\/\ 1)\ *\ num\_components;}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_encoder_ad3cfd36b54b7311a6715f6c56bb48901}{transform}}().ComputeCorrection(}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \ \ in\_data\ +\ dst\_offset,\ in\_data\ +\ src\_offset,\ out\_corr\ +\ dst\_offset);}
+\DoxyCodeLine{00114\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \textcolor{comment}{//\ Compute\ the\ correction\ from\ the\ predicted\ value.}}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ c\ =\ 0;\ c\ <\ num\_components;\ ++c)\ \{}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ pred\_vals[c]\ /=\ num\_parallelograms;}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_encoder_ad3cfd36b54b7311a6715f6c56bb48901}{transform}}().ComputeCorrection(in\_data\ +\ dst\_offset,\ pred\_vals.get(),}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_corr\ +\ dst\_offset);}
+\DoxyCodeLine{00121\ \ \ \ \ \}}
+\DoxyCodeLine{00122\ \ \ \}}
+\DoxyCodeLine{00123\ \ \ \textcolor{comment}{//\ First\ element\ is\ always\ fixed\ because\ it\ cannot\ be\ predicted.}}
+\DoxyCodeLine{00124\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_components;\ ++i)\ \{}
+\DoxyCodeLine{00125\ \ \ \ \ pred\_vals[i]\ =\ \textcolor{keyword}{static\_cast<}DataTypeT\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{00126\ \ \ \}}
+\DoxyCodeLine{00127\ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_encoder_ad3cfd36b54b7311a6715f6c56bb48901}{transform}}().ComputeCorrection(in\_data,\ pred\_vals.get(),\ out\_corr);}
+\DoxyCodeLine{00128\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00129\ \}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_MESH\_PREDICTION\_SCHEME\_MULTI\_PARALLELOGRAM\_ENCODER\_H\_}}
+
+\end{DoxyCode}

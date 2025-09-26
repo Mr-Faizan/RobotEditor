@@ -1,0 +1,93 @@
+\doxysection{Robot\+Lib/libraries/assimp/code/\+Asset\+Lib/\+NFF/\+NFFLoader.cpp File Reference}
+\hypertarget{_n_f_f_loader_8cpp}{}\label{_n_f_f_loader_8cpp}\index{RobotLib/libraries/assimp/code/AssetLib/NFF/NFFLoader.cpp@{RobotLib/libraries/assimp/code/AssetLib/NFF/NFFLoader.cpp}}
+{\ttfamily \#include "{}NFFLoader.\+h"{}}\newline
+{\ttfamily \#include $<$assimp/\+Parsing\+Utils.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/\+Remove\+Comments.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/\+Standard\+Shapes.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/fast\+\_\+atof.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/importerdesc.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/qnan.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/scene.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/\+Default\+Logger.\+hpp$>$}\newline
+{\ttfamily \#include $<$assimp/\+IOSystem.\+hpp$>$}\newline
+{\ttfamily \#include $<$memory$>$}\newline
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespace_assimp}{Assimp}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{_n_f_f_loader_8cpp_ad32fbc9ddb36e2534f4c7584c0001fe9}{AI\+\_\+\+NFF\+\_\+\+PARSE\+\_\+\+FLOAT}}(f)
+\item 
+\#define \mbox{\hyperlink{_n_f_f_loader_8cpp_adfea913d77f00a2d069d1a9974341619}{AI\+\_\+\+NFF\+\_\+\+PARSE\+\_\+\+TRIPLE}}(v)
+\item 
+\#define \mbox{\hyperlink{_n_f_f_loader_8cpp_a4637bbafab95eb6fcb43899b29085558}{AI\+\_\+\+NFF\+\_\+\+PARSE\+\_\+\+SHAPE\+\_\+\+INFORMATION}}()
+\item 
+\#define \mbox{\hyperlink{_n_f_f_loader_8cpp_a386e24e08a968e185d61ded520677c3c}{AI\+\_\+\+NFF2\+\_\+\+GET\+\_\+\+NEXT\+\_\+\+TOKEN}}()
+\end{DoxyCompactItemize}
+
+
+\label{doc-define-members}
+\Hypertarget{_n_f_f_loader_8cpp_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{_n_f_f_loader_8cpp_a386e24e08a968e185d61ded520677c3c}\index{NFFLoader.cpp@{NFFLoader.cpp}!AI\_NFF2\_GET\_NEXT\_TOKEN@{AI\_NFF2\_GET\_NEXT\_TOKEN}}
+\index{AI\_NFF2\_GET\_NEXT\_TOKEN@{AI\_NFF2\_GET\_NEXT\_TOKEN}!NFFLoader.cpp@{NFFLoader.cpp}}
+\doxysubsubsection{\texorpdfstring{AI\_NFF2\_GET\_NEXT\_TOKEN}{AI\_NFF2\_GET\_NEXT\_TOKEN}}
+{\footnotesize\ttfamily \label{_n_f_f_loader_8cpp_a386e24e08a968e185d61ded520677c3c} 
+\#define AI\+\_\+\+NFF2\+\_\+\+GET\+\_\+\+NEXT\+\_\+\+TOKEN(\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{do}\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ if\ (!GetNextLine(buffer,\ line))\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ ASSIMP\_LOG\_WARN(\textcolor{stringliteral}{"{}NFF2:\ Unexpected\ EOF,\ can't\ read\ next\ token"{}});\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ SkipSpaces(line,\ \&sz,\ lineEnd);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ \textcolor{keywordflow}{while}\ (\mbox{\hyperlink{namespace_assimp_a99092e9b63e3e8bb88dc63e141d7157f}{IsLineEnd}}(*sz))}
+
+\end{DoxyCode}
+\Hypertarget{_n_f_f_loader_8cpp_ad32fbc9ddb36e2534f4c7584c0001fe9}\index{NFFLoader.cpp@{NFFLoader.cpp}!AI\_NFF\_PARSE\_FLOAT@{AI\_NFF\_PARSE\_FLOAT}}
+\index{AI\_NFF\_PARSE\_FLOAT@{AI\_NFF\_PARSE\_FLOAT}!NFFLoader.cpp@{NFFLoader.cpp}}
+\doxysubsubsection{\texorpdfstring{AI\_NFF\_PARSE\_FLOAT}{AI\_NFF\_PARSE\_FLOAT}}
+{\footnotesize\ttfamily \label{_n_f_f_loader_8cpp_ad32fbc9ddb36e2534f4c7584c0001fe9} 
+\#define AI\+\_\+\+NFF\+\_\+\+PARSE\+\_\+\+FLOAT(\begin{DoxyParamCaption}\item[{}]{f}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ SkipSpaces(\&sz,\ lineEnd);\ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ if\ (!IsLineEnd(*sz))\ sz\ =\ fast\_atoreal\_move<ai\_real>(sz,\ (\mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ \&)f);}
+
+\end{DoxyCode}
+\Hypertarget{_n_f_f_loader_8cpp_a4637bbafab95eb6fcb43899b29085558}\index{NFFLoader.cpp@{NFFLoader.cpp}!AI\_NFF\_PARSE\_SHAPE\_INFORMATION@{AI\_NFF\_PARSE\_SHAPE\_INFORMATION}}
+\index{AI\_NFF\_PARSE\_SHAPE\_INFORMATION@{AI\_NFF\_PARSE\_SHAPE\_INFORMATION}!NFFLoader.cpp@{NFFLoader.cpp}}
+\doxysubsubsection{\texorpdfstring{AI\_NFF\_PARSE\_SHAPE\_INFORMATION}{AI\_NFF\_PARSE\_SHAPE\_INFORMATION}}
+{\footnotesize\ttfamily \label{_n_f_f_loader_8cpp_a4637bbafab95eb6fcb43899b29085558} 
+\#define AI\+\_\+\+NFF\+\_\+\+PARSE\+\_\+\+SHAPE\+\_\+\+INFORMATION(\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ center,\ radius(1.0f,\ \mbox{\hyperlink{assimp-install_2include_2assimp_2qnan_8h_a1563bfa01954df98282cbaaf632dc95a}{get\_qnan}}(),\ \mbox{\hyperlink{assimp-install_2include_2assimp_2qnan_8h_a1563bfa01954df98282cbaaf632dc95a}{get\_qnan}}());\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ AI\_NFF\_PARSE\_TRIPLE(center);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ AI\_NFF\_PARSE\_TRIPLE(radius);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ if\ (\mbox{\hyperlink{assimp-install_2include_2assimp_2qnan_8h_aba07171feddf4c9513c2424a630b03a5}{is\_qnan}}(radius.z))\ radius.z\ =\ radius.x;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ if\ (\mbox{\hyperlink{assimp-install_2include_2assimp_2qnan_8h_aba07171feddf4c9513c2424a630b03a5}{is\_qnan}}(radius.y))\ radius.y\ =\ radius.x;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ curMesh.radius\ =\ radius;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ curMesh.center\ =\ center;}
+
+\end{DoxyCode}
+\Hypertarget{_n_f_f_loader_8cpp_adfea913d77f00a2d069d1a9974341619}\index{NFFLoader.cpp@{NFFLoader.cpp}!AI\_NFF\_PARSE\_TRIPLE@{AI\_NFF\_PARSE\_TRIPLE}}
+\index{AI\_NFF\_PARSE\_TRIPLE@{AI\_NFF\_PARSE\_TRIPLE}!NFFLoader.cpp@{NFFLoader.cpp}}
+\doxysubsubsection{\texorpdfstring{AI\_NFF\_PARSE\_TRIPLE}{AI\_NFF\_PARSE\_TRIPLE}}
+{\footnotesize\ttfamily \label{_n_f_f_loader_8cpp_adfea913d77f00a2d069d1a9974341619} 
+\#define AI\+\_\+\+NFF\+\_\+\+PARSE\+\_\+\+TRIPLE(\begin{DoxyParamCaption}\item[{}]{v}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{_n_f_f_loader_8cpp_ad32fbc9ddb36e2534f4c7584c0001fe9}{AI\_NFF\_PARSE\_FLOAT}}(v[0])\ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ AI\_NFF\_PARSE\_FLOAT(v[1])\ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ AI\_NFF\_PARSE\_FLOAT(v[2])}
+
+\end{DoxyCode}

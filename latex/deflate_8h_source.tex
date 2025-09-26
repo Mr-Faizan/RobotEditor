@@ -1,0 +1,352 @@
+\doxysection{deflate.\+h}
+\hypertarget{deflate_8h_source}{}\label{deflate_8h_source}\index{RobotLib/libraries/assimp/contrib/zlib/deflate.h@{RobotLib/libraries/assimp/contrib/zlib/deflate.h}}
+\mbox{\hyperlink{deflate_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ deflate.h\ -\/-\/\ internal\ compression\ state}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (C)\ 1995-\/2018\ Jean-\/loup\ Gailly}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ For\ conditions\ of\ distribution\ and\ use,\ see\ copyright\ notice\ in\ zlib.h}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{comment}{/*\ WARNING:\ this\ file\ should\ *not*\ be\ used\ by\ applications.\ It\ is}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ \ \ part\ of\ the\ implementation\ of\ the\ compression\ library\ and\ is}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ \ \ subject\ to\ change.\ Applications\ should\ only\ use\ zlib.h.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{comment}{/*\ @(\#)\ \$Id\$\ */}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#ifndef\ DEFLATE\_H}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#define\ DEFLATE\_H}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{zutil_8h}{zutil.h}}"{}}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{comment}{/*\ define\ NO\_GZIP\ when\ compiling\ if\ you\ want\ to\ disable\ gzip\ header\ and}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ \ trailer\ creation\ by\ deflate().\ \ NO\_GZIP\ would\ be\ used\ to\ avoid\ linking\ in}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ \ the\ crc\ code\ when\ it\ is\ not\ needed.\ \ For\ shared\ libraries,\ gzip\ encoding}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ \ \ should\ be\ left\ enabled.\ */}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#ifndef\ NO\_GZIP}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#\ \ define\ GZIP}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{comment}{/*\ ===========================================================================}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ *\ Internal\ compression\ state.}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#define\ LENGTH\_CODES\ 29}}
+\DoxyCodeLine{00031\ \textcolor{comment}{/*\ number\ of\ length\ codes,\ not\ counting\ the\ special\ END\_BLOCK\ code\ */}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\#define\ LITERALS\ \ 256}}
+\DoxyCodeLine{00034\ \textcolor{comment}{/*\ number\ of\ literal\ bytes\ 0..255\ */}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \textcolor{preprocessor}{\#define\ L\_CODES\ (LITERALS+1+LENGTH\_CODES)}}
+\DoxyCodeLine{00037\ \textcolor{comment}{/*\ number\ of\ Literal\ or\ Length\ codes,\ including\ the\ END\_BLOCK\ code\ */}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \textcolor{preprocessor}{\#define\ D\_CODES\ \ \ 30}}
+\DoxyCodeLine{00040\ \textcolor{comment}{/*\ number\ of\ distance\ codes\ */}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\#define\ BL\_CODES\ \ 19}}
+\DoxyCodeLine{00043\ \textcolor{comment}{/*\ number\ of\ codes\ used\ to\ transfer\ the\ bit\ lengths\ */}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#define\ HEAP\_SIZE\ (2*L\_CODES+1)}}
+\DoxyCodeLine{00046\ \textcolor{comment}{/*\ maximum\ heap\ size\ */}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#define\ MAX\_BITS\ 15}}
+\DoxyCodeLine{00049\ \textcolor{comment}{/*\ All\ codes\ must\ not\ exceed\ MAX\_BITS\ bits\ */}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#define\ Buf\_size\ 16}}
+\DoxyCodeLine{00052\ \textcolor{comment}{/*\ size\ of\ bit\ buffer\ in\ bi\_buf\ */}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#define\ INIT\_STATE\ \ \ \ 42\ \ \ \ }\textcolor{comment}{/*\ zlib\ header\ -\/>\ BUSY\_STATE\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#ifdef\ GZIP}}
+\DoxyCodeLine{00056\ \textcolor{preprocessor}{\#\ \ define\ GZIP\_STATE\ \ 57\ \ \ \ }\textcolor{comment}{/*\ gzip\ header\ -\/>\ BUSY\_STATE\ |\ EXTRA\_STATE\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\#define\ EXTRA\_STATE\ \ \ 69\ \ \ \ }\textcolor{comment}{/*\ gzip\ extra\ block\ -\/>\ NAME\_STATE\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#define\ NAME\_STATE\ \ \ \ 73\ \ \ \ }\textcolor{comment}{/*\ gzip\ file\ name\ -\/>\ COMMENT\_STATE\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\#define\ COMMENT\_STATE\ 91\ \ \ \ }\textcolor{comment}{/*\ gzip\ comment\ -\/>\ HCRC\_STATE\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#define\ HCRC\_STATE\ \ \ 103\ \ \ \ }\textcolor{comment}{/*\ gzip\ header\ CRC\ -\/>\ BUSY\_STATE\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00062\ \textcolor{preprocessor}{\#define\ BUSY\_STATE\ \ \ 113\ \ \ \ }\textcolor{comment}{/*\ deflate\ -\/>\ FINISH\_STATE\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{\#define\ FINISH\_STATE\ 666\ \ \ \ }\textcolor{comment}{/*\ stream\ complete\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00064\ \textcolor{comment}{/*\ Stream\ status\ */}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \textcolor{comment}{/*\ Data\ structure\ describing\ a\ single\ value\ and\ its\ code\ string.\ */}}
+\DoxyCodeLine{00068\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structct__data__s}{ct\_data\_s}}\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keyword}{union\ }\{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{zutil_8h_a3754180d606d4ed15468d15d9665aa2e}{ush}}\ \ \mbox{\hyperlink{structct__data__s_a67cd3c3267ba768c4494b36d5929c4bf}{freq}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ frequency\ count\ */}}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{zutil_8h_a3754180d606d4ed15468d15d9665aa2e}{ush}}\ \ \mbox{\hyperlink{structct__data__s_a242f709ab288db2d155e28ce98c510c5}{code}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ bit\ string\ */}}
+\DoxyCodeLine{00072\ \ \ \ \ \}\ \mbox{\hyperlink{structct__data__s_a57e891ae90e7ebaf93285e39d512a902}{fc}};}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keyword}{union\ }\{}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{zutil_8h_a3754180d606d4ed15468d15d9665aa2e}{ush}}\ \ \mbox{\hyperlink{structct__data__s_a73955d00dbdac5ad4027804a00726bfa}{dad}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ father\ node\ in\ Huffman\ tree\ */}}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{zutil_8h_a3754180d606d4ed15468d15d9665aa2e}{ush}}\ \ \mbox{\hyperlink{structct__data__s_ad7f6929b2907e046dfbc8f091b494cfb}{len}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ length\ of\ bit\ string\ */}}
+\DoxyCodeLine{00076\ \ \ \ \ \}\ \mbox{\hyperlink{structct__data__s_a43b5d2a983dc57eaf9c211356975f9a3}{dl}};}
+\DoxyCodeLine{00077\ \}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aef060b3456fdcc093a7210a762d5f2ed}{FAR}}\ \mbox{\hyperlink{deflate_8h_a0a4b5df3b2254c627b8a59e038963118}{ct\_data}};}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\#define\ Freq\ fc.freq}}
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\#define\ Code\ fc.code}}
+\DoxyCodeLine{00081\ \textcolor{preprocessor}{\#define\ Dad\ \ dl.dad}}
+\DoxyCodeLine{00082\ \textcolor{preprocessor}{\#define\ Len\ \ dl.len}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structstatic__tree__desc__s}{static\_tree\_desc\_s}}\ \ \mbox{\hyperlink{deflate_8h_a905910aabf6aabbe79ff0832e4a664cc}{static\_tree\_desc}};}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structtree__desc__s}{tree\_desc\_s}}\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \mbox{\hyperlink{deflate_8h_a0a4b5df3b2254c627b8a59e038963118}{ct\_data}}\ *\mbox{\hyperlink{structtree__desc__s_a5c79989c018b96c729e88e41f98a4920}{dyn\_tree}};\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ the\ dynamic\ tree\ */}}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordtype}{int}\ \ \ \ \ \mbox{\hyperlink{structtree__desc__s_a11f42f2c0464693def462dcfdd871002}{max\_code}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ largest\ code\ with\ non\ zero\ frequency\ */}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{deflate_8h_a905910aabf6aabbe79ff0832e4a664cc}{static\_tree\_desc}}\ *\mbox{\hyperlink{structtree__desc__s_afc69be1c7b75c748e6b0bf1969a9560f}{stat\_desc}};\ \ \textcolor{comment}{/*\ the\ corresponding\ static\ tree\ */}}
+\DoxyCodeLine{00090\ \}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aef060b3456fdcc093a7210a762d5f2ed}{FAR}}\ \mbox{\hyperlink{deflate_8h_ae978a66d78f0d68f945f48951f9151ff}{tree\_desc}};}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{zutil_8h_a3754180d606d4ed15468d15d9665aa2e}{ush}}\ \mbox{\hyperlink{deflate_8h_a80a8610ae675eaeead82013bacde10a1}{Pos}};}
+\DoxyCodeLine{00093\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{deflate_8h_a80a8610ae675eaeead82013bacde10a1}{Pos}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aef060b3456fdcc093a7210a762d5f2ed}{FAR}}\ \mbox{\hyperlink{deflate_8h_a7fc422ecb86afdd5f330dad6f7c1136b}{Posf}};}
+\DoxyCodeLine{00094\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{deflate_8h_ada696b787a46d01634b6365afcec1a9e}{IPos}};}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \textcolor{comment}{/*\ A\ Pos\ is\ an\ index\ in\ the\ character\ window.\ We\ use\ short\ instead\ of\ int\ to}}
+\DoxyCodeLine{00097\ \textcolor{comment}{\ *\ save\ space\ in\ the\ various\ tables.\ IPos\ is\ used\ only\ for\ parameter\ passing.}}
+\DoxyCodeLine{00098\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structinternal__state}{internal\_state}}\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \mbox{\hyperlink{zlib_8h_a6ede25c84d3c9f8632305866acffb1d6}{z\_streamp}}\ \mbox{\hyperlink{structinternal__state_aaf558a49ab8c6caea3d131c6b913db42}{strm}};\ \ \ \ \ \ \textcolor{comment}{/*\ pointer\ back\ to\ this\ zlib\ stream\ */}}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordtype}{int}\ \ \ \mbox{\hyperlink{structinternal__state_a8756cacdbac452a2633f87e06fae6c52}{status}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ as\ the\ name\ implies\ */}}
+\DoxyCodeLine{00103\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aeb722a888064be47e12d05f692e0f407}{Bytef}}\ *\mbox{\hyperlink{structinternal__state_ae5f393e8d0d569da6038749768f65b94}{pending\_buf}};\ \ \textcolor{comment}{/*\ output\ still\ pending\ */}}
+\DoxyCodeLine{00104\ \ \ \ \ \mbox{\hyperlink{zutil_8h_abd6f60bf9450af2ecb94097a32c19a64}{ulg}}\ \ \ \mbox{\hyperlink{structinternal__state_a9100ecccf2f8bb474f0bcc7c69f55c27}{pending\_buf\_size}};\ \textcolor{comment}{/*\ size\ of\ pending\_buf\ */}}
+\DoxyCodeLine{00105\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aeb722a888064be47e12d05f692e0f407}{Bytef}}\ *\mbox{\hyperlink{structinternal__state_a6e15ed78675c3c7bdb312623b5eceb7a}{pending\_out}};\ \ \textcolor{comment}{/*\ next\ pending\ byte\ to\ output\ to\ the\ stream\ */}}
+\DoxyCodeLine{00106\ \ \ \ \ \mbox{\hyperlink{zutil_8h_abd6f60bf9450af2ecb94097a32c19a64}{ulg}}\ \ \ \mbox{\hyperlink{structinternal__state_a49a08fe5a8e2ff1a73419fea828790e4}{pending}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ nb\ of\ bytes\ in\ the\ pending\ buffer\ */}}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordtype}{int}\ \ \ \mbox{\hyperlink{structinternal__state_ae80327ea7ad4ad0ef5baeef5ef3a6807}{wrap}};\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ bit\ 0\ true\ for\ zlib,\ bit\ 1\ true\ for\ gzip\ */}}
+\DoxyCodeLine{00108\ \ \ \ \ \mbox{\hyperlink{zlib_8h_a40e9dcc294796d99b25e98fb06477fc8}{gz\_headerp}}\ \ \mbox{\hyperlink{structinternal__state_ac023d0c9e6112dfe6cbd049a56484997}{gzhead}};\ \ \textcolor{comment}{/*\ gzip\ header\ information\ to\ write\ */}}
+\DoxyCodeLine{00109\ \ \ \ \ \mbox{\hyperlink{zutil_8h_abd6f60bf9450af2ecb94097a32c19a64}{ulg}}\ \ \ \mbox{\hyperlink{structinternal__state_ad8c827b0dedac12ec6a10493b4b7e3b9}{gzindex}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ where\ in\ extra,\ name,\ or\ comment\ */}}
+\DoxyCodeLine{00110\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_ae3a497195d617519e5353ea7b417940f}{Byte}}\ \ \mbox{\hyperlink{structinternal__state_aeb38f8a255e975e703595577ea43220b}{method}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ can\ only\ be\ DEFLATED\ */}}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keywordtype}{int}\ \ \ \mbox{\hyperlink{structinternal__state_aa9517fd4120306e1f07a05563a6fe40b}{last\_flush}};\ \ \ \ \textcolor{comment}{/*\ value\ of\ flush\ param\ for\ previous\ deflate\ call\ */}}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ used\ by\ deflate.c:\ */}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \ \mbox{\hyperlink{structinternal__state_a875579bf4d0e9d9f9c04ff288d22bb90}{w\_size}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ LZ77\ window\ size\ (32K\ by\ default)\ */}}
+\DoxyCodeLine{00116\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \ \mbox{\hyperlink{structinternal__state_a016f4538a10e71ab601017a052c0a05f}{w\_bits}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ log2(w\_size)\ \ (8..16)\ */}}
+\DoxyCodeLine{00117\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \ \mbox{\hyperlink{structinternal__state_a19aca516cb19d15cd0c2ea3c72cbe9a5}{w\_mask}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ w\_size\ -\/\ 1\ */}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aeb722a888064be47e12d05f692e0f407}{Bytef}}\ *\mbox{\hyperlink{structinternal__state_a8d5cccc7e4dd85927c84bb8efc645533}{window}};}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{comment}{/*\ Sliding\ window.\ Input\ bytes\ are\ read\ into\ the\ second\ half\ of\ the\ window,}}
+\DoxyCodeLine{00121\ \textcolor{comment}{\ \ \ \ \ *\ and\ move\ to\ the\ first\ half\ later\ to\ keep\ a\ dictionary\ of\ at\ least\ wSize}}
+\DoxyCodeLine{00122\ \textcolor{comment}{\ \ \ \ \ *\ bytes.\ With\ this\ organization,\ matches\ are\ limited\ to\ a\ distance\ of}}
+\DoxyCodeLine{00123\ \textcolor{comment}{\ \ \ \ \ *\ wSize-\/MAX\_MATCH\ bytes,\ but\ this\ ensures\ that\ IO\ is\ always}}
+\DoxyCodeLine{00124\ \textcolor{comment}{\ \ \ \ \ *\ performed\ with\ a\ length\ multiple\ of\ the\ block\ size.\ Also,\ it\ limits}}
+\DoxyCodeLine{00125\ \textcolor{comment}{\ \ \ \ \ *\ the\ window\ size\ to\ 64K,\ which\ is\ quite\ useful\ on\ MSDOS.}}
+\DoxyCodeLine{00126\ \textcolor{comment}{\ \ \ \ \ *\ To\ do:\ use\ the\ user\ input\ buffer\ as\ sliding\ window.}}
+\DoxyCodeLine{00127\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \ \ \mbox{\hyperlink{zutil_8h_abd6f60bf9450af2ecb94097a32c19a64}{ulg}}\ \mbox{\hyperlink{structinternal__state_a4e45f5ef1c4d9d599a5fb11fa283806c}{window\_size}};}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{comment}{/*\ Actual\ size\ of\ window:\ 2*wSize,\ except\ when\ the\ user\ input\ buffer}}
+\DoxyCodeLine{00131\ \textcolor{comment}{\ \ \ \ \ *\ is\ directly\ used\ as\ sliding\ window.}}
+\DoxyCodeLine{00132\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ \ \ \mbox{\hyperlink{deflate_8h_a7fc422ecb86afdd5f330dad6f7c1136b}{Posf}}\ *\mbox{\hyperlink{structinternal__state_a93a7407be4c9df81f71a389eb1ff6c57}{prev}};}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{comment}{/*\ Link\ to\ older\ string\ with\ same\ hash\ index.\ To\ limit\ the\ size\ of\ this}}
+\DoxyCodeLine{00136\ \textcolor{comment}{\ \ \ \ \ *\ array\ to\ 64K,\ this\ link\ is\ maintained\ only\ for\ the\ last\ 32K\ strings.}}
+\DoxyCodeLine{00137\ \textcolor{comment}{\ \ \ \ \ *\ An\ index\ in\ this\ array\ is\ thus\ a\ window\ index\ modulo\ 32K.}}
+\DoxyCodeLine{00138\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ \ \ \mbox{\hyperlink{deflate_8h_a7fc422ecb86afdd5f330dad6f7c1136b}{Posf}}\ *\mbox{\hyperlink{structinternal__state_aafd9ba338599f15de29386ff7a0218f4}{head}};\ \textcolor{comment}{/*\ Heads\ of\ the\ hash\ chains\ or\ NIL.\ */}}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \ \mbox{\hyperlink{structinternal__state_a8cf437698f428195122d3c530929a80c}{ins\_h}};\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ hash\ index\ of\ string\ to\ be\ inserted\ */}}
+\DoxyCodeLine{00143\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \ \mbox{\hyperlink{structinternal__state_aad05d6c37eb87eefafca51e05468f349}{hash\_size}};\ \ \ \ \ \ \textcolor{comment}{/*\ number\ of\ elements\ in\ hash\ table\ */}}
+\DoxyCodeLine{00144\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \ \mbox{\hyperlink{structinternal__state_a5dbd3a26550651a746a8829210252715}{hash\_bits}};\ \ \ \ \ \ \textcolor{comment}{/*\ log2(hash\_size)\ */}}
+\DoxyCodeLine{00145\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \ \mbox{\hyperlink{structinternal__state_a824166a384dcbf6d508c0f6b97a1cb89}{hash\_mask}};\ \ \ \ \ \ \textcolor{comment}{/*\ hash\_size-\/1\ */}}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \ \mbox{\hyperlink{structinternal__state_aec996517ec9d4c0741647c487d2c513c}{hash\_shift}};}
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{comment}{/*\ Number\ of\ bits\ by\ which\ ins\_h\ must\ be\ shifted\ at\ each\ input}}
+\DoxyCodeLine{00149\ \textcolor{comment}{\ \ \ \ \ *\ step.\ It\ must\ be\ such\ that\ after\ MIN\_MATCH\ steps,\ the\ oldest}}
+\DoxyCodeLine{00150\ \textcolor{comment}{\ \ \ \ \ *\ byte\ no\ longer\ takes\ part\ in\ the\ hash\ key,\ that\ is:}}
+\DoxyCodeLine{00151\ \textcolor{comment}{\ \ \ \ \ *\ \ \ hash\_shift\ *\ MIN\_MATCH\ >=\ hash\_bits}}
+\DoxyCodeLine{00152\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{structinternal__state_a4ba16849758dfa969066693ca2cae880}{block\_start}};}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{comment}{/*\ Window\ position\ at\ the\ beginning\ of\ the\ current\ output\ block.\ Gets}}
+\DoxyCodeLine{00156\ \textcolor{comment}{\ \ \ \ \ *\ negative\ when\ the\ window\ is\ moved\ backwards.}}
+\DoxyCodeLine{00157\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_aa1506e6907be6f3d4273a1386206ae0c}{match\_length}};\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ length\ of\ best\ match\ */}}
+\DoxyCodeLine{00160\ \ \ \ \ \mbox{\hyperlink{deflate_8h_ada696b787a46d01634b6365afcec1a9e}{IPos}}\ \mbox{\hyperlink{structinternal__state_a0f5871de1be252ed0496a8b7a30464ef}{prev\_match}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ previous\ match\ */}}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinternal__state_accddba15d8b54ca3f10163fa920599f4}{match\_available}};\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ set\ if\ previous\ match\ exists\ */}}
+\DoxyCodeLine{00162\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_a946579b9b86ee466424ffb0a67eb7060}{strstart}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ start\ of\ string\ to\ insert\ */}}
+\DoxyCodeLine{00163\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_aced58a85c56daa1c5de41fa5ce75d2e8}{match\_start}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ start\ of\ matching\ string\ */}}
+\DoxyCodeLine{00164\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_a3a826064126ee19a77f78919e2f9bb1e}{lookahead}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ number\ of\ valid\ bytes\ ahead\ in\ window\ */}}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_a7619fb70f9f66ff21b419b8ceac4904c}{prev\_length}};}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{comment}{/*\ Length\ of\ the\ best\ match\ at\ previous\ step.\ Matches\ not\ greater\ than\ this}}
+\DoxyCodeLine{00168\ \textcolor{comment}{\ \ \ \ \ *\ are\ discarded.\ This\ is\ used\ in\ the\ lazy\ match\ evaluation.}}
+\DoxyCodeLine{00169\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_ab1ffa7feb159edec170574813fae3279}{max\_chain\_length}};}
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{comment}{/*\ To\ speed\ up\ deflation,\ hash\ chains\ are\ never\ searched\ beyond\ this}}
+\DoxyCodeLine{00173\ \textcolor{comment}{\ \ \ \ \ *\ length.\ \ A\ higher\ limit\ improves\ compression\ ratio\ but\ degrades\ the}}
+\DoxyCodeLine{00174\ \textcolor{comment}{\ \ \ \ \ *\ speed.}}
+\DoxyCodeLine{00175\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00177\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_ab74215ec1c106bf588a7642927d47b84}{max\_lazy\_match}};}
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{comment}{/*\ Attempt\ to\ find\ a\ better\ match\ only\ when\ the\ current\ match\ is\ strictly}}
+\DoxyCodeLine{00179\ \textcolor{comment}{\ \ \ \ \ *\ smaller\ than\ this\ value.\ This\ mechanism\ is\ used\ only\ for\ compression}}
+\DoxyCodeLine{00180\ \textcolor{comment}{\ \ \ \ \ *\ levels\ >=\ 4.}}
+\DoxyCodeLine{00181\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00182\ \textcolor{preprocessor}{\#\ \ \ define\ max\_insert\_length\ \ max\_lazy\_match}}
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{comment}{/*\ Insert\ new\ strings\ in\ the\ hash\ table\ only\ if\ the\ match\ length\ is\ not}}
+\DoxyCodeLine{00184\ \textcolor{comment}{\ \ \ \ \ *\ greater\ than\ this\ length.\ This\ saves\ time\ but\ degrades\ compression.}}
+\DoxyCodeLine{00185\ \textcolor{comment}{\ \ \ \ \ *\ max\_insert\_length\ is\ used\ only\ for\ compression\ levels\ <=\ 3.}}
+\DoxyCodeLine{00186\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinternal__state_a7ad2ab1df80c8cab4ffb97ff84e88c62}{level}};\ \ \ \ \textcolor{comment}{/*\ compression\ level\ (1..9)\ */}}
+\DoxyCodeLine{00189\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinternal__state_a67219312df7fd2f86e06e6f14700eb28}{strategy}};\ \textcolor{comment}{/*\ favor\ or\ force\ Huffman\ coding*/}}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_a68ba00254242017f330dca5e0191bca4}{good\_match}};}
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{comment}{/*\ Use\ a\ faster\ search\ when\ the\ previous\ match\ is\ longer\ than\ this\ */}}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinternal__state_a39ab99e52138c0628f645bc1e0c69a04}{nice\_match}};\ \textcolor{comment}{/*\ Stop\ searching\ when\ current\ match\ exceeds\ this\ */}}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ used\ by\ trees.c:\ */}}
+\DoxyCodeLine{00197\ \ \ \ \ \textcolor{comment}{/*\ Didn't\ use\ ct\_data\ typedef\ below\ to\ suppress\ compiler\ warning\ */}}
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structct__data__s}{ct\_data\_s}}\ \mbox{\hyperlink{structinternal__state_ae11867c05d54c575dbc713bbea71266c}{dyn\_ltree}}[\mbox{\hyperlink{deflate_8h_a1b45302695680930829cac31d65e41e1}{HEAP\_SIZE}}];\ \ \ \textcolor{comment}{/*\ literal\ and\ length\ tree\ */}}
+\DoxyCodeLine{00199\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structct__data__s}{ct\_data\_s}}\ \mbox{\hyperlink{structinternal__state_a42a52476d3cde41e57a6ef2a6a78008f}{dyn\_dtree}}[2*\mbox{\hyperlink{deflate_8h_a8798a9a526623abbd88fedb0727e21aa}{D\_CODES}}+1];\ \textcolor{comment}{/*\ distance\ tree\ */}}
+\DoxyCodeLine{00200\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structct__data__s}{ct\_data\_s}}\ \mbox{\hyperlink{structinternal__state_a98131fc5b64d0d7542bc3621aef19854}{bl\_tree}}[2*\mbox{\hyperlink{deflate_8h_a9e19158a493307d4f211cdf223da8319}{BL\_CODES}}+1];\ \ \textcolor{comment}{/*\ Huffman\ tree\ for\ bit\ lengths\ */}}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structtree__desc__s}{tree\_desc\_s}}\ \mbox{\hyperlink{structinternal__state_a0266c4e0250652904e6b4908d8da84a9}{l\_desc}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ desc.\ for\ literal\ tree\ */}}
+\DoxyCodeLine{00203\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structtree__desc__s}{tree\_desc\_s}}\ \mbox{\hyperlink{structinternal__state_ab2fddb383d3055b6ec81c7fef14e99d8}{d\_desc}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ desc.\ for\ distance\ tree\ */}}
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structtree__desc__s}{tree\_desc\_s}}\ \mbox{\hyperlink{structinternal__state_aa0e5da102c35a7e7d22dd1894039393b}{bl\_desc}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ desc.\ for\ bit\ length\ tree\ */}}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \ \ \ \ \mbox{\hyperlink{zutil_8h_a3754180d606d4ed15468d15d9665aa2e}{ush}}\ \mbox{\hyperlink{structinternal__state_abf9e786c8e5b4ab5d620ab123208034c}{bl\_count}}[\mbox{\hyperlink{deflate_8h_a51c241e7ad52441b8d4c1fd5f498b3b9}{MAX\_BITS}}+1];}
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{comment}{/*\ number\ of\ codes\ at\ each\ bit\ length\ for\ an\ optimal\ tree\ */}}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinternal__state_ad7edb9b1d387e631bc6fde1cad0af758}{heap}}[2*\mbox{\hyperlink{deflate_8h_a2b0cc00cc6a7d521fba8d208a1cae477}{L\_CODES}}+1];\ \ \ \ \ \ \textcolor{comment}{/*\ heap\ used\ to\ build\ the\ Huffman\ trees\ */}}
+\DoxyCodeLine{00210\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinternal__state_a0659e23b0188ac16db58f98ae2b67b6b}{heap\_len}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ number\ of\ elements\ in\ the\ heap\ */}}
+\DoxyCodeLine{00211\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinternal__state_aa8c78bbfa5d71f3ccc55445a62897f47}{heap\_max}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ element\ of\ largest\ frequency\ */}}
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{comment}{/*\ The\ sons\ of\ heap[n]\ are\ heap[2*n]\ and\ heap[2*n+1].\ heap[0]\ is\ not\ used.}}
+\DoxyCodeLine{00213\ \textcolor{comment}{\ \ \ \ \ *\ The\ same\ heap\ array\ is\ used\ to\ build\ all\ trees.}}
+\DoxyCodeLine{00214\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \ \ \ \ \mbox{\hyperlink{zutil_8h_af3307af5922c72924a837559c801a8a4}{uch}}\ \mbox{\hyperlink{structinternal__state_a8e525b4f3dfa38b3bbcb8b427e333570}{depth}}[2*\mbox{\hyperlink{deflate_8h_a2b0cc00cc6a7d521fba8d208a1cae477}{L\_CODES}}+1];}
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{comment}{/*\ Depth\ of\ each\ subtree\ used\ as\ tie\ breaker\ for\ trees\ of\ equal\ frequency}}
+\DoxyCodeLine{00218\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00220\ \ \ \ \ \mbox{\hyperlink{zutil_8h_aaa6fdf02a2fdaf3731f17a19920ddb0b}{uchf}}\ *\mbox{\hyperlink{structinternal__state_aee0522ee301bf87b975d64fabd516f51}{sym\_buf}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ buffer\ for\ distances\ and\ literals/lengths\ */}}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \ \mbox{\hyperlink{structinternal__state_a25ad7fc0094e412144b4201df2126bbb}{lit\_bufsize}};}
+\DoxyCodeLine{00223\ \ \ \ \ \textcolor{comment}{/*\ Size\ of\ match\ buffer\ for\ literals/lengths.\ \ There\ are\ 4\ reasons\ for}}
+\DoxyCodeLine{00224\ \textcolor{comment}{\ \ \ \ \ *\ limiting\ lit\_bufsize\ to\ 64K:}}
+\DoxyCodeLine{00225\ \textcolor{comment}{\ \ \ \ \ *\ \ \ -\/\ frequencies\ can\ be\ kept\ in\ 16\ bit\ counters}}
+\DoxyCodeLine{00226\ \textcolor{comment}{\ \ \ \ \ *\ \ \ -\/\ if\ compression\ is\ not\ successful\ for\ the\ first\ block,\ all\ input}}
+\DoxyCodeLine{00227\ \textcolor{comment}{\ \ \ \ \ *\ \ \ \ \ data\ is\ still\ in\ the\ window\ so\ we\ can\ still\ emit\ a\ stored\ block\ even}}
+\DoxyCodeLine{00228\ \textcolor{comment}{\ \ \ \ \ *\ \ \ \ \ when\ input\ comes\ from\ standard\ input.\ \ (This\ can\ also\ be\ done\ for}}
+\DoxyCodeLine{00229\ \textcolor{comment}{\ \ \ \ \ *\ \ \ \ \ all\ blocks\ if\ lit\_bufsize\ is\ not\ greater\ than\ 32K.)}}
+\DoxyCodeLine{00230\ \textcolor{comment}{\ \ \ \ \ *\ \ \ -\/\ if\ compression\ is\ not\ successful\ for\ a\ file\ smaller\ than\ 64K,\ we\ can}}
+\DoxyCodeLine{00231\ \textcolor{comment}{\ \ \ \ \ *\ \ \ \ \ even\ emit\ a\ stored\ file\ instead\ of\ a\ stored\ block\ (saving\ 5\ bytes).}}
+\DoxyCodeLine{00232\ \textcolor{comment}{\ \ \ \ \ *\ \ \ \ \ This\ is\ applicable\ only\ for\ zip\ (not\ gzip\ or\ zlib).}}
+\DoxyCodeLine{00233\ \textcolor{comment}{\ \ \ \ \ *\ \ \ -\/\ creating\ new\ Huffman\ trees\ less\ frequently\ may\ not\ provide\ fast}}
+\DoxyCodeLine{00234\ \textcolor{comment}{\ \ \ \ \ *\ \ \ \ \ adaptation\ to\ changes\ in\ the\ input\ data\ statistics.\ (Take\ for}}
+\DoxyCodeLine{00235\ \textcolor{comment}{\ \ \ \ \ *\ \ \ \ \ example\ a\ binary\ file\ with\ poorly\ compressible\ code\ followed\ by}}
+\DoxyCodeLine{00236\ \textcolor{comment}{\ \ \ \ \ *\ \ \ \ \ a\ highly\ compressible\ string\ table.)\ Smaller\ buffer\ sizes\ give}}
+\DoxyCodeLine{00237\ \textcolor{comment}{\ \ \ \ \ *\ \ \ \ \ fast\ adaptation\ but\ have\ of\ course\ the\ overhead\ of\ transmitting}}
+\DoxyCodeLine{00238\ \textcolor{comment}{\ \ \ \ \ *\ \ \ \ \ trees\ more\ frequently.}}
+\DoxyCodeLine{00239\ \textcolor{comment}{\ \ \ \ \ *\ \ \ -\/\ I\ can't\ count\ above\ 4}}
+\DoxyCodeLine{00240\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_a0fbeaaa536b1a3ba1469872893001a39}{sym\_next}};\ \ \ \ \ \ \textcolor{comment}{/*\ running\ index\ in\ sym\_buf\ */}}
+\DoxyCodeLine{00243\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_a56df097e981e0fb9af99d3cb416b12fb}{sym\_end}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ symbol\ table\ full\ when\ sym\_next\ reaches\ this\ */}}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00245\ \ \ \ \ \mbox{\hyperlink{zutil_8h_abd6f60bf9450af2ecb94097a32c19a64}{ulg}}\ \mbox{\hyperlink{structinternal__state_a2f6efee5d2057aba8bca2c1a58cf418a}{opt\_len}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ bit\ length\ of\ current\ block\ with\ optimal\ trees\ */}}
+\DoxyCodeLine{00246\ \ \ \ \ \mbox{\hyperlink{zutil_8h_abd6f60bf9450af2ecb94097a32c19a64}{ulg}}\ \mbox{\hyperlink{structinternal__state_a8a83e269866761afa3a7b4641ba5ff91}{static\_len}};\ \ \ \ \ \textcolor{comment}{/*\ bit\ length\ of\ current\ block\ with\ static\ trees\ */}}
+\DoxyCodeLine{00247\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_ac0f10ec7237615f6b632f2f4d14872ef}{matches}};\ \ \ \ \ \ \ \textcolor{comment}{/*\ number\ of\ string\ matches\ in\ current\ block\ */}}
+\DoxyCodeLine{00248\ \ \ \ \ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{structinternal__state_a315b7281f725e5729fbbafada48fc70a}{insert}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ bytes\ at\ end\ of\ window\ left\ to\ insert\ */}}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \textcolor{preprocessor}{\#ifdef\ ZLIB\_DEBUG}}
+\DoxyCodeLine{00251\ \ \ \ \ \mbox{\hyperlink{zutil_8h_abd6f60bf9450af2ecb94097a32c19a64}{ulg}}\ compressed\_len;\ \textcolor{comment}{/*\ total\ bit\ length\ of\ compressed\ file\ mod\ 2\string^32\ */}}
+\DoxyCodeLine{00252\ \ \ \ \ \mbox{\hyperlink{zutil_8h_abd6f60bf9450af2ecb94097a32c19a64}{ulg}}\ bits\_sent;\ \ \ \ \ \ \textcolor{comment}{/*\ bit\ length\ of\ compressed\ data\ sent\ mod\ 2\string^32\ */}}
+\DoxyCodeLine{00253\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00255\ \ \ \ \ \mbox{\hyperlink{zutil_8h_a3754180d606d4ed15468d15d9665aa2e}{ush}}\ \mbox{\hyperlink{structinternal__state_a6880946d081053778f5f544b04603d13}{bi\_buf}};}
+\DoxyCodeLine{00256\ \ \ \ \ \textcolor{comment}{/*\ Output\ buffer.\ bits\ are\ inserted\ starting\ at\ the\ bottom\ (least}}
+\DoxyCodeLine{00257\ \textcolor{comment}{\ \ \ \ \ *\ significant\ bits).}}
+\DoxyCodeLine{00258\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinternal__state_a241f3606e41a3aa0ef22868a41bd9a0f}{bi\_valid}};}
+\DoxyCodeLine{00260\ \ \ \ \ \textcolor{comment}{/*\ Number\ of\ valid\ bits\ in\ bi\_buf.\ \ All\ bits\ above\ the\ last\ valid\ bit}}
+\DoxyCodeLine{00261\ \textcolor{comment}{\ \ \ \ \ *\ are\ always\ zero.}}
+\DoxyCodeLine{00262\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00264\ \ \ \ \ \mbox{\hyperlink{zutil_8h_abd6f60bf9450af2ecb94097a32c19a64}{ulg}}\ \mbox{\hyperlink{structinternal__state_a85439cd585435b2590039339139d25cb}{high\_water}};}
+\DoxyCodeLine{00265\ \ \ \ \ \textcolor{comment}{/*\ High\ water\ mark\ offset\ in\ window\ for\ initialized\ bytes\ -\/-\/\ bytes\ above}}
+\DoxyCodeLine{00266\ \textcolor{comment}{\ \ \ \ \ *\ this\ are\ set\ to\ zero\ in\ order\ to\ avoid\ memory\ check\ warnings\ when}}
+\DoxyCodeLine{00267\ \textcolor{comment}{\ \ \ \ \ *\ longest\ match\ routines\ access\ bytes\ past\ the\ input.\ \ This\ is\ then}}
+\DoxyCodeLine{00268\ \textcolor{comment}{\ \ \ \ \ *\ updated\ to\ the\ new\ high\ water\ mark.}}
+\DoxyCodeLine{00269\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aef060b3456fdcc093a7210a762d5f2ed}{FAR}}\ \mbox{\hyperlink{deflate_8h_aeaabc84f4830ec10deb9b64bd719617a}{deflate\_state}};}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00273\ \textcolor{comment}{/*\ Output\ a\ byte\ on\ the\ stream.}}
+\DoxyCodeLine{00274\ \textcolor{comment}{\ *\ IN\ assertion:\ there\ is\ enough\ room\ in\ pending\_buf.}}
+\DoxyCodeLine{00275\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00276\ \textcolor{preprocessor}{\#define\ put\_byte(s,\ c)\ \{s-\/>pending\_buf[s-\/>pending++]\ =\ (Bytef)(c);\}}}
+\DoxyCodeLine{00277\ }
+\DoxyCodeLine{00278\ }
+\DoxyCodeLine{00279\ \textcolor{preprocessor}{\#define\ MIN\_LOOKAHEAD\ (MAX\_MATCH+MIN\_MATCH+1)}}
+\DoxyCodeLine{00280\ \textcolor{comment}{/*\ Minimum\ amount\ of\ lookahead,\ except\ at\ the\ end\ of\ the\ input\ file.}}
+\DoxyCodeLine{00281\ \textcolor{comment}{\ *\ See\ deflate.c\ for\ comments\ about\ the\ MIN\_MATCH+1.}}
+\DoxyCodeLine{00282\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \textcolor{preprocessor}{\#define\ MAX\_DIST(s)\ \ ((s)-\/>w\_size-\/MIN\_LOOKAHEAD)}}
+\DoxyCodeLine{00285\ \textcolor{comment}{/*\ In\ order\ to\ simplify\ the\ code,\ particularly\ on\ 16\ bit\ machines,\ match}}
+\DoxyCodeLine{00286\ \textcolor{comment}{\ *\ distances\ are\ limited\ to\ MAX\_DIST\ instead\ of\ WSIZE.}}
+\DoxyCodeLine{00287\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00288\ }
+\DoxyCodeLine{00289\ \textcolor{preprocessor}{\#define\ WIN\_INIT\ MAX\_MATCH}}
+\DoxyCodeLine{00290\ \textcolor{comment}{/*\ Number\ of\ bytes\ after\ end\ of\ data\ in\ window\ to\ initialize\ in\ order\ to\ avoid}}
+\DoxyCodeLine{00291\ \textcolor{comment}{\ \ \ memory\ checker\ errors\ from\ longest\ match\ routines\ */}}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ in\ trees.c\ */}}
+\DoxyCodeLine{00294\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{compress_8c_a59d4d7ef4d73655c759211ec33a5d44f}{ZLIB\_INTERNAL}}\ \mbox{\hyperlink{trees_8c_a330f47f21a267ad5616b9ba72bf7f90b}{\_tr\_init}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{deflate_8h_aeaabc84f4830ec10deb9b64bd719617a}{deflate\_state}}\ *s));}
+\DoxyCodeLine{00295\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{compress_8c_a59d4d7ef4d73655c759211ec33a5d44f}{ZLIB\_INTERNAL}}\ \mbox{\hyperlink{trees_8c_a20ccb9025055641f33252380c7700bcd}{\_tr\_tally}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{deflate_8h_aeaabc84f4830ec10deb9b64bd719617a}{deflate\_state}}\ *s,\ \textcolor{keywordtype}{unsigned}\ dist,\ \textcolor{keywordtype}{unsigned}\ lc));}
+\DoxyCodeLine{00296\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{compress_8c_a59d4d7ef4d73655c759211ec33a5d44f}{ZLIB\_INTERNAL}}\ \mbox{\hyperlink{trees_8c_aafe54369cbbb97972279a82a3b6c699e}{\_tr\_flush\_block}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{deflate_8h_aeaabc84f4830ec10deb9b64bd719617a}{deflate\_state}}\ *s,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a0f3f92a9c02f6f688bf081aabf230212}{charf}}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{zutil_8h_abd6f60bf9450af2ecb94097a32c19a64}{ulg}}\ stored\_len,\ \textcolor{keywordtype}{int}\ last));}
+\DoxyCodeLine{00298\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{compress_8c_a59d4d7ef4d73655c759211ec33a5d44f}{ZLIB\_INTERNAL}}\ \mbox{\hyperlink{trees_8c_a7152f0344193f9c6f4ae640326a0641a}{\_tr\_flush\_bits}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{deflate_8h_aeaabc84f4830ec10deb9b64bd719617a}{deflate\_state}}\ *s));}
+\DoxyCodeLine{00299\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{compress_8c_a59d4d7ef4d73655c759211ec33a5d44f}{ZLIB\_INTERNAL}}\ \mbox{\hyperlink{trees_8c_abd2aff56f489aac6182c99eb739c41be}{\_tr\_align}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{deflate_8h_aeaabc84f4830ec10deb9b64bd719617a}{deflate\_state}}\ *s));}
+\DoxyCodeLine{00300\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{compress_8c_a59d4d7ef4d73655c759211ec33a5d44f}{ZLIB\_INTERNAL}}\ \mbox{\hyperlink{trees_8c_a65fd19df7fed60e83492819918defec2}{\_tr\_stored\_block}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa6c3c093d0900e1d96d07c91b53c1b5d}{OF}}((\mbox{\hyperlink{deflate_8h_aeaabc84f4830ec10deb9b64bd719617a}{deflate\_state}}\ *s,\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a0f3f92a9c02f6f688bf081aabf230212}{charf}}\ *\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{zutil_8h_abd6f60bf9450af2ecb94097a32c19a64}{ulg}}\ stored\_len,\ \textcolor{keywordtype}{int}\ last));}
+\DoxyCodeLine{00302\ }
+\DoxyCodeLine{00303\ \textcolor{preprocessor}{\#define\ d\_code(dist)\ \(\backslash\)}}
+\DoxyCodeLine{00304\ \textcolor{preprocessor}{\ \ \ ((dist)\ <\ 256\ ?\ \_dist\_code[dist]\ :\ \_dist\_code[256+((dist)>>7)])}}
+\DoxyCodeLine{00305\ \textcolor{comment}{/*\ Mapping\ from\ a\ distance\ to\ a\ distance\ code.\ dist\ is\ the\ distance\ -\/\ 1\ and}}
+\DoxyCodeLine{00306\ \textcolor{comment}{\ *\ must\ not\ have\ side\ effects.\ \_dist\_code[256]\ and\ \_dist\_code[257]\ are\ never}}
+\DoxyCodeLine{00307\ \textcolor{comment}{\ *\ used.}}
+\DoxyCodeLine{00308\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00309\ }
+\DoxyCodeLine{00310\ \textcolor{preprocessor}{\#ifndef\ ZLIB\_DEBUG}}
+\DoxyCodeLine{00311\ \textcolor{comment}{/*\ Inline\ versions\ of\ \_tr\_tally\ for\ speed:\ */}}
+\DoxyCodeLine{00312\ }
+\DoxyCodeLine{00313\ \textcolor{preprocessor}{\#if\ defined(GEN\_TREES\_H)\ ||\ !defined(STDC)}}
+\DoxyCodeLine{00314\ \ \ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zutil_8h_af3307af5922c72924a837559c801a8a4}{uch}}\ \mbox{\hyperlink{compress_8c_a59d4d7ef4d73655c759211ec33a5d44f}{ZLIB\_INTERNAL}}\ \mbox{\hyperlink{deflate_8h_ac88cdfc823257dd30e51939e7f2e18d5}{\_length\_code}}[];}
+\DoxyCodeLine{00315\ \ \ \textcolor{keyword}{extern}\ \mbox{\hyperlink{zutil_8h_af3307af5922c72924a837559c801a8a4}{uch}}\ \mbox{\hyperlink{compress_8c_a59d4d7ef4d73655c759211ec33a5d44f}{ZLIB\_INTERNAL}}\ \mbox{\hyperlink{deflate_8h_af6c8544687b8a2a44e9638c796dce61e}{\_dist\_code}}[];}
+\DoxyCodeLine{00316\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00317\ \ \ \textcolor{keyword}{extern}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{zutil_8h_af3307af5922c72924a837559c801a8a4}{uch}}\ \mbox{\hyperlink{compress_8c_a59d4d7ef4d73655c759211ec33a5d44f}{ZLIB\_INTERNAL}}\ \mbox{\hyperlink{deflate_8h_ac88cdfc823257dd30e51939e7f2e18d5}{\_length\_code}}[];}
+\DoxyCodeLine{00318\ \ \ \textcolor{keyword}{extern}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{zutil_8h_af3307af5922c72924a837559c801a8a4}{uch}}\ \mbox{\hyperlink{compress_8c_a59d4d7ef4d73655c759211ec33a5d44f}{ZLIB\_INTERNAL}}\ \mbox{\hyperlink{deflate_8h_af6c8544687b8a2a44e9638c796dce61e}{\_dist\_code}}[];}
+\DoxyCodeLine{00319\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00321\ \textcolor{preprocessor}{\#\ define\ \_tr\_tally\_lit(s,\ c,\ flush)\ \(\backslash\)}}
+\DoxyCodeLine{00322\ \textcolor{preprocessor}{\ \ \{\ uch\ cc\ =\ (c);\ \(\backslash\)}}
+\DoxyCodeLine{00323\ \textcolor{preprocessor}{\ \ \ \ s-\/>sym\_buf[s-\/>sym\_next++]\ =\ 0;\ \(\backslash\)}}
+\DoxyCodeLine{00324\ \textcolor{preprocessor}{\ \ \ \ s-\/>sym\_buf[s-\/>sym\_next++]\ =\ 0;\ \(\backslash\)}}
+\DoxyCodeLine{00325\ \textcolor{preprocessor}{\ \ \ \ s-\/>sym\_buf[s-\/>sym\_next++]\ =\ cc;\ \(\backslash\)}}
+\DoxyCodeLine{00326\ \textcolor{preprocessor}{\ \ \ \ s-\/>dyn\_ltree[cc].Freq++;\ \(\backslash\)}}
+\DoxyCodeLine{00327\ \textcolor{preprocessor}{\ \ \ \ flush\ =\ (s-\/>sym\_next\ ==\ s-\/>sym\_end);\ \(\backslash\)}}
+\DoxyCodeLine{00328\ \textcolor{preprocessor}{\ \ \ \}}}
+\DoxyCodeLine{00329\ \textcolor{preprocessor}{\#\ define\ \_tr\_tally\_dist(s,\ distance,\ length,\ flush)\ \(\backslash\)}}
+\DoxyCodeLine{00330\ \textcolor{preprocessor}{\ \ \{\ uch\ len\ =\ (uch)(length);\ \(\backslash\)}}
+\DoxyCodeLine{00331\ \textcolor{preprocessor}{\ \ \ \ ush\ dist\ =\ (ush)(distance);\ \(\backslash\)}}
+\DoxyCodeLine{00332\ \textcolor{preprocessor}{\ \ \ \ s-\/>sym\_buf[s-\/>sym\_next++]\ =\ (uch)dist;\ \(\backslash\)}}
+\DoxyCodeLine{00333\ \textcolor{preprocessor}{\ \ \ \ s-\/>sym\_buf[s-\/>sym\_next++]\ =\ (uch)(dist\ >>\ 8);\ \(\backslash\)}}
+\DoxyCodeLine{00334\ \textcolor{preprocessor}{\ \ \ \ s-\/>sym\_buf[s-\/>sym\_next++]\ =\ len;\ \(\backslash\)}}
+\DoxyCodeLine{00335\ \textcolor{preprocessor}{\ \ \ \ dist-\/-\/;\ \(\backslash\)}}
+\DoxyCodeLine{00336\ \textcolor{preprocessor}{\ \ \ \ s-\/>dyn\_ltree[\_length\_code[len]+LITERALS+1].Freq++;\ \(\backslash\)}}
+\DoxyCodeLine{00337\ \textcolor{preprocessor}{\ \ \ \ s-\/>dyn\_dtree[d\_code(dist)].Freq++;\ \(\backslash\)}}
+\DoxyCodeLine{00338\ \textcolor{preprocessor}{\ \ \ \ flush\ =\ (s-\/>sym\_next\ ==\ s-\/>sym\_end);\ \(\backslash\)}}
+\DoxyCodeLine{00339\ \textcolor{preprocessor}{\ \ \}}}
+\DoxyCodeLine{00340\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00341\ \textcolor{preprocessor}{\#\ define\ \_tr\_tally\_lit(s,\ c,\ flush)\ flush\ =\ \_tr\_tally(s,\ 0,\ c)}}
+\DoxyCodeLine{00342\ \textcolor{preprocessor}{\#\ define\ \_tr\_tally\_dist(s,\ distance,\ length,\ flush)\ \(\backslash\)}}
+\DoxyCodeLine{00343\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ flush\ =\ \_tr\_tally(s,\ distance,\ length)}}
+\DoxyCodeLine{00344\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00345\ }
+\DoxyCodeLine{00346\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ DEFLATE\_H\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

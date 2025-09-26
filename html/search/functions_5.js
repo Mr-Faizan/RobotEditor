@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['load3dmodel_0',['load3DModel',['../class_main_window.html#acd63c23ea0f5c8dd945f1ec5a672f740',1,'MainWindow']]],
-  ['loadobjfiles_1',['loadObjFiles',['../class_main_window.html#a5ecce4b0d5a7a54cb4027c4a54d56b7d',1,'MainWindow']]],
-  ['loadrobotobjfiles_2',['loadRobotObjFiles',['../class_main_window.html#ad19f260235099213212dad22bd4052d0',1,'MainWindow']]],
-  ['loadsingleobjfile_3',['loadSingleObjFile',['../class_main_window.html#a851018a4e0f923dc315b1b8d0b31d504',1,'MainWindow']]]
+  ['importrobotfromvcmx_0',['importRobotFromVCMX',['../class_robot_lib.html#a12eb73af6912e642eea0527d4d5d0083',1,'RobotLib']]],
+  ['importvcmx_1',['importvcmx',['../classimportvcmx.html#a01da21cce98a696ce3613ba25648d728',1,'importvcmx::importvcmx()=default'],['../classimportvcmx.html#ac9535a665d5527fc28d8d1c812934c01',1,'importvcmx::importvcmx(const std::string &amp;filePath)']]],
+  ['importvcmxdata_2',['importVCMXData',['../classimportvcmx.html#a271bc937f4cae6bbba31ba57061ab061',1,'importvcmx']]],
+  ['initializenewrobot_3',['initializeNewRobot',['../class_robot_lib.html#a05dd78304a5ecfcc2a84954115079628',1,'RobotLib']]],
+  ['ismodifieddh_4',['isModifiedDh',['../class_joint_kinematics.html#a48ca9dacf2e139c3826caf3076efe477',1,'JointKinematics']]]
 ];

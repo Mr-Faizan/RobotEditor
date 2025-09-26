@@ -1,0 +1,264 @@
+\doxysection{mesh\+\_\+stripifier.\+h}
+\hypertarget{mesh__stripifier_8h_source}{}\label{mesh__stripifier_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/mesh/mesh\_stripifier.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/mesh/mesh\_stripifier.h}}
+\mbox{\hyperlink{mesh__stripifier_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2017\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_MESH\_MESH\_STRIPIFIER\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_MESH\_MESH\_STRIPIFIER\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__misc__functions_8h}{draco/mesh/mesh\_misc\_functions.h}}"{}}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{comment}{//\ Class\ that\ generates\ triangle\ strips\ from\ a\ provided\ draco::Mesh\ data}}
+\DoxyCodeLine{00023\ \textcolor{comment}{//\ structure.\ The\ strips\ represent\ a\ more\ memory\ efficient\ storage\ of\ triangle}}
+\DoxyCodeLine{00024\ \textcolor{comment}{//\ connectivity\ that\ can\ be\ used\ directly\ on\ the\ GPU\ (see}}
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ https://en.wikipedia.org/wiki/Triangle\_strip\ ).\ In\ general,\ a\ mesh\ needs\ to}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ be\ represented\ by\ several\ triangle\ strips\ and\ it\ has\ been\ proven\ that\ finding}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ the\ optimal\ set\ of\ triangle\ strips\ is\ an\ NP-\/complete\ problem.\ The\ algorithm}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ implemented\ by\ this\ class\ finds\ this\ set\ of\ triangle\ strips\ based\ on\ a\ greedy}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ heuristic\ that\ always\ selects\ the\ longest\ available\ strip\ that\ covers\ the}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ next\ unprocessed\ face.\ The\ longest\ strip\ is\ found\ by\ analyzing\ all\ strips}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ that\ can\ cover\ the\ given\ face\ (three\ strips\ corresponding\ to\ three}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ directions).}}
+\DoxyCodeLine{00033\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_mesh_stripifier_a88c32bf2d6ee794da97995a0d159f27e}{MeshStripifier}}\ \{}
+\DoxyCodeLine{00034\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_stripifier_a88c32bf2d6ee794da97995a0d159f27e}{MeshStripifier}}()}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ :\ mesh\_(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ num\_strips\_(0),}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ num\_encoded\_faces\_(0),}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ last\_encoded\_point\_(kInvalidPointIndex)\ \{\}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \textcolor{comment}{//\ Generate\ triangle\ strips\ for\ a\ given\ mesh\ and\ output\ them\ to\ the\ output}}
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ iterator\ |out\_it|.\ In\ most\ cases\ |out\_it|\ stores\ the\ values\ in\ a\ buffer}}
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ that\ can\ be\ used\ directly\ on\ the\ GPU.\ Note\ that\ the\ algorithm\ can\ generate}}
+\DoxyCodeLine{00044\ \ \ \textcolor{comment}{//\ multiple\ strips\ to\ represent\ the\ whole\ mesh.\ In\ such\ cases\ multiple\ strips}}
+\DoxyCodeLine{00045\ \ \ \textcolor{comment}{//\ are\ separated\ using\ a\ so\ called\ primitive\ restart\ index\ that\ is\ specified}}
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ by\ the\ |primitive\_restart\_index|\ (usually\ defined\ as\ the\ maximum\ allowed}}
+\DoxyCodeLine{00047\ \ \ \textcolor{comment}{//\ value\ for\ the\ given\ type).}}
+\DoxyCodeLine{00048\ \ \ \textcolor{comment}{//\ https://www.khronos.org/opengl/wiki/Vertex\_Rendering\#Primitive\_Restart}}
+\DoxyCodeLine{00049\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ OutputIteratorT,\ \textcolor{keyword}{typename}\ IndexTypeT>}
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_stripifier_ad4f5bc0959f9c152241aefcb71ba8829}{GenerateTriangleStripsWithPrimitiveRestart}}(}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh}{Mesh}}\ \&mesh,\ IndexTypeT\ primitive\_restart\_index,}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ OutputIteratorT\ out\_it);}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \textcolor{comment}{//\ The\ same\ as\ above\ but\ disjoint\ triangle\ strips\ are\ separated\ by\ degenerate}}
+\DoxyCodeLine{00055\ \ \ \textcolor{comment}{//\ triangles\ instead\ of\ the\ primitive\ restart\ index.\ Degenerate\ triangles\ are}}
+\DoxyCodeLine{00056\ \ \ \textcolor{comment}{//\ zero\ area\ triangles\ that\ are\ automatically\ discarded\ by\ the\ GPU.\ Using}}
+\DoxyCodeLine{00057\ \ \ \textcolor{comment}{//\ degenerate\ triangles\ usually\ results\ in\ a\ slightly\ longer\ output\ indices}}
+\DoxyCodeLine{00058\ \ \ \textcolor{comment}{//\ array\ compared\ to\ the\ similar\ triangle\ strips\ that\ use\ primitive\ restart}}
+\DoxyCodeLine{00059\ \ \ \textcolor{comment}{//\ index.\ The\ advantage\ of\ this\ method\ is\ that\ it\ is\ supported\ by\ all\ hardware}}
+\DoxyCodeLine{00060\ \ \ \textcolor{comment}{//\ and\ all\ relevant\ APIs\ (including\ WebGL\ 1.0).}}
+\DoxyCodeLine{00061\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ OutputIteratorT>}
+\DoxyCodeLine{00062\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_stripifier_a7c2c75fde3d534b6c863b5652873de52}{GenerateTriangleStripsWithDegenerateTriangles}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh}{Mesh}}\ \&mesh,}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ OutputIteratorT\ out\_it);}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ strips\ generated\ by\ the\ last\ call\ of\ the}}
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ GenerateTriangleStrips()\ method.}}
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_mesh_stripifier_a133fd812169010dc3bbcdbc98d4068bf}{num\_strips}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ num\_strips\_;\ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00070\ \ \ \textcolor{keywordtype}{bool}\ Prepare(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh}{Mesh}}\ \&mesh)\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ mesh\_\ =\ \&mesh;}
+\DoxyCodeLine{00072\ \ \ \ \ num\_strips\_\ =\ 0;}
+\DoxyCodeLine{00073\ \ \ \ \ num\_encoded\_faces\_\ =\ 0;}
+\DoxyCodeLine{00074\ \ \ \ \ corner\_table\_\ =\ \mbox{\hyperlink{namespacedraco_affeb9ca81e3f120b64a840f5ed21c4e7}{CreateCornerTableFromPositionAttribute}}(mesh\_);}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_table\_\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00077\ \ \ \ \ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//\ Mark\ all\ faces\ as\ unvisited.}}
+\DoxyCodeLine{00080\ \ \ \ \ is\_face\_visited\_.\mbox{\hyperlink{classdraco_1_1_index_type_vector_aa251841e33d3afa96d644d278a29572c}{assign}}(mesh.num\_faces(),\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00082\ \ \ \}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \textcolor{comment}{//\ Returns\ local\ id\ of\ the\ longest\ strip\ that\ can\ be\ created\ from\ the\ given}}
+\DoxyCodeLine{00085\ \ \ \textcolor{comment}{//\ face\ |fi|.}}
+\DoxyCodeLine{00086\ \ \ \textcolor{keywordtype}{int}\ FindLongestStripFromFace(\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ fi)\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{comment}{//\ There\ are\ three\ possible\ strip\ directions\ that\ can\ contain\ the\ provided}}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//\ input\ face.\ We\ try\ all\ of\ them\ and\ select\ the\ direction\ that\ result\ in}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{comment}{//\ the\ longest\ strip.}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ first\_ci\ =\ corner\_table\_-\/>FirstCorner(fi);}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordtype}{int}\ longest\_strip\_id\ =\ -\/1;}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keywordtype}{int}\ longest\_strip\_length\ =\ 0;}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ GenerateStripsFromCorner(i,\ first\_ci\ +\ i);}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (strip\_faces\_[i].\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}}()\ >\ longest\_strip\_length)\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ longest\_strip\_length\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(strip\_faces\_[i].size());}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ longest\_strip\_id\ =\ i;}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00099\ \ \ \ \ \}}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordflow}{return}\ longest\_strip\_id;}
+\DoxyCodeLine{00101\ \ \ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \textcolor{comment}{//\ Generates\ strip\ from\ the\ data\ stored\ in\ |strip\_faces\_|\ and}}
+\DoxyCodeLine{00104\ \ \ \textcolor{comment}{//\ |strip\_start\_start\_corners\_|\ and\ stores\ it\ to\ |out\_it|.}}
+\DoxyCodeLine{00105\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ OutputIteratorT>}
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordtype}{void}\ StoreStrip(\textcolor{keywordtype}{int}\ local\_strip\_id,\ OutputIteratorT\ out\_it)\ \{}
+\DoxyCodeLine{00107\ \ \ \ \ ++num\_strips\_;}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ num\_strip\_faces\ =\ strip\_faces\_[local\_strip\_id].size();}
+\DoxyCodeLine{00110\ \ \ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ ci\ =\ strip\_start\_corners\_[local\_strip\_id];}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_strip\_faces;\ ++i)\ \{}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ fi\ =\ corner\_table\_-\/>Face(ci);}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ is\_face\_visited\_[fi]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ ++num\_encoded\_faces\_;}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ 0)\ \{}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Add\ the\ start\ face\ (three\ indices).}}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ *out\_it++\ =\ CornerToPointIndex(ci).value();}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ *out\_it++\ =\ CornerToPointIndex(corner\_table\_-\/>Next(ci)).value();}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ last\_encoded\_point\_\ =\ CornerToPointIndex(corner\_table\_-\/>Previous(ci));}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ *out\_it++\ =\ last\_encoded\_point\_.value();}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Store\ the\ point\ on\ the\ newly\ reached\ corner.}}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ last\_encoded\_point\_\ =\ CornerToPointIndex(ci);}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ *out\_it++\ =\ last\_encoded\_point\_.value();}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Go\ to\ the\ correct\ source\ corner\ to\ proceed\ to\ the\ next\ face.}}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ \&\ 1)\ \{}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ ci\ =\ corner\_table\_-\/>Previous(ci);}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ ci\ =\ corner\_table\_-\/>Next(ci);}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ ci\ =\ corner\_table\_-\/>Opposite(ci);}
+\DoxyCodeLine{00135\ \ \ \ \ \}}
+\DoxyCodeLine{00136\ \ \ \}}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ PointIndex\ CornerToPointIndex(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ ci)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keywordflow}{return}\ mesh\_-\/>CornerToPointId(ci);}
+\DoxyCodeLine{00140\ \ \ \}}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \textcolor{comment}{//\ Returns\ the\ opposite\ corner\ in\ case\ the\ opposite\ triangle\ does\ not\ lie}}
+\DoxyCodeLine{00143\ \ \ \textcolor{comment}{//\ across\ an\ attribute\ seam.\ Otherwise\ return\ kInvalidCornerIndex.}}
+\DoxyCodeLine{00144\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ GetOppositeCorner(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ ci)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ oci\ =\ corner\_table\_-\/>Opposite(ci);}
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keywordflow}{if}\ (oci\ <\ 0)\ \{}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kInvalidCornerIndex;}
+\DoxyCodeLine{00148\ \ \ \ \ \}}
+\DoxyCodeLine{00149\ \ \ \ \ \textcolor{comment}{//\ Ensure\ the\ point\ ids\ are\ same\ on\ both\ sides\ of\ the\ shared\ edge\ between}}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{comment}{//\ the\ triangles.}}
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{keywordflow}{if}\ (CornerToPointIndex(corner\_table\_-\/>Next(ci))\ !=}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ CornerToPointIndex(corner\_table\_-\/>Previous(oci)))\ \{}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kInvalidCornerIndex;}
+\DoxyCodeLine{00154\ \ \ \ \ \}}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordflow}{if}\ (CornerToPointIndex(corner\_table\_-\/>Previous(ci))\ !=}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ CornerToPointIndex(corner\_table\_-\/>Next(oci)))\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kInvalidCornerIndex;}
+\DoxyCodeLine{00158\ \ \ \ \ \}}
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keywordflow}{return}\ oci;}
+\DoxyCodeLine{00160\ \ \ \}}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ \textcolor{keywordtype}{void}\ GenerateStripsFromCorner(\textcolor{keywordtype}{int}\ local\_strip\_id,\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ ci);}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \textcolor{keyword}{const}\ Mesh\ *mesh\_;}
+\DoxyCodeLine{00165\ \ \ std::unique\_ptr<CornerTable>\ corner\_table\_;}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \textcolor{comment}{//\ Store\ strip\ faces\ for\ each\ of\ three\ possible\ directions\ from\ a\ given\ face.}}
+\DoxyCodeLine{00168\ \ \ std::vector<FaceIndex>\ strip\_faces\_[3];}
+\DoxyCodeLine{00169\ \ \ \textcolor{comment}{//\ Start\ corner\ for\ each\ direction\ of\ the\ strip\ containing\ the\ processed\ face.}}
+\DoxyCodeLine{00170\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ strip\_start\_corners\_[3];}
+\DoxyCodeLine{00171\ \ \ IndexTypeVector<FaceIndex,\ bool>\ is\_face\_visited\_;}
+\DoxyCodeLine{00172\ \ \ \textcolor{comment}{//\ The\ number\ of\ strips\ generated\ by\ this\ method.}}
+\DoxyCodeLine{00173\ \ \ \textcolor{keywordtype}{int}\ num\_strips\_;}
+\DoxyCodeLine{00174\ \ \ \textcolor{comment}{//\ The\ number\ of\ encoded\ triangles.}}
+\DoxyCodeLine{00175\ \ \ \textcolor{keywordtype}{int}\ num\_encoded\_faces\_;}
+\DoxyCodeLine{00176\ \ \ \textcolor{comment}{//\ Last\ encoded\ point.}}
+\DoxyCodeLine{00177\ \ \ PointIndex\ last\_encoded\_point\_;}
+\DoxyCodeLine{00178\ \};}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00180\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ OutputIteratorT,\ \textcolor{keyword}{typename}\ IndexTypeT>}
+\DoxyCodeLine{00181\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_stripifier_ad4f5bc0959f9c152241aefcb71ba8829}{MeshStripifier::GenerateTriangleStripsWithPrimitiveRestart}}(}
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh}{Mesh}}\ \&mesh,\ IndexTypeT\ primitive\_restart\_index,}
+\DoxyCodeLine{00183\ \ \ \ \ OutputIteratorT\ out\_it)\ \{}
+\DoxyCodeLine{00184\ \ \ \textcolor{keywordflow}{if}\ (!Prepare(mesh))\ \{}
+\DoxyCodeLine{00185\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00186\ \ \ \}}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00188\ \ \ \textcolor{comment}{//\ Go\ over\ all\ faces\ and\ generate\ strips\ from\ the\ first\ unvisited\ one.}}
+\DoxyCodeLine{00189\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ fi(0);\ fi\ <\ mesh.num\_faces();\ ++fi)\ \{}
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{keywordflow}{if}\ (is\_face\_visited\_[fi])\ \{}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00192\ \ \ \ \ \}}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ longest\_strip\_id\ =\ FindLongestStripFromFace(fi);}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{comment}{//\ Separate\ triangle\ strips\ with\ the\ primitive\ restart\ index.}}
+\DoxyCodeLine{00197\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_strips\_\ >\ 0)\ \{}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ *out\_it++\ =\ primitive\_restart\_index;}
+\DoxyCodeLine{00199\ \ \ \ \ \}}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \ \ StoreStrip(longest\_strip\_id,\ out\_it);}
+\DoxyCodeLine{00202\ \ \ \}}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00205\ \}}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00207\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ OutputIteratorT>}
+\DoxyCodeLine{00208\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_stripifier_a7c2c75fde3d534b6c863b5652873de52}{MeshStripifier::GenerateTriangleStripsWithDegenerateTriangles}}(}
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh}{Mesh}}\ \&mesh,\ OutputIteratorT\ out\_it)\ \{}
+\DoxyCodeLine{00210\ \ \ \textcolor{keywordflow}{if}\ (!Prepare(mesh))\ \{}
+\DoxyCodeLine{00211\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00212\ \ \ \}}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \ \ \textcolor{comment}{//\ Go\ over\ all\ faces\ and\ generate\ strips\ from\ the\ first\ unvisited\ one.}}
+\DoxyCodeLine{00215\ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ fi(0);\ fi\ <\ mesh.num\_faces();\ ++fi)\ \{}
+\DoxyCodeLine{00216\ \ \ \ \ \textcolor{keywordflow}{if}\ (is\_face\_visited\_[fi])\ \{}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00218\ \ \ \ \ \}}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00220\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ longest\_strip\_id\ =\ FindLongestStripFromFace(fi);}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \ \ \textcolor{comment}{//\ Separate\ triangle\ strips\ by\ degenerate\ triangles.\ There\ will\ be\ either}}
+\DoxyCodeLine{00223\ \ \ \ \ \textcolor{comment}{//\ three\ or\ four\ degenerate\ triangles\ inserted\ based\ on\ the\ number\ of}}
+\DoxyCodeLine{00224\ \ \ \ \ \textcolor{comment}{//\ triangles\ that\ are\ already\ encoded\ in\ the\ output\ strip\ (three\ degenerate}}
+\DoxyCodeLine{00225\ \ \ \ \ \textcolor{comment}{//\ triangles\ for\ even\ number\ of\ existing\ triangles,\ four\ degenerate}}
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{comment}{//\ triangles\ for\ odd\ number\ of\ triangles).}}
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_strips\_\ >\ 0)\ \{}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \textcolor{comment}{//\ Duplicate\ last\ encoded\ index\ (first\ degenerate\ face).}}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ *out\_it++\ =\ last\_encoded\_point\_.value();}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \textcolor{comment}{//\ Connect\ it\ to\ the\ start\ point\ of\ the\ new\ triangle\ strip\ (second}}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \textcolor{comment}{//\ degenerate\ face).}}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ new\_start\_corner\ =}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ \ \ strip\_start\_corners\_[longest\_strip\_id];}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \textcolor{keyword}{const}\ PointIndex\ new\_start\_point\ =\ CornerToPointIndex(new\_start\_corner);}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ *out\_it++\ =\ new\_start\_point.value();}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ num\_encoded\_faces\_\ +=\ 2;}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \textcolor{comment}{//\ If\ we\ have\ previously\ encoded\ number\ of\ faces\ we\ need\ to\ duplicate\ the}}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \textcolor{comment}{//\ point\ one\ more\ time\ to\ preserve\ the\ correct\ orientation\ of\ the\ next}}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \textcolor{comment}{//\ strip.}}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_encoded\_faces\_\ \&\ 1)\ \{}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ *out\_it++\ =\ new\_start\_point.value();}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ num\_encoded\_faces\_\ +=\ 1;}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \textcolor{comment}{//\ The\ last\ degenerate\ face\ will\ be\ added\ implicitly\ in\ the\ StoreStrip()}}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \textcolor{comment}{//\ function\ below\ as\ the\ first\ point\ index\ is\ going\ to\ be\ encoded\ there}}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \textcolor{comment}{//\ again.}}
+\DoxyCodeLine{00248\ \ \ \ \ \}}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \ \ \ \ StoreStrip(longest\_strip\_id,\ out\_it);}
+\DoxyCodeLine{00251\ \ \ \}}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00253\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00254\ \}}
+\DoxyCodeLine{00255\ }
+\DoxyCodeLine{00256\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_MESH\_MESH\_STRIPIFIER\_H\_}}
+
+\end{DoxyCode}

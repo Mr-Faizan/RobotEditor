@@ -1,0 +1,155 @@
+\doxysection{Open\+DDLParser.\+h}
+\hypertarget{_open_d_d_l_parser_8h_source}{}\label{_open_d_d_l_parser_8h_source}\index{RobotLib/libraries/assimp/contrib/openddlparser/include/openddlparser/OpenDDLParser.h@{RobotLib/libraries/assimp/contrib/openddlparser/include/openddlparser/OpenDDLParser.h}}
+\mbox{\hyperlink{_open_d_d_l_parser_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00002\ \textcolor{comment}{The\ MIT\ License\ (MIT)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{}}
+\DoxyCodeLine{00004\ \textcolor{comment}{Copyright\ (c)\ 2014-\/2020\ Kim\ Kulling}}
+\DoxyCodeLine{00005\ \textcolor{comment}{}}
+\DoxyCodeLine{00006\ \textcolor{comment}{Permission\ is\ hereby\ granted,\ free\ of\ charge,\ to\ any\ person\ obtaining\ a\ copy\ of}}
+\DoxyCodeLine{00007\ \textcolor{comment}{this\ software\ and\ associated\ documentation\ files\ (the\ "{}Software"{}),\ to\ deal\ in}}
+\DoxyCodeLine{00008\ \textcolor{comment}{the\ Software\ without\ restriction,\ including\ without\ limitation\ the\ rights\ to}}
+\DoxyCodeLine{00009\ \textcolor{comment}{use,\ copy,\ modify,\ merge,\ publish,\ distribute,\ sublicense,\ and/or\ sell\ copies\ of}}
+\DoxyCodeLine{00010\ \textcolor{comment}{the\ Software,\ and\ to\ permit\ persons\ to\ whom\ the\ Software\ is\ furnished\ to\ do\ so,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{subject\ to\ the\ following\ conditions:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{The\ above\ copyright\ notice\ and\ this\ permission\ notice\ shall\ be\ included\ in\ all}}
+\DoxyCodeLine{00014\ \textcolor{comment}{copies\ or\ substantial\ portions\ of\ the\ Software.}}
+\DoxyCodeLine{00015\ \textcolor{comment}{}}
+\DoxyCodeLine{00016\ \textcolor{comment}{THE\ SOFTWARE\ IS\ PROVIDED\ "{}AS\ IS"{},\ WITHOUT\ WARRANTY\ OF\ ANY\ KIND,\ EXPRESS\ OR}}
+\DoxyCodeLine{00017\ \textcolor{comment}{IMPLIED,\ INCLUDING\ BUT\ NOT\ LIMITED\ TO\ THE\ WARRANTIES\ OF\ MERCHANTABILITY,\ FITNESS}}
+\DoxyCodeLine{00018\ \textcolor{comment}{FOR\ A\ PARTICULAR\ PURPOSE\ AND\ NONINFRINGEMENT.\ IN\ NO\ EVENT\ SHALL\ THE\ AUTHORS\ OR}}
+\DoxyCodeLine{00019\ \textcolor{comment}{COPYRIGHT\ HOLDERS\ BE\ LIABLE\ FOR\ ANY\ CLAIM,\ DAMAGES\ OR\ OTHER\ LIABILITY,\ WHETHER}}
+\DoxyCodeLine{00020\ \textcolor{comment}{IN\ AN\ ACTION\ OF\ CONTRACT,\ TORT\ OR\ OTHERWISE,\ ARISING\ FROM,\ OUT\ OF\ OR\ IN}}
+\DoxyCodeLine{00021\ \textcolor{comment}{CONNECTION\ WITH\ THE\ SOFTWARE\ OR\ THE\ USE\ OR\ OTHER\ DEALINGS\ IN\ THE\ SOFTWARE.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{_d_d_l_node_8h}{openddlparser/DDLNode.h}}>}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{_open_d_d_l_common_8h}{openddlparser/OpenDDLCommon.h}}>}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{_open_d_d_l_parser_utils_8h}{openddlparser/OpenDDLParserUtils.h}}>}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{_value_8h}{openddlparser/Value.h}}>}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\#include\ <functional>}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \mbox{\hyperlink{_open_d_d_l_common_8h_aa17971bb7e1b83f16f40ce42703ef5a3}{BEGIN\_ODDLPARSER\_NS}}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_d_d_l_node}{DDLNode}};}
+\DoxyCodeLine{00037\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_value}{Value}};}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \textcolor{keyword}{struct\ }Identifier;}
+\DoxyCodeLine{00040\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_reference}{Reference}};}
+\DoxyCodeLine{00041\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_property}{Property}};}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00048\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00049\ \textcolor{keyword}{inline}\ T\ *\mbox{\hyperlink{_open_d_d_l_parser_8h_a455184512b999f65a4ebba2454f4ad78}{lookForNextToken}}(T\ *in,\ T\ *end)\ \{}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordflow}{while}\ ((in\ !=\ end)\ \&\&\ (\mbox{\hyperlink{_open_d_d_l_parser_utils_8h_a67d0097d7491363e794cb61bc0cfedf5}{isSpace}}(*in)\ ||\ \mbox{\hyperlink{_open_d_d_l_parser_utils_8h_a9cd09c26f1c67ae96ee37274f26205dd}{isNewLine}}(*in)\ ||\ \textcolor{charliteral}{','}\ ==\ *in))\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ ++in;}
+\DoxyCodeLine{00052\ \ \ \ \ \}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordflow}{return}\ in;}
+\DoxyCodeLine{00054\ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00061\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00062\ \textcolor{keyword}{inline}\ T\ *\mbox{\hyperlink{_open_d_d_l_parser_8h_a089c13915e0a2a1e5efd471c7ef7d4d8}{getNextToken}}(T\ *in,\ T\ *end)\ \{}
+\DoxyCodeLine{00063\ \ \ \ \ T\ *tmp(in);}
+\DoxyCodeLine{00064\ \ \ \ \ in\ =\ \mbox{\hyperlink{_open_d_d_l_parser_8h_a455184512b999f65a4ebba2454f4ad78}{lookForNextToken}}(in,\ end);}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keywordflow}{if}\ (tmp\ ==\ in)\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ ++in;}
+\DoxyCodeLine{00067\ \ \ \ \ \}}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{return}\ in;}
+\DoxyCodeLine{00069\ \}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00072\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{_open_d_d_l_parser_8h_a93a3ba385cad27c4774e5fe64c025d3d}{LogSeverity}}\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \mbox{\hyperlink{_open_d_d_l_parser_8h_a93a3ba385cad27c4774e5fe64c025d3da8ec371fb97e61b9bba469f8b1da2c6c7}{ddl\_debug\_msg}}\ =\ 0,\ }
+\DoxyCodeLine{00074\ \ \ \ \ \mbox{\hyperlink{_open_d_d_l_parser_8h_a93a3ba385cad27c4774e5fe64c025d3daaeb77bda8ed605b1360579ed63610329}{ddl\_info\_msg}},\ }
+\DoxyCodeLine{00075\ \ \ \ \ \mbox{\hyperlink{_open_d_d_l_parser_8h_a93a3ba385cad27c4774e5fe64c025d3da97e233f95d5518e4b81e12f450ec80a3}{ddl\_warn\_msg}},\ }
+\DoxyCodeLine{00076\ \ \ \ \ \mbox{\hyperlink{_open_d_d_l_parser_8h_a93a3ba385cad27c4774e5fe64c025d3da76e14b8dcea93f07f9611d1afec4885d}{ddl\_error\_msg}}\ }
+\DoxyCodeLine{00077\ \};}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \mbox{\hyperlink{_open_d_d_l_common_8h_a63c0edcddd6b51656e17f43c324a446b}{DLL\_ODDLPARSER\_EXPORT}}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{_open_d_d_l_parser_8h_a505e644a2ef179fe33e68695dbf663f2}{getTypeToken}}(\mbox{\hyperlink{class_generic_value_a43a39bb4fca9b9d3de3da6ac353d25ce}{Value::ValueType}}\ type);}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00089\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00090\ \textcolor{keyword}{class\ }\mbox{\hyperlink{_open_d_d_l_common_8h_a63c0edcddd6b51656e17f43c324a446b}{DLL\_ODDLPARSER\_EXPORT}}\ \mbox{\hyperlink{class_open_d_d_l_parser_a6d60e437a2f1dc3603e1beabb13a3822}{OpenDDLParser}}\ \{}
+\DoxyCodeLine{00091\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keyword}{typedef}\ std::function<void\ (\mbox{\hyperlink{_open_d_d_l_parser_8h_a93a3ba385cad27c4774e5fe64c025d3d}{LogSeverity}}\ severity,\ \textcolor{keyword}{const}\ std::string\ \&msg)>\ \mbox{\hyperlink{class_open_d_d_l_parser_ae0f80dd43fb1090850f6fafea015bc92}{logCallback}};}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00097\ \ \ \ \ \mbox{\hyperlink{class_open_d_d_l_parser_a6d60e437a2f1dc3603e1beabb13a3822}{OpenDDLParser}}();}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00102\ \ \ \ \ \mbox{\hyperlink{class_open_d_d_l_parser_a6d60e437a2f1dc3603e1beabb13a3822}{OpenDDLParser}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *buffer,\ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00105\ \ \ \ \ \mbox{\hyperlink{class_open_d_d_l_parser_a6d60e437a2f1dc3603e1beabb13a3822}{\string~OpenDDLParser}}();}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_d_d_l_parser_a7a6ae35b3d786e5e3608e36ffd75996f}{setLogCallback}}(\mbox{\hyperlink{class_open_d_d_l_parser_ae0f80dd43fb1090850f6fafea015bc92}{logCallback}}\ callback);}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00113\ \ \ \ \ \mbox{\hyperlink{class_open_d_d_l_parser_ae0f80dd43fb1090850f6fafea015bc92}{logCallback}}\ \mbox{\hyperlink{class_open_d_d_l_parser_a9d7d2e4dd97702fadc2cd114dbf4ea9d}{getLogCallback}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{class_open_d_d_l_parser_ae0f80dd43fb1090850f6fafea015bc92}{logCallback}}\ \mbox{\hyperlink{class_open_d_d_l_parser_a5b7f9cb87bda06d53d8122e93ecd214f}{StdLogCallback}}(FILE\ *destination\ =\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_d_d_l_parser_a0bfac3168a8ec89dd228865d8c8a3793}{setBuffer}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *buffer,\ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_d_d_l_parser_a0bfac3168a8ec89dd228865d8c8a3793}{setBuffer}}(\textcolor{keyword}{const}\ std::vector<char>\ \&buffer);}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_ac4901f2142a039cf9f2394ab900b3ef6}{getBuffer}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_open_d_d_l_parser_af75b3f649cb1d771c63b5ce0fadf3289}{getBufferSize}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_d_d_l_parser_af2e3302b3a29d717c889cd8866068796}{clear}}();}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_open_d_d_l_parser_aa6eaa468b4e2bf786f2efc5461330c4e}{validate}}();}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_open_d_d_l_parser_a2127d2b000f8e1b9cbe8ff12b9af1316}{parse}}();}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \ \ \ \ }
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_open_d_d_l_parser_af4daeb6eb436c71b1d40cf99f38c050e}{exportContext}}(\mbox{\hyperlink{struct_context}{Context}}\ *ctx,\ \textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}});}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00152\ \ \ \ \ \mbox{\hyperlink{class_d_d_l_node}{DDLNode}}\ *\mbox{\hyperlink{class_open_d_d_l_parser_a18a6f5aa4da082f69f0c1e06f2633525}{getRoot}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00156\ \ \ \ \ \mbox{\hyperlink{struct_context}{Context}}\ *\mbox{\hyperlink{class_open_d_d_l_parser_ad69b340ebc332f6a217078e3652e2e44}{getContext}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \textcolor{keyword}{public}:\ \textcolor{comment}{//\ parser\ helpers}}
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_ac4babf26fc11a1ed970ef2f8ae7732ed}{parseNextNode}}(\textcolor{keywordtype}{char}\ *current,\ \textcolor{keywordtype}{char}\ *end);}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_a918e086de31f3ae8d015d3af0cd20e9d}{parseHeader}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end);}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_aea39cae1b0eb02c6c54f9bde448142c2}{parseStructure}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end);}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_a2d6720e44b8cd2d95bffbbb5f31477a7}{parseStructureBody}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ \textcolor{keywordtype}{bool}\ \&\mbox{\hyperlink{untgz_8c_a4866b2d37ffc80c5ba705d3fcd1e0ecf}{error}});}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_d_d_l_parser_aa080f2a2966dba67176ff29ba9a15e1d}{pushNode}}(\mbox{\hyperlink{class_d_d_l_node}{DDLNode}}\ *node);}
+\DoxyCodeLine{00164\ \ \ \ \ \mbox{\hyperlink{class_d_d_l_node}{DDLNode}}\ *\mbox{\hyperlink{class_open_d_d_l_parser_a89db01fff472151ed3c503b7b60f3488}{popNode}}();}
+\DoxyCodeLine{00165\ \ \ \ \ \mbox{\hyperlink{class_d_d_l_node}{DDLNode}}\ *\mbox{\hyperlink{class_open_d_d_l_parser_aaa90f0c1f0d121ce8d01c19db87d58ea}{top}}();}
+\DoxyCodeLine{00166\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_open_d_d_l_parser_ab848424585983572d206a56d6ca11bec}{normalizeBuffer}}(std::vector<char>\ \&buffer);}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_afc72ec21bbc1a3460d01f2829f2fc75b}{parseName}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ \mbox{\hyperlink{struct_name}{Name}}\ **name);}
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_aa5d3109352cb2bd6e51a272262c2b118}{parseIdentifier}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ Text\ **\textcolor{keywordtype}{id});}
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_a1499604d0fbcbcbab5bbbcabf0857f9d}{parsePrimitiveDataType}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ \mbox{\hyperlink{class_generic_value_a43a39bb4fca9b9d3de3da6ac353d25ce}{Value::ValueType}}\ \&type,\ \textcolor{keywordtype}{size\_t}\ \&len);}
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_aa65d08f90ff1853b0fa4b8673cf616fd}{parseReference}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ std::vector<Name\ *>\ \&names);}
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_ad065d135d0c967412bd44b5d5dcf20c4}{parseBooleanLiteral}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ \mbox{\hyperlink{class_value}{Value}}\ **\textcolor{keywordtype}{boolean});}
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_afc03e3a4a9b844b43bcafdefbf5150fb}{parseIntegerLiteral}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ \mbox{\hyperlink{class_value}{Value}}\ **integer,\ \mbox{\hyperlink{class_generic_value_a43a39bb4fca9b9d3de3da6ac353d25ce}{Value::ValueType}}\ integerType\ =\ Value::ValueType::ddl\_int32);}
+\DoxyCodeLine{00173\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_aeca487b0a320d1f6aeb1e9db015273b8}{parseFloatingLiteral}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ \mbox{\hyperlink{class_value}{Value}}\ **floating,\ \mbox{\hyperlink{class_generic_value_a43a39bb4fca9b9d3de3da6ac353d25ce}{Value::ValueType}}\ floatType\ =\ Value::ValueType::ddl\_float);}
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_a83ba98eb05659a4886574ab021579281}{parseStringLiteral}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ \mbox{\hyperlink{class_value}{Value}}\ **stringData);}
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_a0a279f9ca8c815b6fee657cf783a5920}{parseHexaLiteral}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ \mbox{\hyperlink{class_value}{Value}}\ **\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}});}
+\DoxyCodeLine{00176\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_a55839264e85c406ffd1cc48547cdf359}{parseProperty}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ \mbox{\hyperlink{struct_property}{Property}}\ **prop);}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_a1ed109dfeabadef298f050bc14453a24}{parseDataList}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ \mbox{\hyperlink{class_generic_value_a43a39bb4fca9b9d3de3da6ac353d25ce}{Value::ValueType}}\ type,\ \mbox{\hyperlink{class_value}{Value}}\ **\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}},\ \textcolor{keywordtype}{size\_t}\ \&numValues,\ \mbox{\hyperlink{struct_reference}{Reference}}\ **refs,\ \textcolor{keywordtype}{size\_t}\ \&numRefs);}
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_a65cd0f9c6ff2552b6d42e13791e196c7}{parseDataArrayList}}(\textcolor{keywordtype}{char}\ *in,\ \textcolor{keywordtype}{char}\ *end,\ \mbox{\hyperlink{class_generic_value_a43a39bb4fca9b9d3de3da6ac353d25ce}{Value::ValueType}}\ type,\ \mbox{\hyperlink{struct_data_array_list}{DataArrayList}}\ **dataList);}
+\DoxyCodeLine{00179\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{class_open_d_d_l_parser_a9cb632c29cff234bac2f71a9aa464c2e}{getVersion}}();}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00182\ \ \ \ \ \mbox{\hyperlink{class_open_d_d_l_parser_a6d60e437a2f1dc3603e1beabb13a3822}{OpenDDLParser}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_open_d_d_l_parser_a6d60e437a2f1dc3603e1beabb13a3822}{OpenDDLParser}}\ \&)\ \mbox{\hyperlink{_open_d_d_l_common_8h_a928c937d7504f260a2d511f4992dbf03}{ddl\_no\_copy}};}
+\DoxyCodeLine{00183\ \ \ \ \ \mbox{\hyperlink{class_open_d_d_l_parser_a6d60e437a2f1dc3603e1beabb13a3822}{OpenDDLParser}}\ \&operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_open_d_d_l_parser_a6d60e437a2f1dc3603e1beabb13a3822}{OpenDDLParser}}\ \&)\ \mbox{\hyperlink{_open_d_d_l_common_8h_a928c937d7504f260a2d511f4992dbf03}{ddl\_no\_copy}};}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00186\ \ \ \ \ \mbox{\hyperlink{class_open_d_d_l_parser_ae0f80dd43fb1090850f6fafea015bc92}{logCallback}}\ m\_logCallback;}
+\DoxyCodeLine{00187\ \ \ \ \ std::vector<char>\ m\_buffer;}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \ \ \ \ \textcolor{keyword}{typedef}\ std::vector<DDLNode\ *>\ DDLNodeStack;}
+\DoxyCodeLine{00190\ \ \ \ \ DDLNodeStack\ m\_stack;}
+\DoxyCodeLine{00191\ \ \ \ \ \mbox{\hyperlink{struct_context}{Context}}\ *m\_context;}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ logToStream\ (FILE\ *,\ \mbox{\hyperlink{_open_d_d_l_parser_8h_a93a3ba385cad27c4774e5fe64c025d3d}{LogSeverity}},\ \textcolor{keyword}{const}\ std::string\ \&);}
+\DoxyCodeLine{00195\ \};}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \mbox{\hyperlink{_open_d_d_l_common_8h_a3bf53a4e9486041754ed89a39a471abc}{END\_ODDLPARSER\_NS}}}
+
+\end{DoxyCode}

@@ -1,0 +1,88 @@
+\doxysection{folded\+\_\+integer\+\_\+bit\+\_\+encoder.\+h}
+\hypertarget{folded__integer__bit__encoder_8h_source}{}\label{folded__integer__bit__encoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/bit\_coders/folded\_integer\_bit\_encoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/bit\_coders/folded\_integer\_bit\_encoder.h}}
+\mbox{\hyperlink{folded__integer__bit__encoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ File\ provides\ direct\ encoding\ of\ bits\ with\ arithmetic\ encoder\ interface.}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_BIT\_CODERS\_FOLDED\_INTEGER\_BIT\_ENCODER\_H\_}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_BIT\_CODERS\_FOLDED\_INTEGER\_BIT\_ENCODER\_H\_}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{encoder__buffer_8h}{draco/core/encoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ This\ coding\ scheme\ considers\ every\ bit\ of\ an\ (up\ to)\ 32bit\ integer\ as\ a}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ separate\ context.\ This\ can\ be\ a\ significant\ advantage\ when\ encoding\ numbers}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ where\ it\ is\ more\ likely\ that\ the\ front\ bits\ are\ zero.}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ The\ behavior\ is\ essentially\ the\ same\ as\ other\ arithmetic\ encoding\ schemes,}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ the\ only\ difference\ is\ that\ encoding\ and\ decoding\ of\ bits\ must\ be\ absolutely}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ symmetric,\ bits\ handed\ in\ by\ EncodeBit32\ must\ be\ also\ decoded\ in\ this\ way.}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ This\ is\ the\ FoldedBit32Encoder,\ see\ also\ FoldedBit32Decoder.}}
+\DoxyCodeLine{00032\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ BitEncoderT>}
+\DoxyCodeLine{00033\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_folded_bit32_encoder_abca058d48f745a6b6f749ccf9975e48e}{FoldedBit32Encoder}}\ \{}
+\DoxyCodeLine{00034\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{classdraco_1_1_folded_bit32_encoder_abca058d48f745a6b6f749ccf9975e48e}{FoldedBit32Encoder}}()\ \{\}}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{classdraco_1_1_folded_bit32_encoder_adc54549c2ce78d2423cdf4d8fbe190f9}{\string~FoldedBit32Encoder}}()\ \{\}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \textcolor{comment}{//\ Must\ be\ called\ before\ any\ Encode*\ function\ is\ called.}}
+\DoxyCodeLine{00039\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_folded_bit32_encoder_aff26eef750b404294930b0f1a830d408}{StartEncoding}}()\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 32;\ i++)\ \{}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ folded\_number\_encoders\_[i].StartEncoding();}
+\DoxyCodeLine{00042\ \ \ \ \ \}}
+\DoxyCodeLine{00043\ \ \ \ \ bit\_encoder\_.StartEncoding();}
+\DoxyCodeLine{00044\ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ Encode\ one\ bit.\ If\ |bit|\ is\ true\ encode\ a\ 1,\ otherwise\ encode\ a\ 0.}}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_folded_bit32_encoder_ae57f326ccabab9defc06d2d4f536b217}{EncodeBit}}(\textcolor{keywordtype}{bool}\ bit)\ \{\ bit\_encoder\_.EncodeBit(bit);\ \}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//\ Encode\ |nbits|\ of\ |value|,\ starting\ from\ the\ least\ significant\ bit.}}
+\DoxyCodeLine{00050\ \ \ \textcolor{comment}{//\ |nbits|\ must\ be\ >\ 0\ and\ <=\ 32.}}
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_folded_bit32_encoder_a1d863a583cd592433306135e78e9d9a3}{EncodeLeastSignificantBits32}}(\textcolor{keywordtype}{int}\ nbits,\ uint32\_t\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{}
+\DoxyCodeLine{00052\ \ \ \ \ uint32\_t\ selector\ =\ 1\ <<\ (nbits\ -\/\ 1);}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ nbits;\ i++)\ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ bit\ =\ (\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ \&\ selector);}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ folded\_number\_encoders\_[i].EncodeBit(bit);}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ selector\ =\ selector\ >>\ 1;}
+\DoxyCodeLine{00057\ \ \ \ \ \}}
+\DoxyCodeLine{00058\ \ \ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{comment}{//\ Ends\ the\ bit\ encoding\ and\ stores\ the\ result\ into\ the\ target\_buffer.}}
+\DoxyCodeLine{00061\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_folded_bit32_encoder_a5d703b066a2889138bde788384db28ca}{EndEncoding}}(\mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *target\_buffer)\ \{}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 32;\ i++)\ \{}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ folded\_number\_encoders\_[i].EndEncoding(target\_buffer);}
+\DoxyCodeLine{00064\ \ \ \ \ \}}
+\DoxyCodeLine{00065\ \ \ \ \ bit\_encoder\_.EndEncoding(target\_buffer);}
+\DoxyCodeLine{00066\ \ \ \}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00069\ \ \ \textcolor{keywordtype}{void}\ Clear()\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 32;\ i++)\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ folded\_number\_encoders\_[i].Clear();}
+\DoxyCodeLine{00072\ \ \ \ \ \}}
+\DoxyCodeLine{00073\ \ \ \ \ bit\_encoder\_.Clear();}
+\DoxyCodeLine{00074\ \ \ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ std::array<BitEncoderT,\ 32>\ folded\_number\_encoders\_;}
+\DoxyCodeLine{00077\ \ \ BitEncoderT\ bit\_encoder\_;}
+\DoxyCodeLine{00078\ \};}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_BIT\_CODERS\_FOLDED\_INTEGER\_BIT\_ENCODER\_H\_}}
+
+\end{DoxyCode}

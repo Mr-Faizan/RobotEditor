@@ -1,0 +1,382 @@
+\doxysection{fast\+\_\+atof.\+h}
+\hypertarget{assimp-install_2include_2assimp_2fast__atof_8h_source}{}\label{assimp-install_2include_2assimp_2fast__atof_8h_source}\index{RobotLib/libraries/assimp-\/install/include/assimp/fast\_atof.h@{RobotLib/libraries/assimp-\/install/include/assimp/fast\_atof.h}}
+\mbox{\hyperlink{assimp-install_2include_2assimp_2fast__atof_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Copyright\ (C)\ 2002-\/2007\ Nikolaus\ Gebhardt}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ This\ file\ is\ part\ of\ the\ "{}Irrlicht\ Engine"{}\ and\ the\ "{}irrXML"{}\ project.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ For\ conditions\ of\ distribution\ and\ use,\ see\ copyright\ notice\ in\ irrlicht.h\ and\ irrXML.h}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//\ Original\ description:\ (Schrompf)}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Adapted\ to\ the\ ASSIMP\ library\ because\ the\ builtin\ atof\ indeed\ takes\ AGES\ to\ parse\ a}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ float\ inside\ a\ large\ string.\ Before\ parsing,\ it\ does\ a\ strlen\ on\ the\ given\ point.}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ Changes:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ \ 22nd\ October\ 08\ (Aramis\_acg):\ Added\ temporary\ cast\ to\ double,\ added\ strtoul10\_64}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ \ \ \ \ to\ ensure\ long\ numbers\ are\ handled\ correctly}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#ifndef\ FAST\_A\_TO\_F\_H\_INCLUDED}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#define\ FAST\_A\_TO\_F\_H\_INCLUDED}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#ifdef\ \_\_GNUC\_\_}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#\ \ \ pragma\ GCC\ system\_header}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ <limits>}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{stdint_8h}{stdint.h}}>}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ <assimp/defs.h>}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{assimp-install_2include_2assimp_2_string_comparison_8h}{StringComparison.h}}"{}}}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ <assimp/DefaultLogger.hpp>}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#include\ <assimp/Exceptional.h>}}
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\#include\ <assimp/StringUtils.h>}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \textcolor{preprocessor}{\#ifdef\ \_MSC\_VER}}
+\DoxyCodeLine{00035\ \textcolor{preprocessor}{\#\ \ include\ <\mbox{\hyperlink{stdint_8h}{stdint.h}}>}}
+\DoxyCodeLine{00036\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00037\ \textcolor{preprocessor}{\#\ \ include\ <assimp/Compiler/pstdint.h>}}
+\DoxyCodeLine{00038\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{size\_t}\ NumItems\ =\ 16;}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{double}\ fast\_atof\_table[NumItems]\ =\ \ \{\ \ \textcolor{comment}{//\ we\ write\ [16]\ here\ instead\ of\ []\ to\ work\ around\ a\ swig\ bug}}
+\DoxyCodeLine{00045\ \ \ \ \ 0.0,}
+\DoxyCodeLine{00046\ \ \ \ \ 0.1,}
+\DoxyCodeLine{00047\ \ \ \ \ 0.01,}
+\DoxyCodeLine{00048\ \ \ \ \ 0.001,}
+\DoxyCodeLine{00049\ \ \ \ \ 0.0001,}
+\DoxyCodeLine{00050\ \ \ \ \ 0.00001,}
+\DoxyCodeLine{00051\ \ \ \ \ 0.000001,}
+\DoxyCodeLine{00052\ \ \ \ \ 0.0000001,}
+\DoxyCodeLine{00053\ \ \ \ \ 0.00000001,}
+\DoxyCodeLine{00054\ \ \ \ \ 0.000000001,}
+\DoxyCodeLine{00055\ \ \ \ \ 0.0000000001,}
+\DoxyCodeLine{00056\ \ \ \ \ 0.00000000001,}
+\DoxyCodeLine{00057\ \ \ \ \ 0.000000000001,}
+\DoxyCodeLine{00058\ \ \ \ \ 0.0000000000001,}
+\DoxyCodeLine{00059\ \ \ \ \ 0.00000000000001,}
+\DoxyCodeLine{00060\ \ \ \ \ 0.000000000000001}
+\DoxyCodeLine{00061\ \};}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00064\ \textcolor{comment}{//\ Convert\ a\ string\ in\ decimal\ format\ to\ a\ number}}
+\DoxyCodeLine{00065\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00066\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ strtoul10(\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ in,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}**\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}=0)\ \{}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ 0;}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordflow}{for}\ (\ ;;\ )\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\ *in\ <\ \textcolor{charliteral}{'0'}\ ||\ *in\ >\ \textcolor{charliteral}{'9'}\ )\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ (\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ *\ 10\ )\ +\ (\ *in\ -\/\ \textcolor{charliteral}{'0'}\ );}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ ++in;}
+\DoxyCodeLine{00076\ \ \ \ \ \}}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordflow}{if}\ (\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ )\ \{}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ in;}
+\DoxyCodeLine{00079\ \ \ \ \ \}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00081\ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00084\ \textcolor{comment}{//\ Convert\ a\ string\ in\ octal\ format\ to\ a\ number}}
+\DoxyCodeLine{00085\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00086\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ strtoul8(\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ in,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}**\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}=0)\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}(\ 0\ );}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordflow}{for}\ (\ ;;\ )\ \{}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\ *in\ <\ \textcolor{charliteral}{'0'}\ ||\ *in\ >\ \textcolor{charliteral}{'7'}\ )\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ (\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ <<\ 3\ )\ +\ (\ *in\ -\/\ \textcolor{charliteral}{'0'}\ );}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ ++in;}
+\DoxyCodeLine{00095\ \ \ \ \ \}}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordflow}{if}\ (\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ )\ \{}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ in;}
+\DoxyCodeLine{00098\ \ \ \ \ \}}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00100\ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00103\ \textcolor{comment}{//\ Convert\ a\ string\ in\ hex\ format\ to\ a\ number}}
+\DoxyCodeLine{00104\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00105\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ strtoul16(\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ in,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}**\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}=0)\ \{}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}(\ 0\ );}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordflow}{for}\ (\ ;;\ )\ \{}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\ *in\ >=\ \textcolor{charliteral}{'0'}\ \&\&\ *in\ <=\ \textcolor{charliteral}{'9'}\ )\ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ (\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ <<\ 4u\ )\ +\ (\ *in\ -\/\ \textcolor{charliteral}{'0'}\ );}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (*in\ >=\ \textcolor{charliteral}{'A'}\ \&\&\ *in\ <=\ \textcolor{charliteral}{'F'})\ \{}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ (\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ <<\ 4u\ )\ +\ (\ *in\ -\/\ \textcolor{charliteral}{'A'}\ )\ +\ 10;}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (*in\ >=\ \textcolor{charliteral}{'a'}\ \&\&\ *in\ <=\ \textcolor{charliteral}{'f'})\ \{}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ (\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ <<\ 4u\ )\ +\ (\ *in\ -\/\ \textcolor{charliteral}{'a'}\ )\ +\ 10;}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ ++in;}
+\DoxyCodeLine{00118\ \ \ \ \ \}}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordflow}{if}\ (\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ )\ \{}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ in;}
+\DoxyCodeLine{00121\ \ \ \ \ \}}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00123\ \}}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00126\ \textcolor{comment}{//\ Convert\ just\ one\ hex\ digit}}
+\DoxyCodeLine{00127\ \textcolor{comment}{//\ Return\ value\ is\ UINT\_MAX\ if\ the\ input\ character\ is\ not\ a\ hex\ digit.}}
+\DoxyCodeLine{00128\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00129\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ HexDigitToDecimal(\textcolor{keywordtype}{char}\ in)\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}(\ UINT\_MAX\ );}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordflow}{if}\ (\ in\ >=\ \textcolor{charliteral}{'0'}\ \&\&\ in\ <=\ \textcolor{charliteral}{'9'}\ )\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ in\ -\/\ \textcolor{charliteral}{'0'};}
+\DoxyCodeLine{00133\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\ in\ >=\ \textcolor{charliteral}{'a'}\ \&\&\ in\ <=\ \textcolor{charliteral}{'f'}\ )\ \{}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ 10u\ +\ in\ -\/\ \textcolor{charliteral}{'a'};}
+\DoxyCodeLine{00135\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\ in\ >=\ \textcolor{charliteral}{'A'}\ \&\&\ in\ <=\ \textcolor{charliteral}{'F'}\ )\ \{}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ 10u\ +\ in\ -\/\ \textcolor{charliteral}{'A'};}
+\DoxyCodeLine{00137\ \ \ \ \ \}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{comment}{//\ return\ value\ is\ UINT\_MAX\ if\ the\ input\ is\ not\ a\ hex\ digit}}
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}};}
+\DoxyCodeLine{00141\ \}}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00144\ \textcolor{comment}{//\ Convert\ a\ hex-\/encoded\ octet\ (2\ characters,\ i.e.\ df\ or\ 1a).}}
+\DoxyCodeLine{00145\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00146\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ HexOctetToDecimal(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ in)\ \{}
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keywordflow}{return}\ ((\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}})HexDigitToDecimal(in[0])<<4)+(\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}})HexDigitToDecimal(in[1]);}
+\DoxyCodeLine{00148\ \}}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00151\ \textcolor{comment}{//\ signed\ variant\ of\ strtoul10}}
+\DoxyCodeLine{00152\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00153\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ strtol10(\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ in,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}**\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ 0)\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{keywordtype}{bool}\ inv\ =\ (*in==\textcolor{charliteral}{'-\/'});}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordflow}{if}\ (\ inv\ ||\ *in\ ==\ \textcolor{charliteral}{'+'}\ )\ \{}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ ++in;}
+\DoxyCodeLine{00157\ \ \ \ \ \}}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ strtoul10(in,\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}});}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordflow}{if}\ (inv)\ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value\ <\ INT\_MAX\ \&\&\ value\ >}}\ INT\_MIN)\ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ -\/\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2_logger_8hpp_ae2042ef82dfa543c7f03ae9766067552}{ASSIMP\_LOG\_WARN}}(\ \textcolor{stringliteral}{"{}Converting\ the\ string\ \(\backslash\)"{}"{}},\ in,\ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ into\ an\ inverted\ value\ resulted\ in\ overflow."{}}\ );}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00166\ \ \ \ \ \}}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00168\ \}}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00171\ \textcolor{comment}{//\ Parse\ a\ C++-\/like\ integer\ literal\ -\/\ hex\ and\ oct\ prefixes.}}
+\DoxyCodeLine{00172\ \textcolor{comment}{//\ 0xNNNN\ -\/\ hex}}
+\DoxyCodeLine{00173\ \textcolor{comment}{//\ 0NNN\ \ \ -\/\ oct}}
+\DoxyCodeLine{00174\ \textcolor{comment}{//\ NNN\ \ \ \ -\/\ dec}}
+\DoxyCodeLine{00175\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00176\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ strtoul\_cppstyle(\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ in,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}**\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}=0)\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{charliteral}{'0'}\ ==\ in[0])\ \{}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{charliteral}{'x'}\ ==\ in[1]\ ?\ strtoul16(in+2,\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ :\ strtoul8(in+1,\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}});}
+\DoxyCodeLine{00179\ \ \ \ \ \}}
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordflow}{return}\ strtoul10(in,\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}});}
+\DoxyCodeLine{00181\ \}}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00184\ \textcolor{comment}{//\ Special\ version\ of\ the\ function,\ providing\ higher\ accuracy\ and\ safety}}
+\DoxyCodeLine{00185\ \textcolor{comment}{//\ It\ is\ mainly\ used\ by\ fast\_atof\ to\ prevent\ ugly\ and\ unwanted\ integer\ overflows.}}
+\DoxyCodeLine{00186\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00187\ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ ExceptionType\ =\ DeadlyImportError>}
+\DoxyCodeLine{00188\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\_t}}\ strtoul10\_64(\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ in,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}**\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}=0,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}*\ max\_inout=0)\ \{}
+\DoxyCodeLine{00189\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ cur\ =\ 0;}
+\DoxyCodeLine{00190\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\_t}}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ 0;}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{keywordflow}{if}\ (\ *in\ <\ \textcolor{charliteral}{'0'}\ ||\ *in\ >\ \textcolor{charliteral}{'9'}\ )\ \{}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ The\ string\ is\ known\ to\ be\ bad,\ so\ don't\ risk\ printing\ the\ whole\ thing.}}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ ExceptionType(\textcolor{stringliteral}{"{}The\ string\ \(\backslash\)"{}"{}},\ \mbox{\hyperlink{assimp-install_2include_2assimp_2_string_utils_8h_ac93475a8288137104522606ff477c4db}{ai\_str\_toprintable}}(in,\ (\textcolor{keywordtype}{int})strlen(in)),\ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ cannot\ be\ converted\ into\ a\ value."{}}\ );}
+\DoxyCodeLine{00195\ \ \ \ \ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \ \ \textcolor{keywordflow}{for}\ (\ ;;\ )\ \{}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\ *in\ <\ \textcolor{charliteral}{'0'}\ ||\ *in\ >\ \textcolor{charliteral}{'9'}\ )\ \{}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\_t}}\ new\_value\ =\ (\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ *\ (\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\_t}})\ 10\ )\ +\ (\ (\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\_t}})\ (\ *in\ -\/\ \textcolor{charliteral}{'0'}\ )\ );}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ numeric\ overflow,\ we\ rely\ on\ you}}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\ new\_value\ <\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ )\ \{}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2_logger_8hpp_ae2042ef82dfa543c7f03ae9766067552}{ASSIMP\_LOG\_WARN}}(\ \textcolor{stringliteral}{"{}Converting\ the\ string\ \(\backslash\)"{}"{}},\ in,\ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ into\ a\ value\ resulted\ in\ overflow."{}}\ );}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ new\_value;}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ ++in;}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ ++cur;}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (max\_inout\ \&\&\ *max\_inout\ ==\ cur)\ \{}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ \{\ \textcolor{comment}{/*\ skip\ to\ end\ */}}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (\ *in\ >=\ \textcolor{charliteral}{'0'}\ \&\&\ *in\ <=\ \textcolor{charliteral}{'9'}\ )\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++in;}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ in;}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00225\ \ \ \ \ \}}
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keywordflow}{if}\ (\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ )\ \{}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ in;}
+\DoxyCodeLine{00228\ \ \ \ \ \}}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{keywordflow}{if}\ (\ max\_inout\ )\ \{}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \ \ *max\_inout\ =\ cur;}
+\DoxyCodeLine{00232\ \ \ \ \ \}}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00235\ \}}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00237\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00238\ \textcolor{comment}{//\ signed\ variant\ of\ strtoul10\_64}}
+\DoxyCodeLine{00239\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00240\ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ ExceptionType\ =\ DeadlyImportError>}
+\DoxyCodeLine{00241\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a5e15c9ea42a30ad76cc1bb573b807e0e}{int64\_t}}\ strtol10\_64(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ in,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}**\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ 0,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}*\ max\_inout\ =\ 0)\ \{}
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{keywordtype}{bool}\ inv\ =\ (*in\ ==\ \textcolor{charliteral}{'-\/'});}
+\DoxyCodeLine{00243\ \ \ \ \ \textcolor{keywordflow}{if}\ (\ inv\ ||\ *in\ ==\ \textcolor{charliteral}{'+'}\ )\ \{}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ ++in;}
+\DoxyCodeLine{00245\ \ \ \ \ \}}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00247\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a5e15c9ea42a30ad76cc1bb573b807e0e}{int64\_t}}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ strtoul10\_64<ExceptionType>(in,\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},\ max\_inout);}
+\DoxyCodeLine{00248\ \ \ \ \ \textcolor{keywordflow}{if}\ (inv)\ \{}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ -\/\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00250\ \ \ \ \ \}}
+\DoxyCodeLine{00251\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00252\ \}}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \textcolor{comment}{//\ Number\ of\ relevant\ decimals\ for\ floating-\/point\ parsing.}}
+\DoxyCodeLine{00255\ \textcolor{preprocessor}{\#define\ AI\_FAST\_ATOF\_RELAVANT\_DECIMALS\ 15}}
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00257\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00260\ \textcolor{comment}{//\ If\ you\ find\ any\ bugs,\ please\ send\ them\ to\ me,\ niko\ (at)\ irrlicht3d.org.}}
+\DoxyCodeLine{00261\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00262\ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ Real,\ \textcolor{keyword}{typename}\ ExceptionType\ =\ DeadlyImportError>}
+\DoxyCodeLine{00263\ \textcolor{keyword}{inline}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ fast\_atoreal\_move(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ c,\ Real\&\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},\ \textcolor{keywordtype}{bool}\ check\_comma\ =\ \textcolor{keyword}{true})\ \{}
+\DoxyCodeLine{00264\ \ \ \ \ \mbox{\hyperlink{namespaceo3dgc_add26bd1a87cb97ff76846b3453e6bbe4}{Real}}\ f\ =\ 0;}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00266\ \ \ \ \ \textcolor{keywordtype}{bool}\ inv\ =\ (*c\ ==\ \textcolor{charliteral}{'-\/'});}
+\DoxyCodeLine{00267\ \ \ \ \ \textcolor{keywordflow}{if}\ (inv\ ||\ *c\ ==\ \textcolor{charliteral}{'+'})\ \{}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ ++c;}
+\DoxyCodeLine{00269\ \ \ \ \ \}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \ \ \ \ \textcolor{keywordflow}{if}\ ((c[0]\ ==\ \textcolor{charliteral}{'N'}\ ||\ c[0]\ ==\ \textcolor{charliteral}{'n'})\ \&\&\ \mbox{\hyperlink{namespace_assimp_a5718d462fef0070afea1d4ac4e65d4d8}{ASSIMP\_strincmp}}(c,\ \textcolor{stringliteral}{"{}nan"{}},\ 3)\ ==\ 0)\ \{}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ std::numeric\_limits<Real>::quiet\_NaN();}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \ \ c\ +=\ 3;}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ c;}
+\DoxyCodeLine{00275\ \ \ \ \ \}}
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00277\ \ \ \ \ \textcolor{keywordflow}{if}\ ((c[0]\ ==\ \textcolor{charliteral}{'I'}\ ||\ c[0]\ ==\ \textcolor{charliteral}{'i'})\ \&\&\ \mbox{\hyperlink{namespace_assimp_a5718d462fef0070afea1d4ac4e65d4d8}{ASSIMP\_strincmp}}(c,\ \textcolor{stringliteral}{"{}inf"{}},\ 3)\ ==\ 0)\ \{}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ std::numeric\_limits<Real>::infinity();}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (inv)\ \{}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ -\/\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}};}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ c\ +=\ 3;}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((c[0]\ ==\ \textcolor{charliteral}{'I'}\ ||\ c[0]\ ==\ \textcolor{charliteral}{'i'})\ \&\&\ \mbox{\hyperlink{namespace_assimp_a5718d462fef0070afea1d4ac4e65d4d8}{ASSIMP\_strincmp}}(c,\ \textcolor{stringliteral}{"{}inity"{}},\ 5)\ ==\ 0)\ \{}
+\DoxyCodeLine{00284\ \ \ \ \ \ \ \ \ \ \ \ \ c\ +=\ 5;}
+\DoxyCodeLine{00285\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ c;}
+\DoxyCodeLine{00287\ \ \ \ \ \ \}}
+\DoxyCodeLine{00288\ }
+\DoxyCodeLine{00289\ \ \ \ \ \textcolor{keywordflow}{if}\ (!(c[0]\ >=\ \textcolor{charliteral}{'0'}\ \&\&\ c[0]\ <=\ \textcolor{charliteral}{'9'})\ \&\&}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \ \ \ \ !((c[0]\ ==\ \textcolor{charliteral}{'.'}\ ||\ (check\_comma\ \&\&\ c[0]\ ==\ \textcolor{charliteral}{','}))\ \&\&\ c[1]\ >=\ \textcolor{charliteral}{'0'}\ \&\&\ c[1]\ <=\ \textcolor{charliteral}{'9'}))\ \{}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ The\ string\ is\ known\ to\ be\ bad,\ so\ don't\ risk\ printing\ the\ whole\ thing.}}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ ExceptionType(\textcolor{stringliteral}{"{}Cannot\ parse\ string\ \(\backslash\)"{}"{}},\ \mbox{\hyperlink{assimp-install_2include_2assimp_2_string_utils_8h_ac93475a8288137104522606ff477c4db}{ai\_str\_toprintable}}(c,\ (\textcolor{keywordtype}{int})strlen(c)),}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ as\ a\ real\ number:\ does\ not\ start\ with\ digit\ "{}}}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}or\ decimal\ point\ followed\ by\ digit."{}});}
+\DoxyCodeLine{00295\ \ \ \ \ \}}
+\DoxyCodeLine{00296\ }
+\DoxyCodeLine{00297\ \ \ \ \ \textcolor{keywordflow}{if}\ (*c\ !=\ \textcolor{charliteral}{'.'}\ \&\&\ (!\ check\_comma\ ||\ c[0]\ !=\ \textcolor{charliteral}{','}))\ \{}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \ \ f\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespaceo3dgc_add26bd1a87cb97ff76846b3453e6bbe4}{Real}}\textcolor{keyword}{>}(\ strtoul10\_64<ExceptionType>\ (\ c,\ \&c)\ );}
+\DoxyCodeLine{00299\ \ \ \ \ \}}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{keywordflow}{if}\ ((*c\ ==\ \textcolor{charliteral}{'.'}\ ||\ (check\_comma\ \&\&\ c[0]\ ==\ \textcolor{charliteral}{','}))\ \&\&\ c[1]\ >=\ \textcolor{charliteral}{'0'}\ \&\&\ c[1]\ <=\ \textcolor{charliteral}{'9'})\ \{}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ ++c;}
+\DoxyCodeLine{00303\ }
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ NOTE:\ The\ original\ implementation\ is\ highly\ inaccurate\ here.\ The\ precision\ of\ a\ single}}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ IEEE\ 754\ float\ is\ not\ high\ enough,\ everything\ behind\ the\ 6th\ digit\ tends\ to\ be\ more}}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ inaccurate\ than\ it\ would\ need\ to\ be.\ Casting\ to\ double\ seems\ to\ solve\ the\ problem.}}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ strtol\_64\ is\ used\ to\ prevent\ integer\ overflow.}}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Another\ fix:\ this\ tends\ to\ become\ 0\ for\ long\ numbers\ if\ we\ don't\ limit\ the\ maximum}}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ number\ of\ digits\ to\ be\ read.\ AI\_FAST\_ATOF\_RELAVANT\_DECIMALS\ can\ be\ a\ value\ between}}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 1\ and\ 15.}}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ diff\ =\ AI\_FAST\_ATOF\_RELAVANT\_DECIMALS;}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ pl\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(\ strtoul10\_64<ExceptionType>\ (\ c,\ \&c,\ \&diff\ ));}
+\DoxyCodeLine{00314\ }
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ pl\ *=\ fast\_atof\_table[diff];}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ f\ +=\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespaceo3dgc_add26bd1a87cb97ff76846b3453e6bbe4}{Real}}\textcolor{keyword}{>}(\ pl\ );}
+\DoxyCodeLine{00317\ \ \ \ \ \}}
+\DoxyCodeLine{00318\ \ \ \ \ \textcolor{comment}{//\ For\ backwards\ compatibility:\ eat\ trailing\ dots,\ but\ not\ trailing\ commas.}}
+\DoxyCodeLine{00319\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (*c\ ==\ \textcolor{charliteral}{'.'})\ \{}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ ++c;}
+\DoxyCodeLine{00321\ \ \ \ \ \}}
+\DoxyCodeLine{00322\ }
+\DoxyCodeLine{00323\ \ \ \ \ \textcolor{comment}{//\ A\ major\ 'E'\ must\ be\ allowed.\ Necessary\ for\ proper\ reading\ of\ some\ DXF\ files.}}
+\DoxyCodeLine{00324\ \ \ \ \ \textcolor{comment}{//\ Thanks\ to\ Zhao\ Lei\ to\ point\ out\ that\ this\ if()\ must\ be\ outside\ the\ if\ (*c\ ==\ '.'\ ..)}}
+\DoxyCodeLine{00325\ \ \ \ \ \textcolor{keywordflow}{if}\ (*c\ ==\ \textcolor{charliteral}{'e'}\ ||\ *c\ ==\ \textcolor{charliteral}{'E'})\ \{}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ ++c;}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ einv\ =\ (*c==\textcolor{charliteral}{'-\/'});}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (einv\ ||\ *c==\textcolor{charliteral}{'+'})\ \{}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ \ \ \ \ ++c;}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ The\ reason\ float\ constants\ are\ used\ here\ is\ that\ we've\ seen\ cases\ where\ compilers}}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ would\ perform\ such\ casts\ on\ compile-\/time\ constants\ at\ runtime,\ which\ would\ be}}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ bad\ considering\ how\ frequently\ fast\_atoreal\_move<float>\ is\ called\ in\ Assimp.}}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespaceo3dgc_add26bd1a87cb97ff76846b3453e6bbe4}{Real}}\ exp\ =\ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespaceo3dgc_add26bd1a87cb97ff76846b3453e6bbe4}{Real}}\textcolor{keyword}{>}(\ strtoul10\_64<ExceptionType>(c,\ \&c)\ );}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (einv)\ \{}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ \ \ \ \ exp\ =\ -\/exp;}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ f\ *=\ std::pow(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespaceo3dgc_add26bd1a87cb97ff76846b3453e6bbe4}{Real}}\textcolor{keyword}{>}(10.0),\ exp);}
+\DoxyCodeLine{00340\ \ \ \ \ \}}
+\DoxyCodeLine{00341\ }
+\DoxyCodeLine{00342\ \ \ \ \ \textcolor{keywordflow}{if}\ (inv)\ \{}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \ \ f\ =\ -\/f;}
+\DoxyCodeLine{00344\ \ \ \ \ \}}
+\DoxyCodeLine{00345\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ =\ f;}
+\DoxyCodeLine{00346\ \ \ \ \ \textcolor{keywordflow}{return}\ c;}
+\DoxyCodeLine{00347\ \}}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00350\ \textcolor{comment}{//\ The\ same\ but\ more\ human.}}
+\DoxyCodeLine{00351\ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ ExceptionType\ =\ DeadlyImportError>}
+\DoxyCodeLine{00352\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ fast\_atof(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ c)\ \{}
+\DoxyCodeLine{00353\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ ret(0.0);}
+\DoxyCodeLine{00354\ \ \ \ \ fast\_atoreal\_move<ai\_real,\ ExceptionType>(c,\ ret);}
+\DoxyCodeLine{00355\ }
+\DoxyCodeLine{00356\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00357\ \}}
+\DoxyCodeLine{00358\ }
+\DoxyCodeLine{00359\ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ ExceptionType\ =\ DeadlyImportError>}
+\DoxyCodeLine{00360\ \textcolor{keyword}{inline}}
+\DoxyCodeLine{00361\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ fast\_atof(\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ c,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}**\ cout)\ \{}
+\DoxyCodeLine{00362\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ ret(0.0);}
+\DoxyCodeLine{00363\ \ \ \ \ *cout\ =\ fast\_atoreal\_move<ai\_real,\ ExceptionType>(c,\ ret);}
+\DoxyCodeLine{00364\ }
+\DoxyCodeLine{00365\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00366\ \}}
+\DoxyCodeLine{00367\ }
+\DoxyCodeLine{00368\ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ ExceptionType\ =\ DeadlyImportError>}
+\DoxyCodeLine{00369\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ fast\_atof(\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}**\ inout)\ \{}
+\DoxyCodeLine{00370\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ ret(0.0);}
+\DoxyCodeLine{00371\ \ \ \ \ *inout\ =\ fast\_atoreal\_move<ai\_real,\ ExceptionType>(*inout,\ ret);}
+\DoxyCodeLine{00372\ }
+\DoxyCodeLine{00373\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00374\ \}}
+\DoxyCodeLine{00375\ }
+\DoxyCodeLine{00376\ \}\ }
+\DoxyCodeLine{00377\ }
+\DoxyCodeLine{00378\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ FAST\_A\_TO\_F\_H\_INCLUDED}}
+
+\end{DoxyCode}

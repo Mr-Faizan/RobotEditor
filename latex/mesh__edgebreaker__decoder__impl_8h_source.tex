@@ -1,0 +1,234 @@
+\doxysection{mesh\+\_\+edgebreaker\+\_\+decoder\+\_\+impl.\+h}
+\hypertarget{mesh__edgebreaker__decoder__impl_8h_source}{}\label{mesh__edgebreaker__decoder__impl_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/mesh/mesh\_edgebreaker\_decoder\_impl.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/mesh/mesh\_edgebreaker\_decoder\_impl.h}}
+\mbox{\hyperlink{mesh__edgebreaker__decoder__impl_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_DECODER\_IMPL\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_DECODER\_IMPL\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <unordered\_map>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <unordered\_set>}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__attribute__indices__encoding__data_8h}{draco/compression/attributes/mesh\_attribute\_indices\_encoding\_data.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__edgebreaker__decoder__impl__interface_8h}{draco/compression/mesh/mesh\_edgebreaker\_decoder\_impl\_interface.h}}"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__edgebreaker__shared_8h}{draco/compression/mesh/mesh\_edgebreaker\_shared.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__traversal__sequencer_8h}{draco/compression/mesh/traverser/mesh\_traversal\_sequencer.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{decoder__buffer_8h}{draco/core/decoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{corner__table_8h}{draco/mesh/corner\_table.h}}"{}}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__attribute__corner__table_8h}{draco/mesh/mesh\_attribute\_corner\_table.h}}"{}}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ Implementation\ of\ the\ edgebreaker\ decoder\ that\ decodes\ data\ encoded\ with\ the}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ MeshEdgebreakerEncoderImpl\ class.\ The\ implementation\ of\ the\ decoder\ is\ based}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ on\ the\ algorithm\ presented\ in\ Isenburg\ et\ al'02\ "{}Spirale\ Reversi:\ Reverse}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ decoding\ of\ the\ Edgebreaker\ encoding"{}.\ Note\ that\ the\ encoding\ is\ still\ based}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ on\ the\ standard\ edgebreaker\ method\ as\ presented\ in\ "{}3D\ Compression}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ Made\ Simple:\ Edgebreaker\ on\ a\ Corner-\/Table"{}\ by\ Rossignac\ at\ al.'01.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ http://www.cc.gatech.edu/\string~jarek/papers/CornerTableSMI.pdf.\ One\ difference\ is}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ caused\ by\ the\ properties\ of\ the\ spirale\ reversi\ algorithm\ that\ decodes\ the}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ symbols\ from\ the\ last\ one\ to\ the\ first\ one.\ To\ make\ the\ decoding\ more}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ efficient,\ we\ encode\ all\ symbols\ in\ the\ reverse\ order,\ therefore\ the\ decoder}}
+\DoxyCodeLine{00042\ \textcolor{comment}{//\ can\ process\ them\ one\ by\ one.}}
+\DoxyCodeLine{00043\ \textcolor{comment}{//\ The\ main\ advantage\ of\ the\ spirale\ reversi\ method\ is\ that\ the\ partially}}
+\DoxyCodeLine{00044\ \textcolor{comment}{//\ decoded\ mesh\ has\ valid\ connectivity\ data\ at\ any\ time\ during\ the\ decoding}}
+\DoxyCodeLine{00045\ \textcolor{comment}{//\ process\ (valid\ with\ respect\ to\ the\ decoded\ portion\ of\ the\ mesh).\ The\ standard}}
+\DoxyCodeLine{00046\ \textcolor{comment}{//\ Edgebreaker\ decoder\ used\ two\ passes\ (forward\ decoding\ +\ zipping)\ which\ not}}
+\DoxyCodeLine{00047\ \textcolor{comment}{//\ only\ prevented\ us\ from\ having\ a\ valid\ connectivity\ but\ it\ was\ also\ slower.}}
+\DoxyCodeLine{00048\ \textcolor{comment}{//\ The\ main\ benefit\ of\ having\ the\ valid\ connectivity\ is\ that\ we\ can\ use\ the}}
+\DoxyCodeLine{00049\ \textcolor{comment}{//\ known\ connectivity\ to\ predict\ encoded\ symbols\ that\ can\ improve\ the}}
+\DoxyCodeLine{00050\ \textcolor{comment}{//\ compression\ rate.}}
+\DoxyCodeLine{00051\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ TraversalDecoderT>}
+\DoxyCodeLine{00052\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_aeed7a2c96e252d4e9733e4179cde53cb}{MeshEdgebreakerDecoderImpl}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_interface}{MeshEdgebreakerDecoderImplInterface}}\ \{}
+\DoxyCodeLine{00053\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00054\ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_aeed7a2c96e252d4e9733e4179cde53cb}{MeshEdgebreakerDecoderImpl}}();}
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_a99fdf0b5aa5d98a345895a1e9f11aa48}{Init}}(\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder}{MeshEdgebreakerDecoder}}\ *decoder)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh_attribute_corner_table}{MeshAttributeCornerTable}}\ *\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_a50e6974b7626f39172ba0849d57b2f12}{GetAttributeCornerTable}}(}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ att\_id)\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00059\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structdraco_1_1_mesh_attribute_indices_encoding_data}{MeshAttributeIndicesEncodingData}}\ *\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_af44ae6cfb8f3389bdb2c16a6fa27956a}{GetAttributeEncodingData}}(}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ att\_id)\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_a8cda5ccfc3fa1a6a59a00bbe8c53a7f2}{CreateAttributesDecoder}}(int32\_t\ att\_decoder\_id)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00063\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_a303b321488866b4a47f5f2fd0f2b4c60}{DecodeConnectivity}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_aa764af665812a176106c749c5fb4c9a2}{OnAttributesDecoded}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder}{MeshEdgebreakerDecoder}}\ *\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_a33b138bc4cf2889b95d511aff9d2ebd7}{GetDecoder}}()\textcolor{keyword}{\ const\ override\ }\{\ \textcolor{keywordflow}{return}\ decoder\_;\ \}}
+\DoxyCodeLine{00066\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_corner_table}{CornerTable}}\ *\mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_a55448ebbc98e80f9e88e2e2a45961da5}{GetCornerTable}}()\textcolor{keyword}{\ const\ override\ }\{}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordflow}{return}\ corner\_table\_.get();}
+\DoxyCodeLine{00068\ \ \ \}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00071\ \ \ \textcolor{comment}{//\ Creates\ a\ vertex\ traversal\ sequencer\ for\ the\ specified\ |TraverserT|\ type.}}
+\DoxyCodeLine{00072\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ TraverserT>}
+\DoxyCodeLine{00073\ \ \ std::unique\_ptr<PointsSequencer>\ CreateVertexTraversalSequencer(}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \mbox{\hyperlink{structdraco_1_1_mesh_attribute_indices_encoding_data}{MeshAttributeIndicesEncodingData}}\ *encoding\_data);}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \textcolor{comment}{//\ Decodes\ connectivity\ between\ vertices\ (vertex\ indices).}}
+\DoxyCodeLine{00077\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ vertices\ created\ by\ the\ decoder\ or\ -\/1\ on\ error.}}
+\DoxyCodeLine{00078\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_mesh_edgebreaker_decoder_impl_a303b321488866b4a47f5f2fd0f2b4c60}{DecodeConnectivity}}(\textcolor{keywordtype}{int}\ num\_symbols);}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \textcolor{comment}{//\ Returns\ true\ if\ the\ current\ symbol\ was\ part\ of\ a\ topology\ split\ event.\ This}}
+\DoxyCodeLine{00081\ \ \ \textcolor{comment}{//\ means\ that\ the\ current\ face\ was\ connected\ to\ the\ left\ edge\ of\ a\ face}}
+\DoxyCodeLine{00082\ \ \ \textcolor{comment}{//\ encoded\ with\ the\ TOPOLOGY\_S\ symbol.\ |out\_symbol\_edge|\ can\ be\ used\ to}}
+\DoxyCodeLine{00083\ \ \ \textcolor{comment}{//\ identify\ which\ edge\ of\ the\ source\ symbol\ was\ connected\ to\ the\ TOPOLOGY\_S}}
+\DoxyCodeLine{00084\ \ \ \textcolor{comment}{//\ symbol.}}
+\DoxyCodeLine{00085\ \ \ \textcolor{keywordtype}{bool}\ IsTopologySplit(\textcolor{keywordtype}{int}\ encoder\_symbol\_id,\ \mbox{\hyperlink{namespacedraco_a739a0c2ee984a4578106c605eb2590cc}{EdgeFaceName}}\ *out\_face\_edge,}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *out\_encoder\_split\_symbol\_id)\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{if}\ (topology\_split\_data\_.size()\ ==\ 0)\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00089\ \ \ \ \ \}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordflow}{if}\ (topology\_split\_data\_.back().source\_symbol\_id\ >}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(encoder\_symbol\_id))\ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \textcolor{comment}{//\ Something\ is\ wrong;\ if\ the\ desired\ source\ symbol\ is\ greater\ than\ the}}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \textcolor{comment}{//\ current\ encoder\_symbol\_id,\ we\ missed\ it,\ or\ the\ input\ was\ tampered}}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \textcolor{comment}{//\ (|encoder\_symbol\_id|\ keeps\ decreasing).}}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \textcolor{comment}{//\ Return\ invalid\ symbol\ id\ to\ notify\ the\ decoder\ that\ there\ was\ an}}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \textcolor{comment}{//\ error.}}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ *out\_encoder\_split\_symbol\_id\ =\ -\/1;}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00099\ \ \ \ \ \}}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordflow}{if}\ (topology\_split\_data\_.back().source\_symbol\_id\ !=\ encoder\_symbol\_id)\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00102\ \ \ \ \ \}}
+\DoxyCodeLine{00103\ \ \ \ \ *out\_face\_edge\ =}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespacedraco_a739a0c2ee984a4578106c605eb2590cc}{EdgeFaceName}}\textcolor{keyword}{>}(topology\_split\_data\_.back().source\_edge);}
+\DoxyCodeLine{00105\ \ \ \ \ *out\_encoder\_split\_symbol\_id\ =\ topology\_split\_data\_.back().split\_symbol\_id;}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{comment}{//\ Remove\ the\ latest\ split\ event.}}
+\DoxyCodeLine{00107\ \ \ \ \ topology\_split\_data\_.pop\_back();}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00109\ \ \ \}}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \textcolor{comment}{//\ Decodes\ event\ data\ for\ hole\ and\ topology\ split\ events\ and\ stores\ them\ for}}
+\DoxyCodeLine{00112\ \ \ \textcolor{comment}{//\ future\ use.}}
+\DoxyCodeLine{00113\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ parsed\ bytes,\ or\ -\/1\ on\ error.}}
+\DoxyCodeLine{00114\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af478a748dec7d15ffbb4818b675b5dac}{int32\_t}}\ DecodeHoleAndTopologySplitEvents(DecoderBuffer\ *decoder\_buffer);}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \textcolor{comment}{//\ Decodes\ all\ non-\/position\ attribute\ connectivity\ on\ the\ currently}}
+\DoxyCodeLine{00117\ \ \ \textcolor{comment}{//\ processed\ face.}}
+\DoxyCodeLine{00118\ \textcolor{preprocessor}{\#ifdef\ DRACO\_BACKWARDS\_COMPATIBILITY\_SUPPORTED}}
+\DoxyCodeLine{00119\ \ \ \textcolor{keywordtype}{bool}\ DecodeAttributeConnectivitiesOnFaceLegacy(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner);}
+\DoxyCodeLine{00120\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00121\ \ \ \textcolor{keywordtype}{bool}\ DecodeAttributeConnectivitiesOnFace(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner);}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ \textcolor{comment}{//\ Initializes\ mapping\ between\ corners\ and\ point\ ids.}}
+\DoxyCodeLine{00124\ \ \ \textcolor{keywordtype}{bool}\ AssignPointsToCorners(\textcolor{keywordtype}{int}\ num\_connectivity\_verts);}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \textcolor{keywordtype}{bool}\ IsFaceVisited(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_id\ <\ 0)\ \{}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};\ \ \textcolor{comment}{//\ Invalid\ corner\ signalizes\ that\ the\ face\ does\ not\ exist.}}
+\DoxyCodeLine{00129\ \ \ \ \ \}}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordflow}{return}\ visited\_faces\_[corner\_table\_-\/>Face(corner\_id).value()];}
+\DoxyCodeLine{00131\ \ \ \}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \ \textcolor{keywordtype}{void}\ SetOppositeCorners(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_0,\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_1)\ \{}
+\DoxyCodeLine{00134\ \ \ \ \ corner\_table\_-\/>SetOppositeCorner(corner\_0,\ corner\_1);}
+\DoxyCodeLine{00135\ \ \ \ \ corner\_table\_-\/>SetOppositeCorner(corner\_1,\ corner\_0);}
+\DoxyCodeLine{00136\ \ \ \}}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ MeshEdgebreakerDecoder\ *decoder\_;}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ std::unique\_ptr<CornerTable>\ corner\_table\_;}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \textcolor{comment}{//\ Stack\ used\ for\ storing\ corners\ that\ need\ to\ be\ traversed\ when\ decoding}}
+\DoxyCodeLine{00143\ \ \ \textcolor{comment}{//\ mesh\ vertices.\ New\ corner\ is\ added\ for\ each\ initial\ face\ and\ a\ split}}
+\DoxyCodeLine{00144\ \ \ \textcolor{comment}{//\ symbol,\ and\ one\ corner\ is\ removed\ when\ the\ end\ symbol\ is\ reached.}}
+\DoxyCodeLine{00145\ \ \ \textcolor{comment}{//\ Stored\ as\ member\ variable\ to\ prevent\ frequent\ memory\ reallocations\ when}}
+\DoxyCodeLine{00146\ \ \ \textcolor{comment}{//\ handling\ meshes\ with\ lots\ of\ disjoint\ components.\ \ Originally,\ we\ used}}
+\DoxyCodeLine{00147\ \ \ \textcolor{comment}{//\ recursive\ functions\ to\ handle\ this\ behavior,\ but\ that\ can\ cause\ stack}}
+\DoxyCodeLine{00148\ \ \ \textcolor{comment}{//\ memory\ overflow\ when\ compressing\ huge\ meshes.}}
+\DoxyCodeLine{00149\ \ \ std::vector<CornerIndex>\ corner\_traversal\_stack\_;}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ \textcolor{comment}{//\ Array\ stores\ the\ number\ of\ visited\ visited\ for\ each\ mesh\ traversal.}}
+\DoxyCodeLine{00152\ \ \ std::vector<int>\ vertex\_traversal\_length\_;}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ \textcolor{comment}{//\ List\ of\ decoded\ topology\ split\ events.}}
+\DoxyCodeLine{00155\ \ \ std::vector<TopologySplitEventData>\ topology\_split\_data\_;}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \ \ \textcolor{comment}{//\ List\ of\ decoded\ hole\ events.}}
+\DoxyCodeLine{00158\ \ \ std::vector<HoleEventData>\ hole\_event\_data\_;}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \ \ \textcolor{comment}{//\ Configuration\ of\ the\ initial\ face\ for\ each\ mesh\ component.}}
+\DoxyCodeLine{00161\ \ \ std::vector<bool>\ init\_face\_configurations\_;}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \ \ \textcolor{comment}{//\ Initial\ corner\ for\ each\ traversal.}}
+\DoxyCodeLine{00164\ \ \ std::vector<CornerIndex>\ init\_corners\_;}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \textcolor{comment}{//\ Id\ of\ the\ last\ processed\ input\ symbol.}}
+\DoxyCodeLine{00167\ \ \ \textcolor{keywordtype}{int}\ last\_symbol\_id\_;}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \textcolor{comment}{//\ Id\ of\ the\ last\ decoded\ vertex.}}
+\DoxyCodeLine{00170\ \ \ \textcolor{keywordtype}{int}\ last\_vert\_id\_;}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \ \ \textcolor{comment}{//\ Id\ of\ the\ last\ decoded\ face.}}
+\DoxyCodeLine{00173\ \ \ \textcolor{keywordtype}{int}\ last\_face\_id\_;}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ \textcolor{comment}{//\ Array\ for\ marking\ visited\ faces.}}
+\DoxyCodeLine{00176\ \ \ std::vector<bool>\ visited\_faces\_;}
+\DoxyCodeLine{00177\ \ \ \textcolor{comment}{//\ Array\ for\ marking\ visited\ vertices.}}
+\DoxyCodeLine{00178\ \ \ std::vector<bool>\ visited\_verts\_;}
+\DoxyCodeLine{00179\ \ \ \textcolor{comment}{//\ Array\ for\ marking\ vertices\ on\ open\ boundaries.}}
+\DoxyCodeLine{00180\ \ \ std::vector<bool>\ is\_vert\_hole\_;}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \ \ \textcolor{comment}{//\ The\ number\ of\ new\ vertices\ added\ by\ the\ encoder\ (because\ of\ non-\/manifold}}
+\DoxyCodeLine{00183\ \ \ \textcolor{comment}{//\ vertices\ on\ the\ input\ mesh).}}
+\DoxyCodeLine{00184\ \ \ \textcolor{comment}{//\ If\ there\ are\ no\ non-\/manifold\ edges/vertices\ on\ the\ input\ mesh,\ this\ should}}
+\DoxyCodeLine{00185\ \ \ \textcolor{comment}{//\ be\ 0.}}
+\DoxyCodeLine{00186\ \ \ \textcolor{keywordtype}{int}\ num\_new\_vertices\_;}
+\DoxyCodeLine{00187\ \ \ \textcolor{comment}{//\ For\ every\ newly\ added\ vertex,\ this\ array\ stores\ it's\ mapping\ to\ the}}
+\DoxyCodeLine{00188\ \ \ \textcolor{comment}{//\ parent\ vertex\ id\ of\ the\ encoded\ mesh.}}
+\DoxyCodeLine{00189\ \ \ std::unordered\_map<int,\ int>\ new\_to\_parent\_vertex\_map\_;}
+\DoxyCodeLine{00190\ \ \ \textcolor{comment}{//\ The\ number\ of\ vertices\ that\ were\ encoded\ (can\ be\ different\ from\ the\ number}}
+\DoxyCodeLine{00191\ \ \ \textcolor{comment}{//\ of\ vertices\ of\ the\ input\ mesh).}}
+\DoxyCodeLine{00192\ \ \ \textcolor{keywordtype}{int}\ num\_encoded\_vertices\_;}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ \textcolor{comment}{//\ Array\ for\ storing\ the\ encoded\ corner\ ids\ in\ the\ order\ their\ associated}}
+\DoxyCodeLine{00195\ \ \ \textcolor{comment}{//\ vertices\ were\ decoded.}}
+\DoxyCodeLine{00196\ \ \ std::vector<int32\_t>\ processed\_corner\_ids\_;}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ \textcolor{comment}{//\ Array\ storing\ corners\ in\ the\ order\ they\ were\ visited\ during\ the}}
+\DoxyCodeLine{00199\ \ \ \textcolor{comment}{//\ connectivity\ decoding\ (always\ storing\ the\ tip\ corner\ of\ each\ newly\ visited}}
+\DoxyCodeLine{00200\ \ \ \textcolor{comment}{//\ face).}}
+\DoxyCodeLine{00201\ \ \ std::vector<int>\ processed\_connectivity\_corners\_;}
+\DoxyCodeLine{00202\ }
+\DoxyCodeLine{00203\ \ \ MeshAttributeIndicesEncodingData\ pos\_encoding\_data\_;}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \ \ \textcolor{comment}{//\ Id\ of\ an\ attributes\ decoder\ that\ uses\ |pos\_encoding\_data\_|.}}
+\DoxyCodeLine{00206\ \ \ \textcolor{keywordtype}{int}\ pos\_data\_decoder\_id\_;}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00208\ \ \ \textcolor{comment}{//\ Data\ for\ non-\/position\ attributes\ used\ by\ the\ decoder.}}
+\DoxyCodeLine{00209\ \ \ \textcolor{keyword}{struct\ }AttributeData\ \{}
+\DoxyCodeLine{00210\ \ \ \ \ AttributeData()\ :\ decoder\_id(-\/1),\ is\_connectivity\_used(true)\ \{\}}
+\DoxyCodeLine{00211\ \ \ \ \ \textcolor{comment}{//\ Id\ of\ the\ attribute\ decoder\ that\ was\ used\ to\ decode\ this\ attribute\ data.}}
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{keywordtype}{int}\ decoder\_id;}
+\DoxyCodeLine{00213\ \ \ \ \ MeshAttributeCornerTable\ connectivity\_data;}
+\DoxyCodeLine{00214\ \ \ \ \ \textcolor{comment}{//\ Flag\ that\ can\ mark\ the\ connectivity\_data\ invalid.\ In\ such\ case\ the\ base}}
+\DoxyCodeLine{00215\ \ \ \ \ \textcolor{comment}{//\ corner\ table\ of\ the\ mesh\ should\ be\ used\ instead.}}
+\DoxyCodeLine{00216\ \ \ \ \ \textcolor{keywordtype}{bool}\ is\_connectivity\_used;}
+\DoxyCodeLine{00217\ \ \ \ \ MeshAttributeIndicesEncodingData\ encoding\_data;}
+\DoxyCodeLine{00218\ \ \ \ \ \textcolor{comment}{//\ Opposite\ corners\ to\ attribute\ seam\ edges.}}
+\DoxyCodeLine{00219\ \ \ \ \ std::vector<int32\_t>\ attribute\_seam\_corners;}
+\DoxyCodeLine{00220\ \ \ \};}
+\DoxyCodeLine{00221\ \ \ std::vector<AttributeData>\ attribute\_data\_;}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \ \ TraversalDecoderT\ traversal\_decoder\_;}
+\DoxyCodeLine{00224\ \};}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00228\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_DECODER\_IMPL\_H\_}}
+
+\end{DoxyCode}

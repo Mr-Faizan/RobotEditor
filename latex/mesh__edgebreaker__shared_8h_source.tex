@@ -1,0 +1,135 @@
+\doxysection{mesh\+\_\+edgebreaker\+\_\+shared.\+h}
+\hypertarget{mesh__edgebreaker__shared_8h_source}{}\label{mesh__edgebreaker__shared_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/mesh/mesh\_edgebreaker\_shared.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/mesh/mesh\_edgebreaker\_shared.h}}
+\mbox{\hyperlink{mesh__edgebreaker__shared_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_SHARED\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_SHARED\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{stdint_8h}{stdint.h}}>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{comment}{//\ Shared\ declarations\ used\ by\ both\ edgebreaker\ encoder\ and\ decoder.}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{comment}{//\ A\ variable\ length\ encoding\ for\ storing\ all\ possible\ topology\ configurations}}
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ during\ traversal\ of\ mesh's\ surface.\ The\ configurations\ are\ based\ on\ visited}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ state\ of\ neighboring\ triangles\ around\ a\ currently\ processed\ face\ corner.}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ Note\ that\ about\ half\ of\ the\ encountered\ configurations\ is\ expected\ to\ be\ of}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ type\ TOPOLOGY\_C.\ It's\ guaranteed\ that\ the\ encoding\ will\ use\ at\ most\ 2\ bits}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ per\ triangle\ for\ meshes\ with\ no\ holes\ and\ up\ to\ 6\ bits\ per\ triangle\ for}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ general\ meshes.\ In\ addition,\ the\ encoding\ will\ take\ up\ to\ 4\ bits\ per\ triangle}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ for\ each\ non-\/position\ attribute\ attached\ to\ the\ mesh.}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ \ \ \ \ *-\/-\/-\/-\/-\/-\/-\/*\ \ \ \ \ \ \ \ \ \ *-\/-\/-\/-\/-\/-\/-\/*\ \ \ \ \ \ \ \ \ \ *-\/-\/-\/-\/-\/-\/-\/*}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ \ \ \ /\ \(\backslash\)\ \ \ \ \ /\ \(\backslash\)\ \ \ \ \ \ \ \ /\ \(\backslash\)\ \ \ \ \ /\ \(\backslash\)\ \ \ \ \ \ \ \ /\ \(\backslash\)\ \ \ \ \ /\ \(\backslash\)}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ \ \ /\ \ \ \(\backslash\)\ \ \ /\ \ \ \(\backslash\)\ \ \ \ \ \ /\ \ \ \(\backslash\)\ \ \ /\ \ \ \(\backslash\)\ \ \ \ \ \ /\ \ \ \(\backslash\)\ \ \ /\ \ \ \(\backslash\)}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ \ /\ \ \ \ \ \(\backslash\)\ /\ \ \ \ \ \(\backslash\)\ \ \ \ /\ \ \ \ \ \(\backslash\)\ /\ \ \ \ \ \(\backslash\)\ \ \ \ /\ \ \ \ \ \(\backslash\)\ /\ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ *-\/-\/-\/-\/-\/-\/-\/v-\/-\/-\/-\/-\/-\/-\/*\ \ *-\/-\/-\/-\/-\/-\/-\/v-\/-\/-\/-\/-\/-\/-\/*\ \ *-\/-\/-\/-\/-\/-\/-\/v-\/-\/-\/-\/-\/-\/-\/*}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ \ \(\backslash\)\ \ \ \ \ /x\(\backslash\)\ \ \ \ \ /\ \ \ \ \ \ \ \ \ \ /x\(\backslash\)\ \ \ \ \ /\ \ \ \ \(\backslash\)\ \ \ \ \ /x\(\backslash\)}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ \ \ \(\backslash\)\ \ \ /\ \ \ \(\backslash\)\ \ \ /\ \ \ \ \ \ \ \ \ \ /\ \ \ \(\backslash\)\ \ \ /\ \ \ \ \ \ \(\backslash\)\ \ \ /\ \ \ \(\backslash\)}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ \ \ \ \(\backslash\)\ /\ \ C\ \ \(\backslash\)\ /\ \ \ \ \ \ \ \ \ \ /\ \ L\ \ \(\backslash\)\ /\ \ \ \ \ \ \ \ \(\backslash\)\ /\ \ R\ \ \(\backslash\)}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ \ \ \ \ *-\/-\/-\/-\/-\/-\/-\/*\ \ \ \ \ \ \ \ \ \ *-\/-\/-\/-\/-\/-\/-\/*\ \ \ \ \ \ \ \ \ \ *-\/-\/-\/-\/-\/-\/-\/*}}
+\DoxyCodeLine{00042\ \textcolor{comment}{//}}
+\DoxyCodeLine{00043\ \textcolor{comment}{//\ \ \ \ \ *\ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00044\ \textcolor{comment}{//\ \ \ \ /\ \(\backslash\)\ \ \ \ \ /\ \(\backslash\)}}
+\DoxyCodeLine{00045\ \textcolor{comment}{//\ \ \ /\ \ \ \(\backslash\)\ \ \ /\ \ \ \(\backslash\)}}
+\DoxyCodeLine{00046\ \textcolor{comment}{//\ \ /\ \ \ \ \ \(\backslash\)\ /\ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00047\ \textcolor{comment}{//\ *-\/-\/-\/-\/-\/-\/-\/v-\/-\/-\/-\/-\/-\/-\/*\ \ \ \ \ \ \ \ \ \ v}}
+\DoxyCodeLine{00048\ \textcolor{comment}{//\ \ \(\backslash\)\ \ \ \ \ /x\(\backslash\)\ \ \ \ \ /\ \ \ \ \ \ \ \ \ \ /x\(\backslash\)}}
+\DoxyCodeLine{00049\ \textcolor{comment}{//\ \ \ \(\backslash\)\ \ \ /\ \ \ \(\backslash\)\ \ \ /\ \ \ \ \ \ \ \ \ \ /\ \ \ \(\backslash\)}}
+\DoxyCodeLine{00050\ \textcolor{comment}{//\ \ \ \ \(\backslash\)\ /\ \ S\ \ \(\backslash\)\ /\ \ \ \ \ \ \ \ \ \ /\ \ E\ \ \(\backslash\)}}
+\DoxyCodeLine{00051\ \textcolor{comment}{//\ \ \ \ \ *-\/-\/-\/-\/-\/-\/-\/*\ \ \ \ \ \ \ \ \ \ *-\/-\/-\/-\/-\/-\/-\/*}}
+\DoxyCodeLine{00052\ \textcolor{comment}{//}}
+\DoxyCodeLine{00053\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649f}{EdgebreakerTopologyBitPattern}}\ \{}
+\DoxyCodeLine{00054\ \ \ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fafcce402f65c2a7c47860e83d4a4c5459}{TOPOLOGY\_C}}\ =\ 0x0,\ \ \textcolor{comment}{//\ 0}}
+\DoxyCodeLine{00055\ \ \ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fa89c941ca2690911ef1bb4ce34939307e}{TOPOLOGY\_S}}\ =\ 0x1,\ \ \textcolor{comment}{//\ 1\ 0\ 0}}
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fad2057b987b0cd3baa543f0e75d86f909}{TOPOLOGY\_L}}\ =\ 0x3,\ \ \textcolor{comment}{//\ 1\ 1\ 0}}
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fa337b767534b20f7f44e3f97462aaeff2}{TOPOLOGY\_R}}\ =\ 0x5,\ \ \textcolor{comment}{//\ 1\ 0\ 1}}
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fad90e5ac018f13e15b6f7e34b38ce8939}{TOPOLOGY\_E}}\ =\ 0x7,\ \ \textcolor{comment}{//\ 1\ 1\ 1}}
+\DoxyCodeLine{00059\ \ \ \textcolor{comment}{//\ A\ special\ symbol\ that's\ not\ actually\ encoded,\ but\ it\ can\ be\ used\ to\ mark}}
+\DoxyCodeLine{00060\ \ \ \textcolor{comment}{//\ the\ initial\ face\ that\ triggers\ the\ mesh\ encoding\ of\ a\ single\ connected}}
+\DoxyCodeLine{00061\ \ \ \textcolor{comment}{//\ component.}}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fa8f716305eced1d7d43d1b2b19179deed}{TOPOLOGY\_INIT\_FACE}},}
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//\ A\ special\ value\ used\ to\ indicate\ an\ invalid\ symbol.}}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fa32faabf08038a57519af934c82a6b598}{TOPOLOGY\_INVALID}}}
+\DoxyCodeLine{00065\ \};}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dc}{EdgebreakerSymbol}}\ \{}
+\DoxyCodeLine{00068\ \ \ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dcaecb4cb40084ac4730e903dd1811bb000}{EDGEBREAKER\_SYMBOL\_C}}\ =\ 0,}
+\DoxyCodeLine{00069\ \ \ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dca5e88d951dc75c342287d3818355bdf64}{EDGEBREAKER\_SYMBOL\_S}},}
+\DoxyCodeLine{00070\ \ \ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dcabc7aa97f1cb501524d1738ae68ab2851}{EDGEBREAKER\_SYMBOL\_L}},}
+\DoxyCodeLine{00071\ \ \ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dca0ceb1b1d3a968829b293b4f56f03a21c}{EDGEBREAKER\_SYMBOL\_R}},}
+\DoxyCodeLine{00072\ \ \ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dca008b9a838793812c0aef42fc0879b3c3}{EDGEBREAKER\_SYMBOL\_E}},}
+\DoxyCodeLine{00073\ \ \ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dca988cd3bf408be412157fd3f304e57227}{EDGEBREAKER\_SYMBOL\_INVALID}}}
+\DoxyCodeLine{00074\ \};}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \textcolor{comment}{//\ Bit-\/length\ of\ symbols\ in\ the\ EdgebreakerTopologyBitPattern\ stored\ as\ a}}
+\DoxyCodeLine{00077\ \textcolor{comment}{//\ lookup\ table\ for\ faster\ indexing.}}
+\DoxyCodeLine{00078\ \textcolor{keyword}{constexpr}\ int32\_t\ \mbox{\hyperlink{namespacedraco_a26bacacaa61493ff40ef3c30a2222e90}{edge\_breaker\_topology\_bit\_pattern\_length}}[]\ =\ \{1,\ 3,\ 0,\ 3,}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 0,\ 3,\ 0,\ 3\};}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \textcolor{comment}{//\ Zero-\/indexed\ symbol\ id\ for\ each\ of\ topology\ pattern.}}
+\DoxyCodeLine{00082\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dc}{EdgebreakerSymbol}}\ \mbox{\hyperlink{namespacedraco_adec5a92d85614c5aae15363e52572c46}{edge\_breaker\_topology\_to\_symbol\_id}}[]\ =\ \{}
+\DoxyCodeLine{00083\ \ \ \ \ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dcaecb4cb40084ac4730e903dd1811bb000}{EDGEBREAKER\_SYMBOL\_C}},\ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dca5e88d951dc75c342287d3818355bdf64}{EDGEBREAKER\_SYMBOL\_S}},}
+\DoxyCodeLine{00084\ \ \ \ \ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dca988cd3bf408be412157fd3f304e57227}{EDGEBREAKER\_SYMBOL\_INVALID}},\ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dcabc7aa97f1cb501524d1738ae68ab2851}{EDGEBREAKER\_SYMBOL\_L}},}
+\DoxyCodeLine{00085\ \ \ \ \ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dca988cd3bf408be412157fd3f304e57227}{EDGEBREAKER\_SYMBOL\_INVALID}},\ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dca0ceb1b1d3a968829b293b4f56f03a21c}{EDGEBREAKER\_SYMBOL\_R}},}
+\DoxyCodeLine{00086\ \ \ \ \ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dca988cd3bf408be412157fd3f304e57227}{EDGEBREAKER\_SYMBOL\_INVALID}},\ \mbox{\hyperlink{namespacedraco_a42ec0f73cded15dec3b4fc4ce8f3d2dca008b9a838793812c0aef42fc0879b3c3}{EDGEBREAKER\_SYMBOL\_E}}\};}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \textcolor{comment}{//\ Reverse\ mapping\ between\ symbol\ id\ and\ topology\ pattern\ symbol.}}
+\DoxyCodeLine{00089\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649f}{EdgebreakerTopologyBitPattern}}\ \mbox{\hyperlink{namespacedraco_a6cbd393571966db97746810d7f95f288}{edge\_breaker\_symbol\_to\_topology\_id}}[]\ =\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fafcce402f65c2a7c47860e83d4a4c5459}{TOPOLOGY\_C}},\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fa89c941ca2690911ef1bb4ce34939307e}{TOPOLOGY\_S}},\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fad2057b987b0cd3baa543f0e75d86f909}{TOPOLOGY\_L}},\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fa337b767534b20f7f44e3f97462aaeff2}{TOPOLOGY\_R}},\ \mbox{\hyperlink{namespacedraco_add8cdb30207fc5f460abf730ab14649fad90e5ac018f13e15b6f7e34b38ce8939}{TOPOLOGY\_E}}\};}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \textcolor{comment}{//\ Types\ of\ edges\ used\ during\ mesh\ traversal\ relative\ to\ the\ tip\ vertex\ of\ a}}
+\DoxyCodeLine{00093\ \textcolor{comment}{//\ visited\ triangle.}}
+\DoxyCodeLine{00094\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespacedraco_a739a0c2ee984a4578106c605eb2590cc}{EdgeFaceName}}\ :\ uint8\_t\ \{\ \mbox{\hyperlink{namespacedraco_a739a0c2ee984a4578106c605eb2590ccad6a73b05bce7f2e47c8645c691e41051}{LEFT\_FACE\_EDGE}}\ =\ 0,\ \mbox{\hyperlink{namespacedraco_a739a0c2ee984a4578106c605eb2590cca7dedd4a8bb5ec6fb22e5313357f0455e}{RIGHT\_FACE\_EDGE}}\ =\ 1\ \};}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \textcolor{comment}{//\ Struct\ used\ for\ storing\ data\ about\ a\ source\ face\ that\ connects\ to\ an}}
+\DoxyCodeLine{00097\ \textcolor{comment}{//\ already\ traversed\ face\ that\ was\ either\ the\ initial\ face\ or\ a\ face\ encoded}}
+\DoxyCodeLine{00098\ \textcolor{comment}{//\ with\ either\ topology\ S\ (split)\ symbol.\ Such\ connection\ can\ be\ only\ caused\ by}}
+\DoxyCodeLine{00099\ \textcolor{comment}{//\ topology\ changes\ on\ the\ traversed\ surface\ (if\ its\ genus\ !=\ 0,\ i.e.\ when\ the}}
+\DoxyCodeLine{00100\ \textcolor{comment}{//\ surface\ has\ topological\ handles\ or\ holes).}}
+\DoxyCodeLine{00101\ \textcolor{comment}{//\ For\ each\ occurrence\ of\ such\ event\ we\ always\ encode\ the\ split\ symbol\ id,}}
+\DoxyCodeLine{00102\ \textcolor{comment}{//\ source\ symbol\ id\ and\ source\ edge\ id\ (left,\ or\ right).\ There\ will\ be\ always}}
+\DoxyCodeLine{00103\ \textcolor{comment}{//\ exactly\ two\ occurrences\ of\ this\ event\ for\ every\ topological\ handle\ on\ the}}
+\DoxyCodeLine{00104\ \textcolor{comment}{//\ traversed\ mesh\ and\ one\ occurrence\ for\ a\ hole.}}
+\DoxyCodeLine{00105\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_topology_split_event_data}{TopologySplitEventData}}\ \{}
+\DoxyCodeLine{00106\ \ \ uint32\_t\ \mbox{\hyperlink{structdraco_1_1_topology_split_event_data_a21a7f883ff977cb64e284c8105c77672}{split\_symbol\_id}};}
+\DoxyCodeLine{00107\ \ \ uint32\_t\ \mbox{\hyperlink{structdraco_1_1_topology_split_event_data_a32f99a159eba1c0122a4f3cf534f4a95}{source\_symbol\_id}};}
+\DoxyCodeLine{00108\ \ \ \textcolor{comment}{//\ We\ need\ to\ use\ uint32\_t\ instead\ of\ EdgeFaceName\ because\ the\ most\ recent}}
+\DoxyCodeLine{00109\ \ \ \textcolor{comment}{//\ version\ of\ gcc\ does\ not\ allow\ that\ when\ optimizations\ are\ turned\ on.}}
+\DoxyCodeLine{00110\ \ \ uint32\_t\ \mbox{\hyperlink{structdraco_1_1_topology_split_event_data_a0206d88bf28fd84fbfca11e175d389b6}{source\_edge}}\ :\ 1;}
+\DoxyCodeLine{00111\ \};}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \textcolor{comment}{//\ Hole\ event\ is\ used\ to\ store\ info\ about\ the\ first\ symbol\ that\ reached\ a}}
+\DoxyCodeLine{00114\ \textcolor{comment}{//\ vertex\ of\ so\ far\ unvisited\ hole.\ This\ can\ happen\ only\ on\ either\ the\ initial}}
+\DoxyCodeLine{00115\ \textcolor{comment}{//\ face\ or\ during\ a\ regular\ traversal\ when\ TOPOLOGY\_S\ is\ encountered.}}
+\DoxyCodeLine{00116\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_hole_event_data_a06ce3418ded3d7460559413bcd317262}{HoleEventData}}\ \{}
+\DoxyCodeLine{00117\ \ \ int32\_t\ \mbox{\hyperlink{structdraco_1_1_hole_event_data_ab5de716ee50294a57a1d5d142f40582d}{symbol\_id}};}
+\DoxyCodeLine{00118\ \ \ \mbox{\hyperlink{structdraco_1_1_hole_event_data_a06ce3418ded3d7460559413bcd317262}{HoleEventData}}()\ :\ \mbox{\hyperlink{structdraco_1_1_hole_event_data_ab5de716ee50294a57a1d5d142f40582d}{symbol\_id}}(0)\ \{\}}
+\DoxyCodeLine{00119\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{structdraco_1_1_hole_event_data_a0c8f79885921a18131bd0c6e8fd30b7d}{HoleEventData}}(int32\_t\ sym\_id)\ :\ \mbox{\hyperlink{structdraco_1_1_hole_event_data_ab5de716ee50294a57a1d5d142f40582d}{symbol\_id}}(sym\_id)\ \{\}}
+\DoxyCodeLine{00120\ \};}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \textcolor{comment}{//\ List\ of\ supported\ modes\ for\ valence\ based\ edgebreaker\ coding.}}
+\DoxyCodeLine{00123\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespacedraco_a31780c2383b07a6b27b9fd3ffee3879e}{EdgebreakerValenceCodingMode}}\ \{}
+\DoxyCodeLine{00124\ \ \ \mbox{\hyperlink{namespacedraco_a31780c2383b07a6b27b9fd3ffee3879ea370497d9e46a1af59c70fa4ec831c6cd}{EDGEBREAKER\_VALENCE\_MODE\_2\_7}}\ =\ 0,\ \ \textcolor{comment}{//\ Use\ contexts\ for\ valences\ in\ range\ 2-\/7.}}
+\DoxyCodeLine{00125\ \};}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_MESH\_MESH\_EDGEBREAKER\_SHARED\_H\_}}
+
+\end{DoxyCode}

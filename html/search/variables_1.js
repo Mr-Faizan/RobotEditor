@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['breakingdistance_0',['BreakingDistance',['../namespace_dynamics_keys.html#abf17c577f0fe2ab0249c61a8f9d3dc03',1,'DynamicsKeys']]],
-  ['breakingtime_1',['BreakingTime',['../namespace_dynamics_keys.html#ae661582a0c2b240f3eb5fcc1aee4a79a',1,'DynamicsKeys']]]
+  ['d_0',['d',['../struct_joint_kinematics_1_1_d_h_parameters.html#a5b9df5f97803895a51fca99d3c7df167',1,'JointKinematics::DHParameters']]],
+  ['dhtype_1',['dhType',['../struct_joint_kinematics_1_1_d_h_parameters.html#af4cf889df1ed175ecfca01b1ae3a79ff',1,'JointKinematics::DHParameters']]]
 ];

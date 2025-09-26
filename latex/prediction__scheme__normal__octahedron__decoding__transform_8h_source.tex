@@ -1,0 +1,121 @@
+\doxysection{prediction\+\_\+scheme\+\_\+normal\+\_\+octahedron\+\_\+decoding\+\_\+transform.\+h}
+\hypertarget{prediction__scheme__normal__octahedron__decoding__transform_8h_source}{}\label{prediction__scheme__normal__octahedron__decoding__transform_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/prediction\_scheme\_normal\_octahedron\_decoding\_transform.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/prediction\_scheme\_normal\_octahedron\_decoding\_transform.h}}
+\mbox{\hyperlink{prediction__scheme__normal__octahedron__decoding__transform_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifdef\ DRACO\_BACKWARDS\_COMPATIBILITY\_SUPPORTED}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_NORMAL\_OCTAHEDRON\_DECODING\_TRANSFORM\_H\_}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_NORMAL\_OCTAHEDRON\_DECODING\_TRANSFORM\_H\_}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{normal__compression__utils_8h}{draco/compression/attributes/normal\_compression\_utils.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{prediction__scheme__normal__octahedron__transform__base_8h}{draco/compression/attributes/prediction\_schemes/prediction\_scheme\_normal\_octahedron\_transform\_base.h}}"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{decoder__buffer_8h}{draco/core/decoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{vector__d_8h}{draco/core/vector\_d.h}}"{}}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ Class\ for\ converting\ correction\ values\ transformed\ by\ the\ octahedral\ normal}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ transform\ back\ to\ the\ original\ values.\ See\ the\ corresponding\ encoder\ for\ more}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ details.}}
+\DoxyCodeLine{00033\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT>}
+\DoxyCodeLine{00034\ \textcolor{keyword}{class\ }PredictionSchemeNormalOctahedronDecodingTransform}
+\DoxyCodeLine{00035\ \ \ \ \ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base}{PredictionSchemeNormalOctahedronTransformBase}}<DataTypeT>\ \{}
+\DoxyCodeLine{00036\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00037\ \ \ \textcolor{keyword}{typedef}\ VectorD<DataTypeT,\ 2>\ Point2;}
+\DoxyCodeLine{00038\ \ \ \textcolor{keyword}{typedef}\ DataTypeT\ CorrType;}
+\DoxyCodeLine{00039\ \ \ \textcolor{keyword}{typedef}\ DataTypeT\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}};}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ PredictionSchemeNormalOctahedronDecodingTransform()\ \{\}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ Dummy\ function\ to\ fulfill\ concept.}}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{void}\ Init(\textcolor{keywordtype}{int}\ num\_components)\ \{\}}
+\DoxyCodeLine{00045\ \ \ \textcolor{keywordtype}{bool}\ DecodeTransformData(DecoderBuffer\ *buffer)\ \{}
+\DoxyCodeLine{00046\ \ \ \ \ DataTypeT\ max\_quantized\_value,\ center\_value;}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer-\/>Decode(\&max\_quantized\_value))\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00049\ \ \ \ \ \}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordflow}{if}\ (buffer-\/>bitstream\_version()\ <\ \mbox{\hyperlink{macros_8h_a6732649b03e16a7fd23539e2132d057a}{DRACO\_BITSTREAM\_VERSION}}(2,\ 2))\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer-\/>Decode(\&center\_value))\ \{}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00054\ \ \ \ \ \}}
+\DoxyCodeLine{00055\ \ \ \ \ (void)center\_value;}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>set\_max\_quantized\_value(max\_quantized\_value);}
+\DoxyCodeLine{00057\ \ \ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ ComputeOriginalValue(\textcolor{keyword}{const}\ DataType\ *pred\_vals,}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ CorrType\ *corr\_vals,}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ DataType\ *out\_orig\_vals)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00062\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(pred\_vals[0],\ 2\ *\ this-\/>center\_value());}
+\DoxyCodeLine{00063\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(pred\_vals[1],\ 2\ *\ this-\/>center\_value());}
+\DoxyCodeLine{00064\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(corr\_vals[0],\ 2\ *\ this-\/>center\_value());}
+\DoxyCodeLine{00065\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(corr\_vals[1],\ 2\ *\ this-\/>center\_value());}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(0,\ pred\_vals[0]);}
+\DoxyCodeLine{00068\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(0,\ pred\_vals[1]);}
+\DoxyCodeLine{00069\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(0,\ corr\_vals[0]);}
+\DoxyCodeLine{00070\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(0,\ corr\_vals[1]);}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keyword}{const}\ Point2\ pred\ =\ Point2(pred\_vals[0],\ pred\_vals[1]);}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keyword}{const}\ Point2\ corr\ =\ Point2(corr\_vals[0],\ corr\_vals[1]);}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keyword}{const}\ Point2\ orig\ =\ ComputeOriginalValue(pred,\ corr);}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ out\_orig\_vals[0]\ =\ orig[0];}
+\DoxyCodeLine{00077\ \ \ \ \ out\_orig\_vals[1]\ =\ orig[1];}
+\DoxyCodeLine{00078\ \ \ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00081\ \ \ Point2\ ComputeOriginalValue(Point2\ pred,\ \textcolor{keyword}{const}\ Point2\ \&corr)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keyword}{const}\ Point2\ t(this-\/>center\_value(),\ this-\/>center\_value());}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{typename}\ std::make\_unsigned<DataTypeT>::type\ UnsignedDataTypeT;}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keyword}{typedef}\ VectorD<UnsignedDataTypeT,\ 2>\ Point2u;}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{comment}{//\ Perform\ the\ addition\ in\ unsigned\ type\ to\ avoid\ signed\ integer\ overflow.}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{comment}{//\ Note\ that\ the\ result\ will\ be\ the\ same\ (for\ non-\/overflowing\ values).}}
+\DoxyCodeLine{00088\ \ \ \ \ pred\ =\ Point2(Point2u(pred)\ -\/\ Point2u(t));}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ pred\_is\_in\_diamond\ =\ this-\/>IsInDiamond(pred[0],\ pred[1]);}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordflow}{if}\ (!pred\_is\_in\_diamond)\ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ this-\/>InvertDiamond(\&pred[0],\ \&pred[1]);}
+\DoxyCodeLine{00093\ \ \ \ \ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{comment}{//\ Perform\ the\ addition\ in\ unsigned\ type\ to\ avoid\ signed\ integer\ overflow.}}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{comment}{//\ Note\ that\ the\ result\ will\ be\ the\ same\ (for\ non-\/overflowing\ values).}}
+\DoxyCodeLine{00097\ \ \ \ \ Point2\ orig(Point2u(pred)\ +\ Point2u(corr));}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ orig[0]\ =\ this-\/>ModMax(orig[0]);}
+\DoxyCodeLine{00100\ \ \ \ \ orig[1]\ =\ this-\/>ModMax(orig[1]);}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordflow}{if}\ (!pred\_is\_in\_diamond)\ \{}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ this-\/>InvertDiamond(\&orig[0],\ \&orig[1]);}
+\DoxyCodeLine{00103\ \ \ \ \ \}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{comment}{//\ Perform\ the\ addition\ in\ unsigned\ type\ to\ avoid\ signed\ integer\ overflow.}}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{comment}{//\ Note\ that\ the\ result\ will\ be\ the\ same\ (for\ non-\/overflowing\ values).}}
+\DoxyCodeLine{00107\ \ \ \ \ orig\ =\ Point2(Point2u(orig)\ +\ Point2u(t));}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordflow}{return}\ orig;}
+\DoxyCodeLine{00109\ \ \ \}}
+\DoxyCodeLine{00110\ \};}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_NORMAL\_OCTAHEDRON\_DECODING\_TRANSFORM\_H\_}}
+\DoxyCodeLine{00115\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

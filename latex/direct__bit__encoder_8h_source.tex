@@ -1,0 +1,95 @@
+\doxysection{direct\+\_\+bit\+\_\+encoder.\+h}
+\hypertarget{direct__bit__encoder_8h_source}{}\label{direct__bit__encoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/bit\_coders/direct\_bit\_encoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/bit\_coders/direct\_bit\_encoder.h}}
+\mbox{\hyperlink{direct__bit__encoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ File\ provides\ direct\ encoding\ of\ bits\ with\ arithmetic\ encoder\ interface.}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_BIT\_CODERS\_DIRECT\_BIT\_ENCODER\_H\_}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_BIT\_CODERS\_DIRECT\_BIT\_ENCODER\_H\_}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{encoder__buffer_8h}{draco/core/encoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_direct_bit_encoder_a6f39d7c5e07892bb559d27db353f397a}{DirectBitEncoder}}\ \{}
+\DoxyCodeLine{00026\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00027\ \ \ \mbox{\hyperlink{classdraco_1_1_direct_bit_encoder_a6f39d7c5e07892bb559d27db353f397a}{DirectBitEncoder}}();}
+\DoxyCodeLine{00028\ \ \ \mbox{\hyperlink{classdraco_1_1_direct_bit_encoder_a4df4824a8777577d458519e3d2d19fb7}{\string~DirectBitEncoder}}();}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \textcolor{comment}{//\ Must\ be\ called\ before\ any\ Encode*\ function\ is\ called.}}
+\DoxyCodeLine{00031\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_encoder_af4e66d05f94d3aa176dd1d5b8d0c1302}{StartEncoding}}();}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \textcolor{comment}{//\ Encode\ one\ bit.\ If\ |bit|\ is\ true\ encode\ a\ 1,\ otherwise\ encode\ a\ 0.}}
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_encoder_aa0f27e41f7c71d22d4046db750c06d41}{EncodeBit}}(\textcolor{keywordtype}{bool}\ bit)\ \{}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keywordflow}{if}\ (bit)\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ local\_bits\_\ |=\ 1\ <<\ (31\ -\/\ num\_local\_bits\_);}
+\DoxyCodeLine{00037\ \ \ \ \ \}}
+\DoxyCodeLine{00038\ \ \ \ \ num\_local\_bits\_++;}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_local\_bits\_\ ==\ 32)\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ bits\_.push\_back(local\_bits\_);}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ num\_local\_bits\_\ =\ 0;}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ local\_bits\_\ =\ 0;}
+\DoxyCodeLine{00043\ \ \ \ \ \}}
+\DoxyCodeLine{00044\ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ Encode\ |nbits|\ of\ |value|,\ starting\ from\ the\ least\ significant\ bit.}}
+\DoxyCodeLine{00047\ \ \ \textcolor{comment}{//\ |nbits|\ must\ be\ >\ 0\ and\ <=\ 32.}}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_encoder_a1c05c5d1d3d4bb63004977782f313f3a}{EncodeLeastSignificantBits32}}(\textcolor{keywordtype}{int}\ nbits,\ uint32\_t\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\textcolor{keyword}{true},\ nbits\ <=\ 32);}
+\DoxyCodeLine{00050\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\textcolor{keyword}{true},\ nbits\ >\ 0);}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ remaining\ =\ 32\ -\/\ num\_local\_bits\_;}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//\ Make\ sure\ there\ are\ no\ leading\ bits\ that\ should\ not\ be\ encoded\ and}}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{comment}{//\ start\ from\ here.}}
+\DoxyCodeLine{00056\ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ <<\ (32\ -\/\ nbits);}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keywordflow}{if}\ (nbits\ <=\ remaining)\ \{}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ >>\ num\_local\_bits\_;}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ local\_bits\_\ =\ local\_bits\_\ |\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}};}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ num\_local\_bits\_\ +=\ nbits;}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (num\_local\_bits\_\ ==\ 32)\ \{}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ bits\_.push\_back(local\_bits\_);}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ local\_bits\_\ =\ 0;}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ num\_local\_bits\_\ =\ 0;}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00066\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ >>\ (32\ -\/\ nbits);}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ num\_local\_bits\_\ =\ nbits\ -\/\ remaining;}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ value\_l\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ >>\ num\_local\_bits\_;}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ local\_bits\_\ =\ local\_bits\_\ |\ value\_l;}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ bits\_.push\_back(local\_bits\_);}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ local\_bits\_\ =\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ <<\ (32\ -\/\ num\_local\_bits\_);}
+\DoxyCodeLine{00073\ \ \ \ \ \}}
+\DoxyCodeLine{00074\ \ \ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \textcolor{comment}{//\ Ends\ the\ bit\ encoding\ and\ stores\ the\ result\ into\ the\ target\_buffer.}}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_direct_bit_encoder_a8d5f8729c6c8adfb66478c43ed921ebc}{EndEncoding}}(\mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *target\_buffer);}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordtype}{void}\ Clear();}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ std::vector<uint32\_t>\ bits\_;}
+\DoxyCodeLine{00083\ \ \ uint32\_t\ local\_bits\_;}
+\DoxyCodeLine{00084\ \ \ uint32\_t\ num\_local\_bits\_;}
+\DoxyCodeLine{00085\ \};}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_BIT\_CODERS\_DIRECT\_BIT\_ENCODER\_H\_}}
+
+\end{DoxyCode}

@@ -1,0 +1,338 @@
+\doxysection{mesh.\+h}
+\hypertarget{assimp_2contrib_2draco_2src_2draco_2mesh_2mesh_8h_source}{}\label{assimp_2contrib_2draco_2src_2draco_2mesh_2mesh_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/mesh/mesh.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/mesh/mesh.h}}
+\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2mesh_2mesh_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_MESH\_MESH\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_MESH\_MESH\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <unordered\_map>}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{geometry__indices_8h}{draco/attributes/geometry\_indices.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{hash__utils_8h}{draco/core/hash\_utils.h}}"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status_8h}{draco/core/status.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{draco__compression__options_8h}{draco/compression/draco\_compression\_options.h}}"{}}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{material__library_8h}{draco/material/material\_library.h}}"{}}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__features_8h}{draco/mesh/mesh\_features.h}}"{}}}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__indices_8h}{draco/mesh/mesh\_indices.h}}"{}}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{structural__metadata_8h}{draco/metadata/structural\_metadata.h}}"{}}}
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{point__cloud_8h}{draco/point\_cloud/point\_cloud.h}}"{}}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ List\ of\ different\ variants\ of\ mesh\ attributes.}}
+\DoxyCodeLine{00038\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{namespacedraco_a43905081363566e64a79453ad2888ba1}{MeshAttributeElementType}}\ \{}
+\DoxyCodeLine{00039\ \ \ \textcolor{comment}{//\ All\ corners\ attached\ to\ a\ vertex\ share\ the\ same\ attribute\ value.\ A\ typical}}
+\DoxyCodeLine{00040\ \ \ \textcolor{comment}{//\ example\ are\ the\ vertex\ positions\ and\ often\ vertex\ colors.}}
+\DoxyCodeLine{00041\ \ \ \mbox{\hyperlink{namespacedraco_a43905081363566e64a79453ad2888ba1a91a561e89e0240e7e77743e2c7850e36}{MESH\_VERTEX\_ATTRIBUTE}}\ =\ 0,}
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ The\ most\ general\ attribute\ where\ every\ corner\ of\ the\ mesh\ can\ have\ a}}
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ different\ attribute\ value.\ Often\ used\ for\ texture\ coordinates\ or\ normals.}}
+\DoxyCodeLine{00044\ \ \ \mbox{\hyperlink{namespacedraco_a43905081363566e64a79453ad2888ba1a3871b951a8264e7689f1bb5e03fe343d}{MESH\_CORNER\_ATTRIBUTE}},}
+\DoxyCodeLine{00045\ \ \ \textcolor{comment}{//\ All\ corners\ of\ a\ single\ face\ share\ the\ same\ value.}}
+\DoxyCodeLine{00046\ \ \ \mbox{\hyperlink{namespacedraco_a43905081363566e64a79453ad2888ba1a5910caf942da64e6403f7c8547202754}{MESH\_FACE\_ATTRIBUTE}}}
+\DoxyCodeLine{00047\ \};}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \textcolor{comment}{//\ Mesh\ class\ can\ be\ used\ to\ represent\ general\ triangular\ meshes.\ Internally,}}
+\DoxyCodeLine{00050\ \textcolor{comment}{//\ Mesh\ is\ just\ an\ extended\ PointCloud\ with\ extra\ connectivity\ data\ that\ defines}}
+\DoxyCodeLine{00051\ \textcolor{comment}{//\ what\ points\ are\ connected\ together\ in\ triangles.}}
+\DoxyCodeLine{00052\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_mesh_a2af137f1571af89172b9c102302c416b}{Mesh}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classdraco_1_1_point_cloud_a7d6f79928b0877770cd1af2238a7d62e}{PointCloud}}\ \{}
+\DoxyCodeLine{00053\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00054\ \ \ \textcolor{keyword}{typedef}\ std::array<PointIndex,\ 3>\ \mbox{\hyperlink{classdraco_1_1_mesh_ac2ca6da8ad1aa11c7934ed0a4054e7fc}{Face}};}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_a2af137f1571af89172b9c102302c416b}{Mesh}}();}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00059\ \ \ \textcolor{comment}{//\ Copies\ all\ data\ from\ the\ |src|\ mesh.}}
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordtype}{void}\ Copy(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh_a2af137f1571af89172b9c102302c416b}{Mesh}}\ \&src);}
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_aba41a4cbfce7f2c112a1200e7f1d7af9}{AddFace}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh_ac2ca6da8ad1aa11c7934ed0a4054e7fc}{Face}}\ \&\mbox{\hyperlink{classdraco_1_1_mesh_a919b04968098a079c2e8802a2da1de5b}{face}})\ \{\ faces\_.push\_back(\mbox{\hyperlink{classdraco_1_1_mesh_a919b04968098a079c2e8802a2da1de5b}{face}});\ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_ac2b20dcf994ea2eb24764c3eb5145014}{SetFace}}(\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ face\_id,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh_ac2ca6da8ad1aa11c7934ed0a4054e7fc}{Face}}\ \&\mbox{\hyperlink{classdraco_1_1_mesh_a919b04968098a079c2e8802a2da1de5b}{face}})\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keywordflow}{if}\ (face\_id\ >=\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(faces\_.size()))\ \{}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ faces\_.resize(face\_id.value()\ +\ 1,\ \mbox{\hyperlink{classdraco_1_1_mesh_ac2ca6da8ad1aa11c7934ed0a4054e7fc}{Face}}());}
+\DoxyCodeLine{00068\ \ \ \ \ \}}
+\DoxyCodeLine{00069\ \ \ \ \ faces\_[face\_id]\ =\ \mbox{\hyperlink{classdraco_1_1_mesh_a919b04968098a079c2e8802a2da1de5b}{face}};}
+\DoxyCodeLine{00070\ \ \ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \textcolor{comment}{//\ Sets\ the\ total\ number\ of\ faces.\ Creates\ new\ empty\ faces\ or\ deletes}}
+\DoxyCodeLine{00073\ \ \ \textcolor{comment}{//\ existing\ ones\ if\ necessary.}}
+\DoxyCodeLine{00074\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_ad4aca0acd01bbb61151de5132cb0ab2e}{SetNumFaces}}(\textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classdraco_1_1_mesh_a3c98cfdc0dcffc72586b3d4e06df3032}{num\_faces}})\ \{\ faces\_.resize(\mbox{\hyperlink{classdraco_1_1_mesh_a3c98cfdc0dcffc72586b3d4e06df3032}{num\_faces}},\ \mbox{\hyperlink{classdraco_1_1_mesh_ac2ca6da8ad1aa11c7934ed0a4054e7fc}{Face}}());\ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ FaceIndex::ValueType\ \mbox{\hyperlink{classdraco_1_1_mesh_a3c98cfdc0dcffc72586b3d4e06df3032}{num\_faces}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(faces\_.size());}
+\DoxyCodeLine{00078\ \ \ \}}
+\DoxyCodeLine{00079\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh_ac2ca6da8ad1aa11c7934ed0a4054e7fc}{Face}}\ \&\mbox{\hyperlink{classdraco_1_1_mesh_a919b04968098a079c2e8802a2da1de5b}{face}}(\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ face\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(0,\ face\_id.value());}
+\DoxyCodeLine{00081\ \ \ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(face\_id.value(),\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(faces\_.size()));}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordflow}{return}\ faces\_[face\_id];}
+\DoxyCodeLine{00083\ \ \ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_a6741f653b44e56432343de6d6f0a0771}{SetAttribute}}(\textcolor{keywordtype}{int}\ att\_id,\ std::unique\_ptr<PointAttribute>\ pa)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00086\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_cloud_a6da3806555c5ae6b66e9c9de0ed59b23}{PointCloud::SetAttribute}}(att\_id,\ std::move(pa));}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(attribute\_data\_.size())\ <=\ att\_id)\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ attribute\_data\_.resize(att\_id\ +\ 1);}
+\DoxyCodeLine{00089\ \ \ \ \ \}}
+\DoxyCodeLine{00090\ \ \ \}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_ad4ad4d056a2feb442b024312d2da1928}{DeleteAttribute}}(\textcolor{keywordtype}{int}\ att\_id)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00093\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_point_cloud_ab77fcd73bd2eff1e5fad08b27d6049fa}{PointCloud::DeleteAttribute}}(att\_id);}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordflow}{if}\ (att\_id\ >=\ 0\ \&\&\ att\_id\ <\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(attribute\_data\_.size()))\ \{}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ attribute\_data\_.erase(attribute\_data\_.begin()\ +\ att\_id);}
+\DoxyCodeLine{00096\ \ \ \ \ \}}
+\DoxyCodeLine{00097\ \ \ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00100\ \ \ \textcolor{comment}{//\ Adds\ a\ point\ attribute\ |att|\ to\ the\ mesh\ and\ returns\ the\ index\ of\ the}}
+\DoxyCodeLine{00101\ \ \ \textcolor{comment}{//\ newly\ inserted\ attribute.\ Attribute\ connectivity\ data\ is\ specified\ in}}
+\DoxyCodeLine{00102\ \ \ \textcolor{comment}{//\ |corner\_to\_value|\ array\ that\ contains\ mapping\ between\ face\ corners\ and}}
+\DoxyCodeLine{00103\ \ \ \textcolor{comment}{//\ attribute\ value\ indices.}}
+\DoxyCodeLine{00104\ \ \ \textcolor{comment}{//\ The\ purpose\ of\ this\ function\ is\ to\ allow\ users\ to\ add\ attributes\ with}}
+\DoxyCodeLine{00105\ \ \ \textcolor{comment}{//\ arbitrary\ connectivity\ to\ an\ existing\ mesh.\ New\ points\ will\ be}}
+\DoxyCodeLine{00106\ \ \ \textcolor{comment}{//\ automatically\ created\ if\ needed.}}
+\DoxyCodeLine{00107\ \ \ int32\_t\ AddAttributeWithConnectivity(}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ std::unique\_ptr<PointAttribute>\ att,}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<CornerIndex,\ AttributeValueIndex>}}\ \&corner\_to\_value);}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \textcolor{comment}{//\ Adds\ a\ point\ attribute\ |att|\ to\ the\ mesh\ and\ returns\ the\ index\ of\ the}}
+\DoxyCodeLine{00112\ \ \ \textcolor{comment}{//\ newly\ inserted\ attribute.\ The\ inserted\ attribute\ must\ have\ the\ same}}
+\DoxyCodeLine{00113\ \ \ \textcolor{comment}{//\ connectivity\ as\ the\ position\ attribute\ of\ the\ mesh\ (that\ is,\ the\ attribute}}
+\DoxyCodeLine{00114\ \ \ \textcolor{comment}{//\ values\ are\ defined\ per-\/vertex).\ Each\ attribute\ value\ entry\ in\ |att|}}
+\DoxyCodeLine{00115\ \ \ \textcolor{comment}{//\ corresponds\ to\ the\ corresponding\ attribute\ value\ entry\ in\ the\ position}}
+\DoxyCodeLine{00116\ \ \ \textcolor{comment}{//\ attribute\ (AttributeValueIndex\ in\ both\ attributes\ refer\ to\ the\ same}}
+\DoxyCodeLine{00117\ \ \ \textcolor{comment}{//\ spatial\ vertex).}}
+\DoxyCodeLine{00118\ \ \ \textcolor{comment}{//\ Returns\ -\/1\ in\ case\ of\ error.}}
+\DoxyCodeLine{00119\ \ \ int32\_t\ AddPerVertexAttribute(std::unique\_ptr<PointAttribute>\ att);}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \textcolor{comment}{//\ Removes\ points\ that\ are\ not\ mapped\ to\ any\ face\ of\ the\ mesh.\ All\ attribute}}
+\DoxyCodeLine{00122\ \ \ \textcolor{comment}{//\ values\ are\ going\ to\ be\ removed\ as\ well.}}
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordtype}{void}\ RemoveIsolatedPoints();}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \textcolor{comment}{//\ Adds\ a\ point\ attribute\ |att|\ to\ the\ mesh\ and\ returns\ the\ index\ of\ the}}
+\DoxyCodeLine{00126\ \ \ \textcolor{comment}{//\ newly\ inserted\ attribute.\ Attribute\ values\ are\ mapped\ 1:1\ to\ face\ indices.}}
+\DoxyCodeLine{00127\ \ \ \textcolor{comment}{//\ Returns\ -\/1\ in\ case\ of\ error.}}
+\DoxyCodeLine{00128\ \ \ int32\_t\ AddPerFaceAttribute(std::unique\_ptr<PointAttribute>\ att);}
+\DoxyCodeLine{00129\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \mbox{\hyperlink{namespacedraco_a43905081363566e64a79453ad2888ba1}{MeshAttributeElementType}}\ \mbox{\hyperlink{classdraco_1_1_mesh_a049fd0be87c015f83c2126a34c010398}{GetAttributeElementType}}(\textcolor{keywordtype}{int}\ att\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{keywordflow}{return}\ attribute\_data\_[att\_id].element\_type;}
+\DoxyCodeLine{00133\ \ \ \}}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_ac5fd3dd68b66874aaf3312803086004c}{SetAttributeElementType}}(\textcolor{keywordtype}{int}\ att\_id,\ \mbox{\hyperlink{namespacedraco_a43905081363566e64a79453ad2888ba1}{MeshAttributeElementType}}\ et)\ \{}
+\DoxyCodeLine{00136\ \ \ \ \ attribute\_data\_[att\_id].element\_type\ =\ et;}
+\DoxyCodeLine{00137\ \ \ \}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \textcolor{comment}{//\ Returns\ the\ point\ id\ of\ for\ a\ corner\ |ci|.}}
+\DoxyCodeLine{00140\ \ \ \textcolor{keyword}{inline}\ PointIndex\ \mbox{\hyperlink{classdraco_1_1_mesh_a6208f62d1f18e3b9fb157a0b9eed8306}{CornerToPointId}}(\textcolor{keywordtype}{int}\ ci)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keywordflow}{if}\ (ci\ <\ 0\ ||\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(ci)\ ==\ kInvalidCornerIndex.value())\ \{}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kInvalidPointIndex;}
+\DoxyCodeLine{00143\ \ \ \ \ \}}
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>\mbox{\hyperlink{classdraco_1_1_mesh_a919b04968098a079c2e8802a2da1de5b}{face}}(\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}(ci\ /\ 3))[ci\ \%\ 3];}
+\DoxyCodeLine{00145\ \ \ \}}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \ \ \textcolor{comment}{//\ Returns\ the\ point\ id\ of\ a\ corner\ |ci|.}}
+\DoxyCodeLine{00148\ \ \ \textcolor{keyword}{inline}\ PointIndex\ \mbox{\hyperlink{classdraco_1_1_mesh_a5d7ceabf52fb991bf28ceb64fa697cc4}{CornerToPointId}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ ci)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00149\ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>\mbox{\hyperlink{classdraco_1_1_mesh_a6208f62d1f18e3b9fb157a0b9eed8306}{CornerToPointId}}(ci.value());}
+\DoxyCodeLine{00150\ \ \ \}}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_mesh_1_1_attribute_data_a746c985a40077ad8edcb71e032e22640}{AttributeData}}\ \{}
+\DoxyCodeLine{00153\ \ \ \ \ \mbox{\hyperlink{structdraco_1_1_mesh_1_1_attribute_data_a746c985a40077ad8edcb71e032e22640}{AttributeData}}()\ :\ \mbox{\hyperlink{structdraco_1_1_mesh_1_1_attribute_data_ada91ed207eef72b4fbb88f729f792e09}{element\_type}}(\mbox{\hyperlink{namespacedraco_a43905081363566e64a79453ad2888ba1a3871b951a8264e7689f1bb5e03fe343d}{MESH\_CORNER\_ATTRIBUTE}})\ \{\}}
+\DoxyCodeLine{00154\ \ \ \ \ \mbox{\hyperlink{namespacedraco_a43905081363566e64a79453ad2888ba1}{MeshAttributeElementType}}\ \mbox{\hyperlink{structdraco_1_1_mesh_1_1_attribute_data_ada91ed207eef72b4fbb88f729f792e09}{element\_type}};}
+\DoxyCodeLine{00155\ \ \ \};}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00158\ \ \ \textcolor{keywordtype}{void}\ SetName(\textcolor{keyword}{const}\ std::string\ \&name)\ \{\ name\_\ =\ name;\ \}}
+\DoxyCodeLine{00159\ \ \ \textcolor{keyword}{const}\ std::string\ \&GetName()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ name\_;\ \}}
+\DoxyCodeLine{00160\ \ \ \textcolor{keyword}{const}\ MaterialLibrary\ \&GetMaterialLibrary()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordflow}{return}\ material\_library\_;}
+\DoxyCodeLine{00162\ \ \ \}}
+\DoxyCodeLine{00163\ \ \ MaterialLibrary\ \&GetMaterialLibrary()\ \{\ \textcolor{keywordflow}{return}\ material\_library\_;\ \}}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \ \ \textcolor{comment}{//\ Removes\ all\ materials\ that\ are\ not\ referenced\ by\ any\ face\ of\ the\ mesh.}}
+\DoxyCodeLine{00166\ \ \ \textcolor{comment}{//\ Optional\ argument\ |remove\_unused\_material\_indices|\ can\ be\ used\ to\ control}}
+\DoxyCodeLine{00167\ \ \ \textcolor{comment}{//\ whether\ unusued\ material\ indices\ are\ removed\ as\ well\ (default\ =\ true).}}
+\DoxyCodeLine{00168\ \ \ \textcolor{comment}{//\ If\ material\ indices\ are\ not\ removed,\ the\ unused\ material\ indices\ will}}
+\DoxyCodeLine{00169\ \ \ \textcolor{comment}{//\ point\ to\ empty\ (default)\ materials.}}
+\DoxyCodeLine{00170\ \ \ \textcolor{keywordtype}{void}\ RemoveUnusedMaterials();}
+\DoxyCodeLine{00171\ \ \ \textcolor{keywordtype}{void}\ RemoveUnusedMaterials(\textcolor{keywordtype}{bool}\ remove\_unused\_material\_indices);}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \ \ \textcolor{comment}{//\ Enables\ or\ disables\ Draco\ geometry\ compression\ for\ this\ mesh.}}
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordtype}{void}\ SetCompressionEnabled(\textcolor{keywordtype}{bool}\ enabled)\ \{\ compression\_enabled\_\ =\ enabled;\ \}}
+\DoxyCodeLine{00175\ \ \ \textcolor{keywordtype}{bool}\ IsCompressionEnabled()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ compression\_enabled\_;\ \}}
+\DoxyCodeLine{00176\ }
+\DoxyCodeLine{00177\ \ \ \textcolor{comment}{//\ Sets\ |options|\ that\ configure\ Draco\ geometry\ compression.\ This\ does\ not}}
+\DoxyCodeLine{00178\ \ \ \textcolor{comment}{//\ enable\ or\ disable\ compression.}}
+\DoxyCodeLine{00179\ \ \ \textcolor{keywordtype}{void}\ SetCompressionOptions(\textcolor{keyword}{const}\ DracoCompressionOptions\ \&options)\ \{}
+\DoxyCodeLine{00180\ \ \ \ \ compression\_options\_\ =\ options;}
+\DoxyCodeLine{00181\ \ \ \}}
+\DoxyCodeLine{00182\ \ \ \textcolor{keyword}{const}\ DracoCompressionOptions\ \&GetCompressionOptions()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{keywordflow}{return}\ compression\_options\_;}
+\DoxyCodeLine{00184\ \ \ \}}
+\DoxyCodeLine{00185\ \ \ DracoCompressionOptions\ \&GetCompressionOptions()\ \{}
+\DoxyCodeLine{00186\ \ \ \ \ \textcolor{keywordflow}{return}\ compression\_options\_;}
+\DoxyCodeLine{00187\ \ \ \}}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \ \ \textcolor{comment}{//\ Library\ that\ contains\ non-\/material\ textures.}}
+\DoxyCodeLine{00190\ \ \ \textcolor{keyword}{const}\ TextureLibrary\ \&GetNonMaterialTextureLibrary()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{keywordflow}{return}\ non\_material\_texture\_library\_;}
+\DoxyCodeLine{00192\ \ \ \}}
+\DoxyCodeLine{00193\ \ \ TextureLibrary\ \&GetNonMaterialTextureLibrary()\ \{}
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keywordflow}{return}\ non\_material\_texture\_library\_;}
+\DoxyCodeLine{00195\ \ \ \}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \textcolor{comment}{//\ Mesh\ feature\ ID\ sets\ as\ defined\ by\ EXT\_mesh\_features\ glTF\ extension.}}
+\DoxyCodeLine{00198\ \ \ MeshFeaturesIndex\ AddMeshFeatures(}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ std::unique\_ptr<MeshFeatures>\ mesh\_features)\ \{}
+\DoxyCodeLine{00200\ \ \ \ \ mesh\_features\_.push\_back(std::move(mesh\_features));}
+\DoxyCodeLine{00201\ \ \ \ \ mesh\_features\_material\_mask\_.push\_back(\{\});}
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{keywordflow}{return}\ MeshFeaturesIndex(mesh\_features\_.size()\ -\/\ 1);}
+\DoxyCodeLine{00203\ \ \ \}}
+\DoxyCodeLine{00204\ \ \ \textcolor{keywordtype}{int}\ NumMeshFeatures()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mesh\_features\_.size();\ \}}
+\DoxyCodeLine{00205\ \ \ \textcolor{keyword}{const}\ MeshFeatures\ \&GetMeshFeatures(MeshFeaturesIndex\ index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{keywordflow}{return}\ *mesh\_features\_[index];}
+\DoxyCodeLine{00207\ \ \ \}}
+\DoxyCodeLine{00208\ \ \ MeshFeatures\ \&GetMeshFeatures(MeshFeaturesIndex\ index)\ \{}
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keywordflow}{return}\ *mesh\_features\_[index];}
+\DoxyCodeLine{00210\ \ \ \}}
+\DoxyCodeLine{00211\ \ \ \textcolor{keywordtype}{void}\ RemoveMeshFeatures(MeshFeaturesIndex\ index)\ \{}
+\DoxyCodeLine{00212\ \ \ \ \ mesh\_features\_.erase(mesh\_features\_.begin()\ +\ index.value());}
+\DoxyCodeLine{00213\ \ \ \ \ mesh\_features\_material\_mask\_.erase(mesh\_features\_material\_mask\_.begin()\ +}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ index.value());}
+\DoxyCodeLine{00215\ \ \ \}}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \ \ \textcolor{comment}{//\ Restricts\ given\ mesh\ features\ to\ faces\ mapped\ to\ a\ material\ with}}
+\DoxyCodeLine{00218\ \ \ \textcolor{comment}{//\ |material\_index|.\ Note\ that\ single\ mesh\ features\ can\ be\ restricted\ to}}
+\DoxyCodeLine{00219\ \ \ \textcolor{comment}{//\ multiple\ materials.}}
+\DoxyCodeLine{00220\ \ \ \textcolor{keywordtype}{void}\ AddMeshFeaturesMaterialMask(MeshFeaturesIndex\ index,}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ material\_index)\ \{}
+\DoxyCodeLine{00222\ \ \ \ \ mesh\_features\_material\_mask\_[index].push\_back(material\_index);}
+\DoxyCodeLine{00223\ \ \ \}}
+\DoxyCodeLine{00224\ }
+\DoxyCodeLine{00225\ \ \ \textcolor{keywordtype}{size\_t}\ NumMeshFeaturesMaterialMasks(MeshFeaturesIndex\ index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keywordflow}{return}\ mesh\_features\_material\_mask\_[index].size();}
+\DoxyCodeLine{00227\ \ \ \}}
+\DoxyCodeLine{00228\ \ \ \textcolor{keywordtype}{int}\ GetMeshFeaturesMaterialMask(MeshFeaturesIndex\ index,}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ mask\_index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{keywordflow}{return}\ mesh\_features\_material\_mask\_[index][mask\_index];}
+\DoxyCodeLine{00231\ \ \ \}}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ \textcolor{comment}{//\ Updates\ mesh\ features\ texture\ pointer\ to\ point\ to\ a\ new\ |texture\_library|.}}
+\DoxyCodeLine{00234\ \ \ \textcolor{comment}{//\ The\ current\ texture\ pointer\ is\ used\ to\ determine\ the\ texture\ index\ in\ the}}
+\DoxyCodeLine{00235\ \ \ \textcolor{comment}{//\ new\ texture\ library\ via\ a\ given\ |texture\_to\_index\_map|.}}
+\DoxyCodeLine{00236\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ UpdateMeshFeaturesTexturePointer(}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::unordered\_map<const\ Texture\ *,\ int>\ \&texture\_to\_index\_map,}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ TextureLibrary\ *texture\_library,\ MeshFeatures\ *mesh\_features);}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00240\ \ \ \textcolor{comment}{//\ Copies\ over\ mesh\ features\ from\ |source\_mesh|\ and\ stores\ them\ in}}
+\DoxyCodeLine{00241\ \ \ \textcolor{comment}{//\ |target\_mesh|\ as\ long\ as\ the\ mesh\ features\ material\ mask\ is\ valid\ for}}
+\DoxyCodeLine{00242\ \ \ \textcolor{comment}{//\ given\ |material\_index|.}}
+\DoxyCodeLine{00243\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ CopyMeshFeaturesForMaterial(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh_a2af137f1571af89172b9c102302c416b}{Mesh}}\ \&source\_mesh,}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_a2af137f1571af89172b9c102302c416b}{Mesh}}\ *target\_mesh,}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ material\_index);}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00247\ \ \ \textcolor{comment}{//\ Structural\ metadata.}}
+\DoxyCodeLine{00248\ \ \ \textcolor{keyword}{const}\ StructuralMetadata\ \&GetStructuralMetadata()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00249\ \ \ \ \ \textcolor{keywordflow}{return}\ structural\_metadata\_;}
+\DoxyCodeLine{00250\ \ \ \}}
+\DoxyCodeLine{00251\ \ \ StructuralMetadata\ \&GetStructuralMetadata()\ \{\ \textcolor{keywordflow}{return}\ structural\_metadata\_;\ \}}
+\DoxyCodeLine{00252\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00255\ \textcolor{preprocessor}{\#ifdef\ DRACO\_ATTRIBUTE\_INDICES\_DEDUPLICATION\_SUPPORTED}}
+\DoxyCodeLine{00256\ \ \ \textcolor{comment}{//\ Extends\ the\ point\ deduplication\ to\ face\ corners.\ This\ method\ is\ called\ from}}
+\DoxyCodeLine{00257\ \ \ \textcolor{comment}{//\ the\ PointCloud::DeduplicatePointIds()\ and\ it\ remaps\ all\ point\ ids\ stored\ in}}
+\DoxyCodeLine{00258\ \ \ \textcolor{comment}{//\ |faces\_|\ to\ the\ new\ deduplicated\ point\ ids\ using\ the\ map\ |id\_map|.}}
+\DoxyCodeLine{00259\ \ \ \textcolor{keywordtype}{void}\ ApplyPointIdDeduplication(}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \textcolor{keyword}{const}\ IndexTypeVector<PointIndex,\ PointIndex>\ \&id\_map,}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<PointIndex>\ \&unique\_point\_ids)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00262\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00264\ \ \ \textcolor{comment}{//\ Exposes\ |faces\_|.\ Use\ |faces\_|\ at\ your\ own\ risk.\ DO\ NOT\ store\ the}}
+\DoxyCodeLine{00265\ \ \ \textcolor{comment}{//\ reference:\ the\ |faces\_|\ object\ is\ destroyed\ with\ the\ mesh.}}
+\DoxyCodeLine{00266\ \ \ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<FaceIndex,\ Face>}}\ \&\mbox{\hyperlink{classdraco_1_1_mesh_a92afde2490a34a90d4e7b25b3ad0dda6}{faces}}()\ \{\ \textcolor{keywordflow}{return}\ faces\_;\ \}}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00269\ \ \ \textcolor{comment}{//\ Mesh\ specific\ per-\/attribute\ data.}}
+\DoxyCodeLine{00270\ \ \ std::vector<AttributeData>\ attribute\_data\_;}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00272\ \ \ \textcolor{comment}{//\ Vertex\ indices\ valid\ for\ all\ attributes.\ Each\ attribute\ has\ its\ own\ map}}
+\DoxyCodeLine{00273\ \ \ \textcolor{comment}{//\ that\ converts\ vertex\ indices\ into\ attribute\ indices.}}
+\DoxyCodeLine{00274\ \ \ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<FaceIndex,\ Face>}}\ faces\_;}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00276\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00277\ \ \ \textcolor{comment}{//\ Mesh\ name.}}
+\DoxyCodeLine{00278\ \ \ std::string\ name\_;}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \ \ \textcolor{comment}{//\ Materials\ applied\ to\ to\ this\ mesh.}}
+\DoxyCodeLine{00281\ \ \ MaterialLibrary\ material\_library\_;}
+\DoxyCodeLine{00282\ }
+\DoxyCodeLine{00283\ \ \ \textcolor{comment}{//\ Compression\ options\ for\ this\ mesh.}}
+\DoxyCodeLine{00284\ \ \ \textcolor{comment}{//\ TODO(vytyaz):\ Store\ encoded\ bitstream\ that\ this\ mesh\ compresses\ into.}}
+\DoxyCodeLine{00285\ \ \ \textcolor{keywordtype}{bool}\ compression\_enabled\_;}
+\DoxyCodeLine{00286\ \ \ DracoCompressionOptions\ compression\_options\_;}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \ \ \textcolor{comment}{//\ Sets\ of\ feature\ IDs\ as\ defined\ by\ EXT\_mesh\_features\ glTF\ extension.}}
+\DoxyCodeLine{00289\ \ \ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<MeshFeaturesIndex,\ std::unique\_ptr<MeshFeatures>}}>}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ mesh\_features\_;}
+\DoxyCodeLine{00291\ }
+\DoxyCodeLine{00292\ \ \ \textcolor{comment}{//\ When\ the\ Mesh\ contains\ multiple\ materials,\ |mesh\_features\_material\_mask\_|}}
+\DoxyCodeLine{00293\ \ \ \textcolor{comment}{//\ can\ be\ used\ to\ limit\ specific\ MeshFeaturesIndex\ to\ a\ vector\ of\ material}}
+\DoxyCodeLine{00294\ \ \ \textcolor{comment}{//\ indices.\ If\ for\ a\ given\ mesh\ feature\ index,\ the\ material\ indices\ are\ empty,}}
+\DoxyCodeLine{00295\ \ \ \textcolor{comment}{//\ the\ corresponding\ mesh\ features\ are\ applied\ to\ the\ entire\ mesh.}}
+\DoxyCodeLine{00296\ \ \ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<MeshFeaturesIndex,\ std::vector<int>}}>}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ mesh\_features\_material\_mask\_;}
+\DoxyCodeLine{00298\ }
+\DoxyCodeLine{00299\ \ \ \textcolor{comment}{//\ Texture\ library\ for\ storing\ non-\/material\ textures\ used\ by\ this\ mesh,\ e.g.,}}
+\DoxyCodeLine{00300\ \ \ \textcolor{comment}{//\ textures\ containing\ mesh\ feature\ IDs\ of\ EXT\_mesh\_features\ glTF\ extension.}}
+\DoxyCodeLine{00301\ \ \ \textcolor{comment}{//\ If\ the\ mesh\ is\ part\ of\ the\ scene\ then\ the\ textures\ are\ stored\ in\ the\ scene.}}
+\DoxyCodeLine{00302\ \ \ \textcolor{comment}{//\ Note\ that\ mesh\ features\ contain\ pointers\ to\ non-\/material\ textures.\ It\ is}}
+\DoxyCodeLine{00303\ \ \ \textcolor{comment}{//\ responsibility\ of\ class\ user\ to\ update\ these\ pointers\ when\ updating\ the}}
+\DoxyCodeLine{00304\ \ \ \textcolor{comment}{//\ textures.\ See\ Mesh::Copy()\ for\ example.}}
+\DoxyCodeLine{00305\ \ \ TextureLibrary\ non\_material\_texture\_library\_;}
+\DoxyCodeLine{00306\ }
+\DoxyCodeLine{00307\ \ \ \textcolor{comment}{//\ Structural\ metadata\ defined\ by\ the\ EXT\_structural\_metadata\ glTF\ extension.}}
+\DoxyCodeLine{00308\ \ \ StructuralMetadata\ structural\_metadata\_;}
+\DoxyCodeLine{00309\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00310\ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{classdraco_1_1_mesh_a296130f50776bcc840989bd28ddd3273}{MeshHasher}};}
+\DoxyCodeLine{00311\ \};}
+\DoxyCodeLine{00312\ }
+\DoxyCodeLine{00313\ \textcolor{comment}{//\ Functor\ for\ computing\ a\ hash\ from\ data\ stored\ within\ a\ mesh.}}
+\DoxyCodeLine{00314\ \textcolor{comment}{//\ Note\ that\ this\ can\ be\ quite\ slow.\ Two\ meshes\ will\ have\ the\ same\ hash\ only}}
+\DoxyCodeLine{00315\ \textcolor{comment}{//\ when\ they\ have\ exactly\ the\ same\ connectivity\ and\ attribute\ values.}}
+\DoxyCodeLine{00316\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_mesh_hasher}{MeshHasher}}\ \{}
+\DoxyCodeLine{00317\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structdraco_1_1_mesh_hasher_aaea2c483c2a0622d933f18b64252e08c}{operator()}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh}{Mesh}}\ \&mesh)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00318\ \ \ \ \ \mbox{\hyperlink{structdraco_1_1_point_cloud_hasher}{PointCloudHasher}}\ pc\_hasher;}
+\DoxyCodeLine{00319\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ hash\ =\ pc\_hasher(mesh);}
+\DoxyCodeLine{00320\ \ \ \ \ \textcolor{comment}{//\ Hash\ faces.}}
+\DoxyCodeLine{00321\ \ \ \ \ \textcolor{keywordflow}{for}\ (\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ i(0);\ i\ <\ static\_cast<uint32\_t>(mesh.faces\_.size());\ ++i)\ \{}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ j\ =\ 0;\ j\ <\ 3;\ ++j)\ \{}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(mesh.faces\_[i][j].value(),\ hash);}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00325\ \ \ \ \ \}}
+\DoxyCodeLine{00326\ \ \ \ \ \textcolor{keywordflow}{return}\ hash;}
+\DoxyCodeLine{00327\ \ \ \}}
+\DoxyCodeLine{00328\ \};}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00332\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_MESH\_MESH\_H\_}}
+
+\end{DoxyCode}

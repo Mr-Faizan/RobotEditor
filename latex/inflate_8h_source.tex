@@ -1,0 +1,132 @@
+\doxysection{inflate.\+h}
+\hypertarget{inflate_8h_source}{}\label{inflate_8h_source}\index{RobotLib/libraries/assimp/contrib/zlib/inflate.h@{RobotLib/libraries/assimp/contrib/zlib/inflate.h}}
+\mbox{\hyperlink{inflate_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ inflate.h\ -\/-\/\ internal\ inflate\ state\ definition}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (C)\ 1995-\/2019\ Mark\ Adler}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ For\ conditions\ of\ distribution\ and\ use,\ see\ copyright\ notice\ in\ zlib.h}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{comment}{/*\ WARNING:\ this\ file\ should\ *not*\ be\ used\ by\ applications.\ It\ is}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ \ \ part\ of\ the\ implementation\ of\ the\ compression\ library\ and\ is}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ \ \ subject\ to\ change.\ Applications\ should\ only\ use\ zlib.h.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{comment}{/*\ define\ NO\_GZIP\ when\ compiling\ if\ you\ want\ to\ disable\ gzip\ header\ and}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ \ \ trailer\ decoding\ by\ inflate().\ \ NO\_GZIP\ would\ be\ used\ to\ avoid\ linking\ in}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ \ \ the\ crc\ code\ when\ it\ is\ not\ needed.\ \ For\ shared\ libraries,\ gzip\ decoding}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ \ should\ be\ left\ enabled.\ */}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ NO\_GZIP}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#\ \ define\ GUNZIP}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{comment}{/*\ Possible\ inflate\ modes\ between\ inflate()\ calls\ */}}
+\DoxyCodeLine{00020\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00021\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa0b0955668575b21eb0ab2272aef49f76}{HEAD}}\ =\ 16180,\ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ magic\ header\ */}}
+\DoxyCodeLine{00022\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa3aee94eb5ff82fe30d1195f935903b4a}{FLAGS}},\ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ method\ and\ flags\ (gzip)\ */}}
+\DoxyCodeLine{00023\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaae9e4c627760f36823cdd153c24229157}{TIME}},\ \ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ modification\ time\ (gzip)\ */}}
+\DoxyCodeLine{00024\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa48654532ac8a1eee6c255d77e3e1c406}{OS}},\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ extra\ flags\ and\ operating\ system\ (gzip)\ */}}
+\DoxyCodeLine{00025\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa566a2c5006b8c3f014f20fc659c25e5b}{EXLEN}},\ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ extra\ length\ (gzip)\ */}}
+\DoxyCodeLine{00026\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaaffb2fb86309c5c698e319b5b6dd8ab3a}{EXTRA}},\ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ extra\ bytes\ (gzip)\ */}}
+\DoxyCodeLine{00027\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa67bc2ced260a8e43805d2480a785d312}{NAME}},\ \ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ end\ of\ file\ name\ (gzip)\ */}}
+\DoxyCodeLine{00028\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaaae696377c19e507b64e16be78ce3bbdb}{COMMENT}},\ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ end\ of\ comment\ (gzip)\ */}}
+\DoxyCodeLine{00029\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaae4d85856c8036a23b19e1d32ae0e6b90}{HCRC}},\ \ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ header\ crc\ (gzip)\ */}}
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa8139648a2f9b7edaba980ab309495f11}{DICTID}},\ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ dictionary\ check\ value\ */}}
+\DoxyCodeLine{00031\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa14826de2bf5a66b660a8e338b6357133}{DICT}},\ \ \ \ \ \ \ \textcolor{comment}{/*\ waiting\ for\ inflateSetDictionary()\ call\ */}}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate9_8h_a164ea0159d5f0b5f12a646f25f99eceaab47ea8bb955afd0adc0ef98517dd6084}{TYPE}},\ \ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ type\ bits,\ including\ last-\/flag\ bit\ */}}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa9e64f20508d4395d6f91237950664f6e}{TYPEDO}},\ \ \ \ \ \textcolor{comment}{/*\ i:\ same,\ but\ skip\ check\ to\ exit\ inflate\ on\ new\ block\ */}}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate9_8h_a164ea0159d5f0b5f12a646f25f99eceaa77647f28a49007bb2c1f10fa36f33b55}{STORED}},\ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ stored\ size\ (length\ and\ complement)\ */}}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaabf17f496021fb9357faed8247beb3926}{COPY\_}},\ \ \ \ \ \ \textcolor{comment}{/*\ i/o:\ same\ as\ COPY\ below,\ but\ only\ first\ time\ in\ */}}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{gzguts_8h_a9e77d621548de2a80bc9c5909bfa2b8a}{COPY}},\ \ \ \ \ \ \ \textcolor{comment}{/*\ i/o:\ waiting\ for\ input\ or\ output\ to\ copy\ stored\ block\ */}}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate9_8h_a164ea0159d5f0b5f12a646f25f99eceaa2e160f29fc076de5496a2b9968be9cc1}{TABLE}},\ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ dynamic\ block\ table\ lengths\ */}}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaaaeda44348e46a8bc21bd6122b3f3e0d5}{LENLENS}},\ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ code\ length\ code\ lengths\ */}}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa77b9f2ec0ee4bb6570ef4f42d8f2a492}{CODELENS}},\ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ length/lit\ and\ distance\ code\ lengths\ */}}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaabcafe3c2154b6a611ba2cce131ca0f86}{LEN\_}},\ \ \ \ \ \ \ \textcolor{comment}{/*\ i:\ same\ as\ LEN\ below,\ but\ only\ first\ time\ in\ */}}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate9_8h_a164ea0159d5f0b5f12a646f25f99eceaaff15d001decc8890fb72cc6065a1abba}{LEN}},\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ length/lit/eob\ code\ */}}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaad604a1d898344e0470e0f68968c41d1c}{LENEXT}},\ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ length\ extra\ bits\ */}}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaac04fbbdf0d80a4ad25e565541deeebd7}{DIST}},\ \ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ distance\ code\ */}}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaafca1908d584fa781bde4cf8905c3bcab}{DISTEXT}},\ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ distance\ extra\ bits\ */}}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa1155ee5305ebe5bb9407faa9d395ae93}{MATCH}},\ \ \ \ \ \ \textcolor{comment}{/*\ o:\ waiting\ for\ output\ space\ to\ copy\ string\ */}}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa3b759690471ed29ecd243a8f36b93f60}{LIT}},\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ o:\ waiting\ for\ output\ space\ to\ write\ literal\ */}}
+\DoxyCodeLine{00047\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaaed65b7dfe470f4e500b15f7074bb7fa2}{CHECK}},\ \ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ 32-\/bit\ check\ value\ */}}
+\DoxyCodeLine{00048\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa3418c365e56fa4587ae44612afc6fa48}{LENGTH}},\ \ \ \ \ \textcolor{comment}{/*\ i:\ waiting\ for\ 32-\/bit\ length\ (gzip)\ */}}
+\DoxyCodeLine{00049\ \ \ \ \ \mbox{\hyperlink{inflate9_8h_a164ea0159d5f0b5f12a646f25f99eceaa9c954bcf443428c80b0f107b3bc48749}{DONE}},\ \ \ \ \ \ \ \textcolor{comment}{/*\ finished\ check,\ done\ -\/-\/\ remain\ here\ until\ reset\ */}}
+\DoxyCodeLine{00050\ \ \ \ \ \mbox{\hyperlink{inflate9_8h_a164ea0159d5f0b5f12a646f25f99eceaafe29bdbfb6e2165eec29bf28af429856}{BAD}},\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ got\ a\ data\ error\ -\/-\/\ remain\ here\ until\ reset\ */}}
+\DoxyCodeLine{00051\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa5c97a00bfd8be44565f64bcad8c179e2}{MEM}},\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ got\ an\ inflate()\ memory\ error\ -\/-\/\ remain\ here\ until\ reset\ */}}
+\DoxyCodeLine{00052\ \ \ \ \ \mbox{\hyperlink{inflate_8h_a164ea0159d5f0b5f12a646f25f99eceaa447bfe7992c2fe70bfe561225f74d379}{SYNC}}\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ looking\ for\ synchronization\ bytes\ to\ restart\ inflate()\ */}}
+\DoxyCodeLine{00053\ \}\ \mbox{\hyperlink{inflate9_8h_a164ea0159d5f0b5f12a646f25f99ecea}{inflate\_mode}};}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00056\ \textcolor{comment}{\ \ \ \ State\ transitions\ between\ above\ modes\ -\/}}
+\DoxyCodeLine{00057\ \textcolor{comment}{}}
+\DoxyCodeLine{00058\ \textcolor{comment}{\ \ \ \ (most\ modes\ can\ go\ to\ BAD\ or\ MEM\ on\ error\ -\/-\/\ not\ shown\ for\ clarity)}}
+\DoxyCodeLine{00059\ \textcolor{comment}{}}
+\DoxyCodeLine{00060\ \textcolor{comment}{\ \ \ \ Process\ header:}}
+\DoxyCodeLine{00061\ \textcolor{comment}{\ \ \ \ \ \ \ \ HEAD\ -\/>\ (gzip)\ or\ (zlib)\ or\ (raw)}}
+\DoxyCodeLine{00062\ \textcolor{comment}{\ \ \ \ \ \ \ \ (gzip)\ -\/>\ FLAGS\ -\/>\ TIME\ -\/>\ OS\ -\/>\ EXLEN\ -\/>\ EXTRA\ -\/>\ NAME\ -\/>\ COMMENT\ -\/>}}
+\DoxyCodeLine{00063\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ HCRC\ -\/>\ TYPE}}
+\DoxyCodeLine{00064\ \textcolor{comment}{\ \ \ \ \ \ \ \ (zlib)\ -\/>\ DICTID\ or\ TYPE}}
+\DoxyCodeLine{00065\ \textcolor{comment}{\ \ \ \ \ \ \ \ DICTID\ -\/>\ DICT\ -\/>\ TYPE}}
+\DoxyCodeLine{00066\ \textcolor{comment}{\ \ \ \ \ \ \ \ (raw)\ -\/>\ TYPEDO}}
+\DoxyCodeLine{00067\ \textcolor{comment}{\ \ \ \ Read\ deflate\ blocks:}}
+\DoxyCodeLine{00068\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ TYPE\ -\/>\ TYPEDO\ -\/>\ STORED\ or\ TABLE\ or\ LEN\_\ or\ CHECK}}
+\DoxyCodeLine{00069\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ STORED\ -\/>\ COPY\_\ -\/>\ COPY\ -\/>\ TYPE}}
+\DoxyCodeLine{00070\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ TABLE\ -\/>\ LENLENS\ -\/>\ CODELENS\ -\/>\ LEN\_}}
+\DoxyCodeLine{00071\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ LEN\_\ -\/>\ LEN}}
+\DoxyCodeLine{00072\ \textcolor{comment}{\ \ \ \ Read\ deflate\ codes\ in\ fixed\ or\ dynamic\ block:}}
+\DoxyCodeLine{00073\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ LEN\ -\/>\ LENEXT\ or\ LIT\ or\ TYPE}}
+\DoxyCodeLine{00074\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ LENEXT\ -\/>\ DIST\ -\/>\ DISTEXT\ -\/>\ MATCH\ -\/>\ LEN}}
+\DoxyCodeLine{00075\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ LIT\ -\/>\ LEN}}
+\DoxyCodeLine{00076\ \textcolor{comment}{\ \ \ \ Process\ trailer:}}
+\DoxyCodeLine{00077\ \textcolor{comment}{\ \ \ \ \ \ \ \ CHECK\ -\/>\ LENGTH\ -\/>\ DONE}}
+\DoxyCodeLine{00078\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \textcolor{comment}{/*\ State\ maintained\ between\ inflate()\ calls\ -\/-\/\ approximately\ 7K\ bytes,\ not}}
+\DoxyCodeLine{00081\ \textcolor{comment}{\ \ \ including\ the\ allocated\ sliding\ window,\ which\ is\ up\ to\ 32K\ bytes.\ */}}
+\DoxyCodeLine{00082\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structinflate__state}{inflate\_state}}\ \{}
+\DoxyCodeLine{00083\ \ \ \ \ \mbox{\hyperlink{zlib_8h_a6ede25c84d3c9f8632305866acffb1d6}{z\_streamp}}\ \mbox{\hyperlink{structinflate__state_a67cc6a2f6ed1434b58e9308fbb9e7c2c}{strm}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ pointer\ back\ to\ this\ zlib\ stream\ */}}
+\DoxyCodeLine{00084\ \ \ \ \ \mbox{\hyperlink{inflate9_8h_a164ea0159d5f0b5f12a646f25f99ecea}{inflate\_mode}}\ \mbox{\hyperlink{structinflate__state_a9c7906fee7eeeb450b13576531ca639d}{mode}};\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ current\ inflate\ mode\ */}}
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinflate__state_ab3cbcd2c5ff3b0b8b34ef402a13afdf7}{last}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ true\ if\ processing\ last\ block\ */}}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinflate__state_a990d157b5c0d4ba178c3361de9ce6561}{wrap}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ bit\ 0\ true\ for\ zlib,\ bit\ 1\ true\ for\ gzip,}}
+\DoxyCodeLine{00087\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bit\ 2\ true\ to\ validate\ check\ value\ */}}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinflate__state_a2eb1cd634ed6baade952ffa5938ebcdc}{havedict}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ true\ if\ dictionary\ provided\ */}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinflate__state_a9dcf6151443750d75b2283d0a3e62c39}{flags}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ gzip\ header\ method\ and\ flags,\ 0\ if\ zlib,\ or}}
+\DoxyCodeLine{00090\ \textcolor{comment}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/1\ if\ raw\ or\ no\ header\ yet\ */}}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_ae3d433011714e673b22e82156acc4416}{dmax}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ zlib\ header\ max\ distance\ (INFLATE\_STRICT)\ */}}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{structinflate__state_ae597e4f5c37b9f7881015384bf826371}{check}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ protected\ copy\ of\ check\ value\ */}}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{structinflate__state_af9d1071eb75b1ee37a151ccec8dfee95}{total}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ protected\ copy\ of\ output\ count\ */}}
+\DoxyCodeLine{00094\ \ \ \ \ \mbox{\hyperlink{zlib_8h_a40e9dcc294796d99b25e98fb06477fc8}{gz\_headerp}}\ \mbox{\hyperlink{structinflate__state_aac35b33a559009eb4bc0e2bdd8e9b5c6}{head}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ where\ to\ save\ gzip\ header\ information\ */}}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ sliding\ window\ */}}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a71f844b589ac450f17d69f3692a8c5cc}{wbits}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ log\ base\ 2\ of\ requested\ window\ size\ */}}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_acca16ca86216760eaf307bf71e15e470}{wsize}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ window\ size\ or\ zero\ if\ not\ using\ window\ */}}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a6b56aabe80412784eadc1068981c9d00}{whave}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ valid\ bytes\ in\ the\ window\ */}}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a1c3ec583646b68713e5c92151064a6dd}{wnext}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ window\ write\ index\ */}}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aef060b3456fdcc093a7210a762d5f2ed}{FAR}}\ *\mbox{\hyperlink{structinflate__state_a35b5915bbe6b94f773d9eab51fa8f633}{window}};\ \ \textcolor{comment}{/*\ allocated\ sliding\ window,\ if\ needed\ */}}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ bit\ accumulator\ */}}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{structinflate__state_a5a91b1c59e52f1aa7eda75b86b05b843}{hold}};\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ input\ bit\ accumulator\ */}}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_ab37c3563f306f29e6ded8e933af14365}{bits}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ number\ of\ bits\ in\ "{}in"{}\ */}}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ for\ string\ and\ stored\ block\ copying\ */}}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a5179d4c9b332d976cce7c6cce6bdf3c1}{length}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ literal\ or\ length\ of\ data\ to\ copy\ */}}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_af1e38258e8585b1a37854066ef9d939c}{offset}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ distance\ back\ to\ copy\ string\ from\ */}}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ for\ table\ and\ code\ decoding\ */}}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a5b7b0be77d61e8468716c7f265dd0780}{extra}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ extra\ bits\ needed\ */}}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ fixed\ and\ dynamic\ code\ tables\ */}}
+\DoxyCodeLine{00110\ \ \ \ \ \mbox{\hyperlink{structcode}{code}}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aef060b3456fdcc093a7210a762d5f2ed}{FAR}}\ *\mbox{\hyperlink{structinflate__state_a4560e1eb3318f7ea41896be84de0679a}{lencode}};\ \ \ \ \textcolor{comment}{/*\ starting\ table\ for\ length/literal\ codes\ */}}
+\DoxyCodeLine{00111\ \ \ \ \ \mbox{\hyperlink{structcode}{code}}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aef060b3456fdcc093a7210a762d5f2ed}{FAR}}\ *\mbox{\hyperlink{structinflate__state_a19f7ae2fe2682cb1163860f6991a107f}{distcode}};\ \ \ \textcolor{comment}{/*\ starting\ table\ for\ distance\ codes\ */}}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a3ff97e6b230d7551fc848ff9de0236e9}{lenbits}};\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ index\ bits\ for\ lencode\ */}}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a98952f3f8f420a05b567f080aca0eb4b}{distbits}};\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ index\ bits\ for\ distcode\ */}}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ dynamic\ table\ building\ */}}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a62b5ea8559856b315b6c89d9114c2109}{ncode}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ number\ of\ code\ length\ code\ lengths\ */}}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a489b005f4fe214353cd80b77b4f23194}{nlen}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ number\ of\ length\ code\ lengths\ */}}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a4415e5e51efdd0c8672e4c601caa4762}{ndist}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ number\ of\ distance\ code\ lengths\ */}}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a4a2b15912256bcf7b39980e15095ba58}{have}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ number\ of\ code\ lengths\ in\ lens[]\ */}}
+\DoxyCodeLine{00119\ \ \ \ \ \mbox{\hyperlink{structcode}{code}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aef060b3456fdcc093a7210a762d5f2ed}{FAR}}\ *\mbox{\hyperlink{structinflate__state_a732fb4f62e27dc5dd3f35076575ba450}{next}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ next\ available\ space\ in\ codes[]\ */}}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{short}\ \mbox{\hyperlink{structinflate__state_a331b69d1c6f74c7be5c90ed28e80203b}{lens}}[320];\ \ \ \textcolor{comment}{/*\ temporary\ storage\ for\ code\ lengths\ */}}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{short}\ \mbox{\hyperlink{structinflate__state_a26883e050c93e44f1c45eadfb1ccaa93}{work}}[288];\ \ \ \textcolor{comment}{/*\ work\ area\ for\ code\ table\ building\ */}}
+\DoxyCodeLine{00122\ \ \ \ \ \mbox{\hyperlink{structcode}{code}}\ \mbox{\hyperlink{structinflate__state_af6e7df6bff086c3b9cf2615367949277}{codes}}[\mbox{\hyperlink{inftree9_8h_acef2f42f16f168d23ec870bd60a3b5f1}{ENOUGH}}];\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ space\ for\ code\ tables\ */}}
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinflate__state_a98b40fe23b7177bc8cd1d9d73edad593}{sane}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ if\ false,\ allow\ invalid\ distance\ too\ far\ */}}
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinflate__state_ab666ce74a806fc77200ced9bc385cb0b}{back}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ bits\ back\ of\ last\ unprocessed\ length/lit\ */}}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{structinflate__state_a0e3af9175f6d3b30f83af69062ba4dec}{was}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ initial\ length\ of\ match\ */}}
+\DoxyCodeLine{00126\ \};}
+
+\end{DoxyCode}

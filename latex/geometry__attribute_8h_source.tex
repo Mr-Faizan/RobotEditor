@@ -1,0 +1,529 @@
+\doxysection{geometry\+\_\+attribute.\+h}
+\hypertarget{geometry__attribute_8h_source}{}\label{geometry__attribute_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/attributes/geometry\_attribute.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/attributes/geometry\_attribute.h}}
+\mbox{\hyperlink{geometry__attribute_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_ATTRIBUTES\_GEOMETRY\_ATTRIBUTE\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_ATTRIBUTES\_GEOMETRY\_ATTRIBUTE\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <array>}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <limits>}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{geometry__indices_8h}{draco/attributes/geometry\_indices.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{data__buffer_8h}{draco/core/data\_buffer.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{hash__utils_8h}{draco/core/hash\_utils.h}}"{}}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status_8h}{draco/core/status.h}}"{}}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ The\ class\ provides\ access\ to\ a\ specific\ attribute\ which\ is\ stored\ in\ a}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ DataBuffer,\ such\ as\ normals\ or\ coordinates.\ However,\ the\ GeometryAttribute}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ class\ does\ not\ own\ the\ buffer\ and\ the\ buffer\ itself\ may\ store\ other\ data}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ unrelated\ to\ this\ attribute\ (such\ as\ data\ for\ other\ attributes\ in\ which\ case}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ we\ can\ have\ multiple\ GeometryAttributes\ accessing\ one\ buffer).\ Typically,}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ all\ attributes\ for\ a\ point\ (or\ corner,\ face)\ are\ stored\ in\ one\ block,\ which}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ is\ advantageous\ in\ terms\ of\ memory\ access.\ The\ length\ of\ the\ entire\ block\ is}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ given\ by\ the\ byte\_stride,\ the\ position\ where\ the\ attribute\ starts\ is\ given\ by}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ the\ byte\_offset,\ the\ actual\ number\ of\ bytes\ that\ the\ attribute\ occupies\ is}}
+\DoxyCodeLine{00042\ \textcolor{comment}{//\ given\ by\ the\ data\_type\ and\ the\ number\ of\ components.}}
+\DoxyCodeLine{00043\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_geometry_attribute_a7f1fee5dd769b5a13cfa5e4e422edfd7}{GeometryAttribute}}\ \{}
+\DoxyCodeLine{00044\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00045\ \ \ \textcolor{comment}{//\ Supported\ attribute\ types.}}
+\DoxyCodeLine{00046\ \ \ \textcolor{keyword}{enum}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800}{Type}}\ \{}
+\DoxyCodeLine{00047\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800a307678b79d23b71e458fdcbc0a91c2f8}{INVALID}}\ =\ -\/1,}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{comment}{//\ Named\ attributes\ start\ here.\ The\ difference\ between\ named\ and\ generic}}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{comment}{//\ attributes\ is\ that\ for\ named\ attributes\ we\ know\ their\ purpose\ and\ we}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//\ can\ apply\ some\ special\ methods\ when\ dealing\ with\ them\ (e.g.\ during}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ encoding).}}
+\DoxyCodeLine{00052\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800ac71ed6e8ab7e664bf3c0aa30e027e3ad}{POSITION}}\ =\ 0,}
+\DoxyCodeLine{00053\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800afa2b863c056244e5c9034cfa0314ee0b}{NORMAL}},}
+\DoxyCodeLine{00054\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800ae689ee719f31cef4ab23c169595e069f}{COLOR}},}
+\DoxyCodeLine{00055\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800a6d57004bf9d1e916a98c92e0721aec6b}{TEX\_COORD}},}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{comment}{//\ A\ special\ id\ used\ to\ mark\ attributes\ that\ are\ not\ assigned\ to\ any\ known}}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ predefined\ use\ case.\ Such\ attributes\ are\ often\ used\ for\ a\ shader\ specific}}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//\ data.}}
+\DoxyCodeLine{00059\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800aa2b0014e3bb5ecd60c61a585b6d9270b}{GENERIC}},}
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{comment}{//\ TODO(ostava):\ Adding\ a\ new\ attribute\ would\ be\ bit-\/stream\ change\ for\ GLTF.}}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{comment}{//\ Older\ decoders\ wouldn't\ know\ what\ to\ do\ with\ this\ attribute\ type.\ This}}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{comment}{//\ should\ be\ open-\/sourced\ only\ when\ we\ are\ ready\ to\ increase\ our\ bit-\/stream}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{comment}{//\ version.}}
+\DoxyCodeLine{00065\ \ \ \ \ TANGENT,}
+\DoxyCodeLine{00066\ \ \ \ \ MATERIAL,}
+\DoxyCodeLine{00067\ \ \ \ \ JOINTS,}
+\DoxyCodeLine{00068\ \ \ \ \ WEIGHTS,}
+\DoxyCodeLine{00069\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{comment}{//\ Total\ number\ of\ different\ attribute\ types.}}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{comment}{//\ Always\ keep\ behind\ all\ named\ attributes.}}
+\DoxyCodeLine{00072\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800addec28d6eb1a9f1dfbd5a48b37e248d8}{NAMED\_ATTRIBUTES\_COUNT}},}
+\DoxyCodeLine{00073\ \ \ \};}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a7f1fee5dd769b5a13cfa5e4e422edfd7}{GeometryAttribute}}();}
+\DoxyCodeLine{00076\ \ \ \textcolor{comment}{//\ Initializes\ and\ enables\ the\ attribute.}}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ab29de2db255ee00158b29537714a651c}{Init}}(\mbox{\hyperlink{struct_type}{Type}}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a5d6c636a7c62abf5249906203d4d6036}{attribute\_type}},\ \mbox{\hyperlink{classdraco_1_1_data_buffer}{DataBuffer}}\ *buffer,\ uint8\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a232064d60edaad1dba572da058382925}{num\_components}},}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_afa175b1981dd07b76deb06dd32350326}{data\_type}},\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a6215daf81992ebe34f929be823764c61}{normalized}},\ int64\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a33344cb42cb0c713ce0813f21a21f3c4}{byte\_stride}},}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \ int64\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_aebf8eba0877a866b95c235a4af0a4b6a}{byte\_offset}});}
+\DoxyCodeLine{00080\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a306c3e6314d6d2efda09c4d6818c7caf}{IsValid}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ buffer\_\ !=\ \textcolor{keyword}{nullptr};\ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ \textcolor{comment}{//\ Copies\ data\ from\ the\ source\ attribute\ to\ the\ this\ attribute.}}
+\DoxyCodeLine{00083\ \ \ \textcolor{comment}{//\ This\ attribute\ must\ have\ a\ valid\ buffer\ allocated\ otherwise\ the\ operation}}
+\DoxyCodeLine{00084\ \ \ \textcolor{comment}{//\ is\ going\ to\ fail\ and\ return\ false.}}
+\DoxyCodeLine{00085\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ad780ed6f0449edcb84db3abbe9b8665b}{CopyFrom}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute}{GeometryAttribute}}\ \&src\_att);}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \textcolor{comment}{//\ Function\ for\ getting\ a\ attribute\ value\ with\ a\ specific\ format.}}
+\DoxyCodeLine{00088\ \ \ \textcolor{comment}{//\ Unsafe.\ Caller\ must\ ensure\ the\ accessed\ memory\ is\ valid.}}
+\DoxyCodeLine{00089\ \ \ \textcolor{comment}{//\ T\ is\ the\ attribute\ data\ type.}}
+\DoxyCodeLine{00090\ \ \ \textcolor{comment}{//\ att\_components\_t\ is\ the\ number\ of\ attribute\ components.}}
+\DoxyCodeLine{00091\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T,\ \textcolor{keywordtype}{int}\ att\_components\_t>}
+\DoxyCodeLine{00092\ \ \ std::array<T,\ att\_components\_t>\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ad237825f31228ceefaf445fe6ef1394f}{GetValue}}(}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ AttributeValueIndex\ att\_index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{comment}{//\ Byte\ address\ of\ the\ attribute\ index.}}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keyword}{const}\ int64\_t\ byte\_pos\ =\ byte\_offset\_\ +\ byte\_stride\_\ *\ att\_index.value();}
+\DoxyCodeLine{00096\ \ \ \ \ std::array<T,\ att\_components\_t>\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}};}
+\DoxyCodeLine{00097\ \ \ \ \ buffer\_-\/>Read(byte\_pos,\ \&(\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}[0]),\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}));}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}};}
+\DoxyCodeLine{00099\ \ \ \}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \textcolor{comment}{//\ Function\ for\ getting\ a\ attribute\ value\ with\ a\ specific\ format.}}
+\DoxyCodeLine{00102\ \ \ \textcolor{comment}{//\ T\ is\ the\ attribute\ data\ type.}}
+\DoxyCodeLine{00103\ \ \ \textcolor{comment}{//\ att\_components\_t\ is\ the\ number\ of\ attribute\ components.}}
+\DoxyCodeLine{00104\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T,\ \textcolor{keywordtype}{int}\ att\_components\_t>}
+\DoxyCodeLine{00105\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a2015ec98ae7cc69a180eddf4d2f2df47}{GetValue}}(AttributeValueIndex\ att\_index,}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::array<T,\ att\_components\_t>\ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{comment}{//\ Byte\ address\ of\ the\ attribute\ index.}}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keyword}{const}\ int64\_t\ byte\_pos\ =\ byte\_offset\_\ +\ byte\_stride\_\ *\ att\_index.value();}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{comment}{//\ Check\ we\ are\ not\ reading\ past\ end\ of\ data.}}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{keywordflow}{if}\ (byte\_pos\ +\ \textcolor{keyword}{sizeof}(*\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})\ >\ buffer\_-\/>data\_size())\ \{}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00112\ \ \ \ \ \}}
+\DoxyCodeLine{00113\ \ \ \ \ buffer\_-\/>Read(byte\_pos,\ \&((*\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}})[0]),\ \textcolor{keyword}{sizeof}(*\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}));}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00115\ \ \ \}}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \ \ \textcolor{comment}{//\ Returns\ the\ byte\ position\ of\ the\ attribute\ entry\ in\ the\ data\ buffer.}}
+\DoxyCodeLine{00118\ \ \ \textcolor{keyword}{inline}\ int64\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ac99e75d7e1424b9e1d9adf80520a63e0}{GetBytePos}}(AttributeValueIndex\ att\_index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordflow}{return}\ byte\_offset\_\ +\ byte\_stride\_\ *\ att\_index.value();}
+\DoxyCodeLine{00120\ \ \ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{const}\ uint8\_t\ *\mbox{\hyperlink{classdraco_1_1_geometry_attribute_ae8960947ee53692f4b3f2f35a8639e8d}{GetAddress}}(AttributeValueIndex\ att\_index)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keyword}{const}\ int64\_t\ byte\_pos\ =\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ac99e75d7e1424b9e1d9adf80520a63e0}{GetBytePos}}(att\_index);}
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{keywordflow}{return}\ buffer\_-\/>data()\ +\ byte\_pos;}
+\DoxyCodeLine{00125\ \ \ \}}
+\DoxyCodeLine{00126\ \ \ \textcolor{keyword}{inline}\ uint8\_t\ *\mbox{\hyperlink{classdraco_1_1_geometry_attribute_aa6f65574b4280836c6d6b04409d78136}{GetAddress}}(AttributeValueIndex\ att\_index)\ \{}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keyword}{const}\ int64\_t\ byte\_pos\ =\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ac99e75d7e1424b9e1d9adf80520a63e0}{GetBytePos}}(att\_index);}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordflow}{return}\ buffer\_-\/>data()\ +\ byte\_pos;}
+\DoxyCodeLine{00129\ \ \ \}}
+\DoxyCodeLine{00130\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a150b4f0b476a2d2c1bfab0be3fb41708}{IsAddressValid}}(\textcolor{keyword}{const}\ uint8\_t\ *address)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordflow}{return}\ ((buffer\_-\/>data()\ +\ buffer\_-\/>data\_size())\ >\ address);}
+\DoxyCodeLine{00132\ \ \ \}}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ \textcolor{comment}{//\ Fills\ out\_data\ with\ the\ raw\ value\ of\ the\ requested\ attribute\ entry.}}
+\DoxyCodeLine{00135\ \ \ \textcolor{comment}{//\ out\_data\ must\ be\ at\ least\ byte\_stride\_\ long.}}
+\DoxyCodeLine{00136\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a84928bfef8ae7c32da9be4f50486a409}{GetValue}}(AttributeValueIndex\ att\_index,\ \textcolor{keywordtype}{void}\ *out\_data)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{keyword}{const}\ int64\_t\ byte\_pos\ =\ byte\_offset\_\ +\ byte\_stride\_\ *\ att\_index.value();}
+\DoxyCodeLine{00138\ \ \ \ \ buffer\_-\/>Read(byte\_pos,\ out\_data,\ byte\_stride\_);}
+\DoxyCodeLine{00139\ \ \ \}}
+\DoxyCodeLine{00140\ }
+\DoxyCodeLine{00141\ \ \ \textcolor{comment}{//\ Sets\ a\ value\ of\ an\ attribute\ entry.\ The\ input\ value\ must\ be\ allocated\ to}}
+\DoxyCodeLine{00142\ \ \ \textcolor{comment}{//\ cover\ all\ components\ of\ a\ single\ attribute\ entry.}}
+\DoxyCodeLine{00143\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ae1a3a1b48552d7fceb7526a5c11b5050}{SetAttributeValue}}(AttributeValueIndex\ entry\_index,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{}
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keyword}{const}\ int64\_t\ byte\_pos\ =\ entry\_index.value()\ *\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a33344cb42cb0c713ce0813f21a21f3c4}{byte\_stride}}();}
+\DoxyCodeLine{00145\ \ \ \ \ buffer\_-\/>Write(byte\_pos,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}},\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a33344cb42cb0c713ce0813f21a21f3c4}{byte\_stride}}());}
+\DoxyCodeLine{00146\ \ \ \}}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00149\ \ \ \textcolor{comment}{//\ Sets\ a\ value\ of\ an\ attribute\ entry.\ The\ input\ |value|\ must\ have}}
+\DoxyCodeLine{00150\ \ \ \textcolor{comment}{//\ |input\_num\_components|\ entries\ and\ it\ will\ be\ automatically\ converted\ to}}
+\DoxyCodeLine{00151\ \ \ \textcolor{comment}{//\ the\ internal\ format\ used\ by\ the\ geometry\ attribute.\ If\ the\ conversion\ is}}
+\DoxyCodeLine{00152\ \ \ \textcolor{comment}{//\ not\ possible,\ an\ error\ status\ will\ be\ returned.}}
+\DoxyCodeLine{00153\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ InputT>}
+\DoxyCodeLine{00154\ \ \ \mbox{\hyperlink{classdraco_1_1_status}{Status}}\ ConvertAndSetAttributeValue(AttributeValueIndex\ avi,}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ input\_num\_components,}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ InputT\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00157\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \textcolor{comment}{//\ DEPRECATED:\ Use}}
+\DoxyCodeLine{00160\ \ \ \textcolor{comment}{//\ \ \ ConvertValue(AttributeValueIndex\ att\_id,}}
+\DoxyCodeLine{00161\ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ int\ out\_num\_components,}}
+\DoxyCodeLine{00162\ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ OutT\ *out\_val);}}
+\DoxyCodeLine{00163\ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00164\ \ \ \textcolor{comment}{//\ Function\ for\ conversion\ of\ a\ attribute\ to\ a\ specific\ output\ format.}}
+\DoxyCodeLine{00165\ \ \ \textcolor{comment}{//\ OutT\ is\ the\ desired\ data\ type\ of\ the\ attribute.}}
+\DoxyCodeLine{00166\ \ \ \textcolor{comment}{//\ out\_att\_components\_t\ is\ the\ number\ of\ components\ of\ the\ output\ format.}}
+\DoxyCodeLine{00167\ \ \ \textcolor{comment}{//\ Returns\ false\ when\ the\ conversion\ failed.}}
+\DoxyCodeLine{00168\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ OutT,\ \textcolor{keywordtype}{int}\ out\_att\_components\_t>}
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a815ce31af6f09cf527fc502fdbeff58a}{ConvertValue}}(AttributeValueIndex\ att\_id,\ OutT\ *out\_val)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a815ce31af6f09cf527fc502fdbeff58a}{ConvertValue}}(att\_id,\ out\_att\_components\_t,\ out\_val);}
+\DoxyCodeLine{00171\ \ \ \}}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \ \ \textcolor{comment}{//\ Function\ for\ conversion\ of\ a\ attribute\ to\ a\ specific\ output\ format.}}
+\DoxyCodeLine{00174\ \ \ \textcolor{comment}{//\ |out\_val|\ needs\ to\ be\ able\ to\ store\ |out\_num\_components|\ values.}}
+\DoxyCodeLine{00175\ \ \ \textcolor{comment}{//\ OutT\ is\ the\ desired\ data\ type\ of\ the\ attribute.}}
+\DoxyCodeLine{00176\ \ \ \textcolor{comment}{//\ Returns\ false\ when\ the\ conversion\ failed.}}
+\DoxyCodeLine{00177\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ OutT>}
+\DoxyCodeLine{00178\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ab7683073630a6509770c880ca963c643}{ConvertValue}}(AttributeValueIndex\ att\_id,\ int8\_t\ out\_num\_components,}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ OutT\ *out\_val)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordflow}{if}\ (out\_val\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00182\ \ \ \ \ \}}
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{keywordflow}{switch}\ (data\_type\_)\ \{}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a2e4dccb27f5ffe53d460343dd04829a8}{DT\_INT8}}:}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertTypedValue<int8\_t,\ OutT>(att\_id,\ out\_num\_components,}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_val);}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7aa1630f9e4c68a04da10a82f1e047f3b2}{DT\_UINT8}}:}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertTypedValue<uint8\_t,\ OutT>(att\_id,\ out\_num\_components,}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_val);}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a5b1c87af6d0314bafedfcdbfaf9d8f1a}{DT\_INT16}}:}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertTypedValue<int16\_t,\ OutT>(att\_id,\ out\_num\_components,}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_val);}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a8fabfe65fdd90f383a6bd4736324ada4}{DT\_UINT16}}:}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertTypedValue<uint16\_t,\ OutT>(att\_id,\ out\_num\_components,}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_val);}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a15a38ced207e9eba0045fa4e7d3981b4}{DT\_INT32}}:}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertTypedValue<int32\_t,\ OutT>(att\_id,\ out\_num\_components,}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_val);}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7abb2eda1558815c2bde1d54738d913f4b}{DT\_UINT32}}:}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertTypedValue<uint32\_t,\ OutT>(att\_id,\ out\_num\_components,}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_val);}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a2e17b908393e8bf2f3c810f0af00299f}{DT\_INT64}}:}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertTypedValue<int64\_t,\ OutT>(att\_id,\ out\_num\_components,}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_val);}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7abbbbf9ece95303be89e6d971dc3b3960}{DT\_UINT64}}:}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertTypedValue<uint64\_t,\ OutT>(att\_id,\ out\_num\_components,}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_val);}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7aba959f9580390badb73c518151e92baf}{DT\_FLOAT32}}:}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertTypedValue<float,\ OutT>(att\_id,\ out\_num\_components,}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_val);}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7aa2d1000f22dbf50f78111d8eef27b445}{DT\_FLOAT64}}:}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertTypedValue<double,\ OutT>(att\_id,\ out\_num\_components,}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_val);}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a4e0badeda279ae79da4c5c8b106cb077}{DT\_BOOL}}:}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertTypedValue<bool,\ OutT>(att\_id,\ out\_num\_components,}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_val);}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Wrong\ attribute\ type.}}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00220\ \ \ \ \ \}}
+\DoxyCodeLine{00221\ \ \ \}}
+\DoxyCodeLine{00222\ }
+\DoxyCodeLine{00223\ \ \ \textcolor{comment}{//\ Function\ for\ conversion\ of\ a\ attribute\ to\ a\ specific\ output\ format.}}
+\DoxyCodeLine{00224\ \ \ \textcolor{comment}{//\ The\ |out\_value|\ must\ be\ able\ to\ store\ all\ components\ of\ a\ single\ attribute}}
+\DoxyCodeLine{00225\ \ \ \textcolor{comment}{//\ entry.}}
+\DoxyCodeLine{00226\ \ \ \textcolor{comment}{//\ OutT\ is\ the\ desired\ data\ type\ of\ the\ attribute.}}
+\DoxyCodeLine{00227\ \ \ \textcolor{comment}{//\ Returns\ false\ when\ the\ conversion\ failed.}}
+\DoxyCodeLine{00228\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ OutT>}
+\DoxyCodeLine{00229\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a4f8902506071ae34326fd8e3f0d63ea1}{ConvertValue}}(AttributeValueIndex\ att\_index,\ OutT\ *out\_value)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a815ce31af6f09cf527fc502fdbeff58a}{ConvertValue<OutT>}}(att\_index,\ num\_components\_,\ out\_value);}
+\DoxyCodeLine{00231\ \ \ \}}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ \textcolor{comment}{//\ Utility\ function.\ Returns\ |attribute\_type|\ as\ std::string.}}
+\DoxyCodeLine{00234\ \ \ \textcolor{keyword}{static}\ std::string\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ae6f034420d08f55f9639a98a3a3c3284}{TypeToString}}(\mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800}{Type}}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a5d6c636a7c62abf5249906203d4d6036}{attribute\_type}})\ \{}
+\DoxyCodeLine{00235\ \ \ \ \ \textcolor{keywordflow}{switch}\ (\mbox{\hyperlink{classdraco_1_1_geometry_attribute_a5d6c636a7c62abf5249906203d4d6036}{attribute\_type}})\ \{}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800a307678b79d23b71e458fdcbc0a91c2f8}{INVALID}}:}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}INVALID"{}};}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800ac71ed6e8ab7e664bf3c0aa30e027e3ad}{POSITION}}:}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}POSITION"{}};}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800afa2b863c056244e5c9034cfa0314ee0b}{NORMAL}}:}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}NORMAL"{}};}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800ae689ee719f31cef4ab23c169595e069f}{COLOR}}:}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}COLOR"{}};}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800a6d57004bf9d1e916a98c92e0721aec6b}{TEX\_COORD}}:}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}TEX\_COORD"{}};}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800aa2b0014e3bb5ecd60c61a585b6d9270b}{GENERIC}}:}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}GENERIC"{}};}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}UNKNOWN"{}};}
+\DoxyCodeLine{00250\ \ \ \ \ \}}
+\DoxyCodeLine{00251\ \ \ \}}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00253\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a1a822713188e72d3e0bfab86a6cb1411}{operator==}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute}{GeometryAttribute}}\ \&va)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00255\ \ \ \textcolor{comment}{//\ Returns\ the\ type\ of\ the\ attribute\ indicating\ the\ nature\ of\ the\ attribute.}}
+\DoxyCodeLine{00256\ \ \ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800}{Type}}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a5d6c636a7c62abf5249906203d4d6036}{attribute\_type}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ attribute\_type\_;\ \}}
+\DoxyCodeLine{00257\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a40675562244f6291493cf58a9a17881c}{set\_attribute\_type}}(\mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800}{Type}}\ type)\ \{\ attribute\_type\_\ =\ type;\ \}}
+\DoxyCodeLine{00258\ \ \ \textcolor{comment}{//\ Returns\ the\ data\ type\ that\ is\ stored\ in\ the\ attribute.}}
+\DoxyCodeLine{00259\ \ \ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_afa175b1981dd07b76deb06dd32350326}{data\_type}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ data\_type\_;\ \}}
+\DoxyCodeLine{00260\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ components\ that\ are\ stored\ for\ each\ entry.}}
+\DoxyCodeLine{00261\ \ \ \textcolor{comment}{//\ For\ position\ attribute\ this\ is\ usually\ three\ (x,y,z),}}
+\DoxyCodeLine{00262\ \ \ \textcolor{comment}{//\ while\ texture\ coordinates\ have\ two\ components\ (u,v).}}
+\DoxyCodeLine{00263\ \ \ uint8\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a232064d60edaad1dba572da058382925}{num\_components}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ num\_components\_;\ \}}
+\DoxyCodeLine{00264\ \ \ \textcolor{comment}{//\ Indicates\ whether\ the\ data\ type\ should\ be\ normalized\ before\ interpretation,}}
+\DoxyCodeLine{00265\ \ \ \textcolor{comment}{//\ that\ is,\ it\ should\ be\ divided\ by\ the\ max\ value\ of\ the\ data\ type.}}
+\DoxyCodeLine{00266\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a6215daf81992ebe34f929be823764c61}{normalized}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ normalized\_;\ \}}
+\DoxyCodeLine{00267\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a2d7b3d9c03318f64794b9dca899bddd0}{set\_normalized}}(\textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a6215daf81992ebe34f929be823764c61}{normalized}})\ \{\ normalized\_\ =\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a6215daf81992ebe34f929be823764c61}{normalized}};\ \}}
+\DoxyCodeLine{00268\ \ \ \textcolor{comment}{//\ The\ buffer\ storing\ the\ entire\ data\ of\ the\ attribute.}}
+\DoxyCodeLine{00269\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_data_buffer}{DataBuffer}}\ *\mbox{\hyperlink{classdraco_1_1_geometry_attribute_a00e1a23ed790a15aedc793b728f0c1df}{buffer}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ buffer\_;\ \}}
+\DoxyCodeLine{00270\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ bytes\ between\ two\ attribute\ entries,\ this\ is,\ at}}
+\DoxyCodeLine{00271\ \ \ \textcolor{comment}{//\ least\ size\ of\ the\ data\ types\ times\ number\ of\ components.}}
+\DoxyCodeLine{00272\ \ \ int64\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a33344cb42cb0c713ce0813f21a21f3c4}{byte\_stride}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ byte\_stride\_;\ \}}
+\DoxyCodeLine{00273\ \ \ \textcolor{comment}{//\ The\ offset\ where\ the\ attribute\ starts\ within\ the\ block\ of\ size\ byte\_stride.}}
+\DoxyCodeLine{00274\ \ \ int64\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_aebf8eba0877a866b95c235a4af0a4b6a}{byte\_offset}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ byte\_offset\_;\ \}}
+\DoxyCodeLine{00275\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a9fd1e725758e7afda50992de6e5056c2}{set\_byte\_offset}}(int64\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_aebf8eba0877a866b95c235a4af0a4b6a}{byte\_offset}})\ \{\ byte\_offset\_\ =\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_aebf8eba0877a866b95c235a4af0a4b6a}{byte\_offset}};\ \}}
+\DoxyCodeLine{00276\ \ \ \mbox{\hyperlink{structdraco_1_1_data_buffer_descriptor}{DataBufferDescriptor}}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a23bfe388731e76678485e5f981780ff0}{buffer\_descriptor}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ buffer\_descriptor\_;\ \}}
+\DoxyCodeLine{00277\ \ \ uint32\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a1a8d0e38de35d1fc6bcc217b8bc5d09c}{unique\_id}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ unique\_id\_;\ \}}
+\DoxyCodeLine{00278\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a3cb65ddae431455eaa8c06e82eb7e4b6}{set\_unique\_id}}(uint32\_t\ \textcolor{keywordtype}{id})\ \{\ unique\_id\_\ =\ id;\ \}}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00281\ \ \ \textcolor{comment}{//\ Sets\ a\ new\ internal\ storage\ for\ the\ attribute.}}
+\DoxyCodeLine{00282\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a8c596fc1c0acbb88934c5cf30531f70e}{ResetBuffer}}(\mbox{\hyperlink{classdraco_1_1_data_buffer}{DataBuffer}}\ *buffer,\ int64\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a33344cb42cb0c713ce0813f21a21f3c4}{byte\_stride}},}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ int64\_t\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_aebf8eba0877a866b95c235a4af0a4b6a}{byte\_offset}});}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00286\ \ \ \textcolor{comment}{//\ Function\ for\ conversion\ of\ an\ attribute\ to\ a\ specific\ output\ format\ given\ a}}
+\DoxyCodeLine{00287\ \ \ \textcolor{comment}{//\ format\ of\ the\ stored\ attribute.}}
+\DoxyCodeLine{00288\ \ \ \textcolor{comment}{//\ T\ is\ the\ stored\ attribute\ data\ type.}}
+\DoxyCodeLine{00289\ \ \ \textcolor{comment}{//\ OutT\ is\ the\ desired\ data\ type\ of\ the\ attribute.}}
+\DoxyCodeLine{00290\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T,\ \textcolor{keyword}{typename}\ OutT>}
+\DoxyCodeLine{00291\ \ \ \textcolor{keywordtype}{bool}\ ConvertTypedValue(AttributeValueIndex\ att\_id,\ uint8\_t\ out\_num\_components,}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ OutT\ *out\_value)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{keyword}{const}\ uint8\_t\ *src\_address\ =\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ae8960947ee53692f4b3f2f35a8639e8d}{GetAddress}}(att\_id);}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ \ \ \ \ \textcolor{comment}{//\ Convert\ all\ components\ available\ in\ both\ the\ original\ and\ output\ formats.}}
+\DoxyCodeLine{00296\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ std::min(num\_components\_,\ out\_num\_components);\ ++i)\ \{}
+\DoxyCodeLine{00297\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classdraco_1_1_geometry_attribute_a150b4f0b476a2d2c1bfab0be3fb41708}{IsAddressValid}}(src\_address))\ \{}
+\DoxyCodeLine{00298\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \textcolor{keyword}{const}\ T\ in\_value\ =\ *\textcolor{keyword}{reinterpret\_cast<}\textcolor{keyword}{const\ }T\ *\textcolor{keyword}{>}(src\_address);}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!ConvertComponentValue<T,\ OutT>(in\_value,\ normalized\_,}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_value\ +\ i))\ \{}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ src\_address\ +=\ \textcolor{keyword}{sizeof}(T);}
+\DoxyCodeLine{00306\ \ \ \ \ \}}
+\DoxyCodeLine{00307\ \ \ \ \ \textcolor{comment}{//\ Fill\ empty\ data\ for\ unused\ output\ components\ if\ needed.}}
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ num\_components\_;\ i\ <\ out\_num\_components;\ ++i)\ \{}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ out\_value[i]\ =\ \textcolor{keyword}{static\_cast<}OutT\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{00310\ \ \ \ \ \}}
+\DoxyCodeLine{00311\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00312\ \ \ \}}
+\DoxyCodeLine{00313\ }
+\DoxyCodeLine{00314\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00315\ \ \ \textcolor{comment}{//\ Function\ that\ converts\ input\ |value|\ from\ type\ T\ to\ the\ internal\ attribute}}
+\DoxyCodeLine{00316\ \ \ \textcolor{comment}{//\ representation\ defined\ by\ OutT\ and\ |num\_components\_|.}}
+\DoxyCodeLine{00317\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T,\ \textcolor{keyword}{typename}\ OutT>}
+\DoxyCodeLine{00318\ \ \ Status\ ConvertAndSetAttributeTypedValue(AttributeValueIndex\ avi,}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ int8\_t\ input\_num\_components,}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ T\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{}
+\DoxyCodeLine{00321\ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *address\ =\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_ae8960947ee53692f4b3f2f35a8639e8d}{GetAddress}}(avi);}
+\DoxyCodeLine{00322\ }
+\DoxyCodeLine{00323\ \ \ \ \ \textcolor{comment}{//\ Convert\ all\ components\ available\ in\ both\ the\ original\ and\ output\ formats.}}
+\DoxyCodeLine{00324\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_components\_;\ ++i)\ \{}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classdraco_1_1_geometry_attribute_a150b4f0b476a2d2c1bfab0be3fb41708}{IsAddressValid}}(address))\ \{}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_abb5e3a519ea336eac0cdebdc362ca8ad}{ErrorStatus}}(\textcolor{stringliteral}{"{}GeometryAttribute:\ Invalid\ address."{}});}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ OutT\ *\textcolor{keyword}{const}\ out\_value\ =\ \textcolor{keyword}{reinterpret\_cast<}OutT\ *\textcolor{keyword}{>}(address);}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ <\ input\_num\_components)\ \{}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!ConvertComponentValue<T,\ OutT>(*(\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}}\ +\ i),\ normalized\_,}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_value))\ \{}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_abb5e3a519ea336eac0cdebdc362ca8ad}{ErrorStatus}}(}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}GeometryAttribute:\ Failed\ to\ convert\ component\ value."{}});}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \ \ *out\_value\ =\ \textcolor{keyword}{static\_cast<}OutT\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ address\ +=\ \textcolor{keyword}{sizeof}(OutT);}
+\DoxyCodeLine{00339\ \ \ \ \ \}}
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_a98fb2c12697393126194bb729d2e4bb8}{OkStatus}}();}
+\DoxyCodeLine{00341\ \ \ \}}
+\DoxyCodeLine{00342\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00344\ \ \ \textcolor{comment}{//\ Converts\ |in\_value|\ of\ type\ T\ into\ |out\_value|\ of\ type\ OutT.\ If}}
+\DoxyCodeLine{00345\ \ \ \textcolor{comment}{//\ |normalized|\ is\ true,\ any\ conversion\ between\ floating\ point\ and\ integer}}
+\DoxyCodeLine{00346\ \ \ \textcolor{comment}{//\ values\ will\ be\ treating\ integers\ as\ normalized\ types\ (the\ entire\ integer}}
+\DoxyCodeLine{00347\ \ \ \textcolor{comment}{//\ range\ will\ be\ used\ to\ represent\ 0-\/1\ floating\ point\ range).}}
+\DoxyCodeLine{00348\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T,\ \textcolor{keyword}{typename}\ OutT>}
+\DoxyCodeLine{00349\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ ConvertComponentValue(\textcolor{keyword}{const}\ T\ \&in\_value,\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a6215daf81992ebe34f929be823764c61}{normalized}},}
+\DoxyCodeLine{00350\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ OutT\ *out\_value)\ \{}
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{comment}{//\ Make\ sure\ the\ |in\_value|\ can\ be\ represented\ as\ an\ integral\ type\ OutT.}}
+\DoxyCodeLine{00352\ \ \ \ \ \textcolor{keywordflow}{if}\ (std::is\_integral<OutT>::value)\ \{}
+\DoxyCodeLine{00353\ \ \ \ \ \ \ \textcolor{comment}{//\ Make\ sure\ the\ |in\_value|\ fits\ within\ the\ range\ of\ values\ that\ OutT}}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \textcolor{comment}{//\ is\ able\ to\ represent.\ Perform\ the\ check\ only\ for\ integral\ types.}}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!std::is\_same<T,\ bool>::value\ \&\&\ std::is\_integral<T>::value)\ \{}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ OutT\ kOutMin\ =}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ \ \ \ \ \ \ std::is\_signed<T>::value\ ?\ std::numeric\_limits<OutT>::min()\ :\ 0;}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (in\_value\ <\ kOutMin\ ||\ in\_value\ >\ std::numeric\_limits<OutT>::max())\ \{}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00362\ }
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ conversion\ of\ floating\ point\ |in\_value|\ to\ integral\ value\ OutT.}}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (std::is\_floating\_point<T>::value)\ \{}
+\DoxyCodeLine{00365\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Make\ sure\ the\ floating\ point\ |in\_value|\ is\ not\ NaN\ and\ not\ Inf\ as}}
+\DoxyCodeLine{00366\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ integral\ type\ OutT\ is\ unable\ to\ represent\ these\ values.}}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{sizeof}(in\_value)\ >\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{double}))\ \{}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (std::isnan(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\textcolor{keyword}{>}(in\_value))\ ||}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::isinf(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{long}\ \textcolor{keywordtype}{double}\textcolor{keyword}{>}(in\_value)))\ \{}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{sizeof}(in\_value)\ >\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}))\ \{}
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (std::isnan(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(in\_value))\ ||}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::isinf(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(in\_value)))\ \{}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (std::isnan(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(in\_value))\ ||}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::isinf(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(in\_value)))\ \{}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00383\ }
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Make\ sure\ the\ floating\ point\ |in\_value|\ fits\ within\ the\ range\ of}}
+\DoxyCodeLine{00385\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ values\ that\ integral\ type\ OutT\ is\ able\ to\ represent.}}
+\DoxyCodeLine{00386\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (in\_value\ <\ std::numeric\_limits<OutT>::min()\ ||}
+\DoxyCodeLine{00387\ \ \ \ \ \ \ \ \ \ \ \ \ in\_value\ >=\ std::numeric\_limits<OutT>::max())\ \{}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00391\ \ \ \ \ \}}
+\DoxyCodeLine{00392\ }
+\DoxyCodeLine{00393\ \ \ \ \ \textcolor{keywordflow}{if}\ (std::is\_integral<T>::value\ \&\&\ std::is\_floating\_point<OutT>::value\ \&\&}
+\DoxyCodeLine{00394\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a6215daf81992ebe34f929be823764c61}{normalized}})\ \{}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \textcolor{comment}{//\ When\ converting\ integer\ to\ floating\ point,\ normalize\ the\ value\ if}}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \textcolor{comment}{//\ necessary.}}
+\DoxyCodeLine{00397\ \ \ \ \ \ \ *out\_value\ =\ \textcolor{keyword}{static\_cast<}OutT\textcolor{keyword}{>}(in\_value);}
+\DoxyCodeLine{00398\ \ \ \ \ \ \ *out\_value\ /=\ \textcolor{keyword}{static\_cast<}OutT\textcolor{keyword}{>}(std::numeric\_limits<T>::max());}
+\DoxyCodeLine{00399\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (std::is\_floating\_point<T>::value\ \&\&}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::is\_integral<OutT>::value\ \&\&\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_a6215daf81992ebe34f929be823764c61}{normalized}})\ \{}
+\DoxyCodeLine{00401\ \ \ \ \ \ \ \textcolor{comment}{//\ Converting\ from\ floating\ point\ to\ a\ normalized\ integer.}}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (in\_value\ >\ 1\ ||\ in\_value\ <\ 0)\ \{}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Normalized\ float\ values\ need\ to\ be\ between\ 0\ and\ 1.}}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \textcolor{comment}{//\ TODO(ostava):\ Consider\ allowing\ float\ to\ normalized\ integer\ conversion}}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \textcolor{comment}{//\ for\ 64-\/bit\ integer\ types.\ Currently\ it\ doesn't\ work\ because\ we\ don't}}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \textcolor{comment}{//\ have\ a\ floating\ point\ type\ that\ could\ store\ all\ 64\ bit\ integers.}}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{sizeof}(OutT)\ >\ 4)\ \{}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \textcolor{comment}{//\ Expand\ the\ float\ to\ the\ range\ of\ the\ output\ integer\ and\ round\ it\ to\ the}}
+\DoxyCodeLine{00413\ \ \ \ \ \ \ \textcolor{comment}{//\ nearest\ representable\ value.\ Use\ doubles\ for\ the\ math\ to\ ensure\ the}}
+\DoxyCodeLine{00414\ \ \ \ \ \ \ \textcolor{comment}{//\ integer\ values\ are\ represented\ properly\ during\ the\ conversion\ process.}}
+\DoxyCodeLine{00415\ \ \ \ \ \ \ *out\_value\ =\ \textcolor{keyword}{static\_cast<}OutT\textcolor{keyword}{>}(std::floor(}
+\DoxyCodeLine{00416\ \ \ \ \ \ \ \ \ \ \ in\_value\ *\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(std::numeric\_limits<OutT>::max())\ +}
+\DoxyCodeLine{00417\ \ \ \ \ \ \ \ \ \ \ 0.5));}
+\DoxyCodeLine{00418\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00419\ \ \ \ \ \ \ *out\_value\ =\ \textcolor{keyword}{static\_cast<}OutT\textcolor{keyword}{>}(in\_value);}
+\DoxyCodeLine{00420\ \ \ \ \ \}}
+\DoxyCodeLine{00421\ }
+\DoxyCodeLine{00422\ \ \ \ \ \textcolor{comment}{//\ TODO(ostava):\ Add\ handling\ of\ normalized\ attributes\ when\ converting}}
+\DoxyCodeLine{00423\ \ \ \ \ \textcolor{comment}{//\ between\ different\ integer\ representations.\ If\ the\ attribute\ is}}
+\DoxyCodeLine{00424\ \ \ \ \ \textcolor{comment}{//\ normalized,\ integer\ values\ should\ be\ converted\ as\ if\ they\ represent\ 0-\/1}}
+\DoxyCodeLine{00425\ \ \ \ \ \textcolor{comment}{//\ range.\ E.g.\ when\ we\ convert\ uint16\ to\ uint8,\ the\ range\ <0,\ 2\string^16\ -\/\ 1>}}
+\DoxyCodeLine{00426\ \ \ \ \ \textcolor{comment}{//\ should\ be\ converted\ to\ range\ <0,\ 2\string^8\ -\/\ 1>.}}
+\DoxyCodeLine{00427\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00428\ \ \ \}}
+\DoxyCodeLine{00429\ }
+\DoxyCodeLine{00430\ \ \ DataBuffer\ *buffer\_;}
+\DoxyCodeLine{00431\ \ \ \textcolor{comment}{//\ The\ buffer\ descriptor\ is\ stored\ at\ the\ time\ the\ buffer\ is\ attached\ to\ this}}
+\DoxyCodeLine{00432\ \ \ \textcolor{comment}{//\ attribute.\ The\ purpose\ is\ to\ detect\ if\ any\ changes\ happened\ to\ the\ buffer}}
+\DoxyCodeLine{00433\ \ \ \textcolor{comment}{//\ since\ the\ time\ it\ was\ attached.}}
+\DoxyCodeLine{00434\ \ \ DataBufferDescriptor\ buffer\_descriptor\_;}
+\DoxyCodeLine{00435\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ num\_components\_;}
+\DoxyCodeLine{00436\ \ \ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7}{DataType}}\ data\_type\_;}
+\DoxyCodeLine{00437\ \ \ \textcolor{keywordtype}{bool}\ normalized\_;}
+\DoxyCodeLine{00438\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a5e15c9ea42a30ad76cc1bb573b807e0e}{int64\_t}}\ byte\_stride\_;}
+\DoxyCodeLine{00439\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a5e15c9ea42a30ad76cc1bb573b807e0e}{int64\_t}}\ byte\_offset\_;}
+\DoxyCodeLine{00440\ }
+\DoxyCodeLine{00441\ \ \ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800}{Type}}\ attribute\_type\_;}
+\DoxyCodeLine{00442\ }
+\DoxyCodeLine{00443\ \ \ \textcolor{comment}{//\ Unique\ id\ of\ this\ attribute.\ No\ two\ attributes\ could\ have\ the\ same\ unique}}
+\DoxyCodeLine{00444\ \ \ \textcolor{comment}{//\ id.\ It\ is\ used\ to\ identify\ each\ attribute,\ especially\ when\ there\ are}}
+\DoxyCodeLine{00445\ \ \ \textcolor{comment}{//\ multiple\ attribute\ of\ the\ same\ type\ in\ a\ point\ cloud.}}
+\DoxyCodeLine{00446\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ unique\_id\_;}
+\DoxyCodeLine{00447\ }
+\DoxyCodeLine{00448\ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{classdraco_1_1_geometry_attribute_a68486a1b8ce8b6a684d989f7af6c94eb}{GeometryAttributeHasher}};}
+\DoxyCodeLine{00449\ \};}
+\DoxyCodeLine{00450\ }
+\DoxyCodeLine{00451\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00452\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ InputT>}
+\DoxyCodeLine{00453\ \mbox{\hyperlink{classdraco_1_1_status}{Status}}\ GeometryAttribute::ConvertAndSetAttributeValue(AttributeValueIndex\ avi,}
+\DoxyCodeLine{00454\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ input\_num\_components,}
+\DoxyCodeLine{00455\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ InputT\ *\mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}})\ \{}
+\DoxyCodeLine{00456\ \ \ \textcolor{keywordflow}{switch}\ (this-\/>\mbox{\hyperlink{classdraco_1_1_geometry_attribute_afa175b1981dd07b76deb06dd32350326}{data\_type}}())\ \{}
+\DoxyCodeLine{00457\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a2e4dccb27f5ffe53d460343dd04829a8}{DT\_INT8}}:}
+\DoxyCodeLine{00458\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertAndSetAttributeTypedValue<InputT,\ int8\_t>(}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \ \ \ \ avi,\ input\_num\_components,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00460\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7aa1630f9e4c68a04da10a82f1e047f3b2}{DT\_UINT8}}:}
+\DoxyCodeLine{00461\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertAndSetAttributeTypedValue<InputT,\ uint8\_t>(}
+\DoxyCodeLine{00462\ \ \ \ \ \ \ \ \ \ \ avi,\ input\_num\_components,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00463\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a5b1c87af6d0314bafedfcdbfaf9d8f1a}{DT\_INT16}}:}
+\DoxyCodeLine{00464\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertAndSetAttributeTypedValue<InputT,\ int16\_t>(}
+\DoxyCodeLine{00465\ \ \ \ \ \ \ \ \ \ \ avi,\ input\_num\_components,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00466\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a8fabfe65fdd90f383a6bd4736324ada4}{DT\_UINT16}}:}
+\DoxyCodeLine{00467\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertAndSetAttributeTypedValue<InputT,\ uint16\_t>(}
+\DoxyCodeLine{00468\ \ \ \ \ \ \ \ \ \ \ avi,\ input\_num\_components,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00469\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a15a38ced207e9eba0045fa4e7d3981b4}{DT\_INT32}}:}
+\DoxyCodeLine{00470\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertAndSetAttributeTypedValue<InputT,\ int32\_t>(}
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \ \ \ \ avi,\ input\_num\_components,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00472\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7abb2eda1558815c2bde1d54738d913f4b}{DT\_UINT32}}:}
+\DoxyCodeLine{00473\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertAndSetAttributeTypedValue<InputT,\ uint32\_t>(}
+\DoxyCodeLine{00474\ \ \ \ \ \ \ \ \ \ \ avi,\ input\_num\_components,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00475\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a2e17b908393e8bf2f3c810f0af00299f}{DT\_INT64}}:}
+\DoxyCodeLine{00476\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertAndSetAttributeTypedValue<InputT,\ int64\_t>(}
+\DoxyCodeLine{00477\ \ \ \ \ \ \ \ \ \ \ avi,\ input\_num\_components,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00478\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7abbbbf9ece95303be89e6d971dc3b3960}{DT\_UINT64}}:}
+\DoxyCodeLine{00479\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertAndSetAttributeTypedValue<InputT,\ uint64\_t>(}
+\DoxyCodeLine{00480\ \ \ \ \ \ \ \ \ \ \ avi,\ input\_num\_components,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00481\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7aba959f9580390badb73c518151e92baf}{DT\_FLOAT32}}:}
+\DoxyCodeLine{00482\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertAndSetAttributeTypedValue<InputT,\ float>(}
+\DoxyCodeLine{00483\ \ \ \ \ \ \ \ \ \ \ avi,\ input\_num\_components,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00484\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7aa2d1000f22dbf50f78111d8eef27b445}{DT\_FLOAT64}}:}
+\DoxyCodeLine{00485\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertAndSetAttributeTypedValue<InputT,\ double>(}
+\DoxyCodeLine{00486\ \ \ \ \ \ \ \ \ \ \ avi,\ input\_num\_components,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00487\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{namespacedraco_ac0f47841218aa05d1ca79af53f6848e7a4e0badeda279ae79da4c5c8b106cb077}{DT\_BOOL}}:}
+\DoxyCodeLine{00488\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ConvertAndSetAttributeTypedValue<InputT,\ bool>(}
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \ \ \ \ avi,\ input\_num\_components,\ \mbox{\hyperlink{pointer_8h_a32aff7c6c4cd253fdf6563677afab5ce}{value}});}
+\DoxyCodeLine{00490\ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00492\ \ \ \}}
+\DoxyCodeLine{00493\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_abb5e3a519ea336eac0cdebdc362ca8ad}{ErrorStatus}}(}
+\DoxyCodeLine{00494\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}GeometryAttribute::SetAndConvertAttributeValue:\ Unsupported\ "{}}}
+\DoxyCodeLine{00495\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}attribute\ type."{}});}
+\DoxyCodeLine{00496\ \}}
+\DoxyCodeLine{00497\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00498\ }
+\DoxyCodeLine{00499\ \textcolor{comment}{//\ Hashing\ support}}
+\DoxyCodeLine{00500\ }
+\DoxyCodeLine{00501\ \textcolor{comment}{//\ Function\ object\ for\ using\ Attribute\ as\ a\ hash\ key.}}
+\DoxyCodeLine{00502\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_geometry_attribute_hasher}{GeometryAttributeHasher}}\ \{}
+\DoxyCodeLine{00503\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structdraco_1_1_geometry_attribute_hasher_a6743d4f0a779d21a98162b301a6b29b8}{operator()}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute}{GeometryAttribute}}\ \&va)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00504\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(va.buffer\_descriptor\_.\mbox{\hyperlink{structdraco_1_1_data_buffer_descriptor_a7631e45a55acd104e2f15270d3aa0d4b}{buffer\_id}},}
+\DoxyCodeLine{00505\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ va.buffer\_descriptor\_.\mbox{\hyperlink{structdraco_1_1_data_buffer_descriptor_afc35163db262b360b563c1a8039e2f1e}{buffer\_update\_count}});}
+\DoxyCodeLine{00506\ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(va.num\_components\_,\ hash);}
+\DoxyCodeLine{00507\ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(\textcolor{keyword}{static\_cast<}int8\_t\textcolor{keyword}{>}(va.data\_type\_),\ hash);}
+\DoxyCodeLine{00508\ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(\textcolor{keyword}{static\_cast<}int8\_t\textcolor{keyword}{>}(va.attribute\_type\_),\ hash);}
+\DoxyCodeLine{00509\ \ \ \ \ hash\ =\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(va.byte\_stride\_,\ hash);}
+\DoxyCodeLine{00510\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_a96fe28770f9457d72d61459e389aa643}{HashCombine}}(va.byte\_offset\_,\ hash);}
+\DoxyCodeLine{00511\ \ \ \}}
+\DoxyCodeLine{00512\ \};}
+\DoxyCodeLine{00513\ }
+\DoxyCodeLine{00514\ \textcolor{comment}{//\ Function\ object\ for\ using\ GeometryAttribute::Type\ as\ a\ hash\ key.}}
+\DoxyCodeLine{00515\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_geometry_attribute_type_hasher}{GeometryAttributeTypeHasher}}\ \{}
+\DoxyCodeLine{00516\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structdraco_1_1_geometry_attribute_type_hasher_abc8e51dc0e48fa09ab8284d37a335863}{operator()}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800}{GeometryAttribute::Type}}\ \&at)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00517\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(at);}
+\DoxyCodeLine{00518\ \ \ \}}
+\DoxyCodeLine{00519\ \};}
+\DoxyCodeLine{00520\ }
+\DoxyCodeLine{00521\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00522\ }
+\DoxyCodeLine{00523\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_ATTRIBUTES\_GEOMETRY\_ATTRIBUTE\_H\_}}
+
+\end{DoxyCode}

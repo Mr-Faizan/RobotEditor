@@ -1,0 +1,315 @@
+\doxysection{corner\+\_\+table\+\_\+iterators.\+h}
+\hypertarget{corner__table__iterators_8h_source}{}\label{corner__table__iterators_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/mesh/corner\_table\_iterators.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/mesh/corner\_table\_iterators.h}}
+\mbox{\hyperlink{corner__table__iterators_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_MESH\_CORNER\_TABLE\_ITERATORS\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_MESH\_CORNER\_TABLE\_ITERATORS\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <iterator>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{corner__table_8h}{draco/mesh/corner\_table.h}}"{}}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{comment}{//\ Class\ for\ iterating\ over\ vertices\ in\ a\ 1-\/ring\ around\ the\ specified\ vertex.}}
+\DoxyCodeLine{00025\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ CornerTableT>}
+\DoxyCodeLine{00026\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_ae4d5aba328dd9523f59b8d4b8425e3a6}{VertexRingIterator}}\ \{}
+\DoxyCodeLine{00027\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00028\ \ \ \textcolor{comment}{//\ Iterator\ traits\ expected\ by\ std\ libraries.}}
+\DoxyCodeLine{00029\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_a8f6be20466e3e28afe14ea84d638dfb8}{iterator\_category}}\ =\ std::forward\_iterator\_tag;}
+\DoxyCodeLine{00030\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_aacd321f34ab0a7a587f4f0d0e63ec135}{value\_type}}\ =\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}};}
+\DoxyCodeLine{00031\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_aaf0eb59e8d2fbc11f61d100748aa1d64}{difference\_type}}\ =\ std::ptrdiff\_t;}
+\DoxyCodeLine{00032\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_a6a6e3f236e7a0868a70b99d7e823be85}{pointer}}\ =\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ *;}
+\DoxyCodeLine{00033\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_a5a038a2c179d259bd67f9a9c164874f0}{reference}}\ =\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ \&;}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \textcolor{comment}{//\ std::iterator\ interface\ requires\ a\ default\ constructor.}}
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_ae4d5aba328dd9523f59b8d4b8425e3a6}{VertexRingIterator}}()}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ :\ corner\_table\_(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ start\_corner\_(kInvalidCornerIndex),}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ corner\_(start\_corner\_),}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ left\_traversal\_(true)\ \{\}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ Create\ the\ iterator\ from\ the\ provided\ corner\ table\ and\ the\ central\ vertex.}}
+\DoxyCodeLine{00043\ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_aef23014a42c9b8030978604ef286fc3a}{VertexRingIterator}}(\textcolor{keyword}{const}\ CornerTableT\ *table,\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ vert\_id)}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ :\ corner\_table\_(table),}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ start\_corner\_(table-\/>LeftMostCorner(vert\_id)),}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ corner\_(start\_corner\_),}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ left\_traversal\_(true)\ \{\}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//\ Gets\ the\ last\ visited\ ring\ vertex.}}
+\DoxyCodeLine{00050\ \ \ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_aaaa875839a04eb6eaa10303cb26a9ddc}{Vertex}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00051\ \ \ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ ring\_corner\ =\ left\_traversal\_\ ?\ corner\_table\_-\/>Previous(corner\_)}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ corner\_table\_-\/>Next(corner\_);}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordflow}{return}\ corner\_table\_-\/>Vertex(ring\_corner);}
+\DoxyCodeLine{00054\ \ \ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \textcolor{comment}{//\ Returns\ one\ of\ the\ corners\ opposite\ to\ the\ edge\ connecting\ the\ currently}}
+\DoxyCodeLine{00057\ \ \ \textcolor{comment}{//\ iterated\ ring\ vertex\ with\ the\ central\ vertex.}}
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_afa6c33fd11bf96c39e37f610140c6b07}{EdgeCorner}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordflow}{return}\ left\_traversal\_\ ?\ corner\_table\_-\/>Next(corner\_)}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ corner\_table\_-\/>Previous(corner\_);}
+\DoxyCodeLine{00061\ \ \ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//\ Returns\ true\ when\ all\ ring\ vertices\ have\ been\ visited.}}
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_acf85cd293c138e074da7a1fc82a72988}{End}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ corner\_\ ==\ kInvalidCornerIndex;\ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ Proceeds\ to\ the\ next\ ring\ vertex\ if\ possible.}}
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_a71c44f986ae8c4a3f189069050e8464d}{Next}}()\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{if}\ (left\_traversal\_)\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ corner\_\ =\ corner\_table\_-\/>SwingLeft(corner\_);}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Open\ boundary\ reached.}}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ corner\_\ =\ start\_corner\_;}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ left\_traversal\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (corner\_\ ==\ start\_corner\_)\ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ End\ reached.}}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ corner\_\ =\ kInvalidCornerIndex;}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00078\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \textcolor{comment}{//\ Go\ to\ the\ right\ until\ we\ reach\ a\ boundary\ there\ (no\ explicit\ check}}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \textcolor{comment}{//\ is\ needed\ in\ this\ case).}}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ corner\_\ =\ corner\_table\_-\/>SwingRight(corner\_);}
+\DoxyCodeLine{00082\ \ \ \ \ \}}
+\DoxyCodeLine{00083\ \ \ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \textcolor{comment}{//\ std::iterator\ interface.}}
+\DoxyCodeLine{00086\ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_aacd321f34ab0a7a587f4f0d0e63ec135}{value\_type}}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_a3a427168674fc870b2fbd46ec6c9a593}{operator*}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_aaaa875839a04eb6eaa10303cb26a9ddc}{Vertex}}();\ \}}
+\DoxyCodeLine{00087\ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_ae4d5aba328dd9523f59b8d4b8425e3a6}{VertexRingIterator}}\ \&\mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_a070dbd3dede4a9308f8944ceb208b872}{operator++}}()\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_a71c44f986ae8c4a3f189069050e8464d}{Next}}();}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00090\ \ \ \}}
+\DoxyCodeLine{00091\ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_ae4d5aba328dd9523f59b8d4b8425e3a6}{VertexRingIterator}}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_ae89dc857c5f036f289e4dff91b17bddd}{operator++}}(\textcolor{keywordtype}{int})\ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_ae4d5aba328dd9523f59b8d4b8425e3a6}{VertexRingIterator}}\ result\ =\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00093\ \ \ \ \ ++(*this);}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{00095\ \ \ \}}
+\DoxyCodeLine{00096\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_a16ca989448f2c4dbf72d4e8c8ebe026d}{operator!=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_ae4d5aba328dd9523f59b8d4b8425e3a6}{VertexRingIterator}}\ \&other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordflow}{return}\ corner\_\ !=\ other.corner\_\ ||\ start\_corner\_\ !=\ other.start\_corner\_;}
+\DoxyCodeLine{00098\ \ \ \}}
+\DoxyCodeLine{00099\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_a57224d27fe620de7eb296864909952b4}{operator==}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_ae4d5aba328dd9523f59b8d4b8425e3a6}{VertexRingIterator}}\ \&other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordflow}{return}\ !this-\/>\mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_a16ca989448f2c4dbf72d4e8c8ebe026d}{operator!=}}(other);}
+\DoxyCodeLine{00101\ \ \ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \textcolor{comment}{//\ Helper\ function\ for\ getting\ a\ valid\ end\ iterator.}}
+\DoxyCodeLine{00104\ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_ae4d5aba328dd9523f59b8d4b8425e3a6}{VertexRingIterator}}\ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_acda2134c65effde386c8217af13f0a19}{EndIterator}}(\mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_ae4d5aba328dd9523f59b8d4b8425e3a6}{VertexRingIterator}}\ other)\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_ring_iterator_ae4d5aba328dd9523f59b8d4b8425e3a6}{VertexRingIterator}}\ ret\ =\ other;}
+\DoxyCodeLine{00106\ \ \ \ \ ret.corner\_\ =\ kInvalidCornerIndex;}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00108\ \ \ \}}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00111\ \ \ \textcolor{keyword}{const}\ CornerTableT\ *corner\_table\_;}
+\DoxyCodeLine{00112\ \ \ \textcolor{comment}{//\ The\ first\ processed\ corner.}}
+\DoxyCodeLine{00113\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ start\_corner\_;}
+\DoxyCodeLine{00114\ \ \ \textcolor{comment}{//\ The\ last\ processed\ corner.}}
+\DoxyCodeLine{00115\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_;}
+\DoxyCodeLine{00116\ \ \ \textcolor{comment}{//\ Traversal\ direction.}}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordtype}{bool}\ left\_traversal\_;}
+\DoxyCodeLine{00118\ \};}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \textcolor{comment}{//\ Class\ for\ iterating\ over\ faces\ adjacent\ to\ the\ specified\ input\ face.}}
+\DoxyCodeLine{00121\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ CornerTableT>}
+\DoxyCodeLine{00122\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a81813e7001d4ec29f179b32a3e1ee3df}{FaceAdjacencyIterator}}\ \{}
+\DoxyCodeLine{00123\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00124\ \ \ \textcolor{comment}{//\ Iterator\ traits\ expected\ by\ std\ libraries.}}
+\DoxyCodeLine{00125\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a7f1b99d35c95c883bbdf73f0defea664}{iterator\_category}}\ =\ std::forward\_iterator\_tag;}
+\DoxyCodeLine{00126\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a731c6589a0cffeeae58c45b0df4bbe08}{value\_type}}\ =\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}};}
+\DoxyCodeLine{00127\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a6624e06008371ac5bc8de6435625ba14}{difference\_type}}\ =\ std::ptrdiff\_t;}
+\DoxyCodeLine{00128\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_aaade3c84a30b17e2e2856a99d9987f79}{pointer}}\ =\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ *;}
+\DoxyCodeLine{00129\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a8b13f270c04ec13f6d16e6068f0f6420}{reference}}\ =\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ \&;}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \textcolor{comment}{//\ std::iterator\ interface\ requires\ a\ default\ constructor.}}
+\DoxyCodeLine{00132\ \ \ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a81813e7001d4ec29f179b32a3e1ee3df}{FaceAdjacencyIterator}}()}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ :\ corner\_table\_(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ start\_corner\_(kInvalidCornerIndex),}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ corner\_(start\_corner\_)\ \{\}}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \ \ \textcolor{comment}{//\ Create\ the\ iterator\ from\ the\ provided\ corner\ table\ and\ the\ central\ vertex.}}
+\DoxyCodeLine{00138\ \ \ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_aff70e034708596e1e1073b1d5f7c5394}{FaceAdjacencyIterator}}(\textcolor{keyword}{const}\ CornerTableT\ *table,\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ face\_id)}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ :\ corner\_table\_(table),}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ start\_corner\_(table-\/>FirstCorner(face\_id)),}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ corner\_(start\_corner\_)\ \{}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{comment}{//\ We\ need\ to\ start\ with\ a\ corner\ that\ has\ a\ valid\ opposite\ face\ (if}}
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{comment}{//\ there\ is\ any\ such\ corner).}}
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_table\_-\/>Opposite(corner\_)\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ FindNextFaceNeighbor();}
+\DoxyCodeLine{00146\ \ \ \ \ \}}
+\DoxyCodeLine{00147\ \ \ \}}
+\DoxyCodeLine{00148\ }
+\DoxyCodeLine{00149\ \ \ \textcolor{comment}{//\ Gets\ the\ last\ visited\ adjacent\ face.}}
+\DoxyCodeLine{00150\ \ \ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a42c69f65b5a9f034ef5c243071bd2a50}{Face}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{keywordflow}{return}\ corner\_table\_-\/>Face(corner\_table\_-\/>Opposite(corner\_));}
+\DoxyCodeLine{00152\ \ \ \}}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ \textcolor{comment}{//\ Returns\ true\ when\ all\ adjacent\ faces\ have\ been\ visited.}}
+\DoxyCodeLine{00155\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_aa617e0a0b12928aba70034ee53ef66c7}{End}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ corner\_\ ==\ kInvalidCornerIndex;\ \}}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \ \ \textcolor{comment}{//\ Proceeds\ to\ the\ next\ adjacent\ face\ if\ possible.}}
+\DoxyCodeLine{00158\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_abf8e5476df070045e1e7427178d87d7b}{Next}}()\ \{\ FindNextFaceNeighbor();\ \}}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \ \ \textcolor{comment}{//\ std::iterator\ interface.}}
+\DoxyCodeLine{00161\ \ \ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a731c6589a0cffeeae58c45b0df4bbe08}{value\_type}}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a38eb9f9d46edcccb30a6c79ca0b479c8}{operator*}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a42c69f65b5a9f034ef5c243071bd2a50}{Face}}();\ \}}
+\DoxyCodeLine{00162\ \ \ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a81813e7001d4ec29f179b32a3e1ee3df}{FaceAdjacencyIterator}}\ \&\mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a4b021c75425adcefc5a1a640475379d3}{operator++}}()\ \{}
+\DoxyCodeLine{00163\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_abf8e5476df070045e1e7427178d87d7b}{Next}}();}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00165\ \ \ \}}
+\DoxyCodeLine{00166\ \ \ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a81813e7001d4ec29f179b32a3e1ee3df}{FaceAdjacencyIterator}}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_acad684bf59a4627d19bec619c341e9e8}{operator++}}(\textcolor{keywordtype}{int})\ \{}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a81813e7001d4ec29f179b32a3e1ee3df}{FaceAdjacencyIterator}}\ result\ =\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00168\ \ \ \ \ ++(*this);}
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{00170\ \ \ \}}
+\DoxyCodeLine{00171\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_abafc8fed3774a6ddc7e15533e3cd88c5}{operator!=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a81813e7001d4ec29f179b32a3e1ee3df}{FaceAdjacencyIterator}}\ \&other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{keywordflow}{return}\ corner\_\ !=\ other.corner\_\ ||\ start\_corner\_\ !=\ other.start\_corner\_;}
+\DoxyCodeLine{00173\ \ \ \}}
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a460ac0c673e00610157fda843a01be7d}{operator==}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a81813e7001d4ec29f179b32a3e1ee3df}{FaceAdjacencyIterator}}\ \&other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{keywordflow}{return}\ !this-\/>\mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_abafc8fed3774a6ddc7e15533e3cd88c5}{operator!=}}(other);}
+\DoxyCodeLine{00176\ \ \ \}}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \ \ \textcolor{comment}{//\ Helper\ function\ for\ getting\ a\ valid\ end\ iterator.}}
+\DoxyCodeLine{00179\ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a81813e7001d4ec29f179b32a3e1ee3df}{FaceAdjacencyIterator}}\ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a22e741e04b1043c30068db6a038be4e6}{EndIterator}}(\mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a81813e7001d4ec29f179b32a3e1ee3df}{FaceAdjacencyIterator}}\ other)\ \{}
+\DoxyCodeLine{00180\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_face_adjacency_iterator_a81813e7001d4ec29f179b32a3e1ee3df}{FaceAdjacencyIterator}}\ ret\ =\ other;}
+\DoxyCodeLine{00181\ \ \ \ \ ret.corner\_\ =\ kInvalidCornerIndex;}
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00183\ \ \ \}}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00186\ \ \ \textcolor{comment}{//\ Finds\ the\ next\ corner\ with\ a\ valid\ opposite\ face.}}
+\DoxyCodeLine{00187\ \ \ \textcolor{keywordtype}{void}\ FindNextFaceNeighbor()\ \{}
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{keywordflow}{while}\ (corner\_\ !=\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ corner\_\ =\ corner\_table\_-\/>Next(corner\_);}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_\ ==\ start\_corner\_)\ \{}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ corner\_\ =\ kInvalidCornerIndex;}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_table\_-\/>Opposite(corner\_)\ !=\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Valid\ opposite\ face.}}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00198\ \ \ \ \ \}}
+\DoxyCodeLine{00199\ \ \ \}}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \textcolor{keyword}{const}\ CornerTableT\ *corner\_table\_;}
+\DoxyCodeLine{00202\ \ \ \textcolor{comment}{//\ The\ first\ processed\ corner.}}
+\DoxyCodeLine{00203\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ start\_corner\_;}
+\DoxyCodeLine{00204\ \ \ \textcolor{comment}{//\ The\ last\ processed\ corner.}}
+\DoxyCodeLine{00205\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_;}
+\DoxyCodeLine{00206\ \};}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00208\ \textcolor{comment}{//\ Class\ for\ iterating\ over\ corners\ attached\ to\ a\ specified\ vertex.}}
+\DoxyCodeLine{00209\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ CornerTableT\ =\ CornerTable>}
+\DoxyCodeLine{00210\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a25a37cd3bcdd932ba9700f9a7a635e66}{VertexCornersIterator}}\ \{}
+\DoxyCodeLine{00211\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00212\ \ \ \textcolor{comment}{//\ Iterator\ traits\ expected\ by\ std\ libraries.}}
+\DoxyCodeLine{00213\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a597314884a0f18589eef0d2cfb4949b5}{iterator\_category}}\ =\ std::forward\_iterator\_tag;}
+\DoxyCodeLine{00214\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_ae019547f6a8eafe41daa3a6767660815}{value\_type}}\ =\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}};}
+\DoxyCodeLine{00215\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_abc6038ebf7faec42abba3be7c629b05d}{difference\_type}}\ =\ std::ptrdiff\_t;}
+\DoxyCodeLine{00216\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_afab703f24ba49e43da47fe0edcc72aff}{pointer}}\ =\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ *;}
+\DoxyCodeLine{00217\ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_ab28c4929ba7214af66d36947cae2a8ec}{reference}}\ =\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \&;}
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00219\ \ \ \textcolor{comment}{//\ std::iterator\ interface\ requires\ a\ default\ constructor.}}
+\DoxyCodeLine{00220\ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a25a37cd3bcdd932ba9700f9a7a635e66}{VertexCornersIterator}}()}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ :\ corner\_table\_(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ start\_corner\_(-\/1),}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ corner\_(start\_corner\_),}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ left\_traversal\_(true)\ \{\}}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \ \ \textcolor{comment}{//\ Create\ the\ iterator\ from\ the\ provided\ corner\ table\ and\ the\ central\ vertex.}}
+\DoxyCodeLine{00227\ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a84f2ca149bab8bf613cfd437cd531599}{VertexCornersIterator}}(\textcolor{keyword}{const}\ CornerTableT\ *table,\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ vert\_id)}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ :\ corner\_table\_(table),}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ start\_corner\_(table-\/>LeftMostCorner(vert\_id)),}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ corner\_(start\_corner\_),}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \ \ left\_traversal\_(true)\ \{\}}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ \textcolor{comment}{//\ Create\ the\ iterator\ from\ the\ provided\ corner\ table\ and\ the\ first\ corner.}}
+\DoxyCodeLine{00234\ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a2a9ead77bf55d79faa118796c3d1c1c9}{VertexCornersIterator}}(\textcolor{keyword}{const}\ CornerTableT\ *table,\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_id)}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ :\ corner\_table\_(table),}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \ \ start\_corner\_(corner\_id),}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ corner\_(start\_corner\_),}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \ \ left\_traversal\_(true)\ \{\}}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00240\ \ \ \textcolor{comment}{//\ Gets\ the\ last\ visited\ corner.}}
+\DoxyCodeLine{00241\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a8c70c7b610796d5a8f153bedc562ae26}{Corner}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ corner\_;\ \}}
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00243\ \ \ \textcolor{comment}{//\ Returns\ true\ when\ all\ ring\ vertices\ have\ been\ visited.}}
+\DoxyCodeLine{00244\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a1995f1b4707da8da138e06981d709c81}{End}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ corner\_\ ==\ kInvalidCornerIndex;\ \}}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00246\ \ \ \textcolor{comment}{//\ Proceeds\ to\ the\ next\ corner\ if\ possible.}}
+\DoxyCodeLine{00247\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_af39526abdad601a9b7d820f36558acb4}{Next}}()\ \{}
+\DoxyCodeLine{00248\ \ \ \ \ \textcolor{keywordflow}{if}\ (left\_traversal\_)\ \{}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ corner\_\ =\ corner\_table\_-\/>SwingLeft(corner\_);}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Open\ boundary\ reached.}}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ corner\_\ =\ corner\_table\_-\/>SwingRight(start\_corner\_);}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ left\_traversal\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (corner\_\ ==\ start\_corner\_)\ \{}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ End\ reached.}}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \ \ corner\_\ =\ kInvalidCornerIndex;}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00258\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \textcolor{comment}{//\ Go\ to\ the\ right\ until\ we\ reach\ a\ boundary\ there\ (no\ explicit\ check}}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \textcolor{comment}{//\ is\ needed\ in\ this\ case).}}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ corner\_\ =\ corner\_table\_-\/>SwingRight(corner\_);}
+\DoxyCodeLine{00262\ \ \ \ \ \}}
+\DoxyCodeLine{00263\ \ \ \}}
+\DoxyCodeLine{00264\ }
+\DoxyCodeLine{00265\ \ \ \textcolor{comment}{//\ std::iterator\ interface.}}
+\DoxyCodeLine{00266\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_abcfeae63901a2a4bde5ac35e974b5749}{operator*}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a8c70c7b610796d5a8f153bedc562ae26}{Corner}}();\ \}}
+\DoxyCodeLine{00267\ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a25a37cd3bcdd932ba9700f9a7a635e66}{VertexCornersIterator}}\ \&\mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a25c190eaa0667c7efc298e619b937c10}{operator++}}()\ \{}
+\DoxyCodeLine{00268\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_af39526abdad601a9b7d820f36558acb4}{Next}}();}
+\DoxyCodeLine{00269\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00270\ \ \ \}}
+\DoxyCodeLine{00271\ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a25a37cd3bcdd932ba9700f9a7a635e66}{VertexCornersIterator}}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_ab7b973f70697aadd946f1a1a9e5af5cb}{operator++}}(\textcolor{keywordtype}{int})\ \{}
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a25a37cd3bcdd932ba9700f9a7a635e66}{VertexCornersIterator}}\ result\ =\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00273\ \ \ \ \ ++(*this);}
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{00275\ \ \ \}}
+\DoxyCodeLine{00276\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_abb24264b0207b714606963abfef36922}{operator!=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a25a37cd3bcdd932ba9700f9a7a635e66}{VertexCornersIterator}}\ \&other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00277\ \ \ \ \ \textcolor{keywordflow}{return}\ corner\_\ !=\ other.corner\_\ ||\ start\_corner\_\ !=\ other.start\_corner\_;}
+\DoxyCodeLine{00278\ \ \ \}}
+\DoxyCodeLine{00279\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a1a20ed2138bd6238c03611e1f04a592a}{operator==}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a25a37cd3bcdd932ba9700f9a7a635e66}{VertexCornersIterator}}\ \&other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00280\ \ \ \ \ \textcolor{keywordflow}{return}\ !this-\/>\mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_abb24264b0207b714606963abfef36922}{operator!=}}(other);}
+\DoxyCodeLine{00281\ \ \ \}}
+\DoxyCodeLine{00282\ }
+\DoxyCodeLine{00283\ \ \ \textcolor{comment}{//\ Helper\ function\ for\ getting\ a\ valid\ end\ iterator.}}
+\DoxyCodeLine{00284\ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a25a37cd3bcdd932ba9700f9a7a635e66}{VertexCornersIterator}}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_af2794342545b76e7fc7b976d5f23bd92}{EndIterator}}(\mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a25a37cd3bcdd932ba9700f9a7a635e66}{VertexCornersIterator}}\ other)\ \{}
+\DoxyCodeLine{00285\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a25a37cd3bcdd932ba9700f9a7a635e66}{VertexCornersIterator}}\ ret\ =\ other;}
+\DoxyCodeLine{00286\ \ \ \ \ ret.corner\_\ =\ kInvalidCornerIndex;}
+\DoxyCodeLine{00287\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00288\ \ \ \}}
+\DoxyCodeLine{00289\ }
+\DoxyCodeLine{00290\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00291\ \ \ \textcolor{keyword}{const}\ CornerTableT\ *\mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_aea6cbc909e82407db8e2ec4ce3c7f640}{corner\_table}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ corner\_table\_;\ \}}
+\DoxyCodeLine{00292\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a6955a453453e0cee866e63c4a41609a6}{start\_corner}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ start\_corner\_;\ \}}
+\DoxyCodeLine{00293\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \&\mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a76744aefdf40b97053585c01d881fa89}{corner}}()\ \{\ \textcolor{keywordflow}{return}\ corner\_;\ \}}
+\DoxyCodeLine{00294\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_a51b61fdeeb6ad3fbbbd5a8c301574bbf}{is\_left\_traversal}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ left\_traversal\_;\ \}}
+\DoxyCodeLine{00295\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_vertex_corners_iterator_aaafc829c52e5319052487e28d7478418}{swap\_traversal}}()\ \{\ left\_traversal\_\ =\ !left\_traversal\_;\ \}}
+\DoxyCodeLine{00296\ }
+\DoxyCodeLine{00297\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00298\ \ \ \textcolor{keyword}{const}\ CornerTableT\ *corner\_table\_;}
+\DoxyCodeLine{00299\ \ \ \textcolor{comment}{//\ The\ first\ processed\ corner.}}
+\DoxyCodeLine{00300\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ start\_corner\_;}
+\DoxyCodeLine{00301\ \ \ \textcolor{comment}{//\ The\ last\ processed\ corner.}}
+\DoxyCodeLine{00302\ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_;}
+\DoxyCodeLine{00303\ \ \ \textcolor{comment}{//\ Traversal\ direction.}}
+\DoxyCodeLine{00304\ \ \ \textcolor{keywordtype}{bool}\ left\_traversal\_;}
+\DoxyCodeLine{00305\ \};}
+\DoxyCodeLine{00306\ }
+\DoxyCodeLine{00307\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_MESH\_CORNER\_TABLE\_ITERATORS\_H\_}}
+
+\end{DoxyCode}

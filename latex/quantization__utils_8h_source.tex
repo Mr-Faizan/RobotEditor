@@ -1,0 +1,88 @@
+\doxysection{quantization\+\_\+utils.\+h}
+\hypertarget{quantization__utils_8h_source}{}\label{quantization__utils_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/core/quantization\_utils.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/core/quantization\_utils.h}}
+\mbox{\hyperlink{quantization__utils_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ A\ set\ of\ classes\ for\ quantizing\ and\ dequantizing\ of\ floating\ point\ values}}
+\DoxyCodeLine{00016\ \textcolor{comment}{//\ into\ integers.}}
+\DoxyCodeLine{00017\ \textcolor{comment}{//\ The\ quantization\ works\ on\ all\ floating\ point\ numbers\ within\ (-\/range,\ +range)}}
+\DoxyCodeLine{00018\ \textcolor{comment}{//\ interval\ producing\ integers\ in\ range}}
+\DoxyCodeLine{00019\ \textcolor{comment}{//\ (-\/max\_quantized\_value,\ +max\_quantized\_value).}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#ifndef\ DRACO\_CORE\_QUANTIZATION\_UTILS\_H\_}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#define\ DRACO\_CORE\_QUANTIZATION\_UTILS\_H\_}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{stdint_8h}{stdint.h}}>}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ Class\ for\ quantizing\ single\ precision\ floating\ point\ values.\ The\ values}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ should\ be\ centered\ around\ zero\ and\ be\ within\ interval\ (-\/range,\ +range),\ where}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ the\ range\ is\ specified\ in\ the\ Init()\ method.\ Alternatively,\ the\ quantization}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ can\ be\ defined\ by\ |delta|\ that\ specifies\ the\ distance\ between\ two\ quantized}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ values.\ Note\ that\ the\ quantizer\ always\ snaps\ the\ values\ to\ the\ nearest}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ integer\ value.\ E.g.\ for\ |delta|\ ==\ 1.f,\ values\ -\/0.4f\ and\ 0.4f\ would\ be}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ both\ quantized\ to\ 0\ while\ value\ 0.6f\ would\ be\ quantized\ to\ 1.\ If\ a\ value}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ lies\ exactly\ between\ two\ quantized\ states,\ it\ is\ always\ rounded\ up.\ E.g.,}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ for\ |delta|\ ==\ 1.f,\ value\ -\/0.5f\ would\ be\ quantized\ to\ 0\ while\ 0.5f\ would\ be}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ quantized\ to\ 1.}}
+\DoxyCodeLine{00042\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_quantizer_adeece0c2ed72e861843855203c4e2249}{Quantizer}}\ \{}
+\DoxyCodeLine{00043\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00044\ \ \ \mbox{\hyperlink{classdraco_1_1_quantizer_adeece0c2ed72e861843855203c4e2249}{Quantizer}}();}
+\DoxyCodeLine{00045\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_quantizer_a7f5b0ff4c6a603125300eb18e3a5067c}{Init}}(\textcolor{keywordtype}{float}\ range,\ int32\_t\ max\_quantized\_value);}
+\DoxyCodeLine{00046\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_quantizer_a7f5b0ff4c6a603125300eb18e3a5067c}{Init}}(\textcolor{keywordtype}{float}\ delta);}
+\DoxyCodeLine{00047\ \ \ \textcolor{keyword}{inline}\ int32\_t\ \mbox{\hyperlink{classdraco_1_1_quantizer_ae13098a27ac510e93e587fe22fbb2d87}{QuantizeFloat}}(\textcolor{keywordtype}{float}\ val)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00048\ \ \ \ \ val\ *=\ inverse\_delta\_;}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}int32\_t\textcolor{keyword}{>}(floor(val\ +\ 0.5f));}
+\DoxyCodeLine{00050\ \ \ \}}
+\DoxyCodeLine{00051\ \ \ \textcolor{keyword}{inline}\ int32\_t\ \mbox{\hyperlink{classdraco_1_1_quantizer_ad3b9d8a0ea5bc642399bae32eac50d80}{operator()}}(\textcolor{keywordtype}{float}\ val)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_quantizer_ae13098a27ac510e93e587fe22fbb2d87}{QuantizeFloat}}(val);\ \}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordtype}{float}\ inverse\_delta\_;}
+\DoxyCodeLine{00055\ \};}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{comment}{//\ Class\ for\ dequantizing\ values\ that\ were\ previously\ quantized\ using\ the}}
+\DoxyCodeLine{00058\ \textcolor{comment}{//\ Quantizer\ class.}}
+\DoxyCodeLine{00059\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_dequantizer_a25afa239e3b1b022f27b5404be5ceaa9}{Dequantizer}}\ \{}
+\DoxyCodeLine{00060\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00061\ \ \ \mbox{\hyperlink{classdraco_1_1_dequantizer_a25afa239e3b1b022f27b5404be5ceaa9}{Dequantizer}}();}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//\ Initializes\ the\ dequantizer.\ Both\ parameters\ must\ correspond\ to\ the\ values}}
+\DoxyCodeLine{00064\ \ \ \textcolor{comment}{//\ provided\ to\ the\ initializer\ of\ the\ Quantizer\ class.}}
+\DoxyCodeLine{00065\ \ \ \textcolor{comment}{//\ Returns\ false\ when\ the\ initialization\ fails.}}
+\DoxyCodeLine{00066\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_dequantizer_abb7be4c63670b7bbc09f479b39c2aded}{Init}}(\textcolor{keywordtype}{float}\ range,\ int32\_t\ max\_quantized\_value);}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \textcolor{comment}{//\ Initializes\ the\ dequantizer\ using\ the\ |delta|\ between\ two\ quantized\ values.}}
+\DoxyCodeLine{00069\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_dequantizer_abb7be4c63670b7bbc09f479b39c2aded}{Init}}(\textcolor{keywordtype}{float}\ delta);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{classdraco_1_1_dequantizer_a4aadaf40692ba41f9fbf1e68e1a1e32e}{DequantizeFloat}}(int32\_t\ val)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{float}\textcolor{keyword}{>}(val)\ *\ delta\_;}
+\DoxyCodeLine{00073\ \ \ \}}
+\DoxyCodeLine{00074\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{classdraco_1_1_dequantizer_a7073ed86847ed918949acdad8ec00fc4}{operator()}}(int32\_t\ val)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_dequantizer_a4aadaf40692ba41f9fbf1e68e1a1e32e}{DequantizeFloat}}(val);\ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00077\ \ \ \textcolor{keywordtype}{float}\ delta\_;}
+\DoxyCodeLine{00078\ \};}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_CORE\_QUANTIZATION\_UTILS\_H\_}}
+
+\end{DoxyCode}

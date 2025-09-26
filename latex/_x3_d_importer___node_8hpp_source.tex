@@ -1,0 +1,372 @@
+\doxysection{X3\+DImporter\+\_\+\+Node.\+hpp}
+\hypertarget{_x3_d_importer___node_8hpp_source}{}\label{_x3_d_importer___node_8hpp_source}\index{RobotLib/libraries/assimp/code/AssetLib/X3D/X3DImporter\_Node.hpp@{RobotLib/libraries/assimp/code/AssetLib/X3D/X3DImporter\_Node.hpp}}
+\mbox{\hyperlink{_x3_d_importer___node_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2019,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{}}
+\DoxyCodeLine{00008\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00012\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00015\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00016\ \textcolor{comment}{following\ disclaimer.}}
+\DoxyCodeLine{00017\ \textcolor{comment}{}}
+\DoxyCodeLine{00018\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00019\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00020\ \textcolor{comment}{following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00021\ \textcolor{comment}{materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{}}
+\DoxyCodeLine{00023\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00024\ \textcolor{comment}{contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00025\ \textcolor{comment}{derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00026\ \textcolor{comment}{written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00027\ \textcolor{comment}{}}
+\DoxyCodeLine{00028\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00029\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00030\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00031\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00032\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00033\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00034\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00035\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00036\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00037\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00038\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00039\ \textcolor{comment}{}}
+\DoxyCodeLine{00040\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00041\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#ifndef\ INCLUDED\_AI\_X3D\_IMPORTER\_NODE\_H}}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#define\ INCLUDED\_AI\_X3D\_IMPORTER\_NODE\_H}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{comment}{//\ Header\ files,\ Assimp.}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#include\ <assimp/types.h>}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#include\ <list>}}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ \{}
+\DoxyCodeLine{00057\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a71fc9f8a2b908818e3cfecf0e16cab94}{ENET\_Group}},\ }
+\DoxyCodeLine{00058\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a4870b3483505649fc1b94dc17b65f1e7}{ENET\_MetaBoolean}},\ }
+\DoxyCodeLine{00059\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a1486f2e17ee55a9cecbfd9f2e4c460bb}{ENET\_MetaDouble}},\ }
+\DoxyCodeLine{00060\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a42e8fdf449446116b0073dc4c8012d1c}{ENET\_MetaFloat}},\ }
+\DoxyCodeLine{00061\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a6323cb7aec9721a616d9b4801be2dda3}{ENET\_MetaInteger}},\ }
+\DoxyCodeLine{00062\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a242336323341c525ee0abf040e0d8cef}{ENET\_MetaSet}},\ }
+\DoxyCodeLine{00063\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a986692270d5fc6931270376d01152981}{ENET\_MetaString}},\ }
+\DoxyCodeLine{00064\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a18aebeff3de4dfee65d14bef5cf486c7}{ENET\_Arc2D}},\ }
+\DoxyCodeLine{00065\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a1b41019c40432d45948d164cc5b71f18}{ENET\_ArcClose2D}},\ }
+\DoxyCodeLine{00066\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613ac0540cf5f50f68ac54064c1cee4ee315}{ENET\_Circle2D}},\ }
+\DoxyCodeLine{00067\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613acf23a251f57c2c5acc130cee40699d04}{ENET\_Disk2D}},\ }
+\DoxyCodeLine{00068\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613aa567474e055b7c3a9d705bd1ce9f6791}{ENET\_Polyline2D}},\ }
+\DoxyCodeLine{00069\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613adfecf080cf293d8d5f5db967a9cc2925}{ENET\_Polypoint2D}},\ }
+\DoxyCodeLine{00070\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a2165fdffdf7d9167c84cff3f2c08f15c}{ENET\_Rectangle2D}},\ }
+\DoxyCodeLine{00071\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613ad007d419e5a71ce2f9e956e65a91cf8d}{ENET\_TriangleSet2D}},\ }
+\DoxyCodeLine{00072\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613ad89fbc914e36f8eca27ff7ab371d1cf8}{ENET\_Box}},\ }
+\DoxyCodeLine{00073\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a49cf0727a9b1c64a2f430da70d0a9812}{ENET\_Cone}},\ }
+\DoxyCodeLine{00074\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a4afcca19a75ff10bdfe1503f37ba50e7}{ENET\_Cylinder}},\ }
+\DoxyCodeLine{00075\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a1939172c2b1776938d39758a722ac96f}{ENET\_Sphere}},\ }
+\DoxyCodeLine{00076\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a7ccd88a42268ff606b417337973a8b89}{ENET\_ElevationGrid}},\ }
+\DoxyCodeLine{00077\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a4cfe267cd73c9a356cfcf9930cf1676e}{ENET\_Extrusion}},\ }
+\DoxyCodeLine{00078\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613ab0e1ff1d38cee96dd47f1f111b2bca83}{ENET\_Coordinate}},\ }
+\DoxyCodeLine{00079\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613adf35db969666bf0c80c2b14125e8cf17}{ENET\_Normal}},\ }
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a49a316b0fee5e0d0f5b59610890bc8fb}{ENET\_TextureCoordinate}},\ }
+\DoxyCodeLine{00081\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613ab35d26c6882cedf8ff352628c68e1f26}{ENET\_IndexedFaceSet}},\ }
+\DoxyCodeLine{00082\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613ad9e12e8b0e386707e4f88555efba57a4}{ENET\_IndexedLineSet}},\ }
+\DoxyCodeLine{00083\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a02db5202260e9227a9396ff7874cedec}{ENET\_IndexedTriangleSet}},\ }
+\DoxyCodeLine{00084\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a71499e673f8e9a700b7afc7ffea2f934}{ENET\_IndexedTriangleFanSet}},\ }
+\DoxyCodeLine{00085\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613aa7fc9243f13d2898440bf19d741ea265}{ENET\_IndexedTriangleStripSet}},\ }
+\DoxyCodeLine{00086\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a57a1b2ea476be1eccc5bb1e3a8dbb11f}{ENET\_LineSet}},\ }
+\DoxyCodeLine{00087\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a95ec11f25186acde1ed257a53163a801}{ENET\_PointSet}},\ }
+\DoxyCodeLine{00088\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a64a4057f6bcc008e52128727ebf8335e}{ENET\_TriangleSet}},\ }
+\DoxyCodeLine{00089\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a17a4c523635e8fe3236221be12289c7f}{ENET\_TriangleFanSet}},\ }
+\DoxyCodeLine{00090\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613afc993cfd4961a0c62a21416a391f06c5}{ENET\_TriangleStripSet}},\ }
+\DoxyCodeLine{00091\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a8ac0c6d4bbbd0918762000ab27cf57ee}{ENET\_Color}},\ }
+\DoxyCodeLine{00092\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a66d6beba2d1c22b75e7c0f5c99c73318}{ENET\_ColorRGBA}},\ }
+\DoxyCodeLine{00093\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613aadd86b4463b2859a6969475f61d0bda7}{ENET\_Shape}},\ }
+\DoxyCodeLine{00094\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613aa830c9ad3f60a001df0e8732730041f5}{ENET\_Appearance}},\ }
+\DoxyCodeLine{00095\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613afa99dba49c26950e269ba165b79aa006}{ENET\_Material}},\ }
+\DoxyCodeLine{00096\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a2d87646b123f4ab23a219c282c8dc89d}{ENET\_ImageTexture}},\ }
+\DoxyCodeLine{00097\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a072e2517e5b5989ecccd269df21880bc}{ENET\_TextureTransform}},\ }
+\DoxyCodeLine{00098\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613aab86fbadf62009e9c704ef78a99686b6}{ENET\_DirectionalLight}},\ }
+\DoxyCodeLine{00099\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613afe4a837e681328570fb7c8905c7e5139}{ENET\_PointLight}},\ }
+\DoxyCodeLine{00100\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613ac5b5902d0a544f47f4133596e46c71a1}{ENET\_SpotLight}},\ }
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613afd70089ab9c22a8f2fbb4187453f3f6a}{ENET\_Invalid}}\ }
+\DoxyCodeLine{00103\ \};}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00105\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00106\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *\mbox{\hyperlink{struct_x3_d_node_element_base_a58c217e5380485f1da5f02d5b8a21c29}{Parent}};}
+\DoxyCodeLine{00107\ \ \ \ \ std::string\ \mbox{\hyperlink{struct_x3_d_node_element_base_a63e1cbe4acd8bff3bad238e43c8441ff}{ID}};}
+\DoxyCodeLine{00108\ \ \ \ \ std::list<X3DNodeElementBase\ *>\ \mbox{\hyperlink{struct_x3_d_node_element_base_ae234243fc3a353762be08886e5e31e10}{Children}};}
+\DoxyCodeLine{00109\ \ \ \ \ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ \mbox{\hyperlink{struct_x3_d_node_element_base_a440b473c92d3662a0d818cf9b4b181ee}{Type}};}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{struct_x3_d_node_element_base_a3747dd09ad9068434668267bf02cd971}{\string~X3DNodeElementBase}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00114\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ type,\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_a58c217e5380485f1da5f02d5b8a21c29}{Parent}}(pParent),\ \mbox{\hyperlink{struct_x3_d_node_element_base_a440b473c92d3662a0d818cf9b4b181ee}{Type}}(type)\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00117\ \ \ \ \ \}}
+\DoxyCodeLine{00118\ \};}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00121\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_color_ab3dac68f86f1cd8698f933b7dc0e8cc6}{X3DNodeElementColor}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00122\ \ \ \ \ std::list<aiColor3D>\ \mbox{\hyperlink{struct_x3_d_node_element_color_ade994bc132224b42488f7de8a37d13d6}{Value}};\ }
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00126\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_color_ab3dac68f86f1cd8698f933b7dc0e8cc6}{X3DNodeElementColor}}(\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a8ac0c6d4bbbd0918762000ab27cf57ee}{ENET\_Color}},\ pParent)\ \{\}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \};\ \textcolor{comment}{//\ struct\ X3DNodeElementColor}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00132\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_color_r_g_b_a_afe90ef941baf3c443e7c8da3a55f44bd}{X3DNodeElementColorRGBA}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00133\ \ \ \ \ std::list<aiColor4D>\ \mbox{\hyperlink{struct_x3_d_node_element_color_r_g_b_a_a24a392f7c85ef363922281d87fa10de1}{Value}};\ }
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00137\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_color_r_g_b_a_afe90ef941baf3c443e7c8da3a55f44bd}{X3DNodeElementColorRGBA}}(\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a66d6beba2d1c22b75e7c0f5c99c73318}{ENET\_ColorRGBA}},\ pParent)\ \{\}}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \};\ \textcolor{comment}{//\ struct\ X3DNodeElementColorRGBA}}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00143\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_coordinate_a7fd893a3c683efcd1ddd8d76806e5a8e}{X3DNodeElementCoordinate}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00144\ \ \ \ \ std::list<aiVector3D>\ \mbox{\hyperlink{struct_x3_d_node_element_coordinate_a97e3f9314547771a828602dbc902ab47}{Value}};\ }
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00148\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_coordinate_a7fd893a3c683efcd1ddd8d76806e5a8e}{X3DNodeElementCoordinate}}(\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613ab0e1ff1d38cee96dd47f1f111b2bca83}{ENET\_Coordinate}},\ pParent)\ \{\}}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \};\ \textcolor{comment}{//\ struct\ X3DNodeElementCoordinate}}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00154\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_normal_ae17804daa20bc733a560f6e977bad3df}{X3DNodeElementNormal}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00155\ \ \ \ \ std::list<aiVector3D>\ \mbox{\hyperlink{struct_x3_d_node_element_normal_a45239d84f8d778096d53563613d2188e}{Value}};\ }
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00159\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_normal_ae17804daa20bc733a560f6e977bad3df}{X3DNodeElementNormal}}(\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613adf35db969666bf0c80c2b14125e8cf17}{ENET\_Normal}},\ pParent)\ \{\}}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \};\ \textcolor{comment}{//\ struct\ X3DNodeElementNormal}}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00165\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_texture_coordinate_a96bab06265b999c0723c4ae8be4eec4c}{X3DNodeElementTextureCoordinate}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00166\ \ \ \ \ std::list<aiVector2D>\ \mbox{\hyperlink{struct_x3_d_node_element_texture_coordinate_ad92af4879c6a33066a7615204d38f2ee}{Value}};\ }
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00170\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_texture_coordinate_a96bab06265b999c0723c4ae8be4eec4c}{X3DNodeElementTextureCoordinate}}(\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a49a316b0fee5e0d0f5b59610890bc8fb}{ENET\_TextureCoordinate}},\ pParent)\ \{\}}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00173\ \};\ \textcolor{comment}{//\ struct\ X3DNodeElementTextureCoordinate}}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00176\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_geometry2_d_a899a55102066d77baa1a5ea65b8c16d7}{X3DNodeElementGeometry2D}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ std::list<aiVector3D>\ \mbox{\hyperlink{struct_x3_d_node_element_geometry2_d_afe415384cc70c2c638cbe7351c74b27e}{Vertices}};\ }
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{struct_x3_d_node_element_geometry2_d_ad75b79f3d26ff13d812ea5c60df827fd}{NumIndices}};\ }
+\DoxyCodeLine{00179\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_geometry2_d_a9f58e2ceb6c827918d0a8958ef2c41cf}{Solid}};\ }
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00184\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_geometry2_d_a899a55102066d77baa1a5ea65b8c16d7}{X3DNodeElementGeometry2D}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ pType,\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(pType,\ pParent),\ \mbox{\hyperlink{struct_x3_d_node_element_geometry2_d_a9f58e2ceb6c827918d0a8958ef2c41cf}{Solid}}(true)\ \{\}}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00187\ \};\ \textcolor{comment}{//\ class\ X3DNodeElementGeometry2D}}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00190\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_a54d4d294c73a87bcf568287fdb1cc9ac}{X3DNodeElementGeometry3D}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00191\ \ \ \ \ std::list<aiVector3D>\ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_a621f617420a4fbf1a68e060a1300c688}{Vertices}};\ }
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_ab340d5f3709035eb1a4afeeba0ef3fd0}{NumIndices}};\ }
+\DoxyCodeLine{00193\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_ae08ff564030b468ec5f0353c53ef2e25}{Solid}};\ }
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00198\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_a54d4d294c73a87bcf568287fdb1cc9ac}{X3DNodeElementGeometry3D}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ pType,\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(pType,\ pParent),\ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_a621f617420a4fbf1a68e060a1300c688}{Vertices}}(),\ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_ab340d5f3709035eb1a4afeeba0ef3fd0}{NumIndices}}(0),\ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_ae08ff564030b468ec5f0353c53ef2e25}{Solid}}(true)\ \{}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00201\ \ \ \ \ \}}
+\DoxyCodeLine{00202\ \};\ \textcolor{comment}{//\ class\ X3DNodeElementGeometry3D}}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00205\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_elevation_grid_ac21c893eae3f245b405e67c30efadc29}{X3DNodeElementElevationGrid}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_a54d4d294c73a87bcf568287fdb1cc9ac}{X3DNodeElementGeometry3D}}\ \{}
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_elevation_grid_a6a7fd0cd0a3ef9c6c6cfa58019c85d0c}{NormalPerVertex}};\ }
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_elevation_grid_a381b4d9fda935dabe1bd06e83ca47ac4}{ColorPerVertex}};\ }
+\DoxyCodeLine{00210\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{struct_x3_d_node_element_elevation_grid_ab3707fc1643e5a1d0159ed0fb2b45ed4}{CreaseAngle}};}
+\DoxyCodeLine{00211\ \ \ \ \ std::vector<int32\_t>\ \mbox{\hyperlink{struct_x3_d_node_element_elevation_grid_aaccc9be8097cb6d68f23fe0b371f2f47}{CoordIdx}};\ }
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00216\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_elevation_grid_ac21c893eae3f245b405e67c30efadc29}{X3DNodeElementElevationGrid}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ pType,\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_a54d4d294c73a87bcf568287fdb1cc9ac}{X3DNodeElementGeometry3D}}(pType,\ pParent)\ \{\}}
+\DoxyCodeLine{00218\ \};\ \textcolor{comment}{//\ class\ X3DNodeElementIndexedSet}}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00221\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_indexed_set_a6a4a5ca185a174df83fc2e86ae5ea799}{X3DNodeElementIndexedSet}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_a54d4d294c73a87bcf568287fdb1cc9ac}{X3DNodeElementGeometry3D}}\ \{}
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_indexed_set_a59e9368dfd54236d9d01f9239a45d7e0}{CCW}};}
+\DoxyCodeLine{00229\ \ \ \ \ std::vector<int32\_t>\ \mbox{\hyperlink{struct_x3_d_node_element_indexed_set_a31f6cc6d7ecb83abae3cb19eaae5ea91}{ColorIndex}};\ }
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_indexed_set_a6c67c9f3f9d05efa0e5465128bba1dcf}{ColorPerVertex}};\ }
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_indexed_set_a641c11615bc9c0e52598a5439d39cc9c}{Convex}};}
+\DoxyCodeLine{00235\ \ \ \ \ std::vector<int32\_t>\ \mbox{\hyperlink{struct_x3_d_node_element_indexed_set_a8a5e6b9f1bd6f9025b6d3b0932a412c1}{CoordIndex}};\ }
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{struct_x3_d_node_element_indexed_set_a621d1520660a75b6017643559e7798fb}{CreaseAngle}};}
+\DoxyCodeLine{00239\ \ \ \ \ std::vector<int32\_t>\ \mbox{\hyperlink{struct_x3_d_node_element_indexed_set_a9d25c03d978632a629e397e21b7b3dfe}{NormalIndex}};\ }
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_indexed_set_a97290c99deac33326e6b8cf58f0a6cd7}{NormalPerVertex}};\ }
+\DoxyCodeLine{00241\ \ \ \ \ std::vector<int32\_t>\ \mbox{\hyperlink{struct_x3_d_node_element_indexed_set_a00dbd57682421759a2392f7a6a71a030}{TexCoordIndex}};\ }
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00246\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_indexed_set_a6a4a5ca185a174df83fc2e86ae5ea799}{X3DNodeElementIndexedSet}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ pType,\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_a54d4d294c73a87bcf568287fdb1cc9ac}{X3DNodeElementGeometry3D}}(pType,\ pParent)\ \{\}}
+\DoxyCodeLine{00248\ \};\ \textcolor{comment}{//\ class\ X3DNodeElementIndexedSet}}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00251\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_set_a13b4eec6d29a40d0066a4576d9896b6a}{X3DNodeElementSet}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_a54d4d294c73a87bcf568287fdb1cc9ac}{X3DNodeElementGeometry3D}}\ \{}
+\DoxyCodeLine{00258\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_set_a71bccae39b7cc37a27281fd96136a470}{CCW}};}
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_set_a95266142d87cd57157cd824a64110d41}{ColorPerVertex}};\ }
+\DoxyCodeLine{00260\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_set_a252decda8dfedba5a00b4ec7634a2ca0}{NormalPerVertex}};\ }
+\DoxyCodeLine{00261\ \ \ \ \ std::vector<int32\_t>\ \mbox{\hyperlink{struct_x3_d_node_element_set_a1be6e805244296e029f76afc203d7577}{CoordIndex}};\ }
+\DoxyCodeLine{00262\ \ \ \ \ std::vector<int32\_t>\ \mbox{\hyperlink{struct_x3_d_node_element_set_a3bd35d1bee00131fb2bb075d58f9f488}{NormalIndex}};\ }
+\DoxyCodeLine{00263\ \ \ \ \ std::vector<int32\_t>\ \mbox{\hyperlink{struct_x3_d_node_element_set_aadfa2a5f78599398525039343225bc10}{TexCoordIndex}};\ }
+\DoxyCodeLine{00264\ \ \ \ \ std::vector<int32\_t>\ \mbox{\hyperlink{struct_x3_d_node_element_set_a61217e96ec75801627fb1389883b1c9e}{VertexCount}};\ }
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00269\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_set_a13b4eec6d29a40d0066a4576d9896b6a}{X3DNodeElementSet}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ type,\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_geometry3_d_a54d4d294c73a87bcf568287fdb1cc9ac}{X3DNodeElementGeometry3D}}(type,\ pParent)\ \{\}}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00272\ \};\ \textcolor{comment}{//\ class\ X3DNodeElementSet}}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00275\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_shape_a1c37c8d8702c8e367e249d83b66253dd}{X3DNodeElementShape}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00279\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_shape_a1c37c8d8702c8e367e249d83b66253dd}{X3DNodeElementShape}}(\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613aadd86b4463b2859a6969475f61d0bda7}{ENET\_Shape}},\ pParent)\ \{\}}
+\DoxyCodeLine{00281\ \};\ \textcolor{comment}{//\ struct\ X3DNodeElementShape}}
+\DoxyCodeLine{00282\ }
+\DoxyCodeLine{00284\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_appearance_a47c5e2fdbdccd97f56e2e343a0652446}{X3DNodeElementAppearance}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00285\ }
+\DoxyCodeLine{00288\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_appearance_a47c5e2fdbdccd97f56e2e343a0652446}{X3DNodeElementAppearance}}(\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613aa830c9ad3f60a001df0e8732730041f5}{ENET\_Appearance}},\ pParent)\ \{\}}
+\DoxyCodeLine{00290\ }
+\DoxyCodeLine{00291\ \};\ \textcolor{comment}{//\ struct\ X3DNodeElementAppearance}}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00293\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_material_a78a69e397b3d2e1802779968eb23151f}{X3DNodeElementMaterial}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00294\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{struct_x3_d_node_element_material_ae8598474b0b9b0c126f0bac497315ee8}{AmbientIntensity}};\ }
+\DoxyCodeLine{00295\ \ \ \ \ \mbox{\hyperlink{structai_color3_d}{aiColor3D}}\ \mbox{\hyperlink{struct_x3_d_node_element_material_acc0c206d6caf6fe5dc555c853f897930}{DiffuseColor}};\ }
+\DoxyCodeLine{00296\ \ \ \ \ \mbox{\hyperlink{structai_color3_d}{aiColor3D}}\ \mbox{\hyperlink{struct_x3_d_node_element_material_a7706951e54a7968bb60c4593674684a0}{EmissiveColor}};\ }
+\DoxyCodeLine{00297\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{struct_x3_d_node_element_material_afe8107dc0b5e71fb1cb465ad3ca51302}{Shininess}};\ }
+\DoxyCodeLine{00298\ \ \ \ \ \mbox{\hyperlink{structai_color3_d}{aiColor3D}}\ \mbox{\hyperlink{struct_x3_d_node_element_material_a3dbbdc7fc77173dafc55cb97478c14ab}{SpecularColor}};\ }
+\DoxyCodeLine{00299\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{struct_x3_d_node_element_material_af7b0821fd630471daf8ff24170b5b2d9}{Transparency}};\ }
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00304\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_material_a78a69e397b3d2e1802779968eb23151f}{X3DNodeElementMaterial}}(\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613afa99dba49c26950e269ba165b79aa006}{ENET\_Material}},\ pParent),}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_material_ae8598474b0b9b0c126f0bac497315ee8}{AmbientIntensity}}(0.0f),}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_material_acc0c206d6caf6fe5dc555c853f897930}{DiffuseColor}}(),}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_material_a7706951e54a7968bb60c4593674684a0}{EmissiveColor}}(),}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_material_afe8107dc0b5e71fb1cb465ad3ca51302}{Shininess}}(0.0f),}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_material_a3dbbdc7fc77173dafc55cb97478c14ab}{SpecularColor}}(),}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_material_af7b0821fd630471daf8ff24170b5b2d9}{Transparency}}(1.0f)\ \{}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00313\ \ \ \ \ \}}
+\DoxyCodeLine{00314\ \};\ \textcolor{comment}{//\ class\ X3DNodeElementMaterial}}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00317\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_image_texture_a2e5f3c495c8725b9a2e95039627a664e}{X3DNodeElementImageTexture}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00321\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_image_texture_a93278effc72b5e7e2405b4abf806d7c2}{RepeatS}};}
+\DoxyCodeLine{00322\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_image_texture_ad06d109edd7fe7dd7e991c63227a3cb0}{RepeatT}};\ }
+\DoxyCodeLine{00323\ \ \ \ \ std::string\ \mbox{\hyperlink{struct_x3_d_node_element_image_texture_a06aa9a750df5ce1ae42a98d443564309}{URL}};\ }
+\DoxyCodeLine{00324\ }
+\DoxyCodeLine{00327\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_image_texture_a2e5f3c495c8725b9a2e95039627a664e}{X3DNodeElementImageTexture}}(\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a2d87646b123f4ab23a219c282c8dc89d}{ENET\_ImageTexture}},\ pParent)\ \{\}}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \};\ \textcolor{comment}{//\ struct\ X3DNodeElementImageTexture}}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00333\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_texture_transform_a64d170a1db683b52182411fb7837f21b}{X3DNodeElementTextureTransform}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00334\ \ \ \ \ \mbox{\hyperlink{structai_vector2_d}{aiVector2D}}\ \mbox{\hyperlink{struct_x3_d_node_element_texture_transform_a306eeb287de7431e01e60482eb5f74f8}{Center}};\ }
+\DoxyCodeLine{00335\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{struct_x3_d_node_element_texture_transform_a90972e61c0844b927d50ccc0ba5cfd43}{Rotation}};\ }
+\DoxyCodeLine{00336\ \ \ \ \ \mbox{\hyperlink{structai_vector2_d}{aiVector2D}}\ \mbox{\hyperlink{struct_x3_d_node_element_texture_transform_a9b29e3a9c265b232930ec5b19fc409b6}{Scale}};\ }
+\DoxyCodeLine{00337\ \ \ \ \ \mbox{\hyperlink{structai_vector2_d}{aiVector2D}}\ \mbox{\hyperlink{struct_x3_d_node_element_texture_transform_aa1019d5e9700efb1730965194b6d2445}{Translation}};\ }
+\DoxyCodeLine{00338\ }
+\DoxyCodeLine{00341\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_texture_transform_a64d170a1db683b52182411fb7837f21b}{X3DNodeElementTextureTransform}}(\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a072e2517e5b5989ecccd269df21880bc}{ENET\_TextureTransform}},\ pParent)\ \{\}}
+\DoxyCodeLine{00343\ }
+\DoxyCodeLine{00344\ \};\ \textcolor{comment}{//\ struct\ X3DNodeElementTextureTransform}}
+\DoxyCodeLine{00345\ }
+\DoxyCodeLine{00346\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_group_a4e1dfc17e54f16182d4650b5deedc741}{X3DNodeElementGroup}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00347\ \ \ \ \ \mbox{\hyperlink{structai_matrix4x4}{aiMatrix4x4}}\ \mbox{\hyperlink{struct_x3_d_node_element_group_afae741b600dbb241fe1de05b499f6f72}{Transformation}};\ }
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00352\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_group_adeb8f7ac330468b9f53e80af63f4809e}{Static}};}
+\DoxyCodeLine{00353\ }
+\DoxyCodeLine{00354\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_group_a1ad2c36882ac96806bff07d9ecbc42a1}{UseChoice}};\ }
+\DoxyCodeLine{00355\ \ \ \ \ int32\_t\ \mbox{\hyperlink{struct_x3_d_node_element_group_a706b4df6accba19f7508aab1628e4c34}{Choice}};\ }
+\DoxyCodeLine{00356\ }
+\DoxyCodeLine{00360\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_group_a4e1dfc17e54f16182d4650b5deedc741}{X3DNodeElementGroup}}(\mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ pStatic\ =\ \textcolor{keyword}{false})\ :}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a71fc9f8a2b908818e3cfecf0e16cab94}{ENET\_Group}},\ pParent),\ \mbox{\hyperlink{struct_x3_d_node_element_group_adeb8f7ac330468b9f53e80af63f4809e}{Static}}(pStatic),\ \mbox{\hyperlink{struct_x3_d_node_element_group_a1ad2c36882ac96806bff07d9ecbc42a1}{UseChoice}}(false)\ \{\}}
+\DoxyCodeLine{00362\ \};}
+\DoxyCodeLine{00363\ }
+\DoxyCodeLine{00364\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00365\ \ \ \ \ std::string\ \mbox{\hyperlink{struct_x3_d_node_element_meta_a9ac211836567136b333fea374a4f856a}{Name}};\ }
+\DoxyCodeLine{00366\ \ \ \ \ std::string\ \mbox{\hyperlink{struct_x3_d_node_element_meta_a1d1d5e4647b33e712d5ed1a3c02beb60}{Reference}};}
+\DoxyCodeLine{00367\ }
+\DoxyCodeLine{00368\ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{struct_x3_d_node_element_meta_a8c878a59f3fda7197215a7324bfab5ac}{\string~X3DNodeElementMeta}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00369\ }
+\DoxyCodeLine{00370\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00371\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ type,\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *parent)\ :}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(type,\ parent)\ \{}
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00374\ \ \ \ \ \}}
+\DoxyCodeLine{00375\ \};}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00377\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_meta_boolean_a51166ce42190773e3403f5331f76ffb9}{X3DNodeElementMetaBoolean}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}\ \{}
+\DoxyCodeLine{00378\ \ \ \ \ std::vector<bool>\ \mbox{\hyperlink{struct_x3_d_node_element_meta_boolean_ae4c74d75db40969dab285a9e5d5f51f9}{Value}};\ }
+\DoxyCodeLine{00379\ }
+\DoxyCodeLine{00380\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{struct_x3_d_node_element_meta_boolean_a51166ce42190773e3403f5331f76ffb9}{X3DNodeElementMetaBoolean}}(\mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a4870b3483505649fc1b94dc17b65f1e7}{ENET\_MetaBoolean}},\ pParent)\ \{}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00383\ \ \ \ \ \}}
+\DoxyCodeLine{00384\ \};}
+\DoxyCodeLine{00385\ }
+\DoxyCodeLine{00386\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_meta_double_a448073030f0b8c735f63dea0c53f9f3a}{X3DNodeElementMetaDouble}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}\ \{}
+\DoxyCodeLine{00387\ \ \ \ \ std::vector<double>\ \mbox{\hyperlink{struct_x3_d_node_element_meta_double_af7bd82c20f30e800a1c1165d25626b89}{Value}};\ }
+\DoxyCodeLine{00388\ }
+\DoxyCodeLine{00389\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{struct_x3_d_node_element_meta_double_a448073030f0b8c735f63dea0c53f9f3a}{X3DNodeElementMetaDouble}}(\mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a1486f2e17ee55a9cecbfd9f2e4c460bb}{ENET\_MetaDouble}},\ pParent)\ \{}
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00392\ \ \ \ \ \}}
+\DoxyCodeLine{00393\ \};}
+\DoxyCodeLine{00394\ }
+\DoxyCodeLine{00395\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_meta_float_a0266f0c9c7394311a09920c6cdb55987}{X3DNodeElementMetaFloat}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}\ \{}
+\DoxyCodeLine{00396\ \ \ \ \ std::vector<float>\ \mbox{\hyperlink{struct_x3_d_node_element_meta_float_a8fe60c13d25b1c9b8c7b8f15a6c011de}{Value}};\ }
+\DoxyCodeLine{00397\ }
+\DoxyCodeLine{00398\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{struct_x3_d_node_element_meta_float_a0266f0c9c7394311a09920c6cdb55987}{X3DNodeElementMetaFloat}}(\mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a42e8fdf449446116b0073dc4c8012d1c}{ENET\_MetaFloat}},\ pParent)\ \{}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00401\ \ \ \ \ \}}
+\DoxyCodeLine{00402\ \};}
+\DoxyCodeLine{00403\ }
+\DoxyCodeLine{00404\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_meta_int_ae1a48891962d2c87ddfbf0333b4b7619}{X3DNodeElementMetaInt}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}\ \{}
+\DoxyCodeLine{00405\ \ \ \ \ std::vector<int32\_t>\ \mbox{\hyperlink{struct_x3_d_node_element_meta_int_a579f93203f2d715fbcc1c216eabe81a3}{Value}};\ }
+\DoxyCodeLine{00406\ }
+\DoxyCodeLine{00407\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{struct_x3_d_node_element_meta_int_ae1a48891962d2c87ddfbf0333b4b7619}{X3DNodeElementMetaInt}}(\mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a6323cb7aec9721a616d9b4801be2dda3}{ENET\_MetaInteger}},\ pParent)\ \{}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00410\ \ \ \ \ \}}
+\DoxyCodeLine{00411\ \};}
+\DoxyCodeLine{00412\ }
+\DoxyCodeLine{00413\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_meta_set_aa02735e77954a593a87c3a36b947e9c7}{X3DNodeElementMetaSet}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}\ \{}
+\DoxyCodeLine{00414\ \ \ \ \ std::list<X3DNodeElementMeta>\ \mbox{\hyperlink{struct_x3_d_node_element_meta_set_aca1b4db7f69f1e62640cacee44d3d4d6}{Value}};\ }
+\DoxyCodeLine{00415\ }
+\DoxyCodeLine{00416\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{struct_x3_d_node_element_meta_set_aa02735e77954a593a87c3a36b947e9c7}{X3DNodeElementMetaSet}}(\mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00417\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a242336323341c525ee0abf040e0d8cef}{ENET\_MetaSet}},\ pParent)\ \{}
+\DoxyCodeLine{00418\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00419\ \ \ \ \ \}}
+\DoxyCodeLine{00420\ \};}
+\DoxyCodeLine{00421\ }
+\DoxyCodeLine{00422\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_meta_string_aa155cb326dc5d8154e474a8c89a35d97}{X3DNodeElementMetaString}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}\ \{}
+\DoxyCodeLine{00423\ \ \ \ \ std::vector<std::string>\ \mbox{\hyperlink{struct_x3_d_node_element_meta_string_a42bb8337f98d78f6045665a573aeff9a}{Value}};\ }
+\DoxyCodeLine{00424\ }
+\DoxyCodeLine{00425\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{struct_x3_d_node_element_meta_string_aa155cb326dc5d8154e474a8c89a35d97}{X3DNodeElementMetaString}}(\mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00426\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_meta_af0ca45ecd39171e907ee483ee3289be5}{X3DNodeElementMeta}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}::\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613a986692270d5fc6931270376d01152981}{ENET\_MetaString}},\ pParent)\ \{}
+\DoxyCodeLine{00427\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00428\ \ \ \ \ \}}
+\DoxyCodeLine{00429\ \};}
+\DoxyCodeLine{00430\ }
+\DoxyCodeLine{00433\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_x3_d_node_element_light_a64964c8cad950b89312b6b3379feff4b}{X3DNodeElementLight}}\ :\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ \{}
+\DoxyCodeLine{00434\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{struct_x3_d_node_element_light_a4d184bfe0fac624261ab5762dad87dbc}{AmbientIntensity}};\ }
+\DoxyCodeLine{00435\ \ \ \ \ \mbox{\hyperlink{structai_color3_d}{aiColor3D}}\ \mbox{\hyperlink{struct_x3_d_node_element_light_a4e7341f7fad396bfc7e40ee49480d7a9}{Color}};\ }
+\DoxyCodeLine{00436\ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_x3_d_node_element_light_a751fe56922048e9834ecac45cf903c76}{Direction}};\ }
+\DoxyCodeLine{00440\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_x3_d_node_element_light_aa463e5b36f93122ca4246ca6e81958a5}{Global}};}
+\DoxyCodeLine{00441\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{struct_x3_d_node_element_light_abe8032ccb458755d19fd655bfbfc3ff0}{Intensity}};\ }
+\DoxyCodeLine{00445\ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_x3_d_node_element_light_aa26dc4c5ec65b85605c7d31e725aae5e}{Attenuation}};}
+\DoxyCodeLine{00446\ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_x3_d_node_element_light_a3721c8570bc49b8d17a2d79d2ced2de6}{Location}};\ }
+\DoxyCodeLine{00447\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{struct_x3_d_node_element_light_a74ad4fddb1fdae97faa8eee30ac6a620}{Radius}};\ }
+\DoxyCodeLine{00448\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{struct_x3_d_node_element_light_a52c70127519f5685e83f1a7f4b50b67c}{BeamWidth}};\ }
+\DoxyCodeLine{00449\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{struct_x3_d_node_element_light_ae7cc58e9e171896cbed4e5efbb9af9d3}{CutOffAngle}};\ }
+\DoxyCodeLine{00450\ }
+\DoxyCodeLine{00454\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_light_a64964c8cad950b89312b6b3379feff4b}{X3DNodeElementLight}}(\mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ pLightType,\ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}\ *pParent)\ :}
+\DoxyCodeLine{00455\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base_aaeec32c5f0206ab6d591839a0903aba0}{X3DNodeElementBase}}(pLightType,\ pParent)\ \{\}}
+\DoxyCodeLine{00456\ }
+\DoxyCodeLine{00457\ \};\ \textcolor{comment}{//\ struct\ X3DNodeElementLight}}
+\DoxyCodeLine{00458\ }
+\DoxyCodeLine{00459\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ INCLUDED\_AI\_X3D\_IMPORTER\_NODE\_H}}
+
+\end{DoxyCode}

@@ -1,0 +1,274 @@
+\doxysection{Robot\+Lib/libraries/assimp/contrib/zip/src/zip.c File Reference}
+\hypertarget{zip_2src_2zip_8c}{}\label{zip_2src_2zip_8c}\index{RobotLib/libraries/assimp/contrib/zip/src/zip.c@{RobotLib/libraries/assimp/contrib/zip/src/zip.c}}
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include $<$sys/stat.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include "{}miniz.\+h"{}}\newline
+{\ttfamily \#include "{}zip.\+h"{}}\newline
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structzip__entry__t}{zip\+\_\+entry\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structzip__entry__mark__t}{zip\+\_\+entry\+\_\+mark\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_a7a104b2e349617222c6419b36bfd3260}{\+\_\+\+\_\+\+STDC\+\_\+\+WANT\+\_\+\+LIB\+\_\+\+EXT1\+\_\+\+\_\+}}~1
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_a88046310133687164e110ddf6e21fc5a}{STRCLONE}}(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2include_2assimp_2revision_8h_a18d295a837ac71add5578860b55e5502}{STR}})
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_a9d162f95283a0a6293a9775ec619cdc8}{HAS\+\_\+\+DEVICE}}(P)
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_a72cd7400fcb839e24cc251fba6627b00}{FILESYSTEM\+\_\+\+PREFIX\+\_\+\+LEN}}(P)
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_ab1171b7dccaf3c53cef322a06a9e7897}{ISSLASH}}(C)
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_a565201391aee65219f1a8983f6ac92a3}{CLEANUP}}(ptr)
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_aee4dce97cce600f9c358143bd03df27d}{UNX\+\_\+\+IFDIR}}~0040000  /\texorpdfstring{$\ast$}{*} Unix directory \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_a1ac947d438dac3773c1fe77668175cc7}{UNX\+\_\+\+IFREG}}~0100000  /\texorpdfstring{$\ast$}{*} Unix regular file \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_a1b55586d51521396df193fd86f3a6cd1}{UNX\+\_\+\+IFSOCK}}~0140000 /\texorpdfstring{$\ast$}{*} Unix socket (BSD, not SysV or Amiga) \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_adbb14cb68396f3852f742d10e7a77134}{UNX\+\_\+\+IFLNK}}~0120000  /\texorpdfstring{$\ast$}{*} Unix symbolic link (not SysV, Amiga) \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_a609a97cde480fb10724aadf5528eb109}{UNX\+\_\+\+IFBLK}}~0060000  /\texorpdfstring{$\ast$}{*} Unix block special       (not Amiga) \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_a29468326953e5f81817dd9e1972ed2bb}{UNX\+\_\+\+IFCHR}}~0020000  /\texorpdfstring{$\ast$}{*} Unix character special   (not Amiga) \texorpdfstring{$\ast$}{*}/
+\item 
+\#define \mbox{\hyperlink{zip_2src_2zip_8c_aa58125bd8919a283ae149b21b160dfb9}{UNX\+\_\+\+IFIFO}}~0010000  /\texorpdfstring{$\ast$}{*} Unix fifo    (BCC, not MSC or Amiga) \texorpdfstring{$\ast$}{*}/
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76}{zip\+\_\+modify\+\_\+t}} \{ \mbox{\hyperlink{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76a9a34ba8c98f5a481657820533c78d3ca}{MZ\+\_\+\+KEEP}} = 0
+, \mbox{\hyperlink{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76ad7a181727d015b59fef5de84c7711108}{MZ\+\_\+\+DELETE}} = 1
+, \mbox{\hyperlink{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76a51129004d628725888a4fef49edff4f5}{MZ\+\_\+\+MOVE}} = 2
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{group__zip_gabca67f23df63c3265f11bb473fe56ba6}{zip\+\_\+strerror}} (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} errnum)
+\item 
+struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{group__zip_gaf7f71c814c1de662928f663d8fc242c8}{zip\+\_\+open}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}zipname, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} level, char \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}})
+\item 
+struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{group__zip_gad7b5a0f33e198f52f5a137343d77d715}{zip\+\_\+openwitherror}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}zipname, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} level, char \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \texorpdfstring{$\ast$}{*}errnum)
+\item 
+void \mbox{\hyperlink{group__zip_ga18da9bcc4326509f96050d0dd6b6482e}{zip\+\_\+close}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_gaf0a38c5997380355410de49c6786a2a9}{zip\+\_\+is64}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_gaba60649fe4e59118ba506a730b17474c}{zip\+\_\+entry\+\_\+open}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}entryname)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_ga97f7b6c25da5d247b44213c5d45d6c9a}{zip\+\_\+entry\+\_\+opencasesensitive}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}entryname)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_gaa1c8e1a136051e58b6fe1b68822ce768}{zip\+\_\+entry\+\_\+openbyindex}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, size\+\_\+t index)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_gac8fdc5350deeadd9cc5c6bd9f84901bb}{zip\+\_\+entry\+\_\+close}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{group__zip_ga10f4810d437de3e317076d8c3c6d2be6}{zip\+\_\+entry\+\_\+name}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+ssize\+\_\+t \mbox{\hyperlink{group__zip_gacbbcd6a7f2173e7c1b4912bd27d06a0f}{zip\+\_\+entry\+\_\+index}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_gae5afe92ebf355feb475cb50bc9130ef3}{zip\+\_\+entry\+\_\+isdir}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+unsigned \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{group__zip_ga2c0ec10ec274baf6b4f8ff9e18ba58dc}{zip\+\_\+entry\+\_\+size}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+unsigned \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{group__zip_ga5be3c8e6d8aa097e717b876843e5497e}{zip\+\_\+entry\+\_\+uncomp\+\_\+size}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+unsigned \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{group__zip_ga474c0b38401cd4412a141c5d4b8cfe27}{zip\+\_\+entry\+\_\+comp\+\_\+size}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+unsigned \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_gade666c9e0ca75bc5c8d65df68ed86481}{zip\+\_\+entry\+\_\+crc32}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+unsigned \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{group__zip_ga1a7b1dbf37071d77dcd4dce854da6f74}{zip\+\_\+entry\+\_\+dir\+\_\+offset}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+unsigned \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a3c7b35ad9dab18b8310343c201f7b27e}{long}} \mbox{\hyperlink{group__zip_ga2e0612764e3179069f7a6118ab90a3f9}{zip\+\_\+entry\+\_\+header\+\_\+offset}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_ga9fae1f73698c8b46f745436584330cd5}{zip\+\_\+entry\+\_\+write}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} void \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}, size\+\_\+t bufsize)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_gacb2edb8c1e27b96e48613b973eea69b4}{zip\+\_\+entry\+\_\+fwrite}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}})
+\item 
+ssize\+\_\+t \mbox{\hyperlink{group__zip_ga9b426a78dd024c0cb88909ba9a4dc489}{zip\+\_\+entry\+\_\+read}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, void \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}, size\+\_\+t \texorpdfstring{$\ast$}{*}bufsize)
+\item 
+ssize\+\_\+t \mbox{\hyperlink{group__zip_ga1685ef216c9aaf0b449458341289d6fa}{zip\+\_\+entry\+\_\+noallocread}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, void \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}, size\+\_\+t bufsize)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_gab8375d353a506b53c8780293747ffc40}{zip\+\_\+entry\+\_\+fread}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}})
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{zip_2src_2zip_8c_a3d6be798d21a39856b355a30866e9ded}{zip\+\_\+entry\+\_\+extract}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, size\+\_\+t(\texorpdfstring{$\ast$}{*}on\+\_\+extract)(void \texorpdfstring{$\ast$}{*}arg, uint64\+\_\+t \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} void \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}, size\+\_\+t bufsize), void \texorpdfstring{$\ast$}{*}arg)
+\item 
+ssize\+\_\+t \mbox{\hyperlink{group__zip_ga53f8de08f91e99c956dac71535206053}{zip\+\_\+entries\+\_\+total}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+ssize\+\_\+t \mbox{\hyperlink{group__zip_ga5f735efb9f8998b2e5015dc6a84de758}{zip\+\_\+entries\+\_\+delete}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} entries\mbox{[}$\,$\mbox{]}, size\+\_\+t len)
+\item 
+ssize\+\_\+t \mbox{\hyperlink{group__zip_ga0a8b9fb9802d01ebc2496c3e9e0ea412}{zip\+\_\+entries\+\_\+deletebyindex}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, size\+\_\+t entries\mbox{[}$\,$\mbox{]}, size\+\_\+t len)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_ga47d4ec8b8d89f34757fee26ede777e74}{zip\+\_\+stream\+\_\+extract}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}}, size\+\_\+t \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}dir, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}(\texorpdfstring{$\ast$}{*}on\+\_\+extract)(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}}, void \texorpdfstring{$\ast$}{*}arg), void \texorpdfstring{$\ast$}{*}arg)
+\item 
+struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{group__zip_ga1b68c8f0924181831b7f67726059a75c}{zip\+\_\+stream\+\_\+open}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}}, size\+\_\+t \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} level, char \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}})
+\item 
+struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{group__zip_ga0b1c0ae08f91efa7aca038be3d45e2cd}{zip\+\_\+stream\+\_\+openwitherror}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}}, size\+\_\+t \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} level, char \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}}, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \texorpdfstring{$\ast$}{*}errnum)
+\item 
+ssize\+\_\+t \mbox{\hyperlink{group__zip_ga9806b3ee559c5bf6bc65638a0810ce26}{zip\+\_\+stream\+\_\+copy}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip, void \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}, size\+\_\+t \texorpdfstring{$\ast$}{*}bufsize)
+\item 
+void \mbox{\hyperlink{group__zip_ga5d8456654e380faa9dfa7cc0706bbf93}{zip\+\_\+stream\+\_\+close}} (struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}zip)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_gaf6cf03503fd7e52234dd4a7d1046064c}{zip\+\_\+create}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}zipname, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}filenames\mbox{[}$\,$\mbox{]}, size\+\_\+t len)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{group__zip_gae16630490401652bfae19d5d0f3c141e}{zip\+\_\+extract}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}zipname, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}dir, \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}}(\texorpdfstring{$\ast$}{*}on\+\_\+extract)(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}}, void \texorpdfstring{$\ast$}{*}arg), void \texorpdfstring{$\ast$}{*}arg)
+\end{DoxyCompactItemize}
+
+
+\label{doc-define-members}
+\Hypertarget{zip_2src_2zip_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{zip_2src_2zip_8c_a7a104b2e349617222c6419b36bfd3260}\index{zip.c@{zip.c}!\_\_STDC\_WANT\_LIB\_EXT1\_\_@{\_\_STDC\_WANT\_LIB\_EXT1\_\_}}
+\index{\_\_STDC\_WANT\_LIB\_EXT1\_\_@{\_\_STDC\_WANT\_LIB\_EXT1\_\_}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{\_\_STDC\_WANT\_LIB\_EXT1\_\_}{\_\_STDC\_WANT\_LIB\_EXT1\_\_}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_a7a104b2e349617222c6419b36bfd3260} 
+\#define \+\_\+\+\_\+\+STDC\+\_\+\+WANT\+\_\+\+LIB\+\_\+\+EXT1\+\_\+\+\_\+~1}
+
+\Hypertarget{zip_2src_2zip_8c_a565201391aee65219f1a8983f6ac92a3}\index{zip.c@{zip.c}!CLEANUP@{CLEANUP}}
+\index{CLEANUP@{CLEANUP}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{CLEANUP}{CLEANUP}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_a565201391aee65219f1a8983f6ac92a3} 
+\#define CLEANUP(\begin{DoxyParamCaption}\item[{}]{ptr}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \textcolor{keywordflow}{do}\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ if\ (ptr)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ free((\textcolor{keywordtype}{void}\ *)ptr);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ ptr\ =\ NULL;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}
+\DoxyCodeLine{\ \ \}\ \textcolor{keywordflow}{while}\ (0)}
+
+\end{DoxyCode}
+\Hypertarget{zip_2src_2zip_8c_a72cd7400fcb839e24cc251fba6627b00}\index{zip.c@{zip.c}!FILESYSTEM\_PREFIX\_LEN@{FILESYSTEM\_PREFIX\_LEN}}
+\index{FILESYSTEM\_PREFIX\_LEN@{FILESYSTEM\_PREFIX\_LEN}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{FILESYSTEM\_PREFIX\_LEN}{FILESYSTEM\_PREFIX\_LEN}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_a72cd7400fcb839e24cc251fba6627b00} 
+\#define FILESYSTEM\+\_\+\+PREFIX\+\_\+\+LEN(\begin{DoxyParamCaption}\item[{}]{P}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{0}
+
+\end{DoxyCode}
+\Hypertarget{zip_2src_2zip_8c_a9d162f95283a0a6293a9775ec619cdc8}\index{zip.c@{zip.c}!HAS\_DEVICE@{HAS\_DEVICE}}
+\index{HAS\_DEVICE@{HAS\_DEVICE}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{HAS\_DEVICE}{HAS\_DEVICE}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_a9d162f95283a0a6293a9775ec619cdc8} 
+\#define HAS\+\_\+\+DEVICE(\begin{DoxyParamCaption}\item[{}]{P}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{0}
+
+\end{DoxyCode}
+\Hypertarget{zip_2src_2zip_8c_ab1171b7dccaf3c53cef322a06a9e7897}\index{zip.c@{zip.c}!ISSLASH@{ISSLASH}}
+\index{ISSLASH@{ISSLASH}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{ISSLASH}{ISSLASH}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_ab1171b7dccaf3c53cef322a06a9e7897} 
+\#define ISSLASH(\begin{DoxyParamCaption}\item[{}]{C}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{((C)\ ==\ \textcolor{charliteral}{'/'}\ ||\ (C)\ ==\ \textcolor{charliteral}{'\(\backslash\)\(\backslash\)'})}
+
+\end{DoxyCode}
+\Hypertarget{zip_2src_2zip_8c_a88046310133687164e110ddf6e21fc5a}\index{zip.c@{zip.c}!STRCLONE@{STRCLONE}}
+\index{STRCLONE@{STRCLONE}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{STRCLONE}{STRCLONE}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_a88046310133687164e110ddf6e21fc5a} 
+\#define STRCLONE(\begin{DoxyParamCaption}\item[{}]{\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2include_2assimp_2revision_8h_a18d295a837ac71add5578860b55e5502}{STR}}}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{((\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2include_2assimp_2revision_8h_a18d295a837ac71add5578860b55e5502}{STR}})\ ?\ strdup(\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2include_2assimp_2revision_8h_a18d295a837ac71add5578860b55e5502}{STR}})\ :\ NULL)}
+
+\end{DoxyCode}
+\Hypertarget{zip_2src_2zip_8c_a609a97cde480fb10724aadf5528eb109}\index{zip.c@{zip.c}!UNX\_IFBLK@{UNX\_IFBLK}}
+\index{UNX\_IFBLK@{UNX\_IFBLK}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{UNX\_IFBLK}{UNX\_IFBLK}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_a609a97cde480fb10724aadf5528eb109} 
+\#define UNX\+\_\+\+IFBLK~0060000  /\texorpdfstring{$\ast$}{*} Unix block special       (not Amiga) \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{zip_2src_2zip_8c_a29468326953e5f81817dd9e1972ed2bb}\index{zip.c@{zip.c}!UNX\_IFCHR@{UNX\_IFCHR}}
+\index{UNX\_IFCHR@{UNX\_IFCHR}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{UNX\_IFCHR}{UNX\_IFCHR}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_a29468326953e5f81817dd9e1972ed2bb} 
+\#define UNX\+\_\+\+IFCHR~0020000  /\texorpdfstring{$\ast$}{*} Unix character special   (not Amiga) \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{zip_2src_2zip_8c_aee4dce97cce600f9c358143bd03df27d}\index{zip.c@{zip.c}!UNX\_IFDIR@{UNX\_IFDIR}}
+\index{UNX\_IFDIR@{UNX\_IFDIR}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{UNX\_IFDIR}{UNX\_IFDIR}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_aee4dce97cce600f9c358143bd03df27d} 
+\#define UNX\+\_\+\+IFDIR~0040000  /\texorpdfstring{$\ast$}{*} Unix directory \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{zip_2src_2zip_8c_aa58125bd8919a283ae149b21b160dfb9}\index{zip.c@{zip.c}!UNX\_IFIFO@{UNX\_IFIFO}}
+\index{UNX\_IFIFO@{UNX\_IFIFO}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{UNX\_IFIFO}{UNX\_IFIFO}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_aa58125bd8919a283ae149b21b160dfb9} 
+\#define UNX\+\_\+\+IFIFO~0010000  /\texorpdfstring{$\ast$}{*} Unix fifo    (BCC, not MSC or Amiga) \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{zip_2src_2zip_8c_adbb14cb68396f3852f742d10e7a77134}\index{zip.c@{zip.c}!UNX\_IFLNK@{UNX\_IFLNK}}
+\index{UNX\_IFLNK@{UNX\_IFLNK}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{UNX\_IFLNK}{UNX\_IFLNK}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_adbb14cb68396f3852f742d10e7a77134} 
+\#define UNX\+\_\+\+IFLNK~0120000  /\texorpdfstring{$\ast$}{*} Unix symbolic link (not SysV, Amiga) \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{zip_2src_2zip_8c_a1ac947d438dac3773c1fe77668175cc7}\index{zip.c@{zip.c}!UNX\_IFREG@{UNX\_IFREG}}
+\index{UNX\_IFREG@{UNX\_IFREG}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{UNX\_IFREG}{UNX\_IFREG}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_a1ac947d438dac3773c1fe77668175cc7} 
+\#define UNX\+\_\+\+IFREG~0100000  /\texorpdfstring{$\ast$}{*} Unix regular file \texorpdfstring{$\ast$}{*}/}
+
+\Hypertarget{zip_2src_2zip_8c_a1b55586d51521396df193fd86f3a6cd1}\index{zip.c@{zip.c}!UNX\_IFSOCK@{UNX\_IFSOCK}}
+\index{UNX\_IFSOCK@{UNX\_IFSOCK}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{UNX\_IFSOCK}{UNX\_IFSOCK}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_a1b55586d51521396df193fd86f3a6cd1} 
+\#define UNX\+\_\+\+IFSOCK~0140000 /\texorpdfstring{$\ast$}{*} Unix socket (BSD, not SysV or Amiga) \texorpdfstring{$\ast$}{*}/}
+
+
+
+\label{doc-enum-members}
+\Hypertarget{zip_2src_2zip_8c_doc-enum-members}
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76}\index{zip.c@{zip.c}!zip\_modify\_t@{zip\_modify\_t}}
+\index{zip\_modify\_t@{zip\_modify\_t}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{zip\_modify\_t}{zip\_modify\_t}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76} 
+enum \mbox{\hyperlink{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76}{zip\+\_\+modify\+\_\+t}}}
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MZ\_KEEP@{MZ\_KEEP}!zip.c@{zip.c}}\index{zip.c@{zip.c}!MZ\_KEEP@{MZ\_KEEP}}}\Hypertarget{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76a9a34ba8c98f5a481657820533c78d3ca}\label{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76a9a34ba8c98f5a481657820533c78d3ca} 
+MZ\+\_\+\+KEEP&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MZ\_DELETE@{MZ\_DELETE}!zip.c@{zip.c}}\index{zip.c@{zip.c}!MZ\_DELETE@{MZ\_DELETE}}}\Hypertarget{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76ad7a181727d015b59fef5de84c7711108}\label{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76ad7a181727d015b59fef5de84c7711108} 
+MZ\+\_\+\+DELETE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MZ\_MOVE@{MZ\_MOVE}!zip.c@{zip.c}}\index{zip.c@{zip.c}!MZ\_MOVE@{MZ\_MOVE}}}\Hypertarget{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76a51129004d628725888a4fef49edff4f5}\label{zip_2src_2zip_8c_a8fb355df116af5c2863737e32ba13e76a51129004d628725888a4fef49edff4f5} 
+MZ\+\_\+\+MOVE&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\label{doc-func-members}
+\Hypertarget{zip_2src_2zip_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{zip_2src_2zip_8c_a3d6be798d21a39856b355a30866e9ded}\index{zip.c@{zip.c}!zip\_entry\_extract@{zip\_entry\_extract}}
+\index{zip\_entry\_extract@{zip\_entry\_extract}!zip.c@{zip.c}}
+\doxysubsubsection{\texorpdfstring{zip\_entry\_extract()}{zip\_entry\_extract()}}
+{\footnotesize\ttfamily \label{zip_2src_2zip_8c_a3d6be798d21a39856b355a30866e9ded} 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} zip\+\_\+entry\+\_\+extract (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structzip__t}{zip\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{zip}{, }\item[{size\+\_\+t(\texorpdfstring{$\ast$}{*}}]{on\+\_\+extract~}{)(void \texorpdfstring{$\ast$}{*}arg, uint64\+\_\+t \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} void \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}, size\+\_\+t bufsize), }\item[{void \texorpdfstring{$\ast$}{*}}]{arg}{}\end{DoxyParamCaption})}
+

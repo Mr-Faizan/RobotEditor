@@ -1,0 +1,122 @@
+\doxysection{prediction\+\_\+scheme\+\_\+normal\+\_\+octahedron\+\_\+canonicalized\+\_\+encoding\+\_\+transform.\+h}
+\hypertarget{prediction__scheme__normal__octahedron__canonicalized__encoding__transform_8h_source}{}\label{prediction__scheme__normal__octahedron__canonicalized__encoding__transform_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/prediction\_scheme\_normal\_octahedron\_canonicalized\_encoding\_transform.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/prediction\_scheme\_normal\_octahedron\_canonicalized\_encoding\_transform.h}}
+\mbox{\hyperlink{prediction__scheme__normal__octahedron__canonicalized__encoding__transform_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_NORMAL\_OCTAHEDRON\_CANONICALIZED\_ENCODING\_TRANSFORM\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_NORMAL\_OCTAHEDRON\_CANONICALIZED\_ENCODING\_TRANSFORM\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{normal__compression__utils_8h}{draco/compression/attributes/normal\_compression\_utils.h}}"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{prediction__scheme__normal__octahedron__canonicalized__transform__base_8h}{draco/compression/attributes/prediction\_schemes/prediction\_scheme\_normal\_octahedron\_canonicalized\_transform\_base.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{encoder__buffer_8h}{draco/core/encoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{vector__d_8h}{draco/core/vector\_d.h}}"{}}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ The\ transform\ works\ on\ octahedral\ coordinates\ for\ normals.\ The\ square\ is}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ subdivided\ into\ four\ inner\ triangles\ (diamond)\ and\ four\ outer\ triangles.\ The}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ inner\ triangles\ are\ associated\ with\ the\ upper\ part\ of\ the\ octahedron\ and\ the}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ outer\ triangles\ are\ associated\ with\ the\ lower\ part.}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ Given\ a\ prediction\ value\ P\ and\ the\ actual\ value\ Q\ that\ should\ be\ encoded,}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ this\ transform\ first\ checks\ if\ P\ is\ outside\ the\ diamond.\ If\ so,\ the\ outer}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ triangles\ are\ flipped\ towards\ the\ inside\ and\ vice\ versa.\ Then\ it\ checks\ if\ p}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ is\ in\ the\ bottom\ left\ quadrant.\ If\ it\ is\ not,\ it\ rotates\ p\ and\ q\ accordingly.}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ The\ actual\ correction\ value\ is\ then\ based\ on\ the\ mapped\ and\ rotated\ P\ and\ Q}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ values.\ The\ inversion\ tends\ to\ result\ in\ shorter\ correction\ vectors\ and\ the}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ rotation\ makes\ it\ so\ that\ all\ long\ correction\ values\ are\ positive,\ reducing}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ the\ possible\ value\ range\ of\ the\ correction\ values\ and\ increasing\ the}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ occurrences\ of\ positive\ large\ correction\ values,\ which\ helps\ the\ entropy}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ encoder.\ This\ is\ possible\ since\ P\ is\ also\ known\ by\ the\ decoder,\ see\ also}}
+\DoxyCodeLine{00042\ \textcolor{comment}{//\ ComputeCorrection\ and\ ComputeOriginalValue\ functions.}}
+\DoxyCodeLine{00043\ \textcolor{comment}{//\ Note\ that\ the\ tile\ is\ not\ periodic,\ which\ implies\ that\ the\ outer\ edges\ can}}
+\DoxyCodeLine{00044\ \textcolor{comment}{//\ not\ be\ identified,\ which\ requires\ us\ to\ use\ an\ odd\ number\ of\ values\ on\ each}}
+\DoxyCodeLine{00045\ \textcolor{comment}{//\ axis.}}
+\DoxyCodeLine{00046\ \textcolor{comment}{//\ DataTypeT\ is\ expected\ to\ be\ some\ integral\ type.}}
+\DoxyCodeLine{00047\ \textcolor{comment}{//}}
+\DoxyCodeLine{00048\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT>}
+\DoxyCodeLine{00049\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_a4df412aa6a5ac658c329d019531f7598}{PredictionSchemeNormalOctahedronCanonicalizedEncodingTransform}}}
+\DoxyCodeLine{00050\ \ \ \ \ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_transform_base_a0118206b619c14c0a8e9e3a8700d29a6}{PredictionSchemeNormalOctahedronCanonicalizedTransformBase}}<}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \ \ DataTypeT>\ \{}
+\DoxyCodeLine{00052\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00053\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_transform_base_a0118206b619c14c0a8e9e3a8700d29a6}{PredictionSchemeNormalOctahedronCanonicalizedTransformBase<DataTypeT>}}}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_a9313a3a92b9b421bc0b41a3379d10737}{Base}};}
+\DoxyCodeLine{00055\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<DataTypeT,\ 2>}}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_aadceb5293aedc69152c0da4e5504365f}{Point2}};}
+\DoxyCodeLine{00056\ \ \ \textcolor{keyword}{typedef}\ DataTypeT\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_a262ab03538651fcf8c01a5604150c57c}{CorrType}};}
+\DoxyCodeLine{00057\ \ \ \textcolor{keyword}{typedef}\ DataTypeT\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_ae9d3005c30edd75d73417040cbbad63d}{DataType}};}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \textcolor{comment}{//\ We\ expect\ the\ mod\ value\ to\ be\ of\ the\ form\ 2\string^b-\/1.}}
+\DoxyCodeLine{00060\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_a4df412aa6a5ac658c329d019531f7598}{PredictionSchemeNormalOctahedronCanonicalizedEncodingTransform}}(}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_ae9d3005c30edd75d73417040cbbad63d}{DataType}}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a152b758bce7c86dd49944b05c7af5efb}{max\_quantized\_value}})}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ :\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_a9313a3a92b9b421bc0b41a3379d10737}{Base}}(\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a152b758bce7c86dd49944b05c7af5efb}{max\_quantized\_value}})\ \{\}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \textcolor{comment}{//\ Dummy\ function\ to\ fulfill\ concept.}}
+\DoxyCodeLine{00065\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_a4abb7c29a14124fe3ea610b1520fd49d}{Init}}(\textcolor{keyword}{const}\ DataTypeT\ *orig\_data,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}},\ \textcolor{keywordtype}{int}\ num\_components)\ \{\}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_a01c03b81825fadda3e1bbb309e000f48}{EncodeTransformData}}(\mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *buffer)\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ buffer-\/>Encode(this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a152b758bce7c86dd49944b05c7af5efb}{max\_quantized\_value}}());}
+\DoxyCodeLine{00069\ \ \ \ \ buffer-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a66982da74dbdee21a7cef376882f5e49}{center\_value}}());}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00071\ \ \ \}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_a8aab7b16924e8bef0672e290a78cf95c}{ComputeCorrection}}(\textcolor{keyword}{const}\ DataType\ *orig\_vals,}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_ae9d3005c30edd75d73417040cbbad63d}{DataType}}\ *pred\_vals,}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_a262ab03538651fcf8c01a5604150c57c}{CorrType}}\ *out\_corr\_vals)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00076\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(pred\_vals[0],\ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a66982da74dbdee21a7cef376882f5e49}{center\_value}}()\ *\ 2);}
+\DoxyCodeLine{00077\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(pred\_vals[1],\ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a66982da74dbdee21a7cef376882f5e49}{center\_value}}()\ *\ 2);}
+\DoxyCodeLine{00078\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(orig\_vals[0],\ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a66982da74dbdee21a7cef376882f5e49}{center\_value}}()\ *\ 2);}
+\DoxyCodeLine{00079\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(orig\_vals[1],\ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a66982da74dbdee21a7cef376882f5e49}{center\_value}}()\ *\ 2);}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(0,\ pred\_vals[0]);}
+\DoxyCodeLine{00081\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(0,\ pred\_vals[1]);}
+\DoxyCodeLine{00082\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(0,\ orig\_vals[0]);}
+\DoxyCodeLine{00083\ \ \ \ \ \mbox{\hyperlink{macros_8h_aa867442622785ecf2db4a791fc4ecb5c}{DRACO\_DCHECK\_LE}}(0,\ orig\_vals[1]);}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_aadceb5293aedc69152c0da4e5504365f}{Point2}}\ orig\ =\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_aadceb5293aedc69152c0da4e5504365f}{Point2}}(orig\_vals[0],\ orig\_vals[1]);}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_aadceb5293aedc69152c0da4e5504365f}{Point2}}\ pred\ =\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_aadceb5293aedc69152c0da4e5504365f}{Point2}}(pred\_vals[0],\ pred\_vals[1]);}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_aadceb5293aedc69152c0da4e5504365f}{Point2}}\ corr\ =\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_a8aab7b16924e8bef0672e290a78cf95c}{ComputeCorrection}}(orig,\ pred);}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \ \ out\_corr\_vals[0]\ =\ corr[0];}
+\DoxyCodeLine{00090\ \ \ \ \ out\_corr\_vals[1]\ =\ corr[1];}
+\DoxyCodeLine{00091\ \ \ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00094\ \ \ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_aadceb5293aedc69152c0da4e5504365f}{Point2}}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_a8aab7b16924e8bef0672e290a78cf95c}{ComputeCorrection}}(\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_aadceb5293aedc69152c0da4e5504365f}{Point2}}\ orig,\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_aadceb5293aedc69152c0da4e5504365f}{Point2}}\ pred)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_aadceb5293aedc69152c0da4e5504365f}{Point2}}\ t(this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a66982da74dbdee21a7cef376882f5e49}{center\_value}}(),\ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a66982da74dbdee21a7cef376882f5e49}{center\_value}}());}
+\DoxyCodeLine{00096\ \ \ \ \ orig\ =\ orig\ -\/\ t;}
+\DoxyCodeLine{00097\ \ \ \ \ pred\ =\ pred\ -\/\ t;}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordflow}{if}\ (!this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_ac533e15bda86586940a9de36d3cbbef5}{IsInDiamond}}(pred[0],\ pred[1]))\ \{}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a0a9eccbb4654b576b85c5d3ef2a93c74}{InvertDiamond}}(\&orig[0],\ \&orig[1]);}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_a0a9eccbb4654b576b85c5d3ef2a93c74}{InvertDiamond}}(\&pred[0],\ \&pred[1]);}
+\DoxyCodeLine{00101\ \ \ \ \ \}}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordflow}{if}\ (!this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_transform_base_a7e3e9719e1369396d8f74fa8500d9868}{IsInBottomLeft}}(pred))\ \{}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \textcolor{keyword}{const}\ int32\_t\ rotation\_count\ =\ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_transform_base_a2d079e2414c6ede2170d6e067e06b558}{GetRotationCount}}(pred);}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ orig\ =\ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_transform_base_a0e4989f362251af0b6f648fc13ed9754}{RotatePoint}}(orig,\ rotation\_count);}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ pred\ =\ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_transform_base_a0e4989f362251af0b6f648fc13ed9754}{RotatePoint}}(pred,\ rotation\_count);}
+\DoxyCodeLine{00106\ \ \ \ \ \}}
+\DoxyCodeLine{00107\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_canonicalized_encoding_transform_aadceb5293aedc69152c0da4e5504365f}{Point2}}\ corr\ =\ orig\ -\/\ pred;}
+\DoxyCodeLine{00108\ \ \ \ \ corr[0]\ =\ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_ad09760690614ac818f669612aa9b8bad}{MakePositive}}(corr[0]);}
+\DoxyCodeLine{00109\ \ \ \ \ corr[1]\ =\ this-\/>\mbox{\hyperlink{classdraco_1_1_prediction_scheme_normal_octahedron_transform_base_ad09760690614ac818f669612aa9b8bad}{MakePositive}}(corr[1]);}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{keywordflow}{return}\ corr;}
+\DoxyCodeLine{00111\ \ \ \}}
+\DoxyCodeLine{00112\ \};}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_NORMAL\_OCTAHEDRON\_CANONICALIZED\_ENCODING\_TRANSFORM\_H\_}}
+
+\end{DoxyCode}

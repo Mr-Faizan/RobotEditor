@@ -1,0 +1,102 @@
+\doxysection{mesh\+\_\+prediction\+\_\+scheme\+\_\+geometric\+\_\+normal\+\_\+predictor\+\_\+base.\+h}
+\hypertarget{mesh__prediction__scheme__geometric__normal__predictor__base_8h_source}{}\label{mesh__prediction__scheme__geometric__normal__predictor__base_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_geometric\_normal\_predictor\_base.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_geometric\_normal\_predictor\_base.h}}
+\mbox{\hyperlink{mesh__prediction__scheme__geometric__normal__predictor__base_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2017\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_MESH\_PREDICTION\_SCHEME\_GEOMETRIC\_NORMAL\_PREDICTOR\_BASE\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_MESH\_PREDICTION\_SCHEME\_GEOMETRIC\_NORMAL\_PREDICTOR\_BASE\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <math.h>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{point__attribute_8h}{draco/attributes/point\_attribute.h}}"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{normal__compression__utils_8h}{draco/compression/attributes/normal\_compression\_utils.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{compression__shared_8h}{draco/compression/config/compression\_shared.h}}"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{math__utils_8h}{draco/core/math\_utils.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{vector__d_8h}{draco/core/vector\_d.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{corner__table_8h}{draco/mesh/corner\_table.h}}"{}}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{corner__table__iterators_8h}{draco/mesh/corner\_table\_iterators.h}}"{}}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ Base\ class\ for\ geometric\ normal\ predictors\ using\ position\ attribute.}}
+\DoxyCodeLine{00031\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT,\ \textcolor{keyword}{class}\ TransformT,\ \textcolor{keyword}{class}\ MeshDataT>}
+\DoxyCodeLine{00032\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_ae83b63d07c0ef63da32243a3a3632b5f}{MeshPredictionSchemeGeometricNormalPredictorBase}}\ \{}
+\DoxyCodeLine{00033\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00034\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_ae83b63d07c0ef63da32243a3a3632b5f}{MeshPredictionSchemeGeometricNormalPredictorBase}}(\textcolor{keyword}{const}\ MeshDataT\ \&md)}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ :\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a7a1ea481747ee3ab1fda3e8ac1d99b73}{pos\_attribute\_}}(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_ae1efa2ad0a35fcfba29c1ebd93dee453}{entry\_to\_point\_id\_map\_}}(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a0da248ea5e5ee0ecd331f9b95c257d0b}{mesh\_data\_}}(md)\ \{\}}
+\DoxyCodeLine{00038\ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a93420fd1fdc996b15d7dfd079a5cccf9}{\string~MeshPredictionSchemeGeometricNormalPredictorBase}}()\ \{\}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00041\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a4a73e3f18fcae6c283bdad87e88654c9}{SetPositionAttribute}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_attribute}{PointAttribute}}\ \&position\_attribute)\ \{}
+\DoxyCodeLine{00042\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a7a1ea481747ee3ab1fda3e8ac1d99b73}{pos\_attribute\_}}\ =\ \&position\_attribute;}
+\DoxyCodeLine{00043\ \ \ \}}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a987fe19f7b90675f26386fad5c618954}{SetEntryToPointIdMap}}(\textcolor{keyword}{const}\ PointIndex\ *map)\ \{}
+\DoxyCodeLine{00045\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_ae1efa2ad0a35fcfba29c1ebd93dee453}{entry\_to\_point\_id\_map\_}}\ =\ map;}
+\DoxyCodeLine{00046\ \ \ \}}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a90247c1a183d66ad903ebfe844e55892}{IsInitialized}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a7a1ea481747ee3ab1fda3e8ac1d99b73}{pos\_attribute\_}}\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00050\ \ \ \ \ \}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_ae1efa2ad0a35fcfba29c1ebd93dee453}{entry\_to\_point\_id\_map\_}}\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00053\ \ \ \ \ \}}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00055\ \ \ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_abaf60fc8a0e88ca562959a1b07079ceb}{SetNormalPredictionMode}}(\mbox{\hyperlink{namespacedraco_a45e99b5d1efca19dcaba9c9b3e6e89d7}{NormalPredictionMode}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}})\ =\ 0;}
+\DoxyCodeLine{00058\ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{namespacedraco_a45e99b5d1efca19dcaba9c9b3e6e89d7}{NormalPredictionMode}}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a90a1546f22c909c051ed08af09d6e33a}{GetNormalPredictionMode}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a7521aab3e44b8916d1539ed89017c6c3}{normal\_prediction\_mode\_}};}
+\DoxyCodeLine{00060\ \ \ \}}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<int64\_t,\ 3>}}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a899cf726e62f61bff6dab08c2afe35ef}{GetPositionForDataId}}(\textcolor{keywordtype}{int}\ data\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00064\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(this-\/>\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a90247c1a183d66ad903ebfe844e55892}{IsInitialized}}());}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ point\_id\ =\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_ae1efa2ad0a35fcfba29c1ebd93dee453}{entry\_to\_point\_id\_map\_}}[data\_id];}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ pos\_val\_id\ =\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a7a1ea481747ee3ab1fda3e8ac1d99b73}{pos\_attribute\_}}-\/>mapped\_index(point\_id);}
+\DoxyCodeLine{00067\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<int64\_t,\ 3>}}\ pos;}
+\DoxyCodeLine{00068\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a7a1ea481747ee3ab1fda3e8ac1d99b73}{pos\_attribute\_}}-\/>ConvertValue(pos\_val\_id,\ \&pos[0]);}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordflow}{return}\ pos;}
+\DoxyCodeLine{00070\ \ \ \}}
+\DoxyCodeLine{00071\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<int64\_t,\ 3>}}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a54ad37bd5cdfc288e0c6a92f8111f9fa}{GetPositionForCorner}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ ci)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00072\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(this-\/>\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a90247c1a183d66ad903ebfe844e55892}{IsInitialized}}());}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ corner\_table\ =\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a0da248ea5e5ee0ecd331f9b95c257d0b}{mesh\_data\_}}.corner\_table();}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ vert\_id\ =\ corner\_table-\/>Vertex(ci).value();}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{auto}\ data\_id\ =\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a0da248ea5e5ee0ecd331f9b95c257d0b}{mesh\_data\_}}.vertex\_to\_data\_map()-\/>at(vert\_id);}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a899cf726e62f61bff6dab08c2afe35ef}{GetPositionForDataId}}(data\_id);}
+\DoxyCodeLine{00077\ \ \ \}}
+\DoxyCodeLine{00078\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<int32\_t,\ 2>}}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_aa077a651758f78cbf1fb39301f2a899e}{GetOctahedralCoordForDataId}}(\textcolor{keywordtype}{int}\ data\_id,}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ DataTypeT\ *\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}})\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00080\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(this-\/>\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a90247c1a183d66ad903ebfe844e55892}{IsInitialized}}());}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ data\_offset\ =\ data\_id\ *\ 2;}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<int32\_t,\ 2>}}(\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}[data\_offset],\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}[data\_offset\ +\ 1]);}
+\DoxyCodeLine{00083\ \ \ \}}
+\DoxyCodeLine{00084\ \ \ \textcolor{comment}{//\ Computes\ predicted\ octahedral\ coordinates\ on\ a\ given\ corner.}}
+\DoxyCodeLine{00085\ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_ae9c43901f5fa259e11435f6cbd9350cd}{ComputePredictedValue}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_id,}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ DataTypeT\ *prediction)\ =\ 0;}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_attribute}{PointAttribute}}\ *\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a7a1ea481747ee3ab1fda3e8ac1d99b73}{pos\_attribute\_}};}
+\DoxyCodeLine{00089\ \ \ \textcolor{keyword}{const}\ PointIndex\ *\mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_ae1efa2ad0a35fcfba29c1ebd93dee453}{entry\_to\_point\_id\_map\_}};}
+\DoxyCodeLine{00090\ \ \ MeshDataT\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a0da248ea5e5ee0ecd331f9b95c257d0b}{mesh\_data\_}};}
+\DoxyCodeLine{00091\ \ \ \mbox{\hyperlink{namespacedraco_a45e99b5d1efca19dcaba9c9b3e6e89d7}{NormalPredictionMode}}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_predictor_base_a7521aab3e44b8916d1539ed89017c6c3}{normal\_prediction\_mode\_}};}
+\DoxyCodeLine{00092\ \};}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_MESH\_PREDICTION\_SCHEME\_GEOMETRIC\_NORMAL\_PREDICTOR\_BASE\_H\_}}
+
+\end{DoxyCode}
