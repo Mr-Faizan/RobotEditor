@@ -1,0 +1,189 @@
+\doxysection{draco\+\_\+index\+\_\+type.\+h}
+\hypertarget{draco__index__type_8h_source}{}\label{draco__index__type_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/core/draco\_index\_type.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/core/draco\_index\_type.h}}
+\mbox{\hyperlink{draco__index__type_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ This\ files\ provides\ a\ basic\ framework\ for\ strongly\ typed\ indices\ that\ are}}
+\DoxyCodeLine{00016\ \textcolor{comment}{//\ used\ within\ the\ Draco\ library.\ The\ motivation\ of\ using\ strongly\ typed\ indices}}
+\DoxyCodeLine{00017\ \textcolor{comment}{//\ is\ to\ prevent\ bugs\ caused\ by\ mixing\ up\ incompatible\ indices,\ such\ as\ indexing}}
+\DoxyCodeLine{00018\ \textcolor{comment}{//\ mesh\ faces\ with\ point\ indices\ and\ vice\ versa.}}
+\DoxyCodeLine{00019\ \textcolor{comment}{//}}
+\DoxyCodeLine{00020\ \textcolor{comment}{//\ Usage:}}
+\DoxyCodeLine{00021\ \textcolor{comment}{//\ \ \ \ \ \ Define\ strongly\ typed\ index\ using\ macro:}}
+\DoxyCodeLine{00022\ \textcolor{comment}{//}}
+\DoxyCodeLine{00023\ \textcolor{comment}{//\ \ \ \ \ \ \ \ DEFINE\_NEW\_DRACO\_INDEX\_TYPE(value\_type,\ name)}}
+\DoxyCodeLine{00024\ \textcolor{comment}{//}}
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ \ \ \ \ \ where\ |value\_type|\ is\ the\ data\ type\ of\ the\ index\ value\ (such\ as\ int32\_t)}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ \ \ \ \ \ and\ |name|\ is\ a\ unique\ typename\ of\ the\ new\ index.}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ \ \ \ \ \ E.g.,\ we\ can\ define\ new\ index\ types\ as:}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ \ \ \ \ \ \ \ DEFINE\_NEW\_DRACO\_INDEX\_TYPE(int,\ PointIndex)}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ \ \ \ \ \ \ \ DEFINE\_NEW\_DRACO\_INDEX\_TYPE(int,\ FaceIndex)}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ \ \ \ \ \ The\ new\ types\ can\ then\ be\ used\ in\ the\ similar\ way\ as\ the\ regular\ weakly}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ \ \ \ \ \ typed\ indices\ (such\ as\ int32,\ int64,\ ...),\ but\ they\ cannot\ be}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ \ \ \ \ \ accidentally\ misassigned.\ E.g.:}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ \ \ \ \ \ \ \ PointIndex\ point\_index(10);}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ \ \ \ \ \ \ \ FaceIndex\ face\_index;}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ \ \ \ \ \ \ \ face\_index\ =\ point\_index;\ \ //\ Compile\ error!}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ \ \ \ \ \ One\ can\ still\ cast\ one\ type\ to\ another\ explicitly\ by\ accessing\ the\ index}}
+\DoxyCodeLine{00042\ \textcolor{comment}{//\ \ \ \ \ \ value\ directly\ using\ the\ .value()\ method:}}
+\DoxyCodeLine{00043\ \textcolor{comment}{//}}
+\DoxyCodeLine{00044\ \textcolor{comment}{//\ \ \ \ \ \ \ \ face\_index\ =\ FaceIndex(point\_index.value());\ \ //\ Compiles\ OK.}}
+\DoxyCodeLine{00045\ \textcolor{comment}{//}}
+\DoxyCodeLine{00046\ \textcolor{comment}{//\ \ \ \ \ \ Strongly\ typed\ indices\ support\ most\ of\ the\ common\ binary\ and\ unary}}
+\DoxyCodeLine{00047\ \textcolor{comment}{//\ \ \ \ \ \ operators\ and\ support\ for\ additional\ operators\ can\ be\ added\ if}}
+\DoxyCodeLine{00048\ \textcolor{comment}{//\ \ \ \ \ \ necessary.}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#ifndef\ DRACO\_CORE\_DRACO\_INDEX\_TYPE\_H\_}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#define\ DRACO\_CORE\_DRACO\_INDEX\_TYPE\_H\_}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#include\ <ostream>}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#define\ DEFINE\_NEW\_DRACO\_INDEX\_TYPE(value\_type,\ name)\ \(\backslash\)}}
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\ \ struct\ name\#\#\_tag\_type\_\ \{\};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\ \ typedef\ IndexType<value\_type,\ name\#\#\_tag\_type\_>\ name;}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ ValueTypeT,\ \textcolor{keyword}{class}\ TagT>}
+\DoxyCodeLine{00064\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType}}\ \{}
+\DoxyCodeLine{00065\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00066\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType<ValueTypeT,\ TagT>}}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}};}
+\DoxyCodeLine{00067\ \ \ \textcolor{keyword}{typedef}\ ValueTypeT\ \mbox{\hyperlink{classdraco_1_1_index_type_a06a8250a53d128588e15c1e74a4072cf}{ValueType}};}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType}}()\ :\ value\_(ValueTypeT())\ \{\}}
+\DoxyCodeLine{00070\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_index_type_a9d1839db97542dee35464518a33accdf}{IndexType}}(ValueTypeT\ \mbox{\hyperlink{classdraco_1_1_index_type_a07b9c8a531f39729418cb89f557b45e7}{value}})\ :\ value\_(\mbox{\hyperlink{classdraco_1_1_index_type_a07b9c8a531f39729418cb89f557b45e7}{value}})\ \{\}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \textcolor{keyword}{constexpr}\ ValueTypeT\ \mbox{\hyperlink{classdraco_1_1_index_type_a07b9c8a531f39729418cb89f557b45e7}{value}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ value\_;\ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_index_type_ab626098d03e657512b0440fc72162f68}{operator==}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType}}\ \&i)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordflow}{return}\ value\_\ ==\ i.value\_;}
+\DoxyCodeLine{00076\ \ \ \}}
+\DoxyCodeLine{00077\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8783af3733c478c789471e6fa1a37407}{operator==}}(\textcolor{keyword}{const}\ ValueTypeT\ \&val)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordflow}{return}\ value\_\ ==\ val;}
+\DoxyCodeLine{00079\ \ \ \}}
+\DoxyCodeLine{00080\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_index_type_ae8f62809c74a20d01c67511bd9aca0ad}{operator!=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType}}\ \&i)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordflow}{return}\ value\_\ !=\ i.value\_;}
+\DoxyCodeLine{00082\ \ \ \}}
+\DoxyCodeLine{00083\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_index_type_a9016c6753a2154183acfd0f47ba03c4f}{operator!=}}(\textcolor{keyword}{const}\ ValueTypeT\ \&val)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordflow}{return}\ value\_\ !=\ val;}
+\DoxyCodeLine{00085\ \ \ \}}
+\DoxyCodeLine{00086\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_index_type_a055d84fd7c033ef981a27eed3890596a}{operator<}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType}}\ \&i)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{return}\ value\_\ <\ i.value\_;}
+\DoxyCodeLine{00088\ \ \ \}}
+\DoxyCodeLine{00089\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_index_type_ac895b264c2286e653d992ced60232880}{operator<}}(\textcolor{keyword}{const}\ ValueTypeT\ \&val)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ value\_\ <\ val;\ \}}
+\DoxyCodeLine{00090\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_index_type_a68c7fd5e1b68afbca1d8c3915d5baf65}{operator>}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType}}\ \&i)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordflow}{return}\ value\_\ >\ i.value\_;}
+\DoxyCodeLine{00092\ \ \ \}}
+\DoxyCodeLine{00093\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_index_type_a7f97d874da550910198cdd2d5f2ac37e}{operator>}}(\textcolor{keyword}{const}\ ValueTypeT\ \&val)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ value\_\ >\ val;\ \}}
+\DoxyCodeLine{00094\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_index_type_a7f475f9c01545cddb4add247f4f25f32}{operator>=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType}}\ \&i)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordflow}{return}\ value\_\ >=\ i.value\_;}
+\DoxyCodeLine{00096\ \ \ \}}
+\DoxyCodeLine{00097\ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_index_type_a7558dee940f7cd78cca038f31915bb23}{operator>=}}(\textcolor{keyword}{const}\ ValueTypeT\ \&val)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keywordflow}{return}\ value\_\ >=\ val;}
+\DoxyCodeLine{00099\ \ \ \}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \&\mbox{\hyperlink{classdraco_1_1_index_type_a54d56c54f7f5d3b34082e4de1d4e1961}{operator++}}()\ \{}
+\DoxyCodeLine{00102\ \ \ \ \ ++value\_;}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00104\ \ \ \}}
+\DoxyCodeLine{00105\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \mbox{\hyperlink{classdraco_1_1_index_type_a45c52ccc7fe148057bed2e464f683d4f}{operator++}}(\textcolor{keywordtype}{int})\ \{}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ ret(value\_);}
+\DoxyCodeLine{00107\ \ \ \ \ ++value\_;}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00109\ \ \ \}}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \&\mbox{\hyperlink{classdraco_1_1_index_type_ab4d487379bd5dd631949128a2e88b268}{operator-\/-\/}}()\ \{}
+\DoxyCodeLine{00112\ \ \ \ \ -\/-\/value\_;}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00114\ \ \ \}}
+\DoxyCodeLine{00115\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \mbox{\hyperlink{classdraco_1_1_index_type_ad60aaa62a1dc3b828b0ec65e8b11e1ba}{operator-\/-\/}}(\textcolor{keywordtype}{int})\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ ret(value\_);}
+\DoxyCodeLine{00117\ \ \ \ \ -\/-\/value\_;}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00119\ \ \ \}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \mbox{\hyperlink{classdraco_1_1_index_type_a4caf8f1e37793c84df191fe3877fe969}{operator+}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType}}\ \&i)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}(value\_\ +\ i.value\_);}
+\DoxyCodeLine{00123\ \ \ \}}
+\DoxyCodeLine{00124\ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \mbox{\hyperlink{classdraco_1_1_index_type_a1cccf999ae583a923031fb058fb4d9f8}{operator+}}(\textcolor{keyword}{const}\ ValueTypeT\ \&val)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}(value\_\ +\ val);}
+\DoxyCodeLine{00126\ \ \ \}}
+\DoxyCodeLine{00127\ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \mbox{\hyperlink{classdraco_1_1_index_type_a797f505c540617c92f61647fd84fd85b}{operator-\/}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType}}\ \&i)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}(value\_\ -\/\ i.value\_);}
+\DoxyCodeLine{00129\ \ \ \}}
+\DoxyCodeLine{00130\ \ \ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \mbox{\hyperlink{classdraco_1_1_index_type_aec6a42e4602f99f52b51c91eb2f21bb3}{operator-\/}}(\textcolor{keyword}{const}\ ValueTypeT\ \&val)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}(value\_\ -\/\ val);}
+\DoxyCodeLine{00132\ \ \ \}}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \&\mbox{\hyperlink{classdraco_1_1_index_type_a13ae484a17a19f933212e6a3511be2e6}{operator+=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType}}\ \&i)\ \{}
+\DoxyCodeLine{00135\ \ \ \ \ value\_\ +=\ i.value\_;}
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00137\ \ \ \}}
+\DoxyCodeLine{00138\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \mbox{\hyperlink{classdraco_1_1_index_type_a1878971914236c18377f6f595b2d1e60}{operator+=}}(\textcolor{keyword}{const}\ ValueTypeT\ \&val)\ \{}
+\DoxyCodeLine{00139\ \ \ \ \ value\_\ +=\ val;}
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00141\ \ \ \}}
+\DoxyCodeLine{00142\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \&\mbox{\hyperlink{classdraco_1_1_index_type_a1707d6b2a3dc26023046cec81d130671}{operator-\/=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a8bb319daa63ad1d9504ad57100633215}{IndexType}}\ \&i)\ \{}
+\DoxyCodeLine{00143\ \ \ \ \ value\_\ -\/=\ i.value\_;}
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00145\ \ \ \}}
+\DoxyCodeLine{00146\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \mbox{\hyperlink{classdraco_1_1_index_type_a81a6e22260faacd260c6fd4905d35a1b}{operator-\/=}}(\textcolor{keyword}{const}\ ValueTypeT\ \&val)\ \{}
+\DoxyCodeLine{00147\ \ \ \ \ value\_\ -\/=\ val;}
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00149\ \ \ \}}
+\DoxyCodeLine{00150\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \&\mbox{\hyperlink{classdraco_1_1_index_type_a5388c4d23e1244555937649f706b9ead}{operator=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \&i)\ \{}
+\DoxyCodeLine{00151\ \ \ \ \ value\_\ =\ i.value\_;}
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00153\ \ \ \}}
+\DoxyCodeLine{00154\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classdraco_1_1_index_type_a48a078d510dabdceca7d57b7ffb8251e}{ThisIndexType}}\ \&\mbox{\hyperlink{classdraco_1_1_index_type_a3a5df69a58cc683c3c4f5fa7d79fedc6}{operator=}}(\textcolor{keyword}{const}\ ValueTypeT\ \&val)\ \{}
+\DoxyCodeLine{00155\ \ \ \ \ value\_\ =\ val;}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00157\ \ \ \}}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00160\ \ \ ValueTypeT\ value\_;}
+\DoxyCodeLine{00161\ \};}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \textcolor{comment}{//\ Stream\ operator\ <<\ provided\ for\ logging\ purposes.}}
+\DoxyCodeLine{00164\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ ValueTypeT,\ \textcolor{keyword}{class}\ TagT>}
+\DoxyCodeLine{00165\ std::ostream\ \&\mbox{\hyperlink{namespacedraco_afe05ae2050320c4671583f5bf6578c61}{operator<<}}(std::ostream\ \&os,\ \mbox{\hyperlink{classdraco_1_1_index_type}{IndexType<ValueTypeT,\ TagT>}}\ index)\ \{}
+\DoxyCodeLine{00166\ \ \ \textcolor{keywordflow}{return}\ os\ <<\ index.\mbox{\hyperlink{classdraco_1_1_index_type_a07b9c8a531f39729418cb89f557b45e7}{value}}();}
+\DoxyCodeLine{00167\ \}}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \textcolor{comment}{//\ Specialize\ std::hash\ for\ the\ strongly\ indexed\ types.}}
+\DoxyCodeLine{00172\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacestd}{std}}\ \{}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ ValueTypeT,\ \textcolor{keyword}{class}\ TagT>}
+\DoxyCodeLine{00175\ \textcolor{keyword}{struct\ }hash<\mbox{\hyperlink{namespacedraco}{draco}}::IndexType<ValueTypeT,\ TagT>>\ \{}
+\DoxyCodeLine{00176\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structstd_1_1hash_3_01draco_1_1_index_type_3_01_value_type_t_00_01_tag_t_01_4_01_4_a132116b4f6839b98d3e0945dc85b410e}{operator()}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type}{draco::IndexType<ValueTypeT,\ TagT>}}\ \&i)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(i.\mbox{\hyperlink{classdraco_1_1_index_type_a07b9c8a531f39729418cb89f557b45e7}{value}}());}
+\DoxyCodeLine{00178\ \ \ \}}
+\DoxyCodeLine{00179\ \};}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \}\ \ \textcolor{comment}{//\ namespace\ std}}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_CORE\_DRACO\_INDEX\_TYPE\_H\_}}
+
+\end{DoxyCode}

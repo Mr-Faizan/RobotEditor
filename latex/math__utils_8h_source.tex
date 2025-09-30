@@ -1,0 +1,85 @@
+\doxysection{math\+\_\+utils.\+h}
+\hypertarget{math__utils_8h_source}{}\label{math__utils_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/core/math\_utils.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/core/math\_utils.h}}
+\mbox{\hyperlink{math__utils_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_CORE\_MATH\_UTILS\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_CORE\_MATH\_UTILS\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{inttypes_8h}{inttypes.h}}>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{vector__d_8h}{draco/core/vector\_d.h}}"{}}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#define\ DRACO\_INCREMENT\_MOD(I,\ M)\ (((I)\ ==\ ((M)-\/1))\ ?\ 0\ :\ ((I)\ +\ 1))}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ Returns\ floor(sqrt(x))\ where\ x\ is\ an\ integer\ number.\ The\ main\ intend\ of\ this}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ function\ is\ to\ provide\ a\ cross\ platform\ and\ deterministic\ implementation\ of}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ square\ root\ for\ integer\ numbers.\ This\ function\ is\ not\ intended\ to\ be\ a}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ replacement\ for\ std::sqrt()\ for\ general\ cases.\ IntSqrt\ is\ in\ fact\ about\ 3X}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ slower\ compared\ to\ most\ implementation\ of\ std::sqrt().}}
+\DoxyCodeLine{00031\ \textcolor{keyword}{inline}\ uint64\_t\ \mbox{\hyperlink{namespacedraco_a8862c96f98494289027d7ac5ec60f170}{IntSqrt}}(uint64\_t\ number)\ \{}
+\DoxyCodeLine{00032\ \ \ \textcolor{keywordflow}{if}\ (number\ ==\ 0)\ \{}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00034\ \ \ \}}
+\DoxyCodeLine{00035\ \ \ \textcolor{comment}{//\ First\ estimate\ good\ initial\ value\ of\ the\ square\ root\ as\ log2(number).}}
+\DoxyCodeLine{00036\ \ \ uint64\_t\ act\_number\ =\ number;}
+\DoxyCodeLine{00037\ \ \ uint64\_t\ square\_root\ =\ 1;}
+\DoxyCodeLine{00038\ \ \ \textcolor{keywordflow}{while}\ (act\_number\ >=\ 2)\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{comment}{//\ Double\ the\ square\ root\ until\ |square\_root\ *\ square\_root\ >\ number|.}}
+\DoxyCodeLine{00040\ \ \ \ \ square\_root\ *=\ 2;}
+\DoxyCodeLine{00041\ \ \ \ \ act\_number\ /=\ 4;}
+\DoxyCodeLine{00042\ \ \ \}}
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ Perform\ Newton's\ (or\ Babylonian)\ method\ to\ find\ the\ true\ floor(sqrt()).}}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordflow}{do}\ \{}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//\ New\ |square\_root|\ estimate\ is\ computed\ as\ the\ average\ between}}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//\ |square\_root|\ and\ |number\ /\ square\_root|.}}
+\DoxyCodeLine{00047\ \ \ \ \ square\_root\ =\ (square\_root\ +\ number\ /\ square\_root)\ /\ 2;}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{comment}{//\ Note\ that\ after\ the\ first\ iteration,\ the\ estimate\ is\ always\ going\ to\ be}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//\ larger\ or\ equal\ to\ the\ true\ square\ root\ value.\ Therefore\ to\ check}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ convergence,\ we\ can\ simply\ detect\ condition\ when\ the\ square\ of\ the}}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{comment}{//\ estimated\ square\ root\ is\ larger\ than\ the\ input.}}
+\DoxyCodeLine{00053\ \ \ \}\ \textcolor{keywordflow}{while}\ (square\_root\ *\ square\_root\ >\ number);}
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordflow}{return}\ square\_root;}
+\DoxyCodeLine{00055\ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{comment}{//\ Performs\ the\ addition\ in\ unsigned\ type\ to\ avoid\ signed\ integer\ overflow.\ Note}}
+\DoxyCodeLine{00058\ \textcolor{comment}{//\ that\ the\ result\ will\ be\ the\ same\ (for\ non-\/overflowing\ values).}}
+\DoxyCodeLine{00059\ \textcolor{keyword}{template}\ <}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keyword}{typename}\ DataTypeT,}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keyword}{typename}\ std::enable\_if<std::is\_integral<DataTypeT>::value\ \&\&}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::is\_signed<DataTypeT>::value>::type\ *\ =\ \textcolor{keyword}{nullptr}>}
+\DoxyCodeLine{00063\ \textcolor{keyword}{inline}\ DataTypeT\ \mbox{\hyperlink{namespacedraco_ae00f5e2eef9ec9513513df08762397f9}{AddAsUnsigned}}(DataTypeT\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},\ DataTypeT\ b)\ \{}
+\DoxyCodeLine{00064\ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{typename}\ std::make\_unsigned<DataTypeT>::type\ DataTypeUT;}
+\DoxyCodeLine{00065\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}DataTypeT\textcolor{keyword}{>}(\textcolor{keyword}{static\_cast<}DataTypeUT\textcolor{keyword}{>}(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}})\ +}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}DataTypeUT\textcolor{keyword}{>}(b));}
+\DoxyCodeLine{00067\ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT,}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ std::enable\_if<!std::is\_integral<DataTypeT>::value\ ||}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ !std::is\_signed<DataTypeT>::value>::type\ *\ =}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{nullptr}>}
+\DoxyCodeLine{00073\ \textcolor{keyword}{inline}\ DataTypeT\ \mbox{\hyperlink{namespacedraco_ae00f5e2eef9ec9513513df08762397f9}{AddAsUnsigned}}(DataTypeT\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},\ DataTypeT\ b)\ \{}
+\DoxyCodeLine{00074\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}\ +\ b;}
+\DoxyCodeLine{00075\ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_CORE\_MATH\_UTILS\_H\_}}
+
+\end{DoxyCode}

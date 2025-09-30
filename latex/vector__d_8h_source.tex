@@ -1,0 +1,361 @@
+\doxysection{vector\+\_\+d.\+h}
+\hypertarget{vector__d_8h_source}{}\label{vector__d_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/core/vector\_d.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/core/vector\_d.h}}
+\mbox{\hyperlink{vector__d_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_CORE\_VECTOR\_D\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_CORE\_VECTOR\_D\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{inttypes_8h}{inttypes.h}}>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <array>}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ <limits>}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ D-\/dimensional\ vector\ class\ with\ basic\ operations.}}
+\DoxyCodeLine{00029\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ ScalarT,\ \textcolor{keywordtype}{int}\ dimension\_t>}
+\DoxyCodeLine{00030\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_vector_d_a07ceead2521b63fc40e33c658478b0df}{VectorD}}\ \{}
+\DoxyCodeLine{00031\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00032\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}}\ =\ dimension\_t;}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \textcolor{keyword}{typedef}\ ScalarT\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}};}
+\DoxyCodeLine{00035\ \ \ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a07ceead2521b63fc40e33c658478b0df}{VectorD<Scalar,\ dimension\_t>}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}};}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \textcolor{comment}{//\ TODO(b/199760123):\ Deprecate.}}
+\DoxyCodeLine{00038\ \ \ \textcolor{keyword}{typedef}\ ScalarT\ \mbox{\hyperlink{classdraco_1_1_vector_d_aef690620eb8e4767127f915d97b382d7}{CoefficientType}};}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a07ceead2521b63fc40e33c658478b0df}{VectorD}}()\ \{}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ (*this)[i]\ =\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}(0);}
+\DoxyCodeLine{00043\ \ \ \ \ \}}
+\DoxyCodeLine{00044\ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ The\ following\ constructor\ does\ not\ compile\ in\ opt\ mode,\ which\ for\ now\ led}}
+\DoxyCodeLine{00047\ \ \ \textcolor{comment}{//\ to\ the\ constructors\ further\ down,\ which\ is\ not\ ideal.}}
+\DoxyCodeLine{00048\ \ \ \textcolor{comment}{//\ TODO(b/199760123):\ Fix\ constructor\ below\ and\ remove\ others.}}
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//\ template\ <typename...\ Args>}}
+\DoxyCodeLine{00050\ \ \ \textcolor{comment}{//\ explicit\ VectorD(Args...\ args)\ :\ v\_(\{args...\})\ \{\}}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a1c3ec5b23ab84c71aa849fce49ebf4d7}{VectorD}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c0,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c1)\ :\ v\_(\{\{c0,\ c1\}\})\ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}},\ 2);}
+\DoxyCodeLine{00054\ \ \ \ \ v\_[0]\ =\ c0;}
+\DoxyCodeLine{00055\ \ \ \ \ v\_[1]\ =\ c1;}
+\DoxyCodeLine{00056\ \ \ \}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_af8ee1b4ab8b7ff4e8c8a9d7bcf4e3096}{VectorD}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c0,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c1,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c2)}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ :\ v\_(\{\{c0,\ c1,\ c2\}\})\ \{}
+\DoxyCodeLine{00060\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}},\ 3);}
+\DoxyCodeLine{00061\ \ \ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_ac2f4d3fa7524951610f1e5a355f218e3}{VectorD}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c0,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c1,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c2,}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c3)}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ :\ v\_(\{\{c0,\ c1,\ c2,\ c3\}\})\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}},\ 4);}
+\DoxyCodeLine{00067\ \ \ \}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_ac75e84b821c6d080d52fbdce1ac993a5}{VectorD}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c0,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c1,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c2,}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c3,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c4)}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ :\ v\_(\{\{c0,\ c1,\ c2,\ c3,\ c4\}\})\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}},\ 5);}
+\DoxyCodeLine{00073\ \ \ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a5d8c8c4f42cffd8f7ecedf43d969a75f}{VectorD}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c0,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c1,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c2,}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c3,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c4,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c5)}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ :\ v\_(\{\{c0,\ c1,\ c2,\ c3,\ c4,\ c5\}\})\ \{}
+\DoxyCodeLine{00078\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}},\ 6);}
+\DoxyCodeLine{00079\ \ \ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_ae5da2db3924be022a1f76bf145d9b7b8}{VectorD}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c0,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c1,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c2,}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c3,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c4,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c5,}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&c6)}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ :\ v\_(\{\{c0,\ c1,\ c2,\ c3,\ c4,\ c5,\ c6\}\})\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5234679c5df37874d7d623fb16a0394e}{DRACO\_DCHECK\_EQ}}(\mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}},\ 7);}
+\DoxyCodeLine{00086\ \ \ \}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a060b00b3b137aed035fa8117108fea0c}{VectorD}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&o)\ \{}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ (*this)[i]\ =\ o[i];}
+\DoxyCodeLine{00091\ \ \ \ \ \}}
+\DoxyCodeLine{00092\ \ \ \}}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ \textcolor{comment}{//\ Constructs\ the\ vector\ from\ another\ vector\ with\ a\ different\ data\ type\ or\ a}}
+\DoxyCodeLine{00095\ \ \ \textcolor{comment}{//\ different\ number\ of\ components.\ If\ the\ |src\_vector|\ has\ more\ components}}
+\DoxyCodeLine{00096\ \ \ \textcolor{comment}{//\ than\ |this|\ vector,\ the\ excess\ components\ are\ truncated.\ If\ the}}
+\DoxyCodeLine{00097\ \ \ \textcolor{comment}{//\ |src\_vector|\ has\ fewer\ components\ than\ |this|\ vector,\ the\ remaining}}
+\DoxyCodeLine{00098\ \ \ \textcolor{comment}{//\ components\ are\ padded\ with\ 0.}}
+\DoxyCodeLine{00099\ \ \ \textcolor{comment}{//\ Note\ that\ the\ constructor\ is\ intentionally\ explicit\ to\ avoid\ accidental}}
+\DoxyCodeLine{00100\ \ \ \textcolor{comment}{//\ conversions\ between\ different\ vector\ types.}}
+\DoxyCodeLine{00101\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ OtherScalarT,\ \textcolor{keywordtype}{int}\ other\_dimension\_t>}
+\DoxyCodeLine{00102\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68f913b37fbe070783bfa995f61bf953}{VectorD}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a07ceead2521b63fc40e33c658478b0df}{VectorD<OtherScalarT,\ other\_dimension\_t>}}\ \&src\_vector)\ \{}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ <\ other\_dimension\_t)\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ v\_[i]\ =\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}(src\_vector[i]);}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ v\_[i]\ =\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}(0);}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00109\ \ \ \ \ \}}
+\DoxyCodeLine{00110\ \ \ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&\mbox{\hyperlink{classdraco_1_1_vector_d_a60ca7054db37ed9ba707f7d85aad4645}{operator[]}}(\textcolor{keywordtype}{int}\ i)\ \{\ \textcolor{keywordflow}{return}\ v\_[i];\ \}}
+\DoxyCodeLine{00113\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&\mbox{\hyperlink{classdraco_1_1_vector_d_aff874fbfb854489b89e536cc831b8190}{operator[]}}(\textcolor{keywordtype}{int}\ i)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ v\_[i];\ \}}
+\DoxyCodeLine{00114\ \ \ \textcolor{comment}{//\ TODO(b/199760123):\ Remove.}}
+\DoxyCodeLine{00115\ \ \ \textcolor{comment}{//\ Similar\ to\ interface\ of\ Eigen\ library.}}
+\DoxyCodeLine{00116\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&\mbox{\hyperlink{classdraco_1_1_vector_d_a27a74dd291ff4a20b66401c75a1cc249}{operator()}}(\textcolor{keywordtype}{int}\ i)\ \{\ \textcolor{keywordflow}{return}\ v\_[i];\ \}}
+\DoxyCodeLine{00117\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&\mbox{\hyperlink{classdraco_1_1_vector_d_a2c8486c653ec609ec5f76316cf33070f}{operator()}}(\textcolor{keywordtype}{int}\ i)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ v\_[i];\ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \textcolor{comment}{//\ Unary\ operators.}}
+\DoxyCodeLine{00120\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a61929c4f9129819079dce10c32f27c66}{operator-\/}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00121\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ ret;}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ ret[i]\ =\ -\/(*this)[i];}
+\DoxyCodeLine{00124\ \ \ \ \ \}}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00126\ \ \ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \textcolor{comment}{//\ Binary\ operators.}}
+\DoxyCodeLine{00129\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_afcd451585bb28b16b2b3a5745b1e0549}{operator+}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&o)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00130\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ ret;}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ ret[i]\ =\ (*this)[i]\ +\ o[i];}
+\DoxyCodeLine{00133\ \ \ \ \ \}}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00135\ \ \ \}}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a4789fc587ccc47983368dfbb34933ba1}{operator-\/}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&o)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00138\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ ret;}
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ ret[i]\ =\ (*this)[i]\ -\/\ o[i];}
+\DoxyCodeLine{00141\ \ \ \ \ \}}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00143\ \ \ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ae98b1e69d41408e399a402b7d92615f8}{operator*}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&o)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00146\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ ret;}
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ ret[i]\ =\ (*this)[i]\ *\ o[i];}
+\DoxyCodeLine{00149\ \ \ \ \ \}}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00151\ \ \ \}}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&\mbox{\hyperlink{classdraco_1_1_vector_d_a191dbe83c2746d3db37a9091a41fd3d7}{operator+=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&o)\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ (*this)[i]\ +=\ o[i];}
+\DoxyCodeLine{00156\ \ \ \ \ \}}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00158\ \ \ \}}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&\mbox{\hyperlink{classdraco_1_1_vector_d_a0e271ce17e9ae8f77d23542f56e55c88}{operator-\/=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&o)\ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ (*this)[i]\ -\/=\ o[i];}
+\DoxyCodeLine{00163\ \ \ \ \ \}}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00165\ \ \ \}}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&\mbox{\hyperlink{classdraco_1_1_vector_d_a74f2fc908f484b2c9e49db1f038f6367}{operator*=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&o)\ \{}
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ (*this)[i]\ *=\ o[i];}
+\DoxyCodeLine{00170\ \ \ \ \ \}}
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00172\ \ \ \}}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_aa7ff73d513079e69732fbd829d4191bd}{operator*}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&o)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00175\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ ret;}
+\DoxyCodeLine{00176\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ ret[i]\ =\ (*this)[i]\ *\ o;}
+\DoxyCodeLine{00178\ \ \ \ \ \}}
+\DoxyCodeLine{00179\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00180\ \ \ \}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad717fea44541debe482ebd3e2eff9a4f}{operator/}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&o)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00183\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ ret;}
+\DoxyCodeLine{00184\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ ret[i]\ =\ (*this)[i]\ /\ o;}
+\DoxyCodeLine{00186\ \ \ \ \ \}}
+\DoxyCodeLine{00187\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00188\ \ \ \}}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a0be4a0f761679d03af6b61a6b90080f9}{operator+}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&o)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00191\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ ret;}
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ ret[i]\ =\ (*this)[i]\ +\ o;}
+\DoxyCodeLine{00194\ \ \ \ \ \}}
+\DoxyCodeLine{00195\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00196\ \ \ \}}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a8f40c65a61bebfc948c115de24bffc62}{operator-\/}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&o)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00199\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ ret;}
+\DoxyCodeLine{00200\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ ret[i]\ =\ (*this)[i]\ -\/\ o;}
+\DoxyCodeLine{00202\ \ \ \ \ \}}
+\DoxyCodeLine{00203\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00204\ \ \ \}}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab50a7b7781b57b9ab0fcbd29a4bea484}{operator==}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&o)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((*\textcolor{keyword}{this})[i]\ !=\ o[i])\ \{}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00211\ \ \ \ \ \}}
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00213\ \ \ \}}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00215\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a6226dece6b6b94b3c1b635ecceb30723}{operator!=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&x)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ !((*this)\ ==\ x);\ \}}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_vector_d_aeb89d381c6b2f24366241061ac306572}{operator<}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&x)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00218\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}}\ -\/\ 1;\ ++i)\ \{}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (v\_[i]\ <\ x.v\_[i])\ \{}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (v\_[i]\ >\ x.v\_[i])\ \{}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00225\ \ \ \ \ \}}
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{comment}{//\ Only\ one\ check\ needed\ for\ the\ last\ dimension.}}
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keywordflow}{if}\ (v\_[\mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}}\ -\/\ 1]\ <\ x.v\_[\mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}}\ -\/\ 1])\ \{}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00229\ \ \ \ \ \}}
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00231\ \ \ \}}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00233\ \ \ \textcolor{comment}{//\ Functions.}}
+\DoxyCodeLine{00234\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad56a37626a1fcf6af2f3fc36242bac5f}{SquaredNorm}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ this-\/>\mbox{\hyperlink{classdraco_1_1_vector_d_ab9011cc2a8a5fa871df147a590eabcc9}{Dot}}(*\textcolor{keyword}{this});\ \}}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00236\ \ \ \textcolor{comment}{//\ Computes\ L1,\ the\ sum\ of\ absolute\ values\ of\ all\ entries.}}
+\DoxyCodeLine{00237\ \ \ Scalar\ \mbox{\hyperlink{classdraco_1_1_vector_d_a69c3962ee68191963cd463742a29cf7e}{AbsSum}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00238\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ result(0);}
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ next\_value\ =\ std::abs(v\_[i]);}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (result\ >\ std::numeric\_limits<Scalar>::max()\ -\/\ next\_value)\ \{}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Return\ the\ max\ if\ adding\ would\ have\ caused\ an\ overflow.}}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::numeric\_limits<Scalar>::max();}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ result\ +=\ next\_value;}
+\DoxyCodeLine{00246\ \ \ \ \ \}}
+\DoxyCodeLine{00247\ \ \ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{00248\ \ \ \}}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab9011cc2a8a5fa871df147a590eabcc9}{Dot}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \&o)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00251\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ ret(0);}
+\DoxyCodeLine{00252\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ ret\ +=\ (*this)[i]\ *\ o[i];}
+\DoxyCodeLine{00254\ \ \ \ \ \}}
+\DoxyCodeLine{00255\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00256\ \ \ \}}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_vector_d_aea572cfbf0729700432db77693a9164a}{Normalize}}()\ \{}
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ magnitude\ =\ std::sqrt(this-\/>\mbox{\hyperlink{classdraco_1_1_vector_d_ad56a37626a1fcf6af2f3fc36242bac5f}{SquaredNorm}}());}
+\DoxyCodeLine{00260\ \ \ \ \ \textcolor{keywordflow}{if}\ (magnitude\ ==\ 0)\ \{}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00262\ \ \ \ \ \}}
+\DoxyCodeLine{00263\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classdraco_1_1_vector_d_ab47ffc88bda2e08c8db54e47c816f80b}{dimension}};\ ++i)\ \{}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ (*this)[i]\ /=\ magnitude;}
+\DoxyCodeLine{00265\ \ \ \ \ \}}
+\DoxyCodeLine{00266\ \ \ \}}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ \mbox{\hyperlink{classdraco_1_1_vector_d_a7039013e180c95f8c188e616bf80f58f}{GetNormalized}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00269\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_a68416dffe023c2243ff38068d4bd14ac}{Self}}\ ret(*\textcolor{keyword}{this});}
+\DoxyCodeLine{00270\ \ \ \ \ ret.\mbox{\hyperlink{classdraco_1_1_vector_d_aea572cfbf0729700432db77693a9164a}{Normalize}}();}
+\DoxyCodeLine{00271\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00272\ \ \ \}}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00274\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&\mbox{\hyperlink{classdraco_1_1_vector_d_ab7952e5fecaf2e2b7cc010eea7eac552}{MaxCoeff}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00275\ \ \ \ \ \textcolor{keywordflow}{return}\ *std::max\_element(v\_.begin(),\ v\_.end());}
+\DoxyCodeLine{00276\ \ \ \}}
+\DoxyCodeLine{00277\ }
+\DoxyCodeLine{00278\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ \&\mbox{\hyperlink{classdraco_1_1_vector_d_a15ab3459ae141b2382df9d3cd39e9bbd}{MinCoeff}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00279\ \ \ \ \ \textcolor{keywordflow}{return}\ *std::min\_element(v\_.begin(),\ v\_.end());}
+\DoxyCodeLine{00280\ \ \ \}}
+\DoxyCodeLine{00281\ }
+\DoxyCodeLine{00282\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ *\mbox{\hyperlink{classdraco_1_1_vector_d_ab24391d144e122873e2868d303286481}{data}}()\ \{\ \textcolor{keywordflow}{return}\ \&(v\_[0]);\ \}}
+\DoxyCodeLine{00283\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d_ad900316b9ea403dac7fb45a98afb5ee1}{Scalar}}\ *\mbox{\hyperlink{classdraco_1_1_vector_d_ac4318415246880b2430cb3cbf70ca21e}{data}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \&(v\_[0]);\ \}}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00286\ \ \ std::array<Scalar,\ dimension>\ v\_;}
+\DoxyCodeLine{00287\ \};}
+\DoxyCodeLine{00288\ }
+\DoxyCodeLine{00289\ \textcolor{comment}{//\ Scalar\ multiplication\ from\ the\ other\ side\ too.}}
+\DoxyCodeLine{00290\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ ScalarT,\ \textcolor{keywordtype}{int}\ dimension\_t>}
+\DoxyCodeLine{00291\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<ScalarT,\ dimension\_t>}}\ \mbox{\hyperlink{namespacedraco_a34bab2dfd143866be9534e7920f3904c}{operator*}}(}
+\DoxyCodeLine{00292\ \ \ \ \ \textcolor{keyword}{const}\ ScalarT\ \&o,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<ScalarT,\ dimension\_t>}}\ \&v)\ \{}
+\DoxyCodeLine{00293\ \ \ \textcolor{keywordflow}{return}\ v\ *\ o;}
+\DoxyCodeLine{00294\ \}}
+\DoxyCodeLine{00295\ }
+\DoxyCodeLine{00296\ \textcolor{comment}{//\ Calculates\ the\ squared\ distance\ between\ two\ points.}}
+\DoxyCodeLine{00297\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ ScalarT,\ \textcolor{keywordtype}{int}\ dimension\_t>}
+\DoxyCodeLine{00298\ ScalarT\ \mbox{\hyperlink{namespacedraco_ae573bf93220aca1df53c26da063275d8}{SquaredDistance}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<ScalarT,\ dimension\_t>}}\ \&v1,}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<ScalarT,\ dimension\_t>}}\ \&v2)\ \{}
+\DoxyCodeLine{00300\ \ \ ScalarT\ difference;}
+\DoxyCodeLine{00301\ \ \ ScalarT\ squared\_distance\ =\ 0;}
+\DoxyCodeLine{00302\ \ \ \textcolor{comment}{//\ Check\ each\ index\ separately\ so\ difference\ is\ never\ negative\ and\ underflow}}
+\DoxyCodeLine{00303\ \ \ \textcolor{comment}{//\ is\ avoided\ for\ unsigned\ types.}}
+\DoxyCodeLine{00304\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ dimension\_t;\ ++i)\ \{}
+\DoxyCodeLine{00305\ \ \ \ \ \textcolor{keywordflow}{if}\ (v1[i]\ >=\ v2[i])\ \{}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ difference\ =\ v1[i]\ -\/\ v2[i];}
+\DoxyCodeLine{00307\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ difference\ =\ v2[i]\ -\/\ v1[i];}
+\DoxyCodeLine{00309\ \ \ \ \ \}}
+\DoxyCodeLine{00310\ \ \ \ \ squared\_distance\ +=\ (difference\ *\ difference);}
+\DoxyCodeLine{00311\ \ \ \}}
+\DoxyCodeLine{00312\ \ \ \textcolor{keywordflow}{return}\ squared\_distance;}
+\DoxyCodeLine{00313\ \}}
+\DoxyCodeLine{00314\ }
+\DoxyCodeLine{00315\ \textcolor{comment}{//\ Global\ function\ computing\ the\ cross\ product\ of\ two\ 3D\ vectors.}}
+\DoxyCodeLine{00316\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ ScalarT>}
+\DoxyCodeLine{00317\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<ScalarT,\ 3>}}\ \mbox{\hyperlink{namespacedraco_af457d7df5e224ac3d100fe6e43ce7f86}{CrossProduct}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<ScalarT,\ 3>}}\ \&u,}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<ScalarT,\ 3>}}\ \&v)\ \{}
+\DoxyCodeLine{00319\ \ \ \textcolor{comment}{//\ Preventing\ accidental\ use\ with\ uint32\_t\ and\ the\ like.}}
+\DoxyCodeLine{00320\ \ \ \textcolor{keyword}{static\_assert}(std::is\_signed<ScalarT>::value,}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}ScalarT\ must\ be\ a\ signed\ type.\ "{}});}
+\DoxyCodeLine{00322\ \ \ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<ScalarT,\ 3>}}\ r;}
+\DoxyCodeLine{00323\ \ \ r[0]\ =\ (u[1]\ *\ v[2])\ -\/\ (u[2]\ *\ v[1]);}
+\DoxyCodeLine{00324\ \ \ r[1]\ =\ (u[2]\ *\ v[0])\ -\/\ (u[0]\ *\ v[2]);}
+\DoxyCodeLine{00325\ \ \ r[2]\ =\ (u[0]\ *\ v[1])\ -\/\ (u[1]\ *\ v[0]);}
+\DoxyCodeLine{00326\ \ \ \textcolor{keywordflow}{return}\ r;}
+\DoxyCodeLine{00327\ \}}
+\DoxyCodeLine{00328\ }
+\DoxyCodeLine{00329\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ ScalarT,\ \textcolor{keywordtype}{int}\ dimension\_t>}
+\DoxyCodeLine{00330\ \textcolor{keyword}{inline}\ std::ostream\ \&\mbox{\hyperlink{namespacedraco_afe05ae2050320c4671583f5bf6578c61}{operator<<}}(}
+\DoxyCodeLine{00331\ \ \ \ \ std::ostream\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{draco::VectorD<ScalarT,\ dimension\_t>}}\ \&vec)\ \{}
+\DoxyCodeLine{00332\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ dimension\_t\ -\/\ 1;\ ++i)\ \{}
+\DoxyCodeLine{00333\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ <<\ vec[i]\ <<\ \textcolor{stringliteral}{"{}\ "{}};}
+\DoxyCodeLine{00334\ \ \ \}}
+\DoxyCodeLine{00335\ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}\ <<\ vec[dimension\_t\ -\/\ 1];}
+\DoxyCodeLine{00336\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}};}
+\DoxyCodeLine{00337\ \}}
+\DoxyCodeLine{00338\ }
+\DoxyCodeLine{00339\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<float,\ 2>}}\ \mbox{\hyperlink{namespacedraco_a943738d0026f00c8f03078515ff84709}{Vector2f}};}
+\DoxyCodeLine{00340\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<float,\ 3>}}\ \mbox{\hyperlink{namespacedraco_a90878d79a1dad6ca8ea1a380c905033f}{Vector3f}};}
+\DoxyCodeLine{00341\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<float,\ 4>}}\ \mbox{\hyperlink{namespacedraco_afe89dbc100285ab12c0df231cceb3d7e}{Vector4f}};}
+\DoxyCodeLine{00342\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<float,\ 5>}}\ \mbox{\hyperlink{namespacedraco_a803088024f3180e068bef8c810073326}{Vector5f}};}
+\DoxyCodeLine{00343\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<float,\ 6>}}\ \mbox{\hyperlink{namespacedraco_a98f545d4b9e680d9b8698c75414af771}{Vector6f}};}
+\DoxyCodeLine{00344\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<float,\ 7>}}\ \mbox{\hyperlink{namespacedraco_a9690d8b2f915631a6a91e55bf62240da}{Vector7f}};}
+\DoxyCodeLine{00345\ }
+\DoxyCodeLine{00346\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<uint32\_t,\ 2>}}\ \mbox{\hyperlink{namespacedraco_aae3a571a463fcb6b0647f66b95d50025}{Vector2ui}};}
+\DoxyCodeLine{00347\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<uint32\_t,\ 3>}}\ \mbox{\hyperlink{namespacedraco_ad33da3d80f20bdffbffb4765ee6f9fcb}{Vector3ui}};}
+\DoxyCodeLine{00348\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<uint32\_t,\ 4>}}\ \mbox{\hyperlink{namespacedraco_ae0c85204ac55da39b6b83d6afae9f5fe}{Vector4ui}};}
+\DoxyCodeLine{00349\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<uint32\_t,\ 5>}}\ \mbox{\hyperlink{namespacedraco_a746c52e63022dcb6cf502332c9b6118e}{Vector5ui}};}
+\DoxyCodeLine{00350\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<uint32\_t,\ 6>}}\ \mbox{\hyperlink{namespacedraco_ac60867a70bdcd78ae9d3b1f57da44ddd}{Vector6ui}};}
+\DoxyCodeLine{00351\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{classdraco_1_1_vector_d}{VectorD<uint32\_t,\ 7>}}\ \mbox{\hyperlink{namespacedraco_a94430013258320f160426a30b4b22d30}{Vector7ui}};}
+\DoxyCodeLine{00352\ }
+\DoxyCodeLine{00353\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00354\ }
+\DoxyCodeLine{00355\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_CORE\_VECTOR\_D\_H\_}}
+
+\end{DoxyCode}

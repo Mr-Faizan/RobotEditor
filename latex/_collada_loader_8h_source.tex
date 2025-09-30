@@ -1,0 +1,194 @@
+\doxysection{Collada\+Loader.\+h}
+\hypertarget{_collada_loader_8h_source}{}\label{_collada_loader_8h_source}\index{RobotLib/libraries/assimp/code/AssetLib/Collada/ColladaLoader.h@{RobotLib/libraries/assimp/code/AssetLib/Collada/ColladaLoader.h}}
+\mbox{\hyperlink{_collada_loader_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00004\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00005\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{}}
+\DoxyCodeLine{00010\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00011\ \textcolor{comment}{}}
+\DoxyCodeLine{00012\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00013\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00014\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00015\ \textcolor{comment}{}}
+\DoxyCodeLine{00016\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00017\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00018\ \textcolor{comment}{following\ disclaimer.}}
+\DoxyCodeLine{00019\ \textcolor{comment}{}}
+\DoxyCodeLine{00020\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00021\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00022\ \textcolor{comment}{following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00023\ \textcolor{comment}{materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00024\ \textcolor{comment}{}}
+\DoxyCodeLine{00025\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00026\ \textcolor{comment}{contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00027\ \textcolor{comment}{derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00028\ \textcolor{comment}{written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00029\ \textcolor{comment}{}}
+\DoxyCodeLine{00030\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00031\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00032\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00033\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00034\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00035\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00037\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00038\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00039\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00040\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00041\ \textcolor{comment}{}}
+\DoxyCodeLine{00042\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00043\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#ifndef\ AI\_COLLADALOADER\_H\_INC}}
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#define\ AI\_COLLADALOADER\_H\_INC}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_collada_parser_8h}{ColladaParser.h}}"{}}}
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#include\ <assimp/BaseImporter.h>}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_node}{aiNode}};}
+\DoxyCodeLine{00052\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_camera}{aiCamera}};}
+\DoxyCodeLine{00053\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_light}{aiLight}};}
+\DoxyCodeLine{00054\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_texture}{aiTexture}};}
+\DoxyCodeLine{00055\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_animation}{aiAnimation}};}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_af0271a892838df283e048812a29aaed4}{ColladaMeshIndex}}\ \{}
+\DoxyCodeLine{00060\ \ \ \ \ std::string\ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a3da29bafca7b4dea02973009d27aa43d}{mMeshID}};}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a372bf7ae52340255cd4b61a95ac26316}{mSubMesh}};}
+\DoxyCodeLine{00062\ \ \ \ \ std::string\ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a69975d44b7dc4700a0c4436550706772}{mMaterial}};}
+\DoxyCodeLine{00063\ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_af0271a892838df283e048812a29aaed4}{ColladaMeshIndex}}(\textcolor{keyword}{const}\ std::string\ \&pMeshID,\ \textcolor{keywordtype}{size\_t}\ pSubMesh,\ \textcolor{keyword}{const}\ std::string\ \&pMaterial)\ :}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a3da29bafca7b4dea02973009d27aa43d}{mMeshID}}(pMeshID),\ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a372bf7ae52340255cd4b61a95ac26316}{mSubMesh}}(pSubMesh),\ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a69975d44b7dc4700a0c4436550706772}{mMaterial}}(pMaterial)\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2ai__assert_8h_a8cda16916af68d32c6add71ef3bb7af3}{ai\_assert}}(!pMeshID.empty());}
+\DoxyCodeLine{00066\ \ \ \ \ \}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a2717728cf5e0ce8f2276ba8775eaa408}{operator<}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_af0271a892838df283e048812a29aaed4}{ColladaMeshIndex}}\ \&p)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a3da29bafca7b4dea02973009d27aa43d}{mMeshID}}\ ==\ p.\mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a3da29bafca7b4dea02973009d27aa43d}{mMeshID}})\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a372bf7ae52340255cd4b61a95ac26316}{mSubMesh}}\ ==\ p.\mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a372bf7ae52340255cd4b61a95ac26316}{mSubMesh}})}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a69975d44b7dc4700a0c4436550706772}{mMaterial}}\ <\ p.\mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a69975d44b7dc4700a0c4436550706772}{mMaterial}};}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a372bf7ae52340255cd4b61a95ac26316}{mSubMesh}}\ <\ p.\mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a372bf7ae52340255cd4b61a95ac26316}{mSubMesh}};}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a3da29bafca7b4dea02973009d27aa43d}{mMeshID}}\ <\ p.\mbox{\hyperlink{struct_assimp_1_1_collada_mesh_index_a3da29bafca7b4dea02973009d27aa43d}{mMeshID}};}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00077\ \ \ \ \ \}}
+\DoxyCodeLine{00078\ \};}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00083\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_assimp_1_1_collada_loader_a94aa2219ead2a41db03c7eddb732ff02}{ColladaLoader}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_assimp_1_1_base_importer_a3a26428f61d7bebdc477c4d0add9da30}{BaseImporter}}\ \{}
+\DoxyCodeLine{00084\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00086\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a94aa2219ead2a41db03c7eddb732ff02}{ColladaLoader}}();}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00089\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a81dccd03931afc848cb7e0806f87a46c}{\string~ColladaLoader}}()\ \textcolor{keyword}{override}\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a8e058120567a7fcd7427f22623795e17}{CanRead}}(\textcolor{keyword}{const}\ std::string\ \&pFile,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler,\ \textcolor{keywordtype}{bool}\ checkSig)\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_importer_desc}{aiImporterDesc}}\ *\mbox{\hyperlink{class_assimp_1_1_collada_loader_a89d3e90a8b5edcb73d463e5aa1c89f9b}{GetInfo}}()\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_ac14e7fd3a8c13d5a209ff195afaf1b6e}{SetupProperties}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_base_importer_ac81c9c578a539b88828a1e57a4f242cd}{Importer}}\ *pImp)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a51ec14328053bf124b66278923450b2f}{InternReadFile}}(\textcolor{keyword}{const}\ std::string\ \&pFile,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00106\ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *\mbox{\hyperlink{class_assimp_1_1_collada_loader_a6b1f9a61804cf126f4410ffa1b2c211a}{BuildHierarchy}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *pNode);}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a4e4a414951d9439665a93d90c2dd451b}{ResolveNodeInstances}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *pNode,}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<const\ Collada::Node\ *>\ \&resolved);}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a7a6b18be5f525b7601542c526246a6e8}{BuildMeshesForNode}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *pNode,}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *pTarget);}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \ \ \mbox{\hyperlink{structai_mesh}{aiMesh}}\ *\mbox{\hyperlink{class_assimp_1_1_collada_loader_abb14c20dee819121cd309a2cd8063162}{findMesh}}(\textcolor{keyword}{const}\ std::string\ \&meshid);}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00119\ \ \ \ \ \mbox{\hyperlink{structai_mesh}{aiMesh}}\ *\mbox{\hyperlink{class_assimp_1_1_collada_loader_a6de51123ec4bdd0316dc5e9dab671750}{CreateMesh}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_mesh}{Collada::Mesh}}\ *pSrcMesh,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_sub_mesh}{Collada::SubMesh}}\ \&pSubMesh,}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_controller}{Collada::Controller}}\ *pSrcController,\ \textcolor{keywordtype}{size\_t}\ pStartVertex,\ \textcolor{keywordtype}{size\_t}\ pStartFace);}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a33aa14838f3f11d875bf277d71d20347}{BuildCamerasForNode}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *pNode,}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *pTarget);}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_aa6c6bd60523749d0ffaa7b39bf6dbdf6}{BuildLightsForNode}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *pNode,}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *pTarget);}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a4f601be899cf84feaac5aec0ee4482d5}{StoreSceneMeshes}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a6b80d658700e541a9743803b3d9082db}{StoreSceneMaterials}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_aa85f76503b0acd6267cf43c4917735c0}{StoreSceneLights}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a2ae1f5cd069ccef0d18a9ebebbe122de}{StoreSceneCameras}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a0afcbd41c19590527ae0bb0451246c30}{StoreSceneTextures}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a823752ae0b510a6f834bd6dad7f92534}{StoreAnimations}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser);}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a07e2310739db3f3d1dc53f1de0266b40}{StoreAnimations}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_animation}{Collada::Animation}}\ *pSrcAnim,\ \textcolor{keyword}{const}\ std::string\ \&pPrefix);}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_ac948f13c0bc5a35042faeb64a433da2f}{CreateAnimation}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_animation}{Collada::Animation}}\ *pSrcAnim,\ \textcolor{keyword}{const}\ std::string\ \&pName);}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a131fe1e9b45c51d23e89d7c95320d885}{BuildMaterials}}(\mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a5e9a8d888f6255b6854d9a56d5a25620}{FillMaterials}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene);}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a76d64ead460c9a1b7e8536df86bbb632}{ApplyVertexToEffectSemanticMapping}}(\mbox{\hyperlink{struct_assimp_1_1_collada_1_1_sampler}{Collada::Sampler}}\ \&sampler,}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_semantic_mapping_table}{Collada::SemanticMappingTable}}\ \&table);}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a2a3118a5cebc86478b95feee605ba5a1}{AddTexture}}(\mbox{\hyperlink{structai_material}{aiMaterial}}\ \&mat,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_effect}{Collada::Effect}}\ \&effect,}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_sampler}{Collada::Sampler}}\ \&sampler,}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2material_8h_a7dd415ff703a2cc53d1c22ddbbd7dde0}{aiTextureType}}\ type,\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ idx\ =\ 0);}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00177\ \ \ \ \ \mbox{\hyperlink{structai_string}{aiString}}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a5eb614e3994088e95d96ed4772e437cb}{FindFilenameForEffectTexture}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_collada_parser}{ColladaParser}}\ \&pParser,}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_effect}{Collada::Effect}}\ \&pEffect,\ \textcolor{keyword}{const}\ std::string\ \&pName);}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00187\ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_af221f9bbc3e0dc43a46efaaac6dab067}{ai\_real}}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_ae2449e771f42d4d8df1f03f5d4dd826f}{ReadFloat}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_accessor}{Collada::Accessor}}\ \&pAccessor,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_data}{Collada::Data}}\ \&pData,\ \textcolor{keywordtype}{size\_t}\ pIndex,\ \textcolor{keywordtype}{size\_t}\ pOffset)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00195\ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{class_assimp_1_1_collada_loader_af193e887a0a0377a68a22776e5579352}{ReadString}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_accessor}{Collada::Accessor}}\ \&pAccessor,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_data}{Collada::Data}}\ \&pData,\ \textcolor{keywordtype}{size\_t}\ pIndex)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_ad34146eb26ba544b8dc35ccdf9cb489d}{CollectNodes}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structai_node}{aiNode}}\ *pNode,\ std::vector<const\ aiNode\ *>\ \&poNodes)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00201\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *\mbox{\hyperlink{class_assimp_1_1_collada_loader_a1bfdf7e9df4986c547238803041bfa6b}{FindNode}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *pNode,\ \textcolor{keyword}{const}\ std::string\ \&pName)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00203\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *\mbox{\hyperlink{class_assimp_1_1_collada_loader_a1248fad22c58b8b9205eb171568e5dfd}{FindNodeBySID}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *pNode,\ \textcolor{keyword}{const}\ std::string\ \&pSID)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00206\ \ \ \ \ std::string\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a6ee7c3e461ea40d47e4d29db3cdc6e75}{FindNameForNode}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_collada_1_1_node}{Collada::Node}}\ *pNode);}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00208\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00210\ \ \ \ \ std::string\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a07c07f08414391b0684de4651396b5b3}{mFileName}};}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00213\ \ \ \ \ std::map<ColladaMeshIndex,\ size\_t>\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a68daccdd41b732f9c6a8f59a55e3e3d4}{mMeshIndexByID}};}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00216\ \ \ \ \ std::map<std::string,\ size\_t>\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a1086d5de6cf2cf2e9d0db608db10f52c}{mMaterialIndexByName}};}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00219\ \ \ \ \ std::vector<aiMesh\ *>\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_af75565fe7a4c657e19418e5887c2f7ec}{mMeshes}};}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00222\ \ \ \ \ std::vector<aiMesh\ *>\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a6c356ef73c82b3888d281f203d3972de}{mTargetMeshes}};}
+\DoxyCodeLine{00223\ }
+\DoxyCodeLine{00225\ \ \ \ \ std::vector<std::pair<Collada::Effect\ *,\ aiMaterial\ *>>\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a2f2d054bcad30a288171b17ec56c6a2a}{newMats}};}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00228\ \ \ \ \ std::vector<aiCamera\ *>\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a38a2872c2706a57cc2c184f33d1b6293}{mCameras}};}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00231\ \ \ \ \ std::vector<aiLight\ *>\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a729ca60c0c073a789f95f20242265fb8}{mLights}};}
+\DoxyCodeLine{00232\ }
+\DoxyCodeLine{00234\ \ \ \ \ std::vector<aiTexture\ *>\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a08fbeea522077d65080b889c801e235b}{mTextures}};}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00237\ \ \ \ \ std::vector<aiAnimation\ *>\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a7fd11629609ad33a581129e727f7bfcb}{mAnims}};}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a5bcb4fefad86a14c37105650c57bd90b}{noSkeletonMesh}};}
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_af803123a13af709b5fa5bf55fea01360}{removeEmptyBones}};}
+\DoxyCodeLine{00241\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a73add1da0e63c71ec26e2b667703503b}{ignoreUpDirection}};}
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a109d9917418d23f72f7d2b67a66f4f3e}{ignoreUnitSize}};}
+\DoxyCodeLine{00243\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a417ee1aecfe8cbf1e6243d9c93ec2e52}{useColladaName}};}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00246\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_assimp_1_1_collada_loader_a0d9c1ad249a9f64dbcdc6574f62d773b}{mNodeNameCounter}};}
+\DoxyCodeLine{00247\ \};}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00249\ \}\ \textcolor{comment}{//\ end\ of\ namespace\ Assimp}}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00251\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ AI\_COLLADALOADER\_H\_INC}}
+
+\end{DoxyCode}

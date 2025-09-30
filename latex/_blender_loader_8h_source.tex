@@ -1,0 +1,211 @@
+\doxysection{Blender\+Loader.\+h}
+\hypertarget{_blender_loader_8h_source}{}\label{_blender_loader_8h_source}\index{RobotLib/libraries/assimp/code/AssetLib/Blender/BlenderLoader.h@{RobotLib/libraries/assimp/code/AssetLib/Blender/BlenderLoader.h}}
+\mbox{\hyperlink{_blender_loader_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00011\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ following\ disclaimer.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ \ copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ \ materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00028\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00029\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00030\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00031\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00032\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00033\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00034\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00035\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00037\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{}}
+\DoxyCodeLine{00039\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#ifndef\ INCLUDED\_AI\_BLEND\_LOADER\_H}}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#define\ INCLUDED\_AI\_BLEND\_LOADER\_H}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#include\ <assimp/BaseImporter.h>}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#include\ <assimp/LogAux.h>}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_node}{aiNode}};}
+\DoxyCodeLine{00054\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_mesh}{aiMesh}};}
+\DoxyCodeLine{00055\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_light}{aiLight}};}
+\DoxyCodeLine{00056\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_camera}{aiCamera}};}
+\DoxyCodeLine{00057\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structai_material}{aiMaterial}};}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{comment}{//\ TinyFormatter.h}}
+\DoxyCodeLine{00062\ \textcolor{keyword}{namespace\ }Formatter\ \{}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T,\ \textcolor{keyword}{typename}\ TR,\ \textcolor{keyword}{typename}\ A>}
+\DoxyCodeLine{00065\ \textcolor{keyword}{class\ }basic\_formatter;}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{class\ }basic\_formatter<char,\ \mbox{\hyperlink{namespacestd}{std}}::char\_traits<char>,\ std::allocator<char>>\ \mbox{\hyperlink{namespace_assimp_1_1_formatter_a364b1b387e088b406e05cd53e7c96193}{format}};}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \}\ \textcolor{comment}{//\ namespace\ Formatter}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \textcolor{comment}{//\ BlenderDNA.h}}
+\DoxyCodeLine{00072\ namespace\ Blender\ \{}
+\DoxyCodeLine{00073\ \textcolor{keyword}{class\ }FileDatabase;}
+\DoxyCodeLine{00074\ \textcolor{keyword}{struct\ }ElemBase;}
+\DoxyCodeLine{00075\ \}\ \textcolor{comment}{//\ namespace\ Blender}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \textcolor{comment}{//\ BlenderScene.h}}
+\DoxyCodeLine{00078\ \textcolor{keyword}{namespace\ }Blender\ \{}
+\DoxyCodeLine{00079\ \textcolor{keyword}{struct\ }Scene;}
+\DoxyCodeLine{00080\ \textcolor{keyword}{struct\ }Object;}
+\DoxyCodeLine{00081\ \textcolor{keyword}{struct\ }Collection;}
+\DoxyCodeLine{00082\ \textcolor{keyword}{struct\ }Mesh;}
+\DoxyCodeLine{00083\ \textcolor{keyword}{struct\ }Camera;}
+\DoxyCodeLine{00084\ \textcolor{keyword}{struct\ }Lamp;}
+\DoxyCodeLine{00085\ \textcolor{keyword}{struct\ }MTex;}
+\DoxyCodeLine{00086\ \textcolor{keyword}{struct\ }Image;}
+\DoxyCodeLine{00087\ \textcolor{keyword}{struct\ }Material;}
+\DoxyCodeLine{00088\ \}\ \textcolor{comment}{//\ namespace\ Blender}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \textcolor{comment}{//\ BlenderIntermediate.h}}
+\DoxyCodeLine{00091\ \textcolor{keyword}{namespace\ }Blender\ \{}
+\DoxyCodeLine{00092\ \textcolor{keyword}{struct\ }ConversionData;}
+\DoxyCodeLine{00093\ \textcolor{keyword}{template}\ <\textcolor{keyword}{template}\ <\textcolor{keyword}{typename},\ \textcolor{keyword}{typename}>\ \textcolor{keyword}{class\ }TCLASS,\ \textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00094\ \textcolor{keyword}{struct\ }TempArray;}
+\DoxyCodeLine{00095\ \}\ \textcolor{comment}{//\ namespace\ Blender}}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \textcolor{comment}{//\ BlenderModifier.h}}
+\DoxyCodeLine{00098\ \textcolor{keyword}{namespace\ }Blender\ \{}
+\DoxyCodeLine{00099\ \textcolor{keyword}{class\ }BlenderModifierShowcase;}
+\DoxyCodeLine{00100\ \textcolor{keyword}{class\ }BlenderModifier;}
+\DoxyCodeLine{00101\ \}\ \textcolor{comment}{//\ namespace\ Blender}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00107\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00108\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_assimp_1_1_blender_importer_aeea7565d5a00cfb155278e500d1e9e12}{BlenderImporter}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_assimp_1_1_base_importer_a3a26428f61d7bebdc477c4d0add9da30}{BaseImporter}},\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_assimp_1_1_log_functions}{LogFunctions}}<BlenderImporter>\ \{}
+\DoxyCodeLine{00109\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00110\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_blender_importer_aeea7565d5a00cfb155278e500d1e9e12}{BlenderImporter}}();}
+\DoxyCodeLine{00111\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_blender_importer_aeea7565d5a00cfb155278e500d1e9e12}{\string~BlenderImporter}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_blender_importer_acb557ce01839655852a929de7998f4d8}{CanRead}}(\textcolor{keyword}{const}\ std::string\ \&pFile,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler,\ \textcolor{keywordtype}{bool}\ checkSig)\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_importer_desc}{aiImporterDesc}}\ *\mbox{\hyperlink{class_assimp_1_1_blender_importer_a7125dc93556f1a5904ea713eed736bc8}{GetInfo}}()\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_blender_importer_a9e4e747c64ac3229dcbbbc325e04aff5}{SetupProperties}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_base_importer_ac81c9c578a539b88828a1e57a4f242cd}{Importer}}\ *pImp)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_blender_importer_a8cfa3ee55bd0892b2d1624cd97a7f6ee}{InternReadFile}}(\textcolor{keyword}{const}\ std::string\ \&pFile,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_blender_importer_a1bc059f05c6bfebe211c5cc8564943c9}{ParseBlendFile}}(\mbox{\hyperlink{class_assimp_1_1_blender_1_1_file_database}{Blender::FileDatabase}}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},\ std::shared\_ptr<IOStream>\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}});}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_blender_importer_a3b6e9af55581937f67a04811c10bdaf5}{ExtractScene}}(\mbox{\hyperlink{struct_assimp_1_1_blender_1_1_scene}{Blender::Scene}}\ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},\ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_blender_1_1_file_database}{Blender::FileDatabase}}\ \&file);}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_blender_importer_a49bc757450ecb5e7c5b1e0c5260245f5}{ParseSubCollection}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_scene}{Blender::Scene}}\ \&in,\ \mbox{\hyperlink{structai_node}{aiNode}}\ *root,\ \textcolor{keyword}{const}\ std::shared\_ptr<Blender::Collection>\&\ collection,\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_conversion_data}{Blender::ConversionData}}\ \&conv\_data);}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_blender_importer_a09f3a07f9414d3bfea69c15aab6ebb1d}{ConvertBlendFile}}(\mbox{\hyperlink{structai_scene}{aiScene}}\ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_scene}{Blender::Scene}}\ \&in,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{class_assimp_1_1_blender_1_1_file_database}{Blender::FileDatabase}}\ \&file);}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00124\ \ \ \ \ \mbox{\hyperlink{structai_node}{aiNode}}\ *ConvertNode(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_scene}{Blender::Scene}}\ \&in,}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_object}{Blender::Object}}\ *obj,}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_conversion_data}{Blender::ConversionData}}\ \&conv\_info,}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_matrix4x4}{aiMatrix4x4}}\ \&parentTransform);}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordtype}{void}\ ConvertMesh(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_scene}{Blender::Scene}}\ \&in,}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_object}{Blender::Object}}\ *obj,}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_mesh}{Blender::Mesh}}\ *mesh,}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_conversion_data}{Blender::ConversionData}}\ \&conv\_data,}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_temp_array}{Blender::TempArray<std::vector,\ aiMesh>}}\ \&temp);}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00137\ \ \ \ \ \mbox{\hyperlink{structai_light}{aiLight}}\ *ConvertLight(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_scene}{Blender::Scene}}\ \&in,}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_object}{Blender::Object}}\ *obj,}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_lamp}{Blender::Lamp}}\ *mesh,}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_conversion_data}{Blender::ConversionData}}\ \&conv\_data);}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00143\ \ \ \ \ \mbox{\hyperlink{structai_camera}{aiCamera}}\ *ConvertCamera(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_scene}{Blender::Scene}}\ \&in,}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_object}{Blender::Object}}\ *obj,}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_camera}{Blender::Camera}}\ *mesh,}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_conversion_data}{Blender::ConversionData}}\ \&conv\_data);}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00149\ \ \ \ \ \textcolor{keywordtype}{void}\ BuildDefaultMaterial(}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_conversion_data}{Blender::ConversionData}}\ \&conv\_data);}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordtype}{void}\ AddBlendParams(}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_material}{aiMaterial}}\ *result,}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_material}{Blender::Material}}\ *\mbox{\hyperlink{pointer_8h_adb82dfe18535e9a30aa97d275f82bd55}{source}});}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{keywordtype}{void}\ BuildMaterials(}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_conversion_data}{Blender::ConversionData}}\ \&conv\_data);}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordtype}{void}\ ResolveTexture(}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_material}{aiMaterial}}\ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_material}{Blender::Material}}\ *mat,}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_m_tex}{Blender::MTex}}\ *tex,}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_conversion_data}{Blender::ConversionData}}\ \&conv\_data);}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{keywordtype}{void}\ ResolveImage(}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_material}{aiMaterial}}\ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_material}{Blender::Material}}\ *mat,}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_m_tex}{Blender::MTex}}\ *tex,}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_image}{Blender::Image}}\ *img,}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_conversion_data}{Blender::ConversionData}}\ \&conv\_data);}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordtype}{void}\ AddSentinelTexture(}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structai_material}{aiMaterial}}\ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_material}{Blender::Material}}\ *mat,}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_m_tex}{Blender::MTex}}\ *tex,}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_conversion_data}{Blender::ConversionData}}\ \&conv\_data);}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{comment}{//\ TODO:\ Move\ to\ a\ std::variant,\ once\ c++17\ is\ supported.}}
+\DoxyCodeLine{00184\ \ \ \ \ \textcolor{keyword}{struct\ }StreamOrError\ \{}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ std::shared\_ptr<IOStream>\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a4ed0a20697a8c37f8af699a8ec6d76a8}{stream}};}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ std::shared\_ptr<std::vector<char>>\ input;}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ std::string\ \mbox{\hyperlink{untgz_8c_a4866b2d37ffc80c5ba705d3fcd1e0ecf}{error}};}
+\DoxyCodeLine{00188\ \ \ \ \ \};}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{comment}{//\ Returns\ either\ a\ stream\ (and\ optional\ input\ data\ for\ the\ stream)\ or}}
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{comment}{//\ an\ error\ if\ it\ can't\ parse\ the\ magic\ token.}}
+\DoxyCodeLine{00192\ \ \ \ \ StreamOrError\ ParseMagicToken(}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&pFile,}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \textcolor{keyword}{private}:\ \textcolor{comment}{//\ static\ stuff,\ mostly\ logging\ and\ error\ reporting.}}
+\DoxyCodeLine{00197\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ CheckActualType(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_elem_base}{Blender::ElemBase}}\ *dt,}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *check);}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ NotSupportedObjectType(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_assimp_1_1_blender_1_1_object}{Blender::Object}}\ *obj,}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *type);}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00206\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_blender_1_1_blender_modifier_showcase}{Blender::BlenderModifierShowcase}}\ *modifier\_cache;}
+\DoxyCodeLine{00207\ }
+\DoxyCodeLine{00208\ \};\ \textcolor{comment}{//\ !class\ BlenderImporter}}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \}\ \textcolor{comment}{//\ end\ of\ namespace\ Assimp}}
+\DoxyCodeLine{00211\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ AI\_UNREALIMPORTER\_H\_INC}}
+
+\end{DoxyCode}

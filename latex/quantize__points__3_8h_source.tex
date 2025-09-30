@@ -1,0 +1,90 @@
+\doxysection{quantize\+\_\+points\+\_\+3.\+h}
+\hypertarget{quantize__points__3_8h_source}{}\label{quantize__points__3_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/point\_cloud/algorithms/quantize\_points\_3.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/point\_cloud/algorithms/quantize\_points\_3.h}}
+\mbox{\hyperlink{quantize__points__3_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_POINT\_CLOUD\_ALGORITHMS\_QUANTIZE\_POINTS\_3\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_POINT\_CLOUD\_ALGORITHMS\_QUANTIZE\_POINTS\_3\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{inttypes_8h}{inttypes.h}}>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{point__cloud__types_8h}{draco/compression/point\_cloud/algorithms/point\_cloud\_types.h}}"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{quantization__utils_8h}{draco/core/quantization\_utils.h}}"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ TODO(b/199760123):\ Make\ this\ a\ stable\ bounding\ box.}}
+\DoxyCodeLine{00026\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_quantization_info}{QuantizationInfo}}\ \{}
+\DoxyCodeLine{00027\ \ \ uint32\_t\ \mbox{\hyperlink{structdraco_1_1_quantization_info_ada2431e6815900ef691837a461e092d4}{quantization\_bits}};}
+\DoxyCodeLine{00028\ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{structdraco_1_1_quantization_info_a99dd52766b33cd047910c28f09b4bc7f}{range}};}
+\DoxyCodeLine{00029\ \};}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ Po\textcolor{keywordtype}{int}Iterator,\ \textcolor{keyword}{class}\ OutputIterator>}
+\DoxyCodeLine{00032\ OutputIterator\ \mbox{\hyperlink{namespacedraco_a9ee8db63fa237f66439958c01e15a5d8}{QuantizePoints3}}(\textcolor{keyword}{const}\ PointIterator\ \&begin,}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ PointIterator\ \&end,\ \mbox{\hyperlink{structdraco_1_1_quantization_info}{QuantizationInfo}}\ *info,}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ OutputIterator\ oit)\ \{}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(info-\/>\mbox{\hyperlink{structdraco_1_1_quantization_info_ada2431e6815900ef691837a461e092d4}{quantization\_bits}},\ 0);}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \textcolor{keywordtype}{float}\ max\_range\ =\ 0;}
+\DoxyCodeLine{00038\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ it\ =\ begin;\ it\ !=\ end;\ ++it)\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ max\_range\ =\ std::max(std::fabs((*it)[0]),\ max\_range);}
+\DoxyCodeLine{00040\ \ \ \ \ max\_range\ =\ std::max(std::fabs((*it)[1]),\ max\_range);}
+\DoxyCodeLine{00041\ \ \ \ \ max\_range\ =\ std::max(std::fabs((*it)[2]),\ max\_range);}
+\DoxyCodeLine{00042\ \ \ \}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \textcolor{keyword}{const}\ uint32\_t\ max\_quantized\_value((1u\ <<\ info-\/>\mbox{\hyperlink{structdraco_1_1_quantization_info_ada2431e6815900ef691837a461e092d4}{quantization\_bits}})\ -\/\ 1);}
+\DoxyCodeLine{00045\ \ \ \mbox{\hyperlink{classdraco_1_1_quantizer}{Quantizer}}\ quantize;}
+\DoxyCodeLine{00046\ \ \ quantize.\mbox{\hyperlink{classdraco_1_1_quantizer_a7f5b0ff4c6a603125300eb18e3a5067c}{Init}}(max\_range,\ max\_quantized\_value);}
+\DoxyCodeLine{00047\ \ \ info-\/>\mbox{\hyperlink{structdraco_1_1_quantization_info_a99dd52766b33cd047910c28f09b4bc7f}{range}}\ =\ max\_range;}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \mbox{\hyperlink{namespacedraco_abef0a7acf8018cf126ffa5bb9f123f27}{Point3ui}}\ qpoint;}
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ it\ =\ begin;\ it\ !=\ end;\ ++it)\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ Quantize\ and\ all\ positive.}}
+\DoxyCodeLine{00052\ \ \ \ \ qpoint[0]\ =\ quantize((*it)[0])\ +\ max\_quantized\_value;}
+\DoxyCodeLine{00053\ \ \ \ \ qpoint[1]\ =\ quantize((*it)[1])\ +\ max\_quantized\_value;}
+\DoxyCodeLine{00054\ \ \ \ \ qpoint[2]\ =\ quantize((*it)[2])\ +\ max\_quantized\_value;}
+\DoxyCodeLine{00055\ \ \ \ \ *oit++\ =\ (qpoint);}
+\DoxyCodeLine{00056\ \ \ \}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \textcolor{keywordflow}{return}\ oit;}
+\DoxyCodeLine{00059\ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ QPo\textcolor{keywordtype}{int}Iterator,\ \textcolor{keyword}{class}\ OutputIterator>}
+\DoxyCodeLine{00062\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacedraco_a065822f442a59aa69bf5b0e45c069d01}{DequantizePoints3}}(\textcolor{keyword}{const}\ QPointIterator\ \&begin,\ \textcolor{keyword}{const}\ QPointIterator\ \&end,}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structdraco_1_1_quantization_info}{QuantizationInfo}}\ \&info,\ OutputIterator\ \&oit)\ \{}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(info.\mbox{\hyperlink{structdraco_1_1_quantization_info_ada2431e6815900ef691837a461e092d4}{quantization\_bits}},\ 0);}
+\DoxyCodeLine{00065\ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(info.\mbox{\hyperlink{structdraco_1_1_quantization_info_a99dd52766b33cd047910c28f09b4bc7f}{range}},\ 0);}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \textcolor{keyword}{const}\ uint32\_t\ quantization\_bits\ =\ info.\mbox{\hyperlink{structdraco_1_1_quantization_info_ada2431e6815900ef691837a461e092d4}{quantization\_bits}};}
+\DoxyCodeLine{00068\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ range\ =\ info.\mbox{\hyperlink{structdraco_1_1_quantization_info_a99dd52766b33cd047910c28f09b4bc7f}{range}};}
+\DoxyCodeLine{00069\ \ \ \textcolor{keyword}{const}\ uint32\_t\ max\_quantized\_value((1u\ <<\ quantization\_bits)\ -\/\ 1);}
+\DoxyCodeLine{00070\ \ \ \mbox{\hyperlink{classdraco_1_1_dequantizer}{Dequantizer}}\ dequantize;}
+\DoxyCodeLine{00071\ \ \ dequantize.\mbox{\hyperlink{classdraco_1_1_dequantizer_abb7be4c63670b7bbc09f479b39c2aded}{Init}}(range,\ max\_quantized\_value);}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ it\ =\ begin;\ it\ !=\ end;\ ++it)\ \{}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ x\ =\ dequantize((*it)[0]\ -\/\ max\_quantized\_value);}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ y\ =\ dequantize((*it)[1]\ -\/\ max\_quantized\_value);}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{float}\ z\ =\ dequantize((*it)[2]\ -\/\ max\_quantized\_value);}
+\DoxyCodeLine{00077\ \ \ \ \ *oit\ =\ \mbox{\hyperlink{namespacedraco_af6d275453d9b81163239433f78ad95d7}{Point3f}}(x,\ y,\ z);}
+\DoxyCodeLine{00078\ \ \ \ \ ++oit;}
+\DoxyCodeLine{00079\ \ \ \}}
+\DoxyCodeLine{00080\ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_POINT\_CLOUD\_ALGORITHMS\_QUANTIZE\_POINTS\_3\_H\_}}
+
+\end{DoxyCode}

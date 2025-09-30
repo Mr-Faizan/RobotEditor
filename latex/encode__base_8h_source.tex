@@ -1,0 +1,137 @@
+\doxysection{encode\+\_\+base.\+h}
+\hypertarget{encode__base_8h_source}{}\label{encode__base_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/encode\_base.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/encode\_base.h}}
+\mbox{\hyperlink{encode__base_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2017\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ENCODE\_BASE\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ENCODE\_BASE\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{geometry__attribute_8h}{draco/attributes/geometry\_attribute.h}}"{}}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{compression__shared_8h}{draco/compression/config/compression\_shared.h}}"{}}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{status_8h}{draco/core/status.h}}"{}}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{comment}{//\ Base\ class\ for\ our\ geometry\ encoder\ classes.\ |EncoderOptionsT|\ specifies}}
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ options\ class\ used\ by\ the\ encoder.\ Please,\ see\ encode.h\ and\ expert\_encode.h}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ for\ more\ details\ and\ method\ descriptions.}}
+\DoxyCodeLine{00027\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ EncoderOptionsT>}
+\DoxyCodeLine{00028\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_encoder_base_aaa0feb9c3422f31bc9132b2385356eb5}{EncoderBase}}\ \{}
+\DoxyCodeLine{00029\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00030\ \ \ \textcolor{keyword}{typedef}\ EncoderOptionsT\ \mbox{\hyperlink{classdraco_1_1_encoder_base_a19d42412d63df0842969c885ea72b933}{OptionsType}};}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \mbox{\hyperlink{classdraco_1_1_encoder_base_aaa0feb9c3422f31bc9132b2385356eb5}{EncoderBase}}()}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ :\ options\_(EncoderOptionsT::CreateDefaultOptions()),}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ num\_encoded\_points\_(0),}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ num\_encoded\_faces\_(0)\ \{\}}
+\DoxyCodeLine{00036\ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_ac28323b65b24dda25612a4cda29b557f}{\string~EncoderBase}}()\ \{\}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \textcolor{keyword}{const}\ EncoderOptionsT\ \&\mbox{\hyperlink{classdraco_1_1_encoder_base_af496d9abd462df087f9839047bed5d1d}{options}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ options\_;\ \}}
+\DoxyCodeLine{00039\ \ \ EncoderOptionsT\ \&\mbox{\hyperlink{classdraco_1_1_encoder_base_adb10c05006ba46298d474554acb34f7a}{options}}()\ \{\ \textcolor{keywordflow}{return}\ options\_;\ \}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \textcolor{comment}{//\ If\ enabled,\ it\ tells\ the\ encoder\ to\ keep\ track\ of\ the\ number\ of\ encoded}}
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ points\ and\ faces\ (default\ =\ false).}}
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ Note\ that\ this\ can\ slow\ down\ encoding\ for\ certain\ encoders.}}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_acde089689a611f7cf7f4ea1f56006a66}{SetTrackEncodedProperties}}(\textcolor{keywordtype}{bool}\ flag);}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ encoded\ points\ and\ faces\ during\ the\ last\ encoding}}
+\DoxyCodeLine{00047\ \ \ \textcolor{comment}{//\ operation.\ Returns\ 0\ if\ SetTrackEncodedProperties()\ was\ not\ set.}}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_a5f1c9dc7941a633bcb4470dedaad4654}{num\_encoded\_points}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ num\_encoded\_points\_;\ \}}
+\DoxyCodeLine{00049\ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_a704c2d4ea97a822a2ad23365f2eba465}{num\_encoded\_faces}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ num\_encoded\_faces\_;\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00052\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_a7a27a33b4eda4beb8ac151d26d7923c1}{Reset}}(\textcolor{keyword}{const}\ EncoderOptionsT\ \&\mbox{\hyperlink{classdraco_1_1_encoder_base_af496d9abd462df087f9839047bed5d1d}{options}})\ \{\ options\_\ =\ \mbox{\hyperlink{classdraco_1_1_encoder_base_af496d9abd462df087f9839047bed5d1d}{options}};\ \}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_a5e9b0b10840d67b744314d9d01acc53c}{Reset}}()\ \{\ options\_\ =\ EncoderOptionsT::CreateDefaultOptions();\ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_a5904d3427424fb0c408eac5a59034fe2}{SetSpeedOptions}}(\textcolor{keywordtype}{int}\ encoding\_speed,\ \textcolor{keywordtype}{int}\ decoding\_speed)\ \{}
+\DoxyCodeLine{00057\ \ \ \ \ options\_.SetSpeed(encoding\_speed,\ decoding\_speed);}
+\DoxyCodeLine{00058\ \ \ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_aad1e259f546e918dcb821352b20c4844}{SetEncodingMethod}}(\textcolor{keywordtype}{int}\ encoding\_method)\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ options\_.SetGlobalInt(\textcolor{stringliteral}{"{}encoding\_method"{}},\ encoding\_method);}
+\DoxyCodeLine{00062\ \ \ \}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_a33e585dbd98c1bc53d5e44821d824a06}{SetEncodingSubmethod}}(\textcolor{keywordtype}{int}\ encoding\_submethod)\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ options\_.SetGlobalInt(\textcolor{stringliteral}{"{}encoding\_submethod"{}},\ encoding\_submethod);}
+\DoxyCodeLine{00066\ \ \ \}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \mbox{\hyperlink{classdraco_1_1_status}{Status}}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_acf5d5810a23e5b116b6102101c51ba28}{CheckPredictionScheme}}(\mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800}{GeometryAttribute::Type}}\ att\_type,}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ prediction\_scheme)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{comment}{//\ Out\ of\ bound\ checks:}}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keywordflow}{if}\ (prediction\_scheme\ <\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba24b333a24b2d166880d3290b7f377509}{PREDICTION\_NONE}})\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_status}{Status}}(\mbox{\hyperlink{classdraco_1_1_status_ad29505d923a77904ac6aabb7a50fca83ab8a7173ea36ced4cac4c728467fe03da}{Status::DRACO\_ERROR}},}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Invalid\ prediction\ scheme\ requested."{}});}
+\DoxyCodeLine{00074\ \ \ \ \ \}}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordflow}{if}\ (prediction\_scheme\ >=\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba6d737a879e3a6798b2fb91daa5d0af63}{NUM\_PREDICTION\_SCHEMES}})\ \{}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_status}{Status}}(\mbox{\hyperlink{classdraco_1_1_status_ad29505d923a77904ac6aabb7a50fca83ab8a7173ea36ced4cac4c728467fe03da}{Status::DRACO\_ERROR}},}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Invalid\ prediction\ scheme\ requested."{}});}
+\DoxyCodeLine{00078\ \ \ \ \ \}}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//\ Deprecated\ prediction\ schemes:}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordflow}{if}\ (prediction\_scheme\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba3cc6d7ebd3afcfd6e2a96bc1cf99e324}{MESH\_PREDICTION\_TEX\_COORDS\_DEPRECATED}})\ \{}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_status}{Status}}(\mbox{\hyperlink{classdraco_1_1_status_ad29505d923a77904ac6aabb7a50fca83ab8a7173ea36ced4cac4c728467fe03da}{Status::DRACO\_ERROR}},}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}MESH\_PREDICTION\_TEX\_COORDS\_DEPRECATED\ is\ deprecated."{}});}
+\DoxyCodeLine{00083\ \ \ \ \ \}}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordflow}{if}\ (prediction\_scheme\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba98c6d95a8483740f9436687f1cd48b79}{MESH\_PREDICTION\_MULTI\_PARALLELOGRAM}})\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_status}{Status}}(\mbox{\hyperlink{classdraco_1_1_status_ad29505d923a77904ac6aabb7a50fca83ab8a7173ea36ced4cac4c728467fe03da}{Status::DRACO\_ERROR}},}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}MESH\_PREDICTION\_MULTI\_PARALLELOGRAM\ is\ deprecated."{}});}
+\DoxyCodeLine{00087\ \ \ \ \ \}}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//\ Attribute\ specific\ checks:}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{if}\ (prediction\_scheme\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba9286fe6ab38ccaeb798c6d6c7386188a}{MESH\_PREDICTION\_TEX\_COORDS\_PORTABLE}})\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (att\_type\ !=\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800a6d57004bf9d1e916a98c92e0721aec6b}{GeometryAttribute::TEX\_COORD}})\ \{}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_status}{Status}}(\mbox{\hyperlink{classdraco_1_1_status_ad29505d923a77904ac6aabb7a50fca83ab8a7173ea36ced4cac4c728467fe03da}{Status::DRACO\_ERROR}},}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Invalid\ prediction\ scheme\ for\ attribute\ type."{}});}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00094\ \ \ \ \ \}}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordflow}{if}\ (prediction\_scheme\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba62392c35d5c9fb6ab8c9cf4385e426a8}{MESH\_PREDICTION\_GEOMETRIC\_NORMAL}})\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (att\_type\ !=\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800afa2b863c056244e5c9034cfa0314ee0b}{GeometryAttribute::NORMAL}})\ \{}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_status}{Status}}(\mbox{\hyperlink{classdraco_1_1_status_ad29505d923a77904ac6aabb7a50fca83ab8a7173ea36ced4cac4c728467fe03da}{Status::DRACO\_ERROR}},}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Invalid\ prediction\ scheme\ for\ attribute\ type."{}});}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00100\ \ \ \ \ \}}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{comment}{//\ TODO(b/199760123):\ Try\ to\ enable\ more\ prediction\ schemes\ for\ normals.}}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordflow}{if}\ (att\_type\ ==\ \mbox{\hyperlink{classdraco_1_1_geometry_attribute_affa28359c6ae310b23a9af78a9dc4800afa2b863c056244e5c9034cfa0314ee0b}{GeometryAttribute::NORMAL}})\ \{}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!(prediction\_scheme\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91badc044f334f274db7bcc3bb08070d2267}{PREDICTION\_DIFFERENCE}}\ ||}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \ \ \ \ prediction\_scheme\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba62392c35d5c9fb6ab8c9cf4385e426a8}{MESH\_PREDICTION\_GEOMETRIC\_NORMAL}}))\ \{}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_status}{Status}}(\mbox{\hyperlink{classdraco_1_1_status_ad29505d923a77904ac6aabb7a50fca83ab8a7173ea36ced4cac4c728467fe03da}{Status::DRACO\_ERROR}},}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Invalid\ prediction\ scheme\ for\ attribute\ type."{}});}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00108\ \ \ \ \ \}}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_a98fb2c12697393126194bb729d2e4bb8}{OkStatus}}();}
+\DoxyCodeLine{00110\ \ \ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00113\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_ac55ceb223323881fa5b6de023dffe4fd}{set\_num\_encoded\_points}}(\textcolor{keywordtype}{size\_t}\ num)\ \{\ num\_encoded\_points\_\ =\ num;\ \}}
+\DoxyCodeLine{00114\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_a2714052bc787173cdae84e4b4b9ecb1a}{set\_num\_encoded\_faces}}(\textcolor{keywordtype}{size\_t}\ num)\ \{\ num\_encoded\_faces\_\ =\ num;\ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00117\ \ \ EncoderOptionsT\ options\_;}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \textcolor{keywordtype}{size\_t}\ num\_encoded\_points\_;}
+\DoxyCodeLine{00120\ \ \ \textcolor{keywordtype}{size\_t}\ num\_encoded\_faces\_;}
+\DoxyCodeLine{00121\ \};}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ EncoderOptionsT>}
+\DoxyCodeLine{00124\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_encoder_base_acde089689a611f7cf7f4ea1f56006a66}{EncoderBase<EncoderOptionsT>::SetTrackEncodedProperties}}(\textcolor{keywordtype}{bool}\ flag)\ \{}
+\DoxyCodeLine{00125\ \ \ options\_.SetGlobalBool(\textcolor{stringliteral}{"{}store\_number\_of\_encoded\_points"{}},\ flag);}
+\DoxyCodeLine{00126\ \ \ options\_.SetGlobalBool(\textcolor{stringliteral}{"{}store\_number\_of\_encoded\_faces"{}},\ flag);}
+\DoxyCodeLine{00127\ \}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ENCODE\_BASE\_H\_}}
+
+\end{DoxyCode}

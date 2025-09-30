@@ -1,5 +1,27 @@
+/**
+ * @file importvcmx.cpp
+ * @brief Implementation of importvcmx class for importing and processing VCMX robot files.
+ *
+ * This file contains the implementation of the importvcmx class, which provides methods to
+ * extract, convert, and parse VCMX robot files and their resources. It handles zip extraction,
+ * image conversion, resource parsing, and DH parameter calculation for robot simulation and modeling.
+ *
+ * Main features:
+ * - Extract VCMX files and convert 3DS models to OBJ format
+ * - Parse resource files (.rsc) and convert to JSON
+ * - Process kinematics, joint maps, offsets, geometry matrices, and robot variables
+ * - Run DH parameter calculator and validate results
+ *
+ * @author Faizan Ahmed
+ * @date 2025-09-17
+ */
+
 #include "importvcmx.h"
 
+/**
+ * @brief Constructor for importvcmx with file path.
+ * @param filePath Path to the VCMX file or extracted directory.
+ */
 importvcmx::importvcmx(const std::string& filePath)
 	: filePath(filePath),
 	isKinematicsSection(false),
@@ -26,6 +48,10 @@ importvcmx::importvcmx(const std::string& filePath)
 
 }
 
+/**
+ * @brief Main function to import VCMX data and process all steps.
+ * @return Status code (0 for success, non-zero for error).
+ */
 int importvcmx::importVCMXData()
 {
 	try
@@ -88,8 +114,12 @@ int importvcmx::importVCMXData()
 }
 
 
-/***************** Zip Extraction Funtions ******************** */
+/***************** Zip Extraction Functions ******************** */
 
+/**
+ * @brief Extract the VCMX zip archive.
+ * @return True if extraction succeeded, false otherwise.
+ */
 bool importvcmx::zipExtractor()
 {
 	try
@@ -127,6 +157,12 @@ bool importvcmx::zipExtractor()
 	}
 }
 
+/**
+ * @brief Extract files from a zip archive to a destination directory.
+ * @param zipFilePath Path to the zip file.
+ * @param destDir Destination directory.
+ * @return True if extraction succeeded, false otherwise.
+ */
 bool importvcmx::extractZipFile(const std::string& zipFilePath, const std::string& destDir)
 {
 	mz_zip_archive zip;
@@ -188,6 +224,10 @@ bool importvcmx::extractZipFile(const std::string& zipFilePath, const std::strin
 
 /******************** Image Converter Functions ******************** */
 
+/**
+ * @brief Convert 3DS files to OBJ format in the output directory.
+ * @return True if conversion succeeded, false otherwise.
+ */
 bool importvcmx::imageConverter()
 {
 	if (!outputDir.empty())
@@ -238,7 +278,11 @@ bool importvcmx::imageConverter()
 	return false;
 }
 
-
+/**
+ * @brief Convert a single 3DS file to OBJ format.
+ * @param inputFilePath Path to the input 3DS file.
+ * @param outputFilePath Path to the output OBJ file.
+ */
 void importvcmx::convert3DSToOBJ(const string& inputFilePath, const string& outputFilePath)
 {
 	try
@@ -273,7 +317,12 @@ void importvcmx::convert3DSToOBJ(const string& inputFilePath, const string& outp
 // DOF regex to match the DOF section
 std::regex dofRegex(R"(Dof  \"(Rotational|Custom|RotationalFollower|Translational)\")");
 
-// This function will parse the .rsc file and return the json object
+
+/**
+ * @brief Parse a resource file (.rsc) and return its data as JSON.
+ * @param filePath Path to the resource file.
+ * @return Parsed JSON object.
+ */
 json importvcmx::parse(string& filePath)
 {
 	try {
@@ -314,7 +363,12 @@ json importvcmx::parse(string& filePath)
 	}
 }
 
-// This function will process the line and extract the data
+
+/**
+ * @brief Process a line from the resource file.
+ * @param line The line to process.
+ * @param file Input file stream.
+ */
 void importvcmx::processLine(string& line, ifstream& file)
 {
 	try {
@@ -410,7 +464,7 @@ void importvcmx::processLine(string& line, ifstream& file)
 			// cout << "process other section Case 1" << endl;
 			processOtherSections(line, file);
 		}
-		*/
+ */
 
 	}
 	catch (const std::exception& e) {
@@ -419,7 +473,13 @@ void importvcmx::processLine(string& line, ifstream& file)
 	}
 }
 
-// Helper function to get the values of Robot Name , Manufacturer and category.
+
+/**
+ * @brief Process robot values (name, manufacturer, category) from a line.
+ * @param line The line to process.
+ * @param file Input file stream.
+ * @return True if robot category found, false otherwise.
+ */
 bool importvcmx::processRobotValues(const std::string& line, std::ifstream& file)
 {
 
@@ -452,7 +512,10 @@ bool importvcmx::processRobotValues(const std::string& line, std::ifstream& file
 	return foundRobotCategory;
 }
 
-// This function will process the VariableSpace section
+/**
+ * @brief Process the VariableSpace section.
+ * @param file Input file stream.
+ */
 void importvcmx::processVariableSpace(std::ifstream& file) {
 	std::string line;
 	bool inVariableSpace = true;
@@ -520,7 +583,10 @@ void importvcmx::processVariableSpace(std::ifstream& file) {
 }
 
 
-// This function will process the Geometry section.
+/**
+ * @brief Process the Geometry section.
+ * @param file Input file stream.
+ */
 void importvcmx::processGeometrySection(ifstream& file) {
 	string line;
 	string currentJointName;
@@ -612,7 +678,10 @@ void importvcmx::processGeometrySection(ifstream& file) {
 	}
 }
 
-// This function will process the Dof Degree of freedom section.
+/**
+ * @brief Process the Dof (Degree of Freedom) section.
+ * @param file Input file stream.
+ */
 void importvcmx::processDofSection(ifstream& file) {
 	string line;
 	string jointName;
@@ -808,7 +877,10 @@ void importvcmx::processDofSection(ifstream& file) {
 }
 
 
-// This function will handle the Kinematics section.
+/**
+ * @brief Process the Kinematics section.
+ * @param file Input file stream.
+ */
 void importvcmx::processKinematicsSection(std::ifstream& file)
 {
 	std::string sectionLine;
@@ -857,7 +929,10 @@ void importvcmx::processKinematicsSection(std::ifstream& file)
 	}
 }
 
-// This function Handles the JointMap section
+/**
+ * @brief Process the JointMap section.
+ * @param file Input file stream.
+ */
 void importvcmx::processJointMapSection(std::ifstream& file)
 {
 	std::string sectionLine;
@@ -886,7 +961,10 @@ void importvcmx::processJointMapSection(std::ifstream& file)
 	}
 }
 
-// This function will process the Kinematics and JointMap section
+/**
+ * @brief Process a line in the Kinematics or JointMap section.
+ * @param line The line to process.
+ */
 void importvcmx::processKinematicsOrJointMapSection(const string& line)
 {
 	try {
@@ -987,7 +1065,11 @@ void importvcmx::processKinematicsOrJointMapSection(const string& line)
 	}
 }
 
-// This function will process the other sections like Dof, Offset and GeometryMatrix
+/**
+ * @brief Process other sections such as Dof, Offset, and GeometryMatrix.
+ * @param line The line to process.
+ * @param file Input file stream.
+ */
 void importvcmx::processOtherSections(const string& line, ifstream& file)
 {
 	try {
@@ -1023,7 +1105,11 @@ void importvcmx::processOtherSections(const string& line, ifstream& file)
 	}
 }
 
-// This function will process the Offset section
+/**
+ * @brief Process the Offset section.
+ * @param line The line to process.
+ * @param file Input file stream.
+ */
 void importvcmx::processOffsetSection(const string& line, ifstream& file)
 {
 	try {
@@ -1075,7 +1161,10 @@ void importvcmx::processOffsetSection(const string& line, ifstream& file)
 	}
 }
 
-// This function will process the GeometryMatrix section
+/**
+ * @brief Process the GeometryMatrix section.
+ * @param line The line to process.
+ */
 void importvcmx::processGeometryMatrixSection(const string& line)
 {
 	try {
@@ -1155,6 +1244,10 @@ void importvcmx::processGeometryMatrixSection(const string& line)
 	}
 }
 
+/**
+ * @brief Process the resource file and convert to JSON.
+ * @return True if successful, false otherwise.
+ */
 bool importvcmx::processResourceFile()
 {
 
@@ -1183,6 +1276,10 @@ bool importvcmx::processResourceFile()
 
 /********************************************************************************************* */
 
+/**
+ * @brief Run the DH parameter calculator and validate results.
+ * @return True if successful, false otherwise.
+ */
 bool importvcmx::runDHParameterCalculator() {
 	try {
 

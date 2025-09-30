@@ -1,0 +1,140 @@
+\doxysection{gltf\+\_\+encoder.\+h}
+\hypertarget{gltf__encoder_8h_source}{}\label{gltf__encoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/io/gltf\_encoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/io/gltf\_encoder.h}}
+\mbox{\hyperlink{gltf__encoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2018\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_IO\_GLTF\_ENCODER\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_IO\_GLTF\_ENCODER\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <functional>}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ <iostream>}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ <sstream>}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{encoder__buffer_8h}{draco/core/encoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{file__writer__factory_8h}{draco/io/file\_writer\_factory.h}}"{}}}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{file__writer__interface_8h}{draco/io/file\_writer\_interface.h}}"{}}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{texture__io_8h}{draco/io/texture\_io.h}}"{}}}
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2mesh_2mesh_8h}{draco/mesh/mesh.h}}"{}}}
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2scene_2scene_8h}{draco/scene/scene.h}}"{}}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ Class\ for\ encoding\ draco::Mesh\ into\ the\ glTF\ file\ format.}}
+\DoxyCodeLine{00038\ \textcolor{keyword}{class\ }GltfEncoder\ \{}
+\DoxyCodeLine{00039\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00040\ \ \ \textcolor{comment}{//\ Types\ of\ output\ modes\ for\ the\ glTF\ data\ encoder.\ |COMPACT|\ will\ output}}
+\DoxyCodeLine{00041\ \ \ \textcolor{comment}{//\ required\ and\ non-\/default\ glTF\ data.\ |VERBOSE|\ will\ output\ required\ and}}
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ default\ glTF\ data\ as\ well\ as\ readable\ JSON\ even\ when\ the\ output\ is\ saved\ in}}
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ a\ glTF-\/Binary\ file.}}
+\DoxyCodeLine{00044\ \ \ \textcolor{keyword}{enum}\ OutputType\ \{\ COMPACT,\ \mbox{\hyperlink{namespacetest_ac9094a280544f1efa7c2dab8216a5984}{VERBOSE}}\ \};}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ GltfEncoder();}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \ \ \textcolor{comment}{//\ Encodes\ the\ geometry\ and\ saves\ it\ into\ a\ file.\ Returns\ false\ when\ either}}
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//\ the\ encoding\ failed\ or\ when\ the\ file\ couldn't\ be\ opened.}}
+\DoxyCodeLine{00050\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordtype}{bool}\ EncodeToFile(\textcolor{keyword}{const}\ T\ \&geometry,\ \textcolor{keyword}{const}\ std::string\ \&file\_name,}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&base\_dir);}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \textcolor{comment}{//\ Saves\ |geometry|\ into\ glTF\ 2.0\ format.\ |filename|\ is\ the\ name\ of\ the}}
+\DoxyCodeLine{00055\ \ \ \textcolor{comment}{//\ glTF\ file.\ The\ glTF\ bin\ file\ (if\ needed)\ will\ be\ named\ stem(|filename|)\ +}}
+\DoxyCodeLine{00056\ \ \ \textcolor{comment}{//\ “.bin”.\ The\ other\ files\ (if\ needed)\ will\ be\ saved\ to\ basedir(|filename|).}}
+\DoxyCodeLine{00057\ \ \ \textcolor{comment}{//\ If\ |filename|\ has\ the\ extension\ "{}glb"{}\ then\ |filename|\ will\ be\ written\ as\ a}}
+\DoxyCodeLine{00058\ \ \ \textcolor{comment}{//\ glTF-\/Binary\ file.\ Otherwise\ |filename|\ will\ be\ written\ as\ non-\/binary\ glTF}}
+\DoxyCodeLine{00059\ \ \ \textcolor{comment}{//\ file.}}
+\DoxyCodeLine{00060\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00061\ \ \ Status\ EncodeFile(\textcolor{keyword}{const}\ T\ \&geometry,\ \textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}});}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//\ Saves\ |geometry|\ into\ glTF\ 2.0\ format.\ |filename|\ is\ the\ name\ of\ the}}
+\DoxyCodeLine{00064\ \ \ \textcolor{comment}{//\ glTF\ file.\ |bin\_filename|\ is\ the\ name\ of\ the\ glTF\ bin\ file.\ The\ other}}
+\DoxyCodeLine{00065\ \ \ \textcolor{comment}{//\ files\ (if\ needed)\ will\ be\ saved\ to\ basedir(|filename|).\ |bin\_filename|\ will}}
+\DoxyCodeLine{00066\ \ \ \textcolor{comment}{//\ be\ ignored\ if\ output\ is\ glTF-\/Binary.}}
+\DoxyCodeLine{00067\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00068\ \ \ Status\ EncodeFile(\textcolor{keyword}{const}\ T\ \&geometry,\ \textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&bin\_filename);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ \textcolor{comment}{//\ Saves\ |geometry|\ into\ glTF\ 2.0\ format.\ |filename|\ is\ the\ name\ of\ the}}
+\DoxyCodeLine{00072\ \ \ \textcolor{comment}{//\ glTF\ file.\ |bin\_filename|\ is\ the\ name\ of\ the\ glTF\ bin\ file.\ The\ other}}
+\DoxyCodeLine{00073\ \ \ \textcolor{comment}{//\ files\ will\ be\ saved\ to\ |resource\_dir|.\ |bin\_filename|\ and\ |resource\_dir|}}
+\DoxyCodeLine{00074\ \ \ \textcolor{comment}{//\ will\ be\ ignored\ if\ output\ is\ glTF-\/Binary.}}
+\DoxyCodeLine{00075\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00076\ \ \ Status\ EncodeFile(\textcolor{keyword}{const}\ T\ \&geometry,\ \textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&bin\_filename,}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&resource\_dir);}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \textcolor{comment}{//\ Encodes\ |geometry|\ to\ |out\_buffer|\ in\ glTF\ 2.0\ GLB\ format.}}
+\DoxyCodeLine{00081\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00082\ \ \ Status\ EncodeToBuffer(\textcolor{keyword}{const}\ T\ \&geometry,\ EncoderBuffer\ *out\_buffer);}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \textcolor{keywordtype}{void}\ set\_output\_type(OutputType\ type)\ \{\ output\_type\_\ =\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a0b934232cabd06f3c163d3ee2413edf5}{type}};\ \}}
+\DoxyCodeLine{00085\ \ \ OutputType\ output\_type()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ output\_type\_;\ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \textcolor{comment}{//\ The\ name\ of\ the\ attribute\ metadata\ that\ contains\ the\ glTF\ attribute}}
+\DoxyCodeLine{00088\ \ \ \textcolor{comment}{//\ name.\ For\ application-\/specific\ generic\ attributes,\ if\ the\ metadata\ for}}
+\DoxyCodeLine{00089\ \ \ \textcolor{comment}{//\ an\ attribute\ contains\ this\ key,\ then\ the\ value\ will\ be\ used\ as\ the}}
+\DoxyCodeLine{00090\ \ \ \textcolor{comment}{//\ encoded\ attribute\ name\ in\ the\ output\ GLTF.}}
+\DoxyCodeLine{00091\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ kDracoMetadataGltfAttributeName[];}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00094\ \ \ \textcolor{comment}{//\ Encodes\ the\ mesh\ or\ the\ point\ cloud\ into\ a\ buffer.}}
+\DoxyCodeLine{00095\ \ \ Status\ EncodeToBuffer(\textcolor{keyword}{const}\ Mesh\ \&mesh,\ \textcolor{keyword}{class}\ GltfAsset\ *gltf\_asset,}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EncoderBuffer\ *out\_buffer);}
+\DoxyCodeLine{00097\ \ \ Status\ EncodeToBuffer(\textcolor{keyword}{const}\ Scene\ \&\mbox{\hyperlink{_sample___simple_open_g_l_8c_a619ab59111512ab3962ba200beed7cf9}{scene}},\ \textcolor{keyword}{class}\ GltfAsset\ *gltf\_asset,}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EncoderBuffer\ *out\_buffer);}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \textcolor{comment}{//\ Sets\ appropriate\ Json\ writer\ mode\ based\ on\ the\ provided\ |gltf\_asset|}}
+\DoxyCodeLine{00101\ \ \ \textcolor{comment}{//\ options.}}
+\DoxyCodeLine{00102\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ SetJsonWriterMode(\textcolor{keyword}{class}\ GltfAsset\ *gltf\_asset);}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \textcolor{comment}{//\ Writes\ the\ "{}.gltf"{}\ and\ associted\ files.\ |gltf\_asset|\ holds\ the\ glTF\ data.}}
+\DoxyCodeLine{00105\ \ \ \textcolor{comment}{//\ |buffer|\ is\ the\ encoded\ glTF\ json\ data.\ |filename|\ is\ the\ name\ of\ the}}
+\DoxyCodeLine{00106\ \ \ \textcolor{comment}{//\ "{}.gltf"{}\ file.\ |bin\_filename|\ is\ the\ name\ of\ the\ glTF\ bin\ file.\ The\ other}}
+\DoxyCodeLine{00107\ \ \ \textcolor{comment}{//\ files\ will\ be\ saved\ to\ |resource\_dir|.}}
+\DoxyCodeLine{00108\ \ \ Status\ WriteGltfFiles(\textcolor{keyword}{const}\ \textcolor{keyword}{class}\ GltfAsset\ \&gltf\_asset,}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ EncoderBuffer\ \&buffer,}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}},}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&bin\_filename,}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&resource\_dir);}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \textcolor{comment}{//\ Writes\ the\ "{}.glb"{}\ file.\ |gltf\_asset|\ holds\ the\ glTF\ data.\ |json\_data|\ is}}
+\DoxyCodeLine{00115\ \ \ \textcolor{comment}{//\ the\ encoded\ glTF\ json\ data.\ |filename|\ is\ the\ name\ of\ the\ "{}.glb"{}\ file.}}
+\DoxyCodeLine{00116\ \ \ Status\ WriteGlbFile(\textcolor{keyword}{const}\ \textcolor{keyword}{class}\ GltfAsset\ \&gltf\_asset,}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ EncoderBuffer\ \&json\_data,}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a2c8e3f833d9ea6f106973ebe4391bf0f}{filename}});}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \textcolor{comment}{//\ Creates\ GLB\ file\ chunks\ and\ passes\ them\ to\ |process\_chunk|\ function\ for}}
+\DoxyCodeLine{00121\ \ \ \textcolor{comment}{//\ processing.\ |gltf\_asset|\ holds\ the\ glTF\ data.\ |json\_data|\ is\ the\ encoded}}
+\DoxyCodeLine{00122\ \ \ \textcolor{comment}{//\ glTF\ json\ data.}}
+\DoxyCodeLine{00123\ \ \ Status\ ProcessGlbFileChunks(}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{class}\ GltfAsset\ \&gltf\_asset,\ \textcolor{keyword}{const}\ EncoderBuffer\ \&json\_data,}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::function<Status(\textcolor{keyword}{const}\ EncoderBuffer\ \&)>\ \&process\_chunk)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \ \ EncoderBuffer\ *out\_buffer\_;}
+\DoxyCodeLine{00128\ \ \ OutputType\ output\_type\_;}
+\DoxyCodeLine{00129\ \};}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00134\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_IO\_GLTF\_ENCODER\_H\_}}
+
+\end{DoxyCode}

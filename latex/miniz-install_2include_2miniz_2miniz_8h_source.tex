@@ -1,0 +1,538 @@
+\doxysection{miniz.\+h}
+\hypertarget{miniz-install_2include_2miniz_2miniz_8h_source}{}\label{miniz-install_2include_2miniz_2miniz_8h_source}\index{RobotLib/libraries/miniz-\/install/include/miniz/miniz.h@{RobotLib/libraries/miniz-\/install/include/miniz/miniz.h}}
+\mbox{\hyperlink{miniz-install_2include_2miniz_2miniz_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ miniz.c\ 3.0.0\ -\/\ public\ domain\ deflate/inflate,\ zlib-\/subset,\ ZIP\ reading/writing/appending,\ PNG\ writing}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ \ \ See\ "{}unlicense"{}\ statement\ at\ the\ end\ of\ this\ file.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ \ \ Rich\ Geldreich\ <richgel99@gmail.com>,\ last\ updated\ Oct.\ 13,\ 2013}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ \ \ Implements\ RFC\ 1950:\ http://www.ietf.org/rfc/rfc1950.txt\ and\ RFC\ 1951:\ http://www.ietf.org/rfc/rfc1951.txt}}
+\DoxyCodeLine{00005\ \textcolor{comment}{}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ \ \ Most\ API's\ defined\ in\ miniz.c\ are\ optional.\ For\ example,\ to\ disable\ the\ archive\ related\ functions\ just\ define}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ \ \ MINIZ\_NO\_ARCHIVE\_APIS,\ or\ to\ get\ rid\ of\ all\ stdio\ usage\ define\ MINIZ\_NO\_STDIO\ (see\ the\ list\ below\ for\ more\ macros).}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ \ \ *\ Low-\/level\ Deflate/Inflate\ implementation\ notes:}}
+\DoxyCodeLine{00010\ \textcolor{comment}{}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ \ \ \ \ Compression:\ Use\ the\ "{}tdefl"{}\ API's.\ The\ compressor\ supports\ raw,\ static,\ and\ dynamic\ blocks,\ lazy\ or}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ \ \ \ \ greedy\ parsing,\ match\ length\ filtering,\ RLE-\/only,\ and\ Huffman-\/only\ streams.\ It\ performs\ and\ compresses}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ \ \ \ \ approximately\ as\ well\ as\ zlib.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ \ \ \ Decompression:\ Use\ the\ "{}tinfl"{}\ API's.\ The\ entire\ decompressor\ is\ implemented\ as\ a\ single\ function}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ \ \ \ \ coroutine:\ see\ tinfl\_decompress().\ It\ supports\ decompression\ into\ a\ 32KB\ (or\ larger\ power\ of\ 2)\ wrapping\ buffer,\ or\ into\ a\ memory}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ \ \ \ \ block\ large\ enough\ to\ hold\ the\ entire\ file.}}
+\DoxyCodeLine{00018\ \textcolor{comment}{}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ \ \ \ \ The\ low-\/level\ tdefl/tinfl\ API's\ do\ not\ make\ any\ use\ of\ dynamic\ memory\ allocation.}}
+\DoxyCodeLine{00020\ \textcolor{comment}{}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ \ \ *\ zlib-\/style\ API\ notes:}}
+\DoxyCodeLine{00022\ \textcolor{comment}{}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ \ \ \ miniz.c\ implements\ a\ fairly\ large\ subset\ of\ zlib.\ There's\ enough\ functionality\ present\ for\ it\ to\ be\ a\ drop-\/in}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ \ \ \ zlib\ replacement\ in\ many\ apps:}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ \ \ \ \ \ \ The\ z\_stream\ struct,\ optional\ memory\ allocation\ callbacks}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ \ \ \ \ \ \ deflateInit/deflateInit2/deflate/deflateReset/deflateEnd/deflateBound}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ \ \ \ \ \ \ \ inflateInit/inflateInit2/inflate/inflateReset/inflateEnd}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ \ \ \ \ \ \ \ compress,\ compress2,\ compressBound,\ uncompress}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ \ \ \ \ \ \ \ CRC-\/32,\ Adler-\/32\ -\/\ Using\ modern,\ minimal\ code\ size,\ CPU\ cache\ friendly\ routines.}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ \ \ \ \ \ \ \ Supports\ raw\ deflate\ streams\ or\ standard\ zlib\ streams\ with\ adler-\/32\ checking.}}
+\DoxyCodeLine{00031\ \textcolor{comment}{}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ \ \ \ \ Limitations:}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ \ \ \ \ \ The\ callback\ API's\ are\ not\ implemented\ yet.\ No\ support\ for\ gzip\ headers\ or\ zlib\ static\ dictionaries.}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ \ \ \ \ \ I've\ tried\ to\ closely\ emulate\ zlib's\ various\ flavors\ of\ stream\ flushing\ and\ return\ status\ codes,\ but}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ \ \ \ \ \ there\ are\ no\ guarantees\ that\ miniz.c\ pulls\ this\ off\ perfectly.}}
+\DoxyCodeLine{00036\ \textcolor{comment}{}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ \ \ *\ PNG\ writing:\ See\ the\ tdefl\_write\_image\_to\_png\_file\_in\_memory()\ function,\ originally\ written\ by}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ \ \ \ \ Alex\ Evans.\ Supports\ 1-\/4\ bytes/pixel\ images.}}
+\DoxyCodeLine{00039\ \textcolor{comment}{}}
+\DoxyCodeLine{00040\ \textcolor{comment}{\ \ \ *\ ZIP\ archive\ API\ notes:}}
+\DoxyCodeLine{00041\ \textcolor{comment}{}}
+\DoxyCodeLine{00042\ \textcolor{comment}{\ \ \ \ \ The\ ZIP\ archive\ API's\ where\ designed\ with\ simplicity\ and\ efficiency\ in\ mind,\ with\ just\ enough\ abstraction\ to}}
+\DoxyCodeLine{00043\ \textcolor{comment}{\ \ \ \ \ get\ the\ job\ done\ with\ minimal\ fuss.\ There\ are\ simple\ API's\ to\ retrieve\ file\ information,\ read\ files\ from}}
+\DoxyCodeLine{00044\ \textcolor{comment}{\ \ \ \ \ existing\ archives,\ create\ new\ archives,\ append\ new\ files\ to\ existing\ archives,\ or\ clone\ archive\ data\ from}}
+\DoxyCodeLine{00045\ \textcolor{comment}{\ \ \ \ \ one\ archive\ to\ another.\ It\ supports\ archives\ located\ in\ memory\ or\ the\ heap,\ on\ disk\ (using\ stdio.h),}}
+\DoxyCodeLine{00046\ \textcolor{comment}{\ \ \ \ \ or\ you\ can\ specify\ custom\ file\ read/write\ callbacks.}}
+\DoxyCodeLine{00047\ \textcolor{comment}{}}
+\DoxyCodeLine{00048\ \textcolor{comment}{\ \ \ \ \ -\/\ Archive\ reading:\ Just\ call\ this\ function\ to\ read\ a\ single\ file\ from\ a\ disk\ archive:}}
+\DoxyCodeLine{00049\ \textcolor{comment}{}}
+\DoxyCodeLine{00050\ \textcolor{comment}{\ \ \ \ \ \ void\ *mz\_zip\_extract\_archive\_file\_to\_heap(const\ char\ *pZip\_filename,\ const\ char\ *pArchive\_name,}}
+\DoxyCodeLine{00051\ \textcolor{comment}{\ \ \ \ \ \ \ \ size\_t\ *pSize,\ mz\_uint\ zip\_flags);}}
+\DoxyCodeLine{00052\ \textcolor{comment}{}}
+\DoxyCodeLine{00053\ \textcolor{comment}{\ \ \ \ \ For\ more\ complex\ cases,\ use\ the\ "{}mz\_zip\_reader"{}\ functions.\ Upon\ opening\ an\ archive,\ the\ entire\ central}}
+\DoxyCodeLine{00054\ \textcolor{comment}{\ \ \ \ \ directory\ is\ located\ and\ read\ as-\/is\ into\ memory,\ and\ subsequent\ file\ access\ only\ occurs\ when\ reading\ individual\ files.}}
+\DoxyCodeLine{00055\ \textcolor{comment}{}}
+\DoxyCodeLine{00056\ \textcolor{comment}{\ \ \ \ \ -\/\ Archives\ file\ scanning:\ The\ simple\ way\ is\ to\ use\ this\ function\ to\ scan\ a\ loaded\ archive\ for\ a\ specific\ file:}}
+\DoxyCodeLine{00057\ \textcolor{comment}{}}
+\DoxyCodeLine{00058\ \textcolor{comment}{\ \ \ \ \ int\ mz\_zip\_reader\_locate\_file(mz\_zip\_archive\ *pZip,\ const\ char\ *pName,\ const\ char\ *pComment,\ mz\_uint\ flags);}}
+\DoxyCodeLine{00059\ \textcolor{comment}{}}
+\DoxyCodeLine{00060\ \textcolor{comment}{\ \ \ \ \ The\ locate\ operation\ can\ optionally\ check\ file\ comments\ too,\ which\ (as\ one\ example)\ can\ be\ used\ to\ identify}}
+\DoxyCodeLine{00061\ \textcolor{comment}{\ \ \ \ \ multiple\ versions\ of\ the\ same\ file\ in\ an\ archive.\ This\ function\ uses\ a\ simple\ linear\ search\ through\ the\ central}}
+\DoxyCodeLine{00062\ \textcolor{comment}{\ \ \ \ \ directory,\ so\ it's\ not\ very\ fast.}}
+\DoxyCodeLine{00063\ \textcolor{comment}{}}
+\DoxyCodeLine{00064\ \textcolor{comment}{\ \ \ \ \ Alternately,\ you\ can\ iterate\ through\ all\ the\ files\ in\ an\ archive\ (using\ mz\_zip\_reader\_get\_num\_files())\ and}}
+\DoxyCodeLine{00065\ \textcolor{comment}{\ \ \ \ \ retrieve\ detailed\ info\ on\ each\ file\ by\ calling\ mz\_zip\_reader\_file\_stat().}}
+\DoxyCodeLine{00066\ \textcolor{comment}{}}
+\DoxyCodeLine{00067\ \textcolor{comment}{\ \ \ \ \ -\/\ Archive\ creation:\ Use\ the\ "{}mz\_zip\_writer"{}\ functions.\ The\ ZIP\ writer\ immediately\ writes\ compressed\ file\ data}}
+\DoxyCodeLine{00068\ \textcolor{comment}{\ \ \ \ \ to\ disk\ and\ builds\ an\ exact\ image\ of\ the\ central\ directory\ in\ memory.\ The\ central\ directory\ image\ is\ written}}
+\DoxyCodeLine{00069\ \textcolor{comment}{\ \ \ \ \ all\ at\ once\ at\ the\ end\ of\ the\ archive\ file\ when\ the\ archive\ is\ finalized.}}
+\DoxyCodeLine{00070\ \textcolor{comment}{}}
+\DoxyCodeLine{00071\ \textcolor{comment}{\ \ \ \ \ The\ archive\ writer\ can\ optionally\ align\ each\ file's\ local\ header\ and\ file\ data\ to\ any\ power\ of\ 2\ alignment,}}
+\DoxyCodeLine{00072\ \textcolor{comment}{\ \ \ \ \ which\ can\ be\ useful\ when\ the\ archive\ will\ be\ read\ from\ optical\ media.\ Also,\ the\ writer\ supports\ placing}}
+\DoxyCodeLine{00073\ \textcolor{comment}{\ \ \ \ \ arbitrary\ data\ blobs\ at\ the\ very\ beginning\ of\ ZIP\ archives.\ Archives\ written\ using\ either\ feature\ are\ still}}
+\DoxyCodeLine{00074\ \textcolor{comment}{\ \ \ \ \ readable\ by\ any\ ZIP\ tool.}}
+\DoxyCodeLine{00075\ \textcolor{comment}{}}
+\DoxyCodeLine{00076\ \textcolor{comment}{\ \ \ \ \ -\/\ Archive\ appending:\ The\ simple\ way\ to\ add\ a\ single\ file\ to\ an\ archive\ is\ to\ call\ this\ function:}}
+\DoxyCodeLine{00077\ \textcolor{comment}{}}
+\DoxyCodeLine{00078\ \textcolor{comment}{\ \ \ \ \ \ mz\_bool\ mz\_zip\_add\_mem\_to\_archive\_file\_in\_place(const\ char\ *pZip\_filename,\ const\ char\ *pArchive\_name,}}
+\DoxyCodeLine{00079\ \textcolor{comment}{\ \ \ \ \ \ \ \ const\ void\ *pBuf,\ size\_t\ buf\_size,\ const\ void\ *pComment,\ mz\_uint16\ comment\_size,\ mz\_uint\ level\_and\_flags);}}
+\DoxyCodeLine{00080\ \textcolor{comment}{}}
+\DoxyCodeLine{00081\ \textcolor{comment}{\ \ \ \ \ The\ archive\ will\ be\ created\ if\ it\ doesn't\ already\ exist,\ otherwise\ it'll\ be\ appended\ to.}}
+\DoxyCodeLine{00082\ \textcolor{comment}{\ \ \ \ \ Note\ the\ appending\ is\ done\ in-\/place\ and\ is\ not\ an\ atomic\ operation,\ so\ if\ something\ goes\ wrong}}
+\DoxyCodeLine{00083\ \textcolor{comment}{\ \ \ \ \ during\ the\ operation\ it's\ possible\ the\ archive\ could\ be\ left\ without\ a\ central\ directory\ (although\ the\ local}}
+\DoxyCodeLine{00084\ \textcolor{comment}{\ \ \ \ \ file\ headers\ and\ file\ data\ will\ be\ fine,\ so\ the\ archive\ will\ be\ recoverable).}}
+\DoxyCodeLine{00085\ \textcolor{comment}{}}
+\DoxyCodeLine{00086\ \textcolor{comment}{\ \ \ \ \ For\ more\ complex\ archive\ modification\ scenarios:}}
+\DoxyCodeLine{00087\ \textcolor{comment}{\ \ \ \ \ 1.\ The\ safest\ way\ is\ to\ use\ a\ mz\_zip\_reader\ to\ read\ the\ existing\ archive,\ cloning\ only\ those\ bits\ you\ want\ to}}
+\DoxyCodeLine{00088\ \textcolor{comment}{\ \ \ \ \ preserve\ into\ a\ new\ archive\ using\ using\ the\ mz\_zip\_writer\_add\_from\_zip\_reader()\ function\ (which\ compiles\ the}}
+\DoxyCodeLine{00089\ \textcolor{comment}{\ \ \ \ \ compressed\ file\ data\ as-\/is).\ When\ you're\ done,\ delete\ the\ old\ archive\ and\ rename\ the\ newly\ written\ archive,\ and}}
+\DoxyCodeLine{00090\ \textcolor{comment}{\ \ \ \ \ you're\ done.\ This\ is\ safe\ but\ requires\ a\ bunch\ of\ temporary\ disk\ space\ or\ heap\ memory.}}
+\DoxyCodeLine{00091\ \textcolor{comment}{}}
+\DoxyCodeLine{00092\ \textcolor{comment}{\ \ \ \ \ 2.\ Or,\ you\ can\ convert\ an\ mz\_zip\_reader\ in-\/place\ to\ an\ mz\_zip\_writer\ using\ mz\_zip\_writer\_init\_from\_reader(),}}
+\DoxyCodeLine{00093\ \textcolor{comment}{\ \ \ \ \ append\ new\ files\ as\ needed,\ then\ finalize\ the\ archive\ which\ will\ write\ an\ updated\ central\ directory\ to\ the}}
+\DoxyCodeLine{00094\ \textcolor{comment}{\ \ \ \ \ original\ archive.\ (This\ is\ basically\ what\ mz\_zip\_add\_mem\_to\_archive\_file\_in\_place()\ does.)\ There's\ a}}
+\DoxyCodeLine{00095\ \textcolor{comment}{\ \ \ \ \ possibility\ that\ the\ archive's\ central\ directory\ could\ be\ lost\ with\ this\ method\ if\ anything\ goes\ wrong,\ though.}}
+\DoxyCodeLine{00096\ \textcolor{comment}{}}
+\DoxyCodeLine{00097\ \textcolor{comment}{\ \ \ \ \ -\/\ ZIP\ archive\ support\ limitations:}}
+\DoxyCodeLine{00098\ \textcolor{comment}{\ \ \ \ \ No\ spanning\ support.\ Extraction\ functions\ can\ only\ handle\ unencrypted,\ stored\ or\ deflated\ files.}}
+\DoxyCodeLine{00099\ \textcolor{comment}{\ \ \ \ \ Requires\ streams\ capable\ of\ seeking.}}
+\DoxyCodeLine{00100\ \textcolor{comment}{}}
+\DoxyCodeLine{00101\ \textcolor{comment}{\ \ \ *\ This\ is\ a\ header\ file\ library,\ like\ stb\_image.c.\ To\ get\ only\ a\ header\ file,\ either\ cut\ and\ paste\ the}}
+\DoxyCodeLine{00102\ \textcolor{comment}{\ \ \ \ \ below\ header,\ or\ create\ miniz.h,\ \#define\ MINIZ\_HEADER\_FILE\_ONLY,\ and\ then\ include\ miniz.c\ from\ it.}}
+\DoxyCodeLine{00103\ \textcolor{comment}{}}
+\DoxyCodeLine{00104\ \textcolor{comment}{\ \ \ *\ Important:\ For\ best\ perf.\ be\ sure\ to\ customize\ the\ below\ macros\ for\ your\ target\ platform:}}
+\DoxyCodeLine{00105\ \textcolor{comment}{\ \ \ \ \ \#define\ MINIZ\_USE\_UNALIGNED\_LOADS\_AND\_STORES\ 1}}
+\DoxyCodeLine{00106\ \textcolor{comment}{\ \ \ \ \ \#define\ MINIZ\_LITTLE\_ENDIAN\ 1}}
+\DoxyCodeLine{00107\ \textcolor{comment}{\ \ \ \ \ \#define\ MINIZ\_HAS\_64BIT\_REGISTERS\ 1}}
+\DoxyCodeLine{00108\ \textcolor{comment}{}}
+\DoxyCodeLine{00109\ \textcolor{comment}{\ \ \ *\ On\ platforms\ using\ glibc,\ Be\ sure\ to\ "{}\#define\ \_LARGEFILE64\_SOURCE\ 1"{}\ before\ including\ miniz.c\ to\ ensure\ miniz}}
+\DoxyCodeLine{00110\ \textcolor{comment}{\ \ \ \ \ uses\ the\ 64-\/bit\ variants:\ fopen64(),\ stat64(),\ etc.\ Otherwise\ you\ won't\ be\ able\ to\ process\ large\ files}}
+\DoxyCodeLine{00111\ \textcolor{comment}{\ \ \ \ \ (i.e.\ 32-\/bit\ stat()\ fails\ for\ me\ on\ files\ >\ 0x7FFFFFFF\ bytes).}}
+\DoxyCodeLine{00112\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00113\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_robot_lib_2libraries_2miniz-install_2include_2miniz_2miniz__export_8h}{miniz\_export.h}}"{}}}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \textcolor{comment}{/*\ Defines\ to\ completely\ disable\ specific\ portions\ of\ miniz.c:\ }}
+\DoxyCodeLine{00118\ \textcolor{comment}{\ \ \ If\ all\ macros\ here\ are\ defined\ the\ only\ functionality\ remaining\ will\ be\ CRC-\/32\ and\ adler-\/32.\ */}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \textcolor{comment}{/*\ Define\ MINIZ\_NO\_STDIO\ to\ disable\ all\ usage\ and\ any\ functions\ which\ rely\ on\ stdio\ for\ file\ I/O.\ */}}
+\DoxyCodeLine{00121\ \textcolor{comment}{/*\#define\ MINIZ\_NO\_STDIO\ */}}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \textcolor{comment}{/*\ If\ MINIZ\_NO\_TIME\ is\ specified\ then\ the\ ZIP\ archive\ functions\ will\ not\ be\ able\ to\ get\ the\ current\ time,\ or\ */}}
+\DoxyCodeLine{00124\ \textcolor{comment}{/*\ get/set\ file\ times,\ and\ the\ C\ run-\/time\ funcs\ that\ get/set\ times\ won't\ be\ called.\ */}}
+\DoxyCodeLine{00125\ \textcolor{comment}{/*\ The\ current\ downside\ is\ the\ times\ written\ to\ your\ archives\ will\ be\ from\ 1979.\ */}}
+\DoxyCodeLine{00126\ \textcolor{comment}{/*\#define\ MINIZ\_NO\_TIME\ */}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \textcolor{comment}{/*\ Define\ MINIZ\_NO\_DEFLATE\_APIS\ to\ disable\ all\ compression\ API's.\ */}}
+\DoxyCodeLine{00129\ \textcolor{comment}{/*\#define\ MINIZ\_NO\_DEFLATE\_APIS\ */}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \textcolor{comment}{/*\ Define\ MINIZ\_NO\_INFLATE\_APIS\ to\ disable\ all\ decompression\ API's.\ */}}
+\DoxyCodeLine{00132\ \textcolor{comment}{/*\#define\ MINIZ\_NO\_INFLATE\_APIS\ */}}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \textcolor{comment}{/*\ Define\ MINIZ\_NO\_ARCHIVE\_APIS\ to\ disable\ all\ ZIP\ archive\ API's.\ */}}
+\DoxyCodeLine{00135\ \textcolor{comment}{/*\#define\ MINIZ\_NO\_ARCHIVE\_APIS\ */}}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00137\ \textcolor{comment}{/*\ Define\ MINIZ\_NO\_ARCHIVE\_WRITING\_APIS\ to\ disable\ all\ writing\ related\ ZIP\ archive\ API's.\ */}}
+\DoxyCodeLine{00138\ \textcolor{comment}{/*\#define\ MINIZ\_NO\_ARCHIVE\_WRITING\_APIS\ */}}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \textcolor{comment}{/*\ Define\ MINIZ\_NO\_ZLIB\_APIS\ to\ remove\ all\ ZLIB-\/style\ compression/decompression\ API's.\ */}}
+\DoxyCodeLine{00141\ \textcolor{comment}{/*\#define\ MINIZ\_NO\_ZLIB\_APIS\ */}}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \textcolor{comment}{/*\ Define\ MINIZ\_NO\_ZLIB\_COMPATIBLE\_NAME\ to\ disable\ zlib\ names,\ to\ prevent\ conflicts\ against\ stock\ zlib.\ */}}
+\DoxyCodeLine{00144\ \textcolor{comment}{/*\#define\ MINIZ\_NO\_ZLIB\_COMPATIBLE\_NAMES\ */}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \textcolor{comment}{/*\ Define\ MINIZ\_NO\_MALLOC\ to\ disable\ all\ calls\ to\ malloc,\ free,\ and\ realloc.\ }}
+\DoxyCodeLine{00147\ \textcolor{comment}{\ \ \ Note\ if\ MINIZ\_NO\_MALLOC\ is\ defined\ then\ the\ user\ must\ always\ provide\ custom\ user\ alloc/free/realloc}}
+\DoxyCodeLine{00148\ \textcolor{comment}{\ \ \ callbacks\ to\ the\ zlib\ and\ archive\ API's,\ and\ a\ few\ stand-\/alone\ helper\ API's\ which\ don't\ provide\ custom\ user}}
+\DoxyCodeLine{00149\ \textcolor{comment}{\ \ \ functions\ (such\ as\ tdefl\_compress\_mem\_to\_heap()\ and\ tinfl\_decompress\_mem\_to\_heap())\ won't\ work.\ */}}
+\DoxyCodeLine{00150\ \textcolor{comment}{/*\#define\ MINIZ\_NO\_MALLOC\ */}}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \textcolor{preprocessor}{\#ifdef\ MINIZ\_NO\_INFLATE\_APIS}}
+\DoxyCodeLine{00153\ \textcolor{preprocessor}{\#define\ MINIZ\_NO\_ARCHIVE\_APIS}}
+\DoxyCodeLine{00154\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \textcolor{preprocessor}{\#ifdef\ MINIZ\_NO\_DEFLATE\_APIS}}
+\DoxyCodeLine{00157\ \textcolor{preprocessor}{\#define\ MINIZ\_NO\_ARCHIVE\_WRITING\_APIS}}
+\DoxyCodeLine{00158\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \textcolor{preprocessor}{\#if\ defined(\_\_TINYC\_\_)\ \&\&\ (defined(\_\_linux)\ ||\ defined(\_\_linux\_\_))}}
+\DoxyCodeLine{00161\ \textcolor{comment}{/*\ TODO:\ Work\ around\ "{}error:\ include\ file\ 'sys\(\backslash\)utime.h'\ when\ compiling\ with\ tcc\ on\ Linux\ */}}
+\DoxyCodeLine{00162\ \textcolor{preprocessor}{\#define\ MINIZ\_NO\_TIME}}
+\DoxyCodeLine{00163\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \textcolor{preprocessor}{\#include\ <stddef.h>}}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \textcolor{preprocessor}{\#if\ !defined(MINIZ\_NO\_TIME)\ \&\&\ !defined(MINIZ\_NO\_ARCHIVE\_APIS)}}
+\DoxyCodeLine{00168\ \textcolor{preprocessor}{\#include\ <time.h>}}
+\DoxyCodeLine{00169\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \textcolor{preprocessor}{\#if\ defined(\_M\_IX86)\ ||\ defined(\_M\_X64)\ ||\ defined(\_\_i386\_\_)\ ||\ defined(\_\_i386)\ ||\ defined(\_\_i486\_\_)\ ||\ defined(\_\_i486)\ ||\ defined(i386)\ ||\ defined(\_\_ia64\_\_)\ ||\ defined(\_\_x86\_64\_\_)}}
+\DoxyCodeLine{00172\ \textcolor{comment}{/*\ MINIZ\_X86\_OR\_X64\_CPU\ is\ only\ used\ to\ help\ set\ the\ below\ macros.\ */}}
+\DoxyCodeLine{00173\ \textcolor{preprocessor}{\#define\ MINIZ\_X86\_OR\_X64\_CPU\ 1}}
+\DoxyCodeLine{00174\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00175\ \textcolor{preprocessor}{\#define\ MINIZ\_X86\_OR\_X64\_CPU\ 0}}
+\DoxyCodeLine{00176\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \textcolor{comment}{/*\ Set\ MINIZ\_LITTLE\_ENDIAN\ only\ if\ not\ set\ */}}
+\DoxyCodeLine{00179\ \textcolor{preprocessor}{\#if\ !defined(MINIZ\_LITTLE\_ENDIAN)}}
+\DoxyCodeLine{00180\ \textcolor{preprocessor}{\#if\ defined(\_\_BYTE\_ORDER\_\_)\ \&\&\ defined(\_\_ORDER\_LITTLE\_ENDIAN\_\_)}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \textcolor{preprocessor}{\#if\ (\_\_BYTE\_ORDER\_\_\ ==\ \_\_ORDER\_LITTLE\_ENDIAN\_\_)}}
+\DoxyCodeLine{00183\ \textcolor{comment}{/*\ Set\ MINIZ\_LITTLE\_ENDIAN\ to\ 1\ if\ the\ processor\ is\ little\ endian.\ */}}
+\DoxyCodeLine{00184\ \textcolor{preprocessor}{\#define\ MINIZ\_LITTLE\_ENDIAN\ 1}}
+\DoxyCodeLine{00185\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00186\ \textcolor{preprocessor}{\#define\ MINIZ\_LITTLE\_ENDIAN\ 0}}
+\DoxyCodeLine{00187\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \textcolor{preprocessor}{\#if\ MINIZ\_X86\_OR\_X64\_CPU}}
+\DoxyCodeLine{00192\ \textcolor{preprocessor}{\#define\ MINIZ\_LITTLE\_ENDIAN\ 1}}
+\DoxyCodeLine{00193\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00194\ \textcolor{preprocessor}{\#define\ MINIZ\_LITTLE\_ENDIAN\ 0}}
+\DoxyCodeLine{00195\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00198\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00200\ \textcolor{comment}{/*\ Using\ unaligned\ loads\ and\ stores\ causes\ errors\ when\ using\ UBSan\ */}}
+\DoxyCodeLine{00201\ \textcolor{preprocessor}{\#if\ defined(\_\_has\_feature)}}
+\DoxyCodeLine{00202\ \textcolor{preprocessor}{\#if\ \_\_has\_feature(undefined\_behavior\_sanitizer)}}
+\DoxyCodeLine{00203\ \textcolor{preprocessor}{\#define\ MINIZ\_USE\_UNALIGNED\_LOADS\_AND\_STORES\ 0}}
+\DoxyCodeLine{00204\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00205\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00207\ \textcolor{comment}{/*\ Set\ MINIZ\_USE\_UNALIGNED\_LOADS\_AND\_STORES\ only\ if\ not\ set\ */}}
+\DoxyCodeLine{00208\ \textcolor{preprocessor}{\#if\ !defined(MINIZ\_USE\_UNALIGNED\_LOADS\_AND\_STORES)}}
+\DoxyCodeLine{00209\ \textcolor{preprocessor}{\#if\ MINIZ\_X86\_OR\_X64\_CPU}}
+\DoxyCodeLine{00210\ \textcolor{comment}{/*\ Set\ MINIZ\_USE\_UNALIGNED\_LOADS\_AND\_STORES\ to\ 1\ on\ CPU's\ that\ permit\ efficient\ integer\ loads\ and\ stores\ from\ unaligned\ addresses.\ */}}
+\DoxyCodeLine{00211\ \textcolor{preprocessor}{\#define\ MINIZ\_USE\_UNALIGNED\_LOADS\_AND\_STORES\ 0}}
+\DoxyCodeLine{00212\ \textcolor{preprocessor}{\#define\ MINIZ\_UNALIGNED\_USE\_MEMCPY}}
+\DoxyCodeLine{00213\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00214\ \textcolor{preprocessor}{\#define\ MINIZ\_USE\_UNALIGNED\_LOADS\_AND\_STORES\ 0}}
+\DoxyCodeLine{00215\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00216\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00217\ }
+\DoxyCodeLine{00218\ \textcolor{preprocessor}{\#if\ defined(\_M\_X64)\ ||\ defined(\_WIN64)\ ||\ defined(\_\_MINGW64\_\_)\ ||\ defined(\_LP64)\ ||\ defined(\_\_LP64\_\_)\ ||\ defined(\_\_ia64\_\_)\ ||\ defined(\_\_x86\_64\_\_)}}
+\DoxyCodeLine{00219\ \textcolor{comment}{/*\ Set\ MINIZ\_HAS\_64BIT\_REGISTERS\ to\ 1\ if\ operations\ on\ 64-\/bit\ integers\ are\ reasonably\ fast\ (and\ don't\ involve\ compiler\ generated\ calls\ to\ helper\ functions).\ */}}
+\DoxyCodeLine{00220\ \textcolor{preprocessor}{\#define\ MINIZ\_HAS\_64BIT\_REGISTERS\ 1}}
+\DoxyCodeLine{00221\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00222\ \textcolor{preprocessor}{\#define\ MINIZ\_HAS\_64BIT\_REGISTERS\ 0}}
+\DoxyCodeLine{00223\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00224\ }
+\DoxyCodeLine{00225\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00226\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{00227\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00228\ }
+\DoxyCodeLine{00229\ \textcolor{comment}{/*\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ zlib-\/style\ API\ Definitions.\ */}}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00231\ \textcolor{comment}{/*\ For\ more\ compatibility\ with\ zlib,\ miniz.c\ uses\ unsigned\ long\ for\ some\ parameters/struct\ members.\ Beware:\ mz\_ulong\ can\ be\ either\ 32\ or\ 64-\/bits!\ */}}
+\DoxyCodeLine{00232\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}};}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00234\ \textcolor{comment}{/*\ mz\_free()\ internally\ uses\ the\ MZ\_FREE()\ macro\ (which\ by\ default\ calls\ free()\ unless\ you've\ modified\ the\ MZ\_MALLOC\ macro)\ to\ release\ a\ block\ allocated\ from\ the\ heap.\ */}}
+\DoxyCodeLine{00235\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aade076e929401256dc0aa8fd611f0906}{mz\_free}}(\textcolor{keywordtype}{void}\ *p);}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00237\ \textcolor{preprocessor}{\#define\ MZ\_ADLER32\_INIT\ (1)}}
+\DoxyCodeLine{00238\ \textcolor{comment}{/*\ mz\_adler32()\ returns\ the\ initial\ adler-\/32\ value\ to\ use\ when\ called\ with\ ptr==NULL.\ */}}
+\DoxyCodeLine{00239\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a353371ae5f478df7be5b1bd32438a7a2}{mz\_adler32}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ adler,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *ptr,\ \textcolor{keywordtype}{size\_t}\ buf\_len);}
+\DoxyCodeLine{00240\ }
+\DoxyCodeLine{00241\ \textcolor{preprocessor}{\#define\ MZ\_CRC32\_INIT\ (0)}}
+\DoxyCodeLine{00242\ \textcolor{comment}{/*\ mz\_crc32()\ returns\ the\ initial\ CRC-\/32\ value\ to\ use\ when\ called\ with\ ptr==NULL.\ */}}
+\DoxyCodeLine{00243\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a57ee6c86f87d615082c4410628897a5c}{mz\_crc32}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ crc,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *ptr,\ \textcolor{keywordtype}{size\_t}\ buf\_len);}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00245\ \textcolor{comment}{/*\ Compression\ strategies.\ */}}
+\DoxyCodeLine{00246\ \textcolor{keyword}{enum}}
+\DoxyCodeLine{00247\ \{}
+\DoxyCodeLine{00248\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a5ee54d76db2c1c59489290ea90f67e08a96891a5aa5d03f61da7f4a9c5b94f1d5}{MZ\_DEFAULT\_STRATEGY}}\ =\ 0,}
+\DoxyCodeLine{00249\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a5ee54d76db2c1c59489290ea90f67e08a0419e718926687394bbc0d18d12068f6}{MZ\_FILTERED}}\ =\ 1,}
+\DoxyCodeLine{00250\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a5ee54d76db2c1c59489290ea90f67e08abb43b8c09f8d8dddd644893a8a6a3ae8}{MZ\_HUFFMAN\_ONLY}}\ =\ 2,}
+\DoxyCodeLine{00251\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a5ee54d76db2c1c59489290ea90f67e08ab22de2edae7b989e35120a84e1ffff3e}{MZ\_RLE}}\ =\ 3,}
+\DoxyCodeLine{00252\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a5ee54d76db2c1c59489290ea90f67e08a3fe6f0f5a44a41155ec4022b6c85b5a9}{MZ\_FIXED}}\ =\ 4}
+\DoxyCodeLine{00253\ \};}
+\DoxyCodeLine{00254\ }
+\DoxyCodeLine{00255\ \textcolor{comment}{/*\ Method\ */}}
+\DoxyCodeLine{00256\ \textcolor{preprocessor}{\#define\ MZ\_DEFLATED\ 8}}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \textcolor{comment}{/*\ Heap\ allocation\ callbacks.}}
+\DoxyCodeLine{00259\ \textcolor{comment}{Note\ that\ mz\_alloc\_func\ parameter\ types\ purposely\ differ\ from\ zlib's:\ items/size\ is\ size\_t,\ not\ unsigned\ long.\ */}}
+\DoxyCodeLine{00260\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{void}\ *(*mz\_alloc\_func)(\textcolor{keywordtype}{void}\ *opaque,\ \textcolor{keywordtype}{size\_t}\ items,\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}});}
+\DoxyCodeLine{00261\ \textcolor{keyword}{typedef}\ void\ (*\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_ac00f79fc7189a19f9729dbd9b82c8380}{mz\_free\_func}})(\textcolor{keywordtype}{void}\ *opaque,\ \textcolor{keywordtype}{void}\ *address);}
+\DoxyCodeLine{00262\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{void}\ *(*mz\_realloc\_func)(\textcolor{keywordtype}{void}\ *opaque,\ \textcolor{keywordtype}{void}\ *address,\ \textcolor{keywordtype}{size\_t}\ items,\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}});}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00264\ \textcolor{comment}{/*\ Compression\ levels:\ 0-\/9\ are\ the\ standard\ zlib-\/style\ levels,\ 10\ is\ best\ possible\ compression\ (not\ zlib\ compatible,\ and\ may\ be\ very\ slow),\ MZ\_DEFAULT\_COMPRESSION=MZ\_DEFAULT\_LEVEL.\ */}}
+\DoxyCodeLine{00265\ \textcolor{keyword}{enum}}
+\DoxyCodeLine{00266\ \{}
+\DoxyCodeLine{00267\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a82d2b08299308fc4ba9bfea9631d58a6a4f66327d56ffc5b2c79fce1daf25ded5}{MZ\_NO\_COMPRESSION}}\ =\ 0,}
+\DoxyCodeLine{00268\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a82d2b08299308fc4ba9bfea9631d58a6a3ef4372349b755bf55e8f9e367d46dd3}{MZ\_BEST\_SPEED}}\ =\ 1,}
+\DoxyCodeLine{00269\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a82d2b08299308fc4ba9bfea9631d58a6ac8ff4999153f2b5565650037b268cdff}{MZ\_BEST\_COMPRESSION}}\ =\ 9,}
+\DoxyCodeLine{00270\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a82d2b08299308fc4ba9bfea9631d58a6a54ec4bb3bd4e6ae21180b27a73c46147}{MZ\_UBER\_COMPRESSION}}\ =\ 10,}
+\DoxyCodeLine{00271\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a82d2b08299308fc4ba9bfea9631d58a6ab5dc326a9f034dc71d6012d86dd1343f}{MZ\_DEFAULT\_LEVEL}}\ =\ 6,}
+\DoxyCodeLine{00272\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a82d2b08299308fc4ba9bfea9631d58a6aceaa50dfb8809ffd1631b0fe01344279}{MZ\_DEFAULT\_COMPRESSION}}\ =\ -\/1}
+\DoxyCodeLine{00273\ \};}
+\DoxyCodeLine{00274\ }
+\DoxyCodeLine{00275\ \textcolor{preprocessor}{\#define\ MZ\_VERSION\ "{}11.0.2"{}}}
+\DoxyCodeLine{00276\ \textcolor{preprocessor}{\#define\ MZ\_VERNUM\ 0xB002}}
+\DoxyCodeLine{00277\ \textcolor{preprocessor}{\#define\ MZ\_VER\_MAJOR\ 11}}
+\DoxyCodeLine{00278\ \textcolor{preprocessor}{\#define\ MZ\_VER\_MINOR\ 2}}
+\DoxyCodeLine{00279\ \textcolor{preprocessor}{\#define\ MZ\_VER\_REVISION\ 0}}
+\DoxyCodeLine{00280\ \textcolor{preprocessor}{\#define\ MZ\_VER\_SUBREVISION\ 0}}
+\DoxyCodeLine{00281\ }
+\DoxyCodeLine{00282\ \textcolor{preprocessor}{\#ifndef\ MINIZ\_NO\_ZLIB\_APIS}}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \textcolor{comment}{/*\ Flush\ values.\ For\ typical\ usage\ you\ only\ need\ MZ\_NO\_FLUSH\ and\ MZ\_FINISH.\ The\ other\ values\ are\ for\ advanced\ use\ (refer\ to\ the\ zlib\ docs).\ */}}
+\DoxyCodeLine{00285\ \textcolor{keyword}{enum}}
+\DoxyCodeLine{00286\ \{}
+\DoxyCodeLine{00287\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_ab312a26e565abf8776c81e061d4a309dae54d4f5ccd64bd2e36d28d7e637894ab}{MZ\_NO\_FLUSH}}\ =\ 0,}
+\DoxyCodeLine{00288\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_ab312a26e565abf8776c81e061d4a309daa074139e59dc5aba5f6461ab5cfaee8f}{MZ\_PARTIAL\_FLUSH}}\ =\ 1,}
+\DoxyCodeLine{00289\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_ab312a26e565abf8776c81e061d4a309da1a77ad21e37d528c658b024642f347bb}{MZ\_SYNC\_FLUSH}}\ =\ 2,}
+\DoxyCodeLine{00290\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_ab312a26e565abf8776c81e061d4a309da56a3093215e393a178218f7bb04bd079}{MZ\_FULL\_FLUSH}}\ =\ 3,}
+\DoxyCodeLine{00291\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_ab312a26e565abf8776c81e061d4a309da8c1ad84176153047845d17c151097124}{MZ\_FINISH}}\ =\ 4,}
+\DoxyCodeLine{00292\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_ab312a26e565abf8776c81e061d4a309da2916cea538a7b77a7638857b40bf31af}{MZ\_BLOCK}}\ =\ 5}
+\DoxyCodeLine{00293\ \};}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ \textcolor{comment}{/*\ Return\ status\ codes.\ MZ\_PARAM\_ERROR\ is\ non-\/standard.\ */}}
+\DoxyCodeLine{00296\ \textcolor{keyword}{enum}}
+\DoxyCodeLine{00297\ \{}
+\DoxyCodeLine{00298\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a09c459d97570dad084b7a166d42c66d6ac889ce55af78ff1376747e2e52b8e7e3}{MZ\_OK}}\ =\ 0,}
+\DoxyCodeLine{00299\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a09c459d97570dad084b7a166d42c66d6a9e82839e613eba20eb822b780eb4c312}{MZ\_STREAM\_END}}\ =\ 1,}
+\DoxyCodeLine{00300\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a09c459d97570dad084b7a166d42c66d6a8cabf17fbb841935d0bfb626ce61814d}{MZ\_NEED\_DICT}}\ =\ 2,}
+\DoxyCodeLine{00301\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a09c459d97570dad084b7a166d42c66d6ac7325ec0656a65e1b12861c5b97be96b}{MZ\_ERRNO}}\ =\ -\/1,}
+\DoxyCodeLine{00302\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a09c459d97570dad084b7a166d42c66d6ae1066da08adca98d4715701158591c50}{MZ\_STREAM\_ERROR}}\ =\ -\/2,}
+\DoxyCodeLine{00303\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a09c459d97570dad084b7a166d42c66d6ae4f65fd7767379614da35ab5c43ad77d}{MZ\_DATA\_ERROR}}\ =\ -\/3,}
+\DoxyCodeLine{00304\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a09c459d97570dad084b7a166d42c66d6a00c3c60b8c4dd75a5f19ed84aebc519b}{MZ\_MEM\_ERROR}}\ =\ -\/4,}
+\DoxyCodeLine{00305\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a09c459d97570dad084b7a166d42c66d6ada9fc0699137425d9e993b3a91eb2b52}{MZ\_BUF\_ERROR}}\ =\ -\/5,}
+\DoxyCodeLine{00306\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a09c459d97570dad084b7a166d42c66d6a8f0080210beb22cd8cc6e4fca5e5f2f4}{MZ\_VERSION\_ERROR}}\ =\ -\/6,}
+\DoxyCodeLine{00307\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a09c459d97570dad084b7a166d42c66d6a6bc32d182dcf344e4921fcb604abc35e}{MZ\_PARAM\_ERROR}}\ =\ -\/10000}
+\DoxyCodeLine{00308\ \};}
+\DoxyCodeLine{00309\ }
+\DoxyCodeLine{00310\ \textcolor{comment}{/*\ Window\ bits\ */}}
+\DoxyCodeLine{00311\ \textcolor{preprocessor}{\#define\ MZ\_DEFAULT\_WINDOW\_BITS\ 15}}
+\DoxyCodeLine{00312\ }
+\DoxyCodeLine{00313\ \textcolor{keyword}{struct\ }mz\_internal\_state;}
+\DoxyCodeLine{00314\ }
+\DoxyCodeLine{00315\ \textcolor{comment}{/*\ Compression/decompression\ stream\ struct.\ */}}
+\DoxyCodeLine{00316\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structmz__stream__s}{mz\_stream\_s}}}
+\DoxyCodeLine{00317\ \{}
+\DoxyCodeLine{00318\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{structmz__stream__s_a8036275b9d220b710cfebf6f9f4a05a9}{next\_in}};\ \textcolor{comment}{/*\ pointer\ to\ next\ byte\ to\ read\ */}}
+\DoxyCodeLine{00319\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structmz__stream__s_aafcd4c220622ede6d54015f1fbdadd9e}{avail\_in}};\ \ \ \ \ \ \ \ \textcolor{comment}{/*\ number\ of\ bytes\ available\ at\ next\_in\ */}}
+\DoxyCodeLine{00320\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ \mbox{\hyperlink{structmz__stream__s_abfa083eb7707360c33389ec12fadf376}{total\_in}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ total\ number\ of\ bytes\ consumed\ so\ far\ */}}
+\DoxyCodeLine{00321\ }
+\DoxyCodeLine{00322\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{structmz__stream__s_ad5970507bc8d24297783f8c323f3040a}{next\_out}};\ \textcolor{comment}{/*\ pointer\ to\ next\ byte\ to\ write\ */}}
+\DoxyCodeLine{00323\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structmz__stream__s_a9092fed61f7be520fb1bbcf152905ee8}{avail\_out}};\ \ \textcolor{comment}{/*\ number\ of\ bytes\ that\ can\ be\ written\ to\ next\_out\ */}}
+\DoxyCodeLine{00324\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ \mbox{\hyperlink{structmz__stream__s_a5cf2c15cc49a99ee7d541375798a3e27}{total\_out}};\ \ \ \ \ \ \textcolor{comment}{/*\ total\ number\ of\ bytes\ produced\ so\ far\ */}}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00326\ \ \ \ \ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{structmz__stream__s_a44dc97e83d007f87811fced4413d4c9b}{msg}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ error\ msg\ (unused)\ */}}
+\DoxyCodeLine{00327\ \ \ \ \ \textcolor{keyword}{struct\ }mz\_internal\_state\ *\mbox{\hyperlink{structstate}{state}};\ \textcolor{comment}{/*\ internal\ state,\ allocated\ by\ zalloc/zfree\ */}}
+\DoxyCodeLine{00328\ }
+\DoxyCodeLine{00329\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a14585dc30ba99cdfca9e0225df4a45a8}{mz\_alloc\_func}}\ zalloc;\ \textcolor{comment}{/*\ optional\ heap\ allocation\ function\ (defaults\ to\ malloc)\ */}}
+\DoxyCodeLine{00330\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_ac00f79fc7189a19f9729dbd9b82c8380}{mz\_free\_func}}\ zfree;\ \ \ \textcolor{comment}{/*\ optional\ heap\ free\ function\ (defaults\ to\ free)\ */}}
+\DoxyCodeLine{00331\ \ \ \ \ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{structmz__stream__s_aaa22a4a9d4ed1c2d6bc2635caf92436d}{opaque}};\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ heap\ alloc\ function\ user\ pointer\ */}}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00333\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structmz__stream__s_a3e1503f72464a3b7b40d1df232ba9f43}{data\_type}};\ \ \ \ \ \textcolor{comment}{/*\ data\_type\ (unused)\ */}}
+\DoxyCodeLine{00334\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ \mbox{\hyperlink{structmz__stream__s_a24c6cf42b5b6a655f4664dd15203dce7}{adler}};\ \ \ \ \textcolor{comment}{/*\ adler32\ of\ the\ source\ or\ uncompressed\ data\ */}}
+\DoxyCodeLine{00335\ \ \ \ \ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ \mbox{\hyperlink{structmz__stream__s_ae4fc708fffee7b10a4586964401613fb}{reserved}};\ \textcolor{comment}{/*\ not\ used\ */}}
+\DoxyCodeLine{00336\ \}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a1591f3aba35161e69ceeb6d80eb8bfc3}{mz\_stream}};}
+\DoxyCodeLine{00337\ }
+\DoxyCodeLine{00338\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a1591f3aba35161e69ceeb6d80eb8bfc3}{mz\_stream}}\ *\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}};}
+\DoxyCodeLine{00339\ }
+\DoxyCodeLine{00340\ \textcolor{comment}{/*\ Returns\ the\ version\ string\ of\ miniz.c.\ */}}
+\DoxyCodeLine{00341\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_acb79ce39257ea691b0de316e2d335b52}{mz\_version}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \textcolor{preprocessor}{\#ifndef\ MINIZ\_NO\_DEFLATE\_APIS}}
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00345\ \textcolor{comment}{/*\ mz\_deflateInit()\ initializes\ a\ compressor\ with\ default\ options:\ */}}
+\DoxyCodeLine{00346\ \textcolor{comment}{/*\ Parameters:\ */}}
+\DoxyCodeLine{00347\ \textcolor{comment}{/*\ \ pStream\ must\ point\ to\ an\ initialized\ mz\_stream\ struct.\ */}}
+\DoxyCodeLine{00348\ \textcolor{comment}{/*\ \ level\ must\ be\ between\ [MZ\_NO\_COMPRESSION,\ MZ\_BEST\_COMPRESSION].\ */}}
+\DoxyCodeLine{00349\ \textcolor{comment}{/*\ \ level\ 1\ enables\ a\ specially\ optimized\ compression\ function\ that's\ been\ optimized\ purely\ for\ performance,\ not\ ratio.\ */}}
+\DoxyCodeLine{00350\ \textcolor{comment}{/*\ \ (This\ special\ func.\ is\ currently\ only\ enabled\ when\ MINIZ\_USE\_UNALIGNED\_LOADS\_AND\_STORES\ and\ MINIZ\_LITTLE\_ENDIAN\ are\ defined.)\ */}}
+\DoxyCodeLine{00351\ \textcolor{comment}{/*\ Return\ values:\ */}}
+\DoxyCodeLine{00352\ \textcolor{comment}{/*\ \ MZ\_OK\ on\ success.\ */}}
+\DoxyCodeLine{00353\ \textcolor{comment}{/*\ \ MZ\_STREAM\_ERROR\ if\ the\ stream\ is\ bogus.\ */}}
+\DoxyCodeLine{00354\ \textcolor{comment}{/*\ \ MZ\_PARAM\_ERROR\ if\ the\ input\ parameters\ are\ bogus.\ */}}
+\DoxyCodeLine{00355\ \textcolor{comment}{/*\ \ MZ\_MEM\_ERROR\ on\ out\ of\ memory.\ */}}
+\DoxyCodeLine{00356\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a5caf2d5f765025a381f730c732d4c1b9}{mz\_deflateInit}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}}\ pStream,\ \textcolor{keywordtype}{int}\ level);}
+\DoxyCodeLine{00357\ }
+\DoxyCodeLine{00358\ \textcolor{comment}{/*\ mz\_deflateInit2()\ is\ like\ mz\_deflate(),\ except\ with\ more\ control:\ */}}
+\DoxyCodeLine{00359\ \textcolor{comment}{/*\ Additional\ parameters:\ */}}
+\DoxyCodeLine{00360\ \textcolor{comment}{/*\ \ \ method\ must\ be\ MZ\_DEFLATED\ */}}
+\DoxyCodeLine{00361\ \textcolor{comment}{/*\ \ \ window\_bits\ must\ be\ MZ\_DEFAULT\_WINDOW\_BITS\ (to\ wrap\ the\ deflate\ stream\ with\ zlib\ header/adler-\/32\ footer)\ or\ -\/MZ\_DEFAULT\_WINDOW\_BITS\ (raw\ deflate/no\ header\ or\ footer)\ */}}
+\DoxyCodeLine{00362\ \textcolor{comment}{/*\ \ \ mem\_level\ must\ be\ between\ [1,\ 9]\ (it's\ checked\ but\ ignored\ by\ miniz.c)\ */}}
+\DoxyCodeLine{00363\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a1edce819b8c355a0548d28278cd06890}{mz\_deflateInit2}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}}\ pStream,\ \textcolor{keywordtype}{int}\ level,\ \textcolor{keywordtype}{int}\ method,\ \textcolor{keywordtype}{int}\ window\_bits,\ \textcolor{keywordtype}{int}\ mem\_level,\ \textcolor{keywordtype}{int}\ strategy);}
+\DoxyCodeLine{00364\ }
+\DoxyCodeLine{00365\ \textcolor{comment}{/*\ Quickly\ resets\ a\ compressor\ without\ having\ to\ reallocate\ anything.\ Same\ as\ calling\ mz\_deflateEnd()\ followed\ by\ mz\_deflateInit()/mz\_deflateInit2().\ */}}
+\DoxyCodeLine{00366\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aebf1411c60153c697e5a20d990d5f757}{mz\_deflateReset}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}}\ pStream);}
+\DoxyCodeLine{00367\ }
+\DoxyCodeLine{00368\ \textcolor{comment}{/*\ mz\_deflate()\ compresses\ the\ input\ to\ output,\ consuming\ as\ much\ of\ the\ input\ and\ producing\ as\ much\ output\ as\ possible.\ */}}
+\DoxyCodeLine{00369\ \textcolor{comment}{/*\ Parameters:\ */}}
+\DoxyCodeLine{00370\ \textcolor{comment}{/*\ \ \ pStream\ is\ the\ stream\ to\ read\ from\ and\ write\ to.\ You\ must\ initialize/update\ the\ next\_in,\ avail\_in,\ next\_out,\ and\ avail\_out\ members.\ */}}
+\DoxyCodeLine{00371\ \textcolor{comment}{/*\ \ \ flush\ may\ be\ MZ\_NO\_FLUSH,\ MZ\_PARTIAL\_FLUSH/MZ\_SYNC\_FLUSH,\ MZ\_FULL\_FLUSH,\ or\ MZ\_FINISH.\ */}}
+\DoxyCodeLine{00372\ \textcolor{comment}{/*\ Return\ values:\ */}}
+\DoxyCodeLine{00373\ \textcolor{comment}{/*\ \ \ MZ\_OK\ on\ success\ (when\ flushing,\ or\ if\ more\ input\ is\ needed\ but\ not\ available,\ and/or\ there's\ more\ output\ to\ be\ written\ but\ the\ output\ buffer\ is\ full).\ */}}
+\DoxyCodeLine{00374\ \textcolor{comment}{/*\ \ \ MZ\_STREAM\_END\ if\ all\ input\ has\ been\ consumed\ and\ all\ output\ bytes\ have\ been\ written.\ Don't\ call\ mz\_deflate()\ on\ the\ stream\ anymore.\ */}}
+\DoxyCodeLine{00375\ \textcolor{comment}{/*\ \ \ MZ\_STREAM\_ERROR\ if\ the\ stream\ is\ bogus.\ */}}
+\DoxyCodeLine{00376\ \textcolor{comment}{/*\ \ \ MZ\_PARAM\_ERROR\ if\ one\ of\ the\ parameters\ is\ invalid.\ */}}
+\DoxyCodeLine{00377\ \textcolor{comment}{/*\ \ \ MZ\_BUF\_ERROR\ if\ no\ forward\ progress\ is\ possible\ because\ the\ input\ and/or\ output\ buffers\ are\ empty.\ (Fill\ up\ the\ input\ buffer\ or\ free\ up\ some\ output\ space\ and\ try\ again.)\ */}}
+\DoxyCodeLine{00378\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_ab356b83bef420536e5b3503d8aac32f5}{mz\_deflate}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}}\ pStream,\ \textcolor{keywordtype}{int}\ flush);}
+\DoxyCodeLine{00379\ }
+\DoxyCodeLine{00380\ \textcolor{comment}{/*\ mz\_deflateEnd()\ deinitializes\ a\ compressor:\ */}}
+\DoxyCodeLine{00381\ \textcolor{comment}{/*\ Return\ values:\ */}}
+\DoxyCodeLine{00382\ \textcolor{comment}{/*\ \ MZ\_OK\ on\ success.\ */}}
+\DoxyCodeLine{00383\ \textcolor{comment}{/*\ \ MZ\_STREAM\_ERROR\ if\ the\ stream\ is\ bogus.\ */}}
+\DoxyCodeLine{00384\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a2ce3d9b130428a5d22145bd825d8d440}{mz\_deflateEnd}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}}\ pStream);}
+\DoxyCodeLine{00385\ }
+\DoxyCodeLine{00386\ \textcolor{comment}{/*\ mz\_deflateBound()\ returns\ a\ (very)\ conservative\ upper\ bound\ on\ the\ amount\ of\ data\ that\ could\ be\ generated\ by\ deflate(),\ assuming\ flush\ is\ set\ to\ only\ MZ\_NO\_FLUSH\ or\ MZ\_FINISH.\ */}}
+\DoxyCodeLine{00387\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aa64c7eb28d11b0c267cdabbcc2b000b8}{mz\_deflateBound}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}}\ pStream,\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ source\_len);}
+\DoxyCodeLine{00388\ }
+\DoxyCodeLine{00389\ \textcolor{comment}{/*\ Single-\/call\ compression\ functions\ mz\_compress()\ and\ mz\_compress2():\ */}}
+\DoxyCodeLine{00390\ \textcolor{comment}{/*\ Returns\ MZ\_OK\ on\ success,\ or\ one\ of\ the\ error\ codes\ from\ mz\_deflate()\ on\ failure.\ */}}
+\DoxyCodeLine{00391\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a14e297806f6634bdb9368acec30da1a4}{mz\_compress}}(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *pDest,\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ *pDest\_len,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *pSource,\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ source\_len);}
+\DoxyCodeLine{00392\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a292d2c8e3f62e3e03be5c56ec9c0de1c}{mz\_compress2}}(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *pDest,\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ *pDest\_len,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *pSource,\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ source\_len,\ \textcolor{keywordtype}{int}\ level);}
+\DoxyCodeLine{00393\ }
+\DoxyCodeLine{00394\ \textcolor{comment}{/*\ mz\_compressBound()\ returns\ a\ (very)\ conservative\ upper\ bound\ on\ the\ amount\ of\ data\ that\ could\ be\ generated\ by\ calling\ mz\_compress().\ */}}
+\DoxyCodeLine{00395\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a0586be0c4231207585fad40dfb0e5f86}{mz\_compressBound}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ source\_len);}
+\DoxyCodeLine{00396\ }
+\DoxyCodeLine{00397\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\#ifndef\ MINIZ\_NO\_DEFLATE\_APIS*/}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00398\ }
+\DoxyCodeLine{00399\ \textcolor{preprocessor}{\#ifndef\ MINIZ\_NO\_INFLATE\_APIS}}
+\DoxyCodeLine{00400\ }
+\DoxyCodeLine{00401\ \textcolor{comment}{/*\ Initializes\ a\ decompressor.\ */}}
+\DoxyCodeLine{00402\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a00754abf9265b6f3d618e24de86e6286}{mz\_inflateInit}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}}\ pStream);}
+\DoxyCodeLine{00403\ }
+\DoxyCodeLine{00404\ \textcolor{comment}{/*\ mz\_inflateInit2()\ is\ like\ mz\_inflateInit()\ with\ an\ additional\ option\ that\ controls\ the\ window\ size\ and\ whether\ or\ not\ the\ stream\ has\ been\ wrapped\ with\ a\ zlib\ header/footer:\ */}}
+\DoxyCodeLine{00405\ \textcolor{comment}{/*\ window\_bits\ must\ be\ MZ\_DEFAULT\_WINDOW\_BITS\ (to\ parse\ zlib\ header/footer)\ or\ -\/MZ\_DEFAULT\_WINDOW\_BITS\ (raw\ deflate).\ */}}
+\DoxyCodeLine{00406\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_ae159c406607427a5475abd065e57cc5a}{mz\_inflateInit2}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}}\ pStream,\ \textcolor{keywordtype}{int}\ window\_bits);}
+\DoxyCodeLine{00407\ }
+\DoxyCodeLine{00408\ \textcolor{comment}{/*\ Quickly\ resets\ a\ compressor\ without\ having\ to\ reallocate\ anything.\ Same\ as\ calling\ mz\_inflateEnd()\ followed\ by\ mz\_inflateInit()/mz\_inflateInit2().\ */}}
+\DoxyCodeLine{00409\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_ad05e76a4b015230af0dc9ffae468c3c1}{mz\_inflateReset}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}}\ pStream);}
+\DoxyCodeLine{00410\ }
+\DoxyCodeLine{00411\ \textcolor{comment}{/*\ Decompresses\ the\ input\ stream\ to\ the\ output,\ consuming\ only\ as\ much\ of\ the\ input\ as\ needed,\ and\ writing\ as\ much\ to\ the\ output\ as\ possible.\ */}}
+\DoxyCodeLine{00412\ \textcolor{comment}{/*\ Parameters:\ */}}
+\DoxyCodeLine{00413\ \textcolor{comment}{/*\ \ \ pStream\ is\ the\ stream\ to\ read\ from\ and\ write\ to.\ You\ must\ initialize/update\ the\ next\_in,\ avail\_in,\ next\_out,\ and\ avail\_out\ members.\ */}}
+\DoxyCodeLine{00414\ \textcolor{comment}{/*\ \ \ flush\ may\ be\ MZ\_NO\_FLUSH,\ MZ\_SYNC\_FLUSH,\ or\ MZ\_FINISH.\ */}}
+\DoxyCodeLine{00415\ \textcolor{comment}{/*\ \ \ On\ the\ first\ call,\ if\ flush\ is\ MZ\_FINISH\ it's\ assumed\ the\ input\ and\ output\ buffers\ are\ both\ sized\ large\ enough\ to\ decompress\ the\ entire\ stream\ in\ a\ single\ call\ (this\ is\ slightly\ faster).\ */}}
+\DoxyCodeLine{00416\ \textcolor{comment}{/*\ \ \ MZ\_FINISH\ implies\ that\ there\ are\ no\ more\ source\ bytes\ available\ beside\ what's\ already\ in\ the\ input\ buffer,\ and\ that\ the\ output\ buffer\ is\ large\ enough\ to\ hold\ the\ rest\ of\ the\ decompressed\ data.\ */}}
+\DoxyCodeLine{00417\ \textcolor{comment}{/*\ Return\ values:\ */}}
+\DoxyCodeLine{00418\ \textcolor{comment}{/*\ \ \ MZ\_OK\ on\ success.\ Either\ more\ input\ is\ needed\ but\ not\ available,\ and/or\ there's\ more\ output\ to\ be\ written\ but\ the\ output\ buffer\ is\ full.\ */}}
+\DoxyCodeLine{00419\ \textcolor{comment}{/*\ \ \ MZ\_STREAM\_END\ if\ all\ needed\ input\ has\ been\ consumed\ and\ all\ output\ bytes\ have\ been\ written.\ For\ zlib\ streams,\ the\ adler-\/32\ of\ the\ decompressed\ data\ has\ also\ been\ verified.\ */}}
+\DoxyCodeLine{00420\ \textcolor{comment}{/*\ \ \ MZ\_STREAM\_ERROR\ if\ the\ stream\ is\ bogus.\ */}}
+\DoxyCodeLine{00421\ \textcolor{comment}{/*\ \ \ MZ\_DATA\_ERROR\ if\ the\ deflate\ stream\ is\ invalid.\ */}}
+\DoxyCodeLine{00422\ \textcolor{comment}{/*\ \ \ MZ\_PARAM\_ERROR\ if\ one\ of\ the\ parameters\ is\ invalid.\ */}}
+\DoxyCodeLine{00423\ \textcolor{comment}{/*\ \ \ MZ\_BUF\_ERROR\ if\ no\ forward\ progress\ is\ possible\ because\ the\ input\ buffer\ is\ empty\ but\ the\ inflater\ needs\ more\ input\ to\ continue,\ or\ if\ the\ output\ buffer\ is\ not\ large\ enough.\ Call\ mz\_inflate()\ again\ */}}
+\DoxyCodeLine{00424\ \textcolor{comment}{/*\ \ \ with\ more\ input\ data,\ or\ with\ more\ room\ in\ the\ output\ buffer\ (except\ when\ using\ single\ call\ decompression,\ described\ above).\ */}}
+\DoxyCodeLine{00425\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aa3ed674d6d2bb08328299d0d056f3467}{mz\_inflate}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}}\ pStream,\ \textcolor{keywordtype}{int}\ flush);}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00427\ \textcolor{comment}{/*\ Deinitializes\ a\ decompressor.\ */}}
+\DoxyCodeLine{00428\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a3313e080ef7d991ccdfe6f3c7753d2b3}{mz\_inflateEnd}}(\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aeb3235f9c8a7803ef846d6e6d7eed986}{mz\_streamp}}\ pStream);}
+\DoxyCodeLine{00429\ }
+\DoxyCodeLine{00430\ \textcolor{comment}{/*\ Single-\/call\ decompression.\ */}}
+\DoxyCodeLine{00431\ \textcolor{comment}{/*\ Returns\ MZ\_OK\ on\ success,\ or\ one\ of\ the\ error\ codes\ from\ mz\_inflate()\ on\ failure.\ */}}
+\DoxyCodeLine{00432\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a24d24617a64b9069ac5590535ceac915}{mz\_uncompress}}(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *pDest,\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ *pDest\_len,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *pSource,\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ source\_len);}
+\DoxyCodeLine{00433\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_aaf3475cbd5e2d81c36b61300bb0cf293}{mz\_uncompress2}}(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *pDest,\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ *pDest\_len,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *pSource,\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ *pSource\_len);}
+\DoxyCodeLine{00434\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\#ifndef\ MINIZ\_NO\_INFLATE\_APIS*/}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00435\ }
+\DoxyCodeLine{00436\ \textcolor{comment}{/*\ Returns\ a\ string\ description\ of\ the\ specified\ error\ code,\ or\ NULL\ if\ the\ error\ code\ is\ invalid.\ */}}
+\DoxyCodeLine{00437\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2miniz_2miniz__export_8h_a17c22d7d4ee5bc4985242ad03eb6604b}{MINIZ\_EXPORT}}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a303a7e24a9f7860ddb78cf66136b934e}{mz\_error}}(\textcolor{keywordtype}{int}\ err);}
+\DoxyCodeLine{00438\ }
+\DoxyCodeLine{00439\ \textcolor{comment}{/*\ Redefine\ zlib-\/compatible\ names\ to\ miniz\ equivalents,\ so\ miniz.c\ can\ be\ used\ as\ a\ drop-\/in\ replacement\ for\ the\ subset\ of\ zlib\ that\ miniz.c\ supports.\ */}}
+\DoxyCodeLine{00440\ \textcolor{comment}{/*\ Define\ MINIZ\_NO\_ZLIB\_COMPATIBLE\_NAMES\ to\ disable\ zlib-\/compatibility\ if\ you\ use\ zlib\ in\ the\ same\ project.\ */}}
+\DoxyCodeLine{00441\ \textcolor{preprocessor}{\#ifndef\ MINIZ\_NO\_ZLIB\_COMPATIBLE\_NAMES}}
+\DoxyCodeLine{00442\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_ae3a497195d617519e5353ea7b417940f}{Byte}};}
+\DoxyCodeLine{00443\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}};}
+\DoxyCodeLine{00444\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{assimp_2contrib_2zip_2src_2miniz_8h_a01ae29d9e32fb57d42d52fb83f3fb8e8}{mz\_ulong}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}};}
+\DoxyCodeLine{00445\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_ae3a497195d617519e5353ea7b417940f}{Byte}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aeb722a888064be47e12d05f692e0f407}{Bytef}};}
+\DoxyCodeLine{00446\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a87d141052bcd5ec8a80812a565c70369}{uInt}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_adddbe74608d318334285e01f8a56fa5a}{uIntf}};}
+\DoxyCodeLine{00447\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a0f3f92a9c02f6f688bf081aabf230212}{charf}};}
+\DoxyCodeLine{00448\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa857123283d7630b35e9b1d427dd6438}{intf}};}
+\DoxyCodeLine{00449\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a77f1b683ae4caa6b621a95d9698ca341}{voidpf}};}
+\DoxyCodeLine{00450\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a154b3b80120c903a368fec5f11f3007a}{uLong}}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a0426a5a0ed418ec4ae15af8281c64254}{uLongf}};}
+\DoxyCodeLine{00451\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_aa3397ff439b5e076528b04bc9b8b086a}{voidp}};}
+\DoxyCodeLine{00452\ \textcolor{keyword}{typedef}\ \textcolor{keywordtype}{void}\ *\textcolor{keyword}{const}\ \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a7db54413d7060e4b57868c2b23c0ec1c}{voidpc}};}
+\DoxyCodeLine{00453\ \textcolor{preprocessor}{\#define\ Z\_NULL\ 0}}
+\DoxyCodeLine{00454\ \textcolor{preprocessor}{\#define\ Z\_NO\_FLUSH\ MZ\_NO\_FLUSH}}
+\DoxyCodeLine{00455\ \textcolor{preprocessor}{\#define\ Z\_PARTIAL\_FLUSH\ MZ\_PARTIAL\_FLUSH}}
+\DoxyCodeLine{00456\ \textcolor{preprocessor}{\#define\ Z\_SYNC\_FLUSH\ MZ\_SYNC\_FLUSH}}
+\DoxyCodeLine{00457\ \textcolor{preprocessor}{\#define\ Z\_FULL\_FLUSH\ MZ\_FULL\_FLUSH}}
+\DoxyCodeLine{00458\ \textcolor{preprocessor}{\#define\ Z\_FINISH\ MZ\_FINISH}}
+\DoxyCodeLine{00459\ \textcolor{preprocessor}{\#define\ Z\_BLOCK\ MZ\_BLOCK}}
+\DoxyCodeLine{00460\ \textcolor{preprocessor}{\#define\ Z\_OK\ MZ\_OK}}
+\DoxyCodeLine{00461\ \textcolor{preprocessor}{\#define\ Z\_STREAM\_END\ MZ\_STREAM\_END}}
+\DoxyCodeLine{00462\ \textcolor{preprocessor}{\#define\ Z\_NEED\_DICT\ MZ\_NEED\_DICT}}
+\DoxyCodeLine{00463\ \textcolor{preprocessor}{\#define\ Z\_ERRNO\ MZ\_ERRNO}}
+\DoxyCodeLine{00464\ \textcolor{preprocessor}{\#define\ Z\_STREAM\_ERROR\ MZ\_STREAM\_ERROR}}
+\DoxyCodeLine{00465\ \textcolor{preprocessor}{\#define\ Z\_DATA\_ERROR\ MZ\_DATA\_ERROR}}
+\DoxyCodeLine{00466\ \textcolor{preprocessor}{\#define\ Z\_MEM\_ERROR\ MZ\_MEM\_ERROR}}
+\DoxyCodeLine{00467\ \textcolor{preprocessor}{\#define\ Z\_BUF\_ERROR\ MZ\_BUF\_ERROR}}
+\DoxyCodeLine{00468\ \textcolor{preprocessor}{\#define\ Z\_VERSION\_ERROR\ MZ\_VERSION\_ERROR}}
+\DoxyCodeLine{00469\ \textcolor{preprocessor}{\#define\ Z\_PARAM\_ERROR\ MZ\_PARAM\_ERROR}}
+\DoxyCodeLine{00470\ \textcolor{preprocessor}{\#define\ Z\_NO\_COMPRESSION\ MZ\_NO\_COMPRESSION}}
+\DoxyCodeLine{00471\ \textcolor{preprocessor}{\#define\ Z\_BEST\_SPEED\ MZ\_BEST\_SPEED}}
+\DoxyCodeLine{00472\ \textcolor{preprocessor}{\#define\ Z\_BEST\_COMPRESSION\ MZ\_BEST\_COMPRESSION}}
+\DoxyCodeLine{00473\ \textcolor{preprocessor}{\#define\ Z\_DEFAULT\_COMPRESSION\ MZ\_DEFAULT\_COMPRESSION}}
+\DoxyCodeLine{00474\ \textcolor{preprocessor}{\#define\ Z\_DEFAULT\_STRATEGY\ MZ\_DEFAULT\_STRATEGY}}
+\DoxyCodeLine{00475\ \textcolor{preprocessor}{\#define\ Z\_FILTERED\ MZ\_FILTERED}}
+\DoxyCodeLine{00476\ \textcolor{preprocessor}{\#define\ Z\_HUFFMAN\_ONLY\ MZ\_HUFFMAN\_ONLY}}
+\DoxyCodeLine{00477\ \textcolor{preprocessor}{\#define\ Z\_RLE\ MZ\_RLE}}
+\DoxyCodeLine{00478\ \textcolor{preprocessor}{\#define\ Z\_FIXED\ MZ\_FIXED}}
+\DoxyCodeLine{00479\ \textcolor{preprocessor}{\#define\ Z\_DEFLATED\ MZ\_DEFLATED}}
+\DoxyCodeLine{00480\ \textcolor{preprocessor}{\#define\ Z\_DEFAULT\_WINDOW\_BITS\ MZ\_DEFAULT\_WINDOW\_BITS}}
+\DoxyCodeLine{00481\ \textcolor{preprocessor}{\#define\ alloc\_func\ mz\_alloc\_func}}
+\DoxyCodeLine{00482\ \textcolor{preprocessor}{\#define\ free\_func\ mz\_free\_func}}
+\DoxyCodeLine{00483\ \textcolor{preprocessor}{\#define\ internal\_state\ mz\_internal\_state}}
+\DoxyCodeLine{00484\ \textcolor{preprocessor}{\#define\ z\_stream\ mz\_stream}}
+\DoxyCodeLine{00485\ }
+\DoxyCodeLine{00486\ \textcolor{preprocessor}{\#ifndef\ MINIZ\_NO\_DEFLATE\_APIS}}
+\DoxyCodeLine{00487\ \textcolor{preprocessor}{\#define\ deflateInit\ mz\_deflateInit}}
+\DoxyCodeLine{00488\ \textcolor{preprocessor}{\#define\ deflateInit2\ mz\_deflateInit2}}
+\DoxyCodeLine{00489\ \textcolor{preprocessor}{\#define\ deflateReset\ mz\_deflateReset}}
+\DoxyCodeLine{00490\ \textcolor{preprocessor}{\#define\ deflate\ mz\_deflate}}
+\DoxyCodeLine{00491\ \textcolor{preprocessor}{\#define\ deflateEnd\ mz\_deflateEnd}}
+\DoxyCodeLine{00492\ \textcolor{preprocessor}{\#define\ deflateBound\ mz\_deflateBound}}
+\DoxyCodeLine{00493\ \textcolor{preprocessor}{\#define\ compress\ mz\_compress}}
+\DoxyCodeLine{00494\ \textcolor{preprocessor}{\#define\ compress2\ mz\_compress2}}
+\DoxyCodeLine{00495\ \textcolor{preprocessor}{\#define\ compressBound\ mz\_compressBound}}
+\DoxyCodeLine{00496\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\#ifndef\ MINIZ\_NO\_DEFLATE\_APIS*/}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00497\ }
+\DoxyCodeLine{00498\ \textcolor{preprocessor}{\#ifndef\ MINIZ\_NO\_INFLATE\_APIS}}
+\DoxyCodeLine{00499\ \textcolor{preprocessor}{\#define\ inflateInit\ mz\_inflateInit}}
+\DoxyCodeLine{00500\ \textcolor{preprocessor}{\#define\ inflateInit2\ mz\_inflateInit2}}
+\DoxyCodeLine{00501\ \textcolor{preprocessor}{\#define\ inflateReset\ mz\_inflateReset}}
+\DoxyCodeLine{00502\ \textcolor{preprocessor}{\#define\ inflate\ mz\_inflate}}
+\DoxyCodeLine{00503\ \textcolor{preprocessor}{\#define\ inflateEnd\ mz\_inflateEnd}}
+\DoxyCodeLine{00504\ \textcolor{preprocessor}{\#define\ uncompress\ mz\_uncompress}}
+\DoxyCodeLine{00505\ \textcolor{preprocessor}{\#define\ uncompress2\ mz\_uncompress2}}
+\DoxyCodeLine{00506\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\#ifndef\ MINIZ\_NO\_INFLATE\_APIS*/}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00507\ }
+\DoxyCodeLine{00508\ \textcolor{preprocessor}{\#define\ crc32\ mz\_crc32}}
+\DoxyCodeLine{00509\ \textcolor{preprocessor}{\#define\ adler32\ mz\_adler32}}
+\DoxyCodeLine{00510\ \textcolor{preprocessor}{\#define\ MAX\_WBITS\ 15}}
+\DoxyCodeLine{00511\ \textcolor{preprocessor}{\#define\ MAX\_MEM\_LEVEL\ 9}}
+\DoxyCodeLine{00512\ \textcolor{preprocessor}{\#define\ zError\ mz\_error}}
+\DoxyCodeLine{00513\ \textcolor{preprocessor}{\#define\ ZLIB\_VERSION\ MZ\_VERSION}}
+\DoxyCodeLine{00514\ \textcolor{preprocessor}{\#define\ ZLIB\_VERNUM\ MZ\_VERNUM}}
+\DoxyCodeLine{00515\ \textcolor{preprocessor}{\#define\ ZLIB\_VER\_MAJOR\ MZ\_VER\_MAJOR}}
+\DoxyCodeLine{00516\ \textcolor{preprocessor}{\#define\ ZLIB\_VER\_MINOR\ MZ\_VER\_MINOR}}
+\DoxyCodeLine{00517\ \textcolor{preprocessor}{\#define\ ZLIB\_VER\_REVISION\ MZ\_VER\_REVISION}}
+\DoxyCodeLine{00518\ \textcolor{preprocessor}{\#define\ ZLIB\_VER\_SUBREVISION\ MZ\_VER\_SUBREVISION}}
+\DoxyCodeLine{00519\ \textcolor{preprocessor}{\#define\ zlibVersion\ mz\_version}}
+\DoxyCodeLine{00520\ \textcolor{preprocessor}{\#define\ zlib\_version\ mz\_version()}}
+\DoxyCodeLine{00521\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ \#ifndef\ MINIZ\_NO\_ZLIB\_COMPATIBLE\_NAMES\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00522\ }
+\DoxyCodeLine{00523\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ MINIZ\_NO\_ZLIB\_APIS\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00524\ }
+\DoxyCodeLine{00525\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00526\ \}}
+\DoxyCodeLine{00527\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00528\ }
+\DoxyCodeLine{00529\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{miniz-install_2include_2miniz_2miniz__common_8h}{miniz\_common.h}}"{}}}
+\DoxyCodeLine{00530\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{miniz-install_2include_2miniz_2miniz__tdef_8h}{miniz\_tdef.h}}"{}}}
+\DoxyCodeLine{00531\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{miniz-install_2include_2miniz_2miniz__tinfl_8h}{miniz\_tinfl.h}}"{}}}
+\DoxyCodeLine{00532\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{miniz-install_2include_2miniz_2miniz__zip_8h}{miniz\_zip.h}}"{}}}
+
+\end{DoxyCode}

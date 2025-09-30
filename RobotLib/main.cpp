@@ -5,19 +5,18 @@
 //#include "importvcmx.h"
 //#include "dhcalculator.h"
 #include <filesystem>
-
-//#include "nlohmann/json.hpp"
+#include <iostream>
+#include <fstream>
 
 namespace fs = std::filesystem;
 
 
 int main() {
     try {
-        // Define the input and output file paths
-        
-        std::string inputFilePath = "C:/Users/fahmed/WorkFolder/Projects/RobotEditor/RobotLib/test/robot1/component.rsc";
-        std::string outputFilePath = "C:/Users/fahmed/WorkFolder/Projects/RobotEditor/RobotLib/test/robot1/component.json";
-        std::string dhParameterFile = "C:/Users/fahmed/WorkFolder/Projects/RobotEditor/RobotLib/test/robot1/dhParameters.json";
+        // Define the input and output file paths (relative to workspace)
+        std::string inputFilePath = "RobotLib/test/robot1/component.rsc";
+        std::string outputFilePath = "RobotLib/test/robot1/component.json";
+        std::string dhParameterFile = "RobotLib/test/robot1/dhParameters.json";
 
         // Check if the input file exists
         if (!fs::exists(inputFilePath)) {
@@ -25,22 +24,23 @@ int main() {
             return 1;
         }
 
-        // Path to the robot data folder
-        std::string robotDataFolderPath = "C:/Users/fahmed/WorkFolder/Projects/Payload Samples/ER6-1600/RobotData";
-/*
+        // Path to the robot data folder (relative)
+        std::string robotDataFolderPath = "RobotLib/test/robot1/RobotData";
+
+        /*
         // Create an instance of RobotLib
         RobotLib robotLib;
         Robot robot;
         // Parse the robot data from the VCMX folder
         Robot robot = robotLib.parseRobotFromVCMX(robot, robotDataFolderPath);
 
-        robotLib.addRobot(robot); 
+        robotLib.addRobot(robot);
         
         // Print the robot details
         std::cout << "Robot successfully parsed!" << std::endl;
         robotLib.printData();
 
-*/
+        */
 
 
         /*
@@ -58,9 +58,9 @@ int main() {
         outputFile.close();
 
         try{
-        dhCalculator calculator(outputFilePath);
-        calculator.calculateDHParameters();
-        calculator.validateDHParameters(outputFilePath);
+            dhCalculator calculator(outputFilePath);
+            calculator.calculateDHParameters();
+            calculator.validateDHParameters(outputFilePath);
         }catch (const std::exception &e) {
             std::cerr << "Error: " << e.what() << std::endl;
             return 1;

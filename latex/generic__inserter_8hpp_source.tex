@@ -1,0 +1,119 @@
+\doxysection{generic\+\_\+inserter.\+hpp}
+\hypertarget{generic__inserter_8hpp_source}{}\label{generic__inserter_8hpp_source}\index{RobotLib/libraries/assimp/tools/assimp\_cmd/generic\_inserter.hpp@{RobotLib/libraries/assimp/tools/assimp\_cmd/generic\_inserter.hpp}}
+\mbox{\hyperlink{generic__inserter_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ Boost\ Software\ License\ -\/\ Version\ 1.0\ -\/\ August\ 17th,\ 2003}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ Permission\ is\ hereby\ granted,\ free\ of\ charge,\ to\ any\ person\ or\ organization}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ obtaining\ a\ copy\ of\ the\ software\ and\ accompanying\ documentation\ covered\ by}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ this\ license\ (the\ "{}Software"{})\ to\ use,\ reproduce,\ display,\ distribute,}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ execute,\ and\ transmit\ the\ Software,\ and\ to\ prepare\ derivative\ works\ of\ the}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ Software,\ and\ to\ permit\ third-\/parties\ to\ whom\ the\ Software\ is\ furnished\ to}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *\ do\ so,\ all\ subject\ to\ the\ following:}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *\ The\ copyright\ notices\ in\ the\ Software\ and\ this\ entire\ statement,\ including}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ the\ above\ license\ grant,\ this\ restriction\ and\ the\ following\ disclaimer,}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *\ must\ be\ included\ in\ all\ copies\ of\ the\ Software,\ in\ whole\ or\ in\ part,\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ all\ derivative\ works\ of\ the\ Software,\ unless\ such\ copies\ or\ derivative}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ works\ are\ solely\ in\ the\ form\ of\ machine-\/executable\ object\ code\ generated\ by}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *\ a\ source\ language\ processor.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ THE\ SOFTWARE\ IS\ PROVIDED\ "{}AS\ IS"{},\ WITHOUT\ WARRANTY\ OF\ ANY\ KIND,\ EXPRESS\ OR}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ *\ IMPLIED,\ INCLUDING\ BUT\ NOT\ LIMITED\ TO\ THE\ WARRANTIES\ OF\ MERCHANTABILITY,}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ *\ FITNESS\ FOR\ A\ PARTICULAR\ PURPOSE,\ TITLE\ AND\ NON-\/INFRINGEMENT.\ IN\ NO\ EVENT}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ *\ SHALL\ THE\ COPYRIGHT\ HOLDERS\ OR\ ANYONE\ DISTRIBUTING\ THE\ SOFTWARE\ BE\ LIABLE}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ *\ FOR\ ANY\ DAMAGES\ OR\ OTHER\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ TORT\ OR\ OTHERWISE,}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *\ ARISING\ FROM,\ OUT\ OF\ OR\ IN\ CONNECTION\ WITH\ THE\ SOFTWARE\ OR\ THE\ USE\ OR\ OTHER}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ *\ DEALINGS\ IN\ THE\ SOFTWARE.\ */}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#ifndef\ HEADER\_GENERIC\_INSERTER\_HPP\_INCLUDED}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#define\ HEADER\_GENERIC\_INSERTER\_HPP\_INCLUDED}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ <ostream>}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#include\ <new>}\ \textcolor{comment}{//\ bad\_alloc}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ \textcolor{keywordtype}{char}\_type,\ \textcolor{keyword}{typename}\ traits\_type,\ \textcolor{keyword}{typename}\ argument\_type>}
+\DoxyCodeLine{00035\ std::basic\_ostream<char\_type,\ traits\_type>\&\ \mbox{\hyperlink{generic__inserter_8hpp_a8d6a6a2cbadddbf3297a0c8cf6691987}{generic\_inserter}}(\textcolor{keywordtype}{void}\ (*print)(std::basic\_ostream<char\_type,\ traits\_type>\&\ os,\ argument\_type\ \textcolor{keyword}{const}\&\ arg),\ std::basic\_ostream<char\_type,\ traits\_type>\&\ os,\ argument\_type\ \textcolor{keyword}{const}\&\ arg)}
+\DoxyCodeLine{00036\ \{}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{keyword}{using\ namespace\ }::\mbox{\hyperlink{namespacestd}{std}};}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ ios\_base::iostate\ err\ =\ ios\_base::goodbit;}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordflow}{try}}
+\DoxyCodeLine{00041\ \ \ \ \ \{}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ basic\_ostream<char\_type,\ traits\_type>::sentry\ sentry(os);}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (sentry)}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \ \ \ \ print(os,\ arg);}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \ \ \ \ err\ =\ os.rdstate();}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \ \ \ \ os.width(0);\ \textcolor{comment}{//\ Reset\ width\ in\ case\ the\ user\ didn't\ do\ it.}}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00049\ \ \ \ \ \}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordflow}{catch}\ (bad\_alloc\ \textcolor{keyword}{const}\&)}
+\DoxyCodeLine{00051\ \ \ \ \ \{}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ err\ |=\ ios\_base::badbit;\ \textcolor{comment}{//\ bad\_alloc\ is\ considered\ fatal}}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ ios\_base::iostate\ \textcolor{keyword}{const}\ exception\_mask\ =\ os.exceptions();}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Two\ cases:\ 1.)\ badbit\ is\ not\ set;\ 2.)\ badbit\ is\ set}}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (((exception\_mask\ \&\ ios\_base::failbit)\ !=\ 0)\ \&\&\ \textcolor{comment}{//\ failbit\ shall\ throw}}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ ((exception\_mask\ \&\ ios\_base::badbit)\ ==\ 0))\ \ \ \ \textcolor{comment}{//\ badbit\ shall\ not\ throw}}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Do\ not\ throw\ unless\ failbit\ is\ set.}}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ it\ is\ set\ throw\ ios\_base::failure\ because\ we\ don't\ know\ what\ caused\ the\ failbit\ to\ be\ set.}}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ os.setstate(err);}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (exception\_mask\ \&\ ios\_base::badbit)}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ This\ will\ set\ the\ badbit\ and\ throw\ ios\_base::failure.}}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ os.setstate(err);}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{catch}\ (ios\_base::failure\ \textcolor{keyword}{const}\&)}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Do\ nothing\ since\ we\ want\ bad\_alloc\ to\ be\ rethrown.}}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw};}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ else:\ no\ exception\ must\ get\ out!}}
+\DoxyCodeLine{00077\ \ \ \ \ \}}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordflow}{catch}\ (...)}
+\DoxyCodeLine{00079\ \ \ \ \ \{}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ err\ |=\ ios\_base::failbit;\ \textcolor{comment}{//\ Any\ other\ exception\ is\ considered\ "{}only"{}\ as\ a\ failure.}}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ ios\_base::iostate\ \textcolor{keyword}{const}\ exception\_mask\ =\ os.exceptions();}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ badbit\ is\ considered\ more\ important}}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (((exception\_mask\ \&\ ios\_base::badbit)\ !=\ 0)\ \&\&\ \textcolor{comment}{//\ badbit\ shall\ throw}}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ ((err\ \&\ ios\_base::badbit)\ !=\ 0))\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ badbit\ is\ set}}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Throw\ ios\_base::failure\ because\ we\ don't\ know\ what\ caused\ the\ badbit\ to\ be\ set.}}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \ \ \ \ os.setstate(err);}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ ((exception\_mask\ \&\ ios\_base::failbit)\ !=\ 0)}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ This\ will\ set\ the\ failbit\ and\ throw\ the\ exception\ ios\_base::failure.}}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ os.setstate(err);}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{catch}\ (ios\_base::failure\ \textcolor{keyword}{const}\&)}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Do\ nothing\ since\ we\ want\ the\ original\ exception\ to\ be\ rethrown.}}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw};}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ else:\ no\ exception\ must\ get\ out!}}
+\DoxyCodeLine{00104\ \ \ \ \ \}}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{comment}{//\ Needed\ in\ the\ case\ that\ no\ exception\ has\ been\ thrown\ but\ the\ stream\ state\ has\ changed.}}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordflow}{if}\ (err)}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ os.setstate(err);}
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordflow}{return}\ os;}
+\DoxyCodeLine{00110\ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ HEADER\_GENERIC\_INSERTER\_HPP\_INCLUDED}}
+
+\end{DoxyCode}

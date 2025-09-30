@@ -1,0 +1,266 @@
+\doxysection{X3\+DImporter.\+hpp}
+\hypertarget{_x3_d_importer_8hpp_source}{}\label{_x3_d_importer_8hpp_source}\index{RobotLib/libraries/assimp/code/AssetLib/X3D/X3DImporter.hpp@{RobotLib/libraries/assimp/code/AssetLib/X3D/X3DImporter.hpp}}
+\mbox{\hyperlink{_x3_d_importer_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00011\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00014\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00015\ \textcolor{comment}{following\ disclaimer.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00018\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00019\ \textcolor{comment}{following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00020\ \textcolor{comment}{materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00023\ \textcolor{comment}{contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00024\ \textcolor{comment}{derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00025\ \textcolor{comment}{written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00028\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00029\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00030\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00031\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00032\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00033\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00034\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00035\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00037\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{}}
+\DoxyCodeLine{00039\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#ifndef\ INCLUDED\_AI\_X3D\_IMPORTER\_H}}
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\#define\ INCLUDED\_AI\_X3D\_IMPORTER\_H}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_x3_d_importer___node_8hpp}{X3DImporter\_Node.hpp}}"{}}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#include\ <assimp/BaseImporter.h>}}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#include\ <assimp/XmlParser.h>}}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#include\ <assimp/importerdesc.h>}}
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#include\ <assimp/scene.h>}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#include\ <assimp/types.h>}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#include\ <assimp/DefaultLogger.hpp>}}
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#include\ <assimp/ProgressHandler.hpp>}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#include\ <list>}}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespace_assimp}{Assimp}}\ \{}
+\DoxyCodeLine{00058\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_ad57272978f3c7313c453cbafc266be97}{Throw\_ArgOutOfRange}}(\textcolor{keyword}{const}\ std::string\ \&argument)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00059\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a05066411788c4502bc1f7ac60274a607}{Throw\_CloseNotFound}}(\textcolor{keyword}{const}\ std::string\ \&node)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00060\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a1a465be8c42743d36e8d910ebb458344}{Throw\_ConvertFail\_Str2ArrF}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrValue)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00061\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_abf383b3b8133d3f3860472a863277299}{Throw\_ConvertFail\_Str2ArrD}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrValue)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00062\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a412faed1851748c863cf5fa945e0c458}{Throw\_ConvertFail\_Str2ArrB}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrValue)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00063\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_abc55eabdb8963eb4d14cddca85f506ac}{Throw\_ConvertFail\_Str2ArrI}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrValue)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00064\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a87eee2282e8ace7e25b36a461f0ee07c}{Throw\_DEF\_And\_USE}}(\textcolor{keyword}{const}\ std::string\ \&nodeName)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00065\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a7880618c9448c628d662b6d7a6367921}{Throw\_IncorrectAttr}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrName)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00066\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a20dcac8097025c81c12ce635404dc7da}{Throw\_IncorrectAttrValue}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrName)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00067\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a51797ae04a597c44a8860d69c5cdf242}{Throw\_MoreThanOnceDefined}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pNodeType,\ \textcolor{keyword}{const}\ std::string\ \&pDescription)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00068\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a380e2f603cbc6050a1fbf1f1fb9a54b5}{Throw\_TagCountIncorrect}}(\textcolor{keyword}{const}\ std::string\ \&pNode)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00069\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a6ce513786318507600657cebc16e2d36}{AI\_WONT\_RETURN}}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_ac2fa6658c56ffb5574e30f2a09dfd849}{Throw\_USE\_NotFound}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrValue)\ \mbox{\hyperlink{assimp-install_2include_2assimp_2defs_8h_a5f8ac64e167f5229d18a10636fbfdf94}{AI\_WONT\_RETURN\_SUFFIX}};}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_ad57272978f3c7313c453cbafc266be97}{Throw\_ArgOutOfRange}}(\textcolor{keyword}{const}\ std::string\ \&argument)\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}Argument\ value\ is\ out\ of\ range\ for:\ \(\backslash\)"{}"{}}\ +\ argument\ +\ \textcolor{stringliteral}{"{}\(\backslash\)"{}."{}});}
+\DoxyCodeLine{00073\ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a05066411788c4502bc1f7ac60274a607}{Throw\_CloseNotFound}}(\textcolor{keyword}{const}\ std::string\ \&node)\ \{}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}Close\ tag\ for\ node\ <"{}}\ +\ node\ +\ \textcolor{stringliteral}{"{}>\ not\ found.\ Seems\ file\ is\ corrupt."{}});}
+\DoxyCodeLine{00077\ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a1a465be8c42743d36e8d910ebb458344}{Throw\_ConvertFail\_Str2ArrF}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrValue)\ \{}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}In\ <"{}}\ +\ nodeName\ +\ \textcolor{stringliteral}{"{}>\ failed\ to\ convert\ attribute\ value\ \(\backslash\)"{}"{}}\ +\ pAttrValue\ +}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ from\ string\ to\ array\ of\ floats."{}});}
+\DoxyCodeLine{00082\ \}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_abf383b3b8133d3f3860472a863277299}{Throw\_ConvertFail\_Str2ArrD}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrValue)\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}In\ <"{}}\ +\ nodeName\ +\ \textcolor{stringliteral}{"{}>\ failed\ to\ convert\ attribute\ value\ \(\backslash\)"{}"{}}\ +\ pAttrValue\ +}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ from\ string\ to\ array\ of\ doubles."{}});}
+\DoxyCodeLine{00087\ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a412faed1851748c863cf5fa945e0c458}{Throw\_ConvertFail\_Str2ArrB}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrValue)\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}In\ <"{}}\ +\ nodeName\ +\ \textcolor{stringliteral}{"{}>\ failed\ to\ convert\ attribute\ value\ \(\backslash\)"{}"{}}\ +\ pAttrValue\ +}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ from\ string\ to\ array\ of\ booleans."{}});}
+\DoxyCodeLine{00092\ \}}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_abc55eabdb8963eb4d14cddca85f506ac}{Throw\_ConvertFail\_Str2ArrI}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrValue)\ \{}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}In\ <"{}}\ +\ nodeName\ +\ \textcolor{stringliteral}{"{}>\ failed\ to\ convert\ attribute\ value\ \(\backslash\)"{}"{}}\ +\ pAttrValue\ +}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ from\ string\ to\ array\ of\ integers."{}});}
+\DoxyCodeLine{00097\ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a87eee2282e8ace7e25b36a461f0ee07c}{Throw\_DEF\_And\_USE}}(\textcolor{keyword}{const}\ std::string\ \&nodeName)\ \{}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}\(\backslash\)"{}DEF\(\backslash\)"{}\ and\ \(\backslash\)"{}USE\(\backslash\)"{}\ can\ not\ be\ defined\ both\ in\ <"{}}\ +\ nodeName\ +\ \textcolor{stringliteral}{"{}>."{}});}
+\DoxyCodeLine{00101\ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a7880618c9448c628d662b6d7a6367921}{Throw\_IncorrectAttr}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrName)\ \{}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}Node\ <"{}}\ +\ nodeName\ +\ \textcolor{stringliteral}{"{}>\ has\ incorrect\ attribute\ \(\backslash\)"{}"{}}\ +\ pAttrName\ +\ \textcolor{stringliteral}{"{}\(\backslash\)"{}."{}});}
+\DoxyCodeLine{00105\ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a20dcac8097025c81c12ce635404dc7da}{Throw\_IncorrectAttrValue}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrName)\ \{}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}Attribute\ \(\backslash\)"{}"{}}\ +\ pAttrName\ +\ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ in\ node\ <"{}}\ +\ nodeName\ +\ \textcolor{stringliteral}{"{}>\ has\ incorrect\ value."{}});}
+\DoxyCodeLine{00109\ \}}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a51797ae04a597c44a8860d69c5cdf242}{Throw\_MoreThanOnceDefined}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pNodeType,\ \textcolor{keyword}{const}\ std::string\ \&pDescription)\ \{}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}\(\backslash\)"{}"{}}\ +\ pNodeType\ +\ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ node\ can\ be\ used\ only\ once\ in\ "{}}\ +\ nodeName\ +\ \textcolor{stringliteral}{"{}.\ Description:\ "{}}\ +\ pDescription);}
+\DoxyCodeLine{00113\ \}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a380e2f603cbc6050a1fbf1f1fb9a54b5}{Throw\_TagCountIncorrect}}(\textcolor{keyword}{const}\ std::string\ \&pNode)\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}Count\ of\ open\ and\ close\ tags\ for\ node\ <"{}}\ +\ pNode\ +\ \textcolor{stringliteral}{"{}>\ are\ not\ equivalent.\ Seems\ file\ is\ corrupt."{}});}
+\DoxyCodeLine{00117\ \}}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_ac2fa6658c56ffb5574e30f2a09dfd849}{Throw\_USE\_NotFound}}(\textcolor{keyword}{const}\ std::string\ \&nodeName,\ \textcolor{keyword}{const}\ std::string\ \&pAttrValue)\ \{}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{class_deadly_import_error}{DeadlyImportError}}(\textcolor{stringliteral}{"{}Not\ found\ node\ with\ name\ \(\backslash\)"{}"{}}\ +\ pAttrValue\ +\ \textcolor{stringliteral}{"{}\(\backslash\)"{}\ in\ <"{}}\ +\ nodeName\ +\ \textcolor{stringliteral}{"{}>."{}});}
+\DoxyCodeLine{00121\ \}}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a41fcf3d9bbe4537f60e57dfe0fac43b4}{LogInfo}}(\textcolor{keyword}{const}\ std::string\ \&message)\ \{}
+\DoxyCodeLine{00124\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_default_logger_a093cac26b06553ac774f84769cb0d691}{DefaultLogger::get}}()-\/>\mbox{\hyperlink{class_assimp_1_1_logger_a12b8a125083c47ac0bb6056f00761e52}{info}}(message);}
+\DoxyCodeLine{00125\ \}}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00257\ \textcolor{keyword}{using\ }\mbox{\hyperlink{namespace_assimp_aed3aa8092ebeb82a2cab691c263eb338}{X3DElementList}}\ =\ std::list<X3DNodeElementBase\ *>;}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00259\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_assimp_1_1_x3_d_importer_af433b2d3e62d6eff5866dd0bf788eafb}{X3DImporter}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_assimp_1_1_base_importer_a3a26428f61d7bebdc477c4d0add9da30}{BaseImporter}}\ \{}
+\DoxyCodeLine{00260\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00261\ \ \ \ \ std::list<X3DNodeElementBase\ *>\ \mbox{\hyperlink{class_assimp_1_1_x3_d_importer_aeb02b2a663c66b1a621331d279d80e22}{NodeElement\_List}};\ }
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00265\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_x3_d_importer_af433b2d3e62d6eff5866dd0bf788eafb}{X3DImporter}}();}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00268\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_x3_d_importer_ad85bb9c8c80655ce3f719c0d85bfa20f}{\string~X3DImporter}}();}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00270\ \textcolor{comment}{\ \ \ \ /***********************************************/}}
+\DoxyCodeLine{00271\ \textcolor{comment}{\ \ \ \ /********\ Functions:\ parse\ set,\ public\ *********/}}
+\DoxyCodeLine{00272\ \textcolor{comment}{\ \ \ \ /***********************************************/}}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00278\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_x3_d_importer_aa50e41fc46757f45e5145d63b5e8d0b7}{ParseFile}}(\textcolor{keyword}{const}\ std::string\ \&pFile,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler);}
+\DoxyCodeLine{00279\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_assimp_1_1_x3_d_importer_a452ba59cb0b02816d175d274d0ed6625}{CanRead}}(\textcolor{keyword}{const}\ std::string\ \&pFile,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler,\ \textcolor{keywordtype}{bool}\ pCheckSig)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00280\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_x3_d_importer_ab380f72472364ed404e011e820f062d9}{InternReadFile}}(\textcolor{keyword}{const}\ std::string\ \&pFile,\ \mbox{\hyperlink{structai_scene}{aiScene}}\ *pScene,\ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *pIOHandler);}
+\DoxyCodeLine{00281\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_importer_desc}{aiImporterDesc}}\ *\mbox{\hyperlink{class_assimp_1_1_x3_d_importer_ae1b106c4867782a9109268a964a5bcc1}{GetInfo}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_assimp_1_1_x3_d_importer_a72436e6a44b220b1d77d9253f728d472}{Clear}}();}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00285\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *MACRO\_USE\_CHECKANDAPPLY(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \textcolor{keyword}{const}\ std::string\ \&pDEF,\ \textcolor{keyword}{const}\ std::string\ \&pUSE,\ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ pType,\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pNE);}
+\DoxyCodeLine{00286\ \ \ \ \ \textcolor{keywordtype}{bool}\ isNodeEmpty(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00287\ \ \ \ \ \textcolor{keywordtype}{void}\ checkNodeMustBeEmpty(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{keywordtype}{void}\ skipUnsupportedNode(\textcolor{keyword}{const}\ std::string\ \&pParentNodeName,\ \mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00289\ \ \ \ \ \textcolor{keywordtype}{void}\ readHead(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00290\ \ \ \ \ \textcolor{keywordtype}{void}\ readChildNodes(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \textcolor{keyword}{const}\ std::string\ \&pParentNodeName);}
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{keywordtype}{void}\ readScene(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{keywordtype}{bool}\ FindNodeElement\_FromRoot(\textcolor{keyword}{const}\ std::string\ \&pID,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ pType,\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ **pElement);}
+\DoxyCodeLine{00294\ \ \ \ \ \textcolor{keywordtype}{bool}\ FindNodeElement\_FromNode(\mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pStartNode,\ \textcolor{keyword}{const}\ std::string\ \&pID,}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ pType,\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ **pElement);}
+\DoxyCodeLine{00296\ \ \ \ \ \textcolor{keywordtype}{bool}\ FindNodeElement(\textcolor{keyword}{const}\ std::string\ \&pID,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ pType,\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ **pElement);}
+\DoxyCodeLine{00297\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseHelper\_Group\_Begin(\textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ pStatic\ =\ \textcolor{keyword}{false});}
+\DoxyCodeLine{00298\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseHelper\_Node\_Enter(\mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pNode);}
+\DoxyCodeLine{00299\ \ \ \ \ \textcolor{keywordtype}{void}\ ParseHelper\_Node\_Exit();}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{comment}{//\ 2D\ geometry}}
+\DoxyCodeLine{00302\ \ \ \ \ \textcolor{keywordtype}{void}\ readArc2D(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00303\ \ \ \ \ \textcolor{keywordtype}{void}\ readArcClose2D(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00304\ \ \ \ \ \textcolor{keywordtype}{void}\ readCircle2D(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00305\ \ \ \ \ \textcolor{keywordtype}{void}\ readDisk2D(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00306\ \ \ \ \ \textcolor{keywordtype}{void}\ readPolyline2D(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00307\ \ \ \ \ \textcolor{keywordtype}{void}\ readPolypoint2D(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{keywordtype}{void}\ readRectangle2D(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00309\ \ \ \ \ \textcolor{keywordtype}{void}\ readTriangleSet2D(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00310\ }
+\DoxyCodeLine{00311\ \ \ \ \ \textcolor{comment}{//\ 3D\ geometry}}
+\DoxyCodeLine{00312\ \ \ \ \ \textcolor{keywordtype}{void}\ readBox(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00313\ \ \ \ \ \textcolor{keywordtype}{void}\ readCone(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00314\ \ \ \ \ \textcolor{keywordtype}{void}\ readCylinder(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00315\ \ \ \ \ \textcolor{keywordtype}{void}\ readElevationGrid(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00316\ \ \ \ \ \textcolor{keywordtype}{void}\ readExtrusion(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00317\ \ \ \ \ \textcolor{keywordtype}{void}\ readIndexedFaceSet(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00318\ \ \ \ \ \textcolor{keywordtype}{void}\ readSphere(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00319\ }
+\DoxyCodeLine{00320\ \ \ \ \ \textcolor{comment}{//\ group}}
+\DoxyCodeLine{00321\ \ \ \ \ \textcolor{keywordtype}{void}\ startReadGroup(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00322\ \ \ \ \ \textcolor{keywordtype}{void}\ endReadGroup();}
+\DoxyCodeLine{00323\ \ \ \ \ \textcolor{keywordtype}{void}\ startReadStaticGroup(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00324\ \ \ \ \ \textcolor{keywordtype}{void}\ endReadStaticGroup();}
+\DoxyCodeLine{00325\ \ \ \ \ \textcolor{keywordtype}{void}\ startReadSwitch(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00326\ \ \ \ \ \textcolor{keywordtype}{void}\ endReadSwitch();}
+\DoxyCodeLine{00327\ \ \ \ \ \textcolor{keywordtype}{void}\ startReadTransform(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00328\ \ \ \ \ \textcolor{keywordtype}{void}\ endReadTransform();}
+\DoxyCodeLine{00329\ }
+\DoxyCodeLine{00330\ \ \ \ \ \textcolor{comment}{//\ light}}
+\DoxyCodeLine{00331\ \ \ \ \ \textcolor{keywordtype}{void}\ readDirectionalLight(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00332\ \ \ \ \ \textcolor{keywordtype}{void}\ readPointLight(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00333\ \ \ \ \ \textcolor{keywordtype}{void}\ readSpotLight(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00335\ \ \ \ \ \textcolor{comment}{//\ metadata}}
+\DoxyCodeLine{00336\ \ \ \ \ \textcolor{keywordtype}{bool}\ checkForMetadataNode(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00337\ \ \ \ \ \textcolor{keywordtype}{void}\ childrenReadMetadata(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node,\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *pParentElement,\ \textcolor{keyword}{const}\ std::string\ \&pNodeName);}
+\DoxyCodeLine{00338\ \ \ \ \ \textcolor{keywordtype}{void}\ readMetadataBoolean(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00339\ \ \ \ \ \textcolor{keywordtype}{void}\ readMetadataDouble(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{keywordtype}{void}\ readMetadataFloat(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00341\ \ \ \ \ \textcolor{keywordtype}{void}\ readMetadataInteger(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00342\ \ \ \ \ \textcolor{keywordtype}{void}\ readMetadataSet(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00343\ \ \ \ \ \textcolor{keywordtype}{void}\ readMetadataString(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00345\ \ \ \ \ \textcolor{comment}{//\ networking}}
+\DoxyCodeLine{00346\ \ \ \ \ \textcolor{keywordtype}{void}\ readInline(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00347\ }
+\DoxyCodeLine{00348\ \ \ \ \ \textcolor{comment}{//\ postprocessing}}
+\DoxyCodeLine{00349\ \ \ \ \ \mbox{\hyperlink{structai_matrix4x4}{aiMatrix4x4}}\ PostprocessHelper\_Matrix\_GlobalToCurrent()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00350\ \ \ \ \ \textcolor{keywordtype}{void}\ PostprocessHelper\_CollectMetadata(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ \&pNodeElement,\ std::list<X3DNodeElementBase\ *>\ \&pList)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{keywordtype}{bool}\ PostprocessHelper\_ElementIsMetadata(\textcolor{keyword}{const}\ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ pType)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00352\ \ \ \ \ \textcolor{keywordtype}{bool}\ PostprocessHelper\_ElementIsMesh(\textcolor{keyword}{const}\ \mbox{\hyperlink{_x3_d_importer___node_8hpp_a49fbb2c92d528443e7e28b0dc4f71613}{X3DElemType}}\ pType)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00353\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_BuildLight(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ \&pNodeElement,\ std::list<aiLight\ *>\ \&pSceneLightList)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00354\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_BuildMaterial(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ \&pNodeElement,\ \mbox{\hyperlink{structai_material}{aiMaterial}}\ **pMaterial)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00355\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_BuildMesh(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ \&pNodeElement,\ \mbox{\hyperlink{structai_mesh}{aiMesh}}\ **pMesh)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00356\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_BuildNode(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ \&pNodeElement,\ \mbox{\hyperlink{structai_node}{aiNode}}\ \&pSceneNode,\ std::list<aiMesh\ *>\ \&pSceneMeshList,}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ \ \ \ \ \ \ std::list<aiMaterial\ *>\ \&pSceneMaterialList,\ std::list<aiLight\ *>\ \&pSceneLightList)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00358\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_BuildShape(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_x3_d_node_element_shape}{X3DNodeElementShape}}\ \&pShapeNodeElement,\ std::list<unsigned\ int>\ \&pNodeMeshInd,}
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \ \ \ \ \ \ std::list<aiMesh\ *>\ \&pSceneMeshList,\ std::list<aiMaterial\ *>\ \&pSceneMaterialList)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00360\ \ \ \ \ \textcolor{keywordtype}{void}\ Postprocess\_CollectMetadata(\textcolor{keyword}{const}\ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ \&pNodeElement,\ \mbox{\hyperlink{structai_node}{aiNode}}\ \&pSceneNode)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00361\ }
+\DoxyCodeLine{00362\ \ \ \ \ \textcolor{comment}{//\ rendering}}
+\DoxyCodeLine{00363\ \ \ \ \ \textcolor{keywordtype}{void}\ readColor(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00364\ \ \ \ \ \textcolor{keywordtype}{void}\ readColorRGBA(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00365\ \ \ \ \ \textcolor{keywordtype}{void}\ readCoordinate(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00366\ \ \ \ \ \textcolor{keywordtype}{void}\ readIndexedLineSet(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00367\ \ \ \ \ \textcolor{keywordtype}{void}\ readIndexedTriangleFanSet(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00368\ \ \ \ \ \textcolor{keywordtype}{void}\ readIndexedTriangleSet(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00369\ \ \ \ \ \textcolor{keywordtype}{void}\ readIndexedTriangleStripSet(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00370\ \ \ \ \ \textcolor{keywordtype}{void}\ readLineSet(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00371\ \ \ \ \ \textcolor{keywordtype}{void}\ readPointSet(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00372\ \ \ \ \ \textcolor{keywordtype}{void}\ readTriangleFanSet(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00373\ \ \ \ \ \textcolor{keywordtype}{void}\ readTriangleSet(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00374\ \ \ \ \ \textcolor{keywordtype}{void}\ readTriangleStripSet(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00375\ \ \ \ \ \textcolor{keywordtype}{void}\ readNormal(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00377\ \ \ \ \ \textcolor{comment}{//\ shape}}
+\DoxyCodeLine{00378\ \ \ \ \ \textcolor{keywordtype}{void}\ readShape(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00379\ \ \ \ \ \textcolor{keywordtype}{void}\ readAppearance(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00380\ \ \ \ \ \textcolor{keywordtype}{void}\ readMaterial(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00381\ }
+\DoxyCodeLine{00382\ \ \ \ \ \textcolor{comment}{//\ texturing}}
+\DoxyCodeLine{00383\ \ \ \ \ \textcolor{keywordtype}{void}\ readImageTexture(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00384\ \ \ \ \ \textcolor{keywordtype}{void}\ readTextureCoordinate(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00385\ \ \ \ \ \textcolor{keywordtype}{void}\ readTextureTransform(\mbox{\hyperlink{namespace_assimp_ab59fd50c2188955d2497165fe6287621}{XmlNode}}\ \&node);}
+\DoxyCodeLine{00386\ }
+\DoxyCodeLine{00387\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structai_importer_desc}{aiImporterDesc}}\ Description;}
+\DoxyCodeLine{00388\ \ \ \ \ \mbox{\hyperlink{struct_x3_d_node_element_base}{X3DNodeElementBase}}\ *mNodeElementCur;}
+\DoxyCodeLine{00389\ \ \ \ \ \mbox{\hyperlink{structai_scene}{aiScene}}\ *mScene;}
+\DoxyCodeLine{00390\ \ \ \ \ \mbox{\hyperlink{class_assimp_1_1_i_o_system}{IOSystem}}\ *mpIOHandler;}
+\DoxyCodeLine{00391\ \};\ \textcolor{comment}{//\ class\ X3DImporter}}
+\DoxyCodeLine{00392\ }
+\DoxyCodeLine{00393\ \}\ \textcolor{comment}{//\ namespace\ Assimp}}
+\DoxyCodeLine{00394\ }
+\DoxyCodeLine{00395\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ INCLUDED\_AI\_X3D\_IMPORTER\_H}}
+
+\end{DoxyCode}

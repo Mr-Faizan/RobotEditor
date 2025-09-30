@@ -1,0 +1,722 @@
+\doxysection{gl\+TFAsset\+Writer.\+inl}
+\hypertarget{gl_t_f_asset_writer_8inl_source}{}\label{gl_t_f_asset_writer_8inl_source}\index{RobotLib/libraries/assimp/code/AssetLib/glTF/glTFAssetWriter.inl@{RobotLib/libraries/assimp/code/AssetLib/glTF/glTFAssetWriter.inl}}
+\mbox{\hyperlink{gl_t_f_asset_writer_8inl}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{Open\ Asset\ Import\ Library\ (assimp)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00004\ \textcolor{comment}{}}
+\DoxyCodeLine{00005\ \textcolor{comment}{Copyright\ (c)\ 2006-\/2024,\ assimp\ team}}
+\DoxyCodeLine{00006\ \textcolor{comment}{}}
+\DoxyCodeLine{00007\ \textcolor{comment}{All\ rights\ reserved.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{Redistribution\ and\ use\ of\ this\ software\ in\ source\ and\ binary\ forms,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{with\ or\ without\ modification,\ are\ permitted\ provided\ that\ the}}
+\DoxyCodeLine{00011\ \textcolor{comment}{following\ conditions\ are\ met:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{*\ Redistributions\ of\ source\ code\ must\ retain\ the\ above}}
+\DoxyCodeLine{00014\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00015\ \textcolor{comment}{following\ disclaimer.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{}}
+\DoxyCodeLine{00017\ \textcolor{comment}{*\ Redistributions\ in\ binary\ form\ must\ reproduce\ the\ above}}
+\DoxyCodeLine{00018\ \textcolor{comment}{copyright\ notice,\ this\ list\ of\ conditions\ and\ the}}
+\DoxyCodeLine{00019\ \textcolor{comment}{following\ disclaimer\ in\ the\ documentation\ and/or\ other}}
+\DoxyCodeLine{00020\ \textcolor{comment}{materials\ provided\ with\ the\ distribution.}}
+\DoxyCodeLine{00021\ \textcolor{comment}{}}
+\DoxyCodeLine{00022\ \textcolor{comment}{*\ Neither\ the\ name\ of\ the\ assimp\ team,\ nor\ the\ names\ of\ its}}
+\DoxyCodeLine{00023\ \textcolor{comment}{contributors\ may\ be\ used\ to\ endorse\ or\ promote\ products}}
+\DoxyCodeLine{00024\ \textcolor{comment}{derived\ from\ this\ software\ without\ specific\ prior}}
+\DoxyCodeLine{00025\ \textcolor{comment}{written\ permission\ of\ the\ assimp\ team.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{}}
+\DoxyCodeLine{00027\ \textcolor{comment}{THIS\ SOFTWARE\ IS\ PROVIDED\ BY\ THE\ COPYRIGHT\ HOLDERS\ AND\ CONTRIBUTORS}}
+\DoxyCodeLine{00028\ \textcolor{comment}{"{}AS\ IS"{}\ AND\ ANY\ EXPRESS\ OR\ IMPLIED\ WARRANTIES,\ INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00029\ \textcolor{comment}{LIMITED\ TO,\ THE\ IMPLIED\ WARRANTIES\ OF\ MERCHANTABILITY\ AND\ FITNESS\ FOR}}
+\DoxyCodeLine{00030\ \textcolor{comment}{A\ PARTICULAR\ PURPOSE\ ARE\ DISCLAIMED.\ IN\ NO\ EVENT\ SHALL\ THE\ COPYRIGHT}}
+\DoxyCodeLine{00031\ \textcolor{comment}{OWNER\ OR\ CONTRIBUTORS\ BE\ LIABLE\ FOR\ ANY\ DIRECT,\ INDIRECT,\ INCIDENTAL,}}
+\DoxyCodeLine{00032\ \textcolor{comment}{SPECIAL,\ EXEMPLARY,\ OR\ CONSEQUENTIAL\ DAMAGES\ (INCLUDING,\ BUT\ NOT}}
+\DoxyCodeLine{00033\ \textcolor{comment}{LIMITED\ TO,\ PROCUREMENT\ OF\ SUBSTITUTE\ GOODS\ OR\ SERVICES;\ LOSS\ OF\ USE,}}
+\DoxyCodeLine{00034\ \textcolor{comment}{DATA,\ OR\ PROFITS;\ OR\ BUSINESS\ INTERRUPTION)\ HOWEVER\ CAUSED\ AND\ ON\ ANY}}
+\DoxyCodeLine{00035\ \textcolor{comment}{THEORY\ OF\ LIABILITY,\ WHETHER\ IN\ CONTRACT,\ STRICT\ LIABILITY,\ OR\ TORT}}
+\DoxyCodeLine{00036\ \textcolor{comment}{(INCLUDING\ NEGLIGENCE\ OR\ OTHERWISE)\ ARISING\ IN\ ANY\ WAY\ OUT\ OF\ THE\ USE}}
+\DoxyCodeLine{00037\ \textcolor{comment}{OF\ THIS\ SOFTWARE,\ EVEN\ IF\ ADVISED\ OF\ THE\ POSSIBILITY\ OF\ SUCH\ DAMAGE.}}
+\DoxyCodeLine{00038\ \textcolor{comment}{}}
+\DoxyCodeLine{00039\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\#include\ <assimp/Base64.hpp>}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{stringbuffer_8h}{rapidjson/stringbuffer.h}}>}}
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{writer_8h}{rapidjson/writer.h}}>}}
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{prettywriter_8h}{rapidjson/prettywriter.h}}>}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#if\ \_MSC\_VER}}
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#\ \ \ \ pragma\ warning(push)}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#\ \ \ \ pragma\ warning(\ disable\ :\ 4706)}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ \_MSC\_VER}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacegl_t_f}{glTF}}\ \{}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keyword}{using\ }rapidjson::StringBuffer;}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keyword}{using\ }rapidjson::PrettyWriter;}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keyword}{using\ }rapidjson::Writer;}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keyword}{using\ }rapidjson::StringRef;}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keyword}{using\ }rapidjson::StringRef;}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T,\ \textcolor{keywordtype}{size\_t}\ N>}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \textcolor{keyword}{inline}}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\&\ MakeValue(\mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\&\ val,\ T(\&r)[\mbox{\hyperlink{crc32_8c_a0240ac851181b84ac374872dc5434ee4}{N}}],\ MemoryPoolAllocator<>\&\ al)\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ val.SetArray();}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ val.Reserve(\mbox{\hyperlink{crc32_8c_a0240ac851181b84ac374872dc5434ee4}{N}},\ al);}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{decltype}(\mbox{\hyperlink{crc32_8c_a0240ac851181b84ac374872dc5434ee4}{N}})\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{crc32_8c_a0240ac851181b84ac374872dc5434ee4}{N}};\ ++i)\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val.PushBack(r[i],\ al);}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ val;}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{keyword}{inline}}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\&\ MakeValue(\mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\&\ val,\ \textcolor{keyword}{const}\ std::vector<T>\ \&\ r,\ MemoryPoolAllocator<>\&\ al)\ \{}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ val.SetArray();}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ val.Reserve(\textcolor{keyword}{static\_cast<}rapidjson::SizeType\textcolor{keyword}{>}(r.size()),\ al);}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ r.size();\ ++i)\ \{}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val.PushBack(r[i],\ al);}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ val;}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ C,\ \textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\&\ MakeValueCast(\mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\&\ val,\ \textcolor{keyword}{const}\ std::vector<T>\ \&\ r,\ MemoryPoolAllocator<>\&\ al)\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ val.SetArray();}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \ \ \ \ val.Reserve(\textcolor{keyword}{static\_cast<}rapidjson::SizeType\textcolor{keyword}{>}(r.size()),\ al);}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ r.size();\ ++i)\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val.PushBack(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespaceassimp_1_1api_a6a69c3a6cfdb38c9939fabe50d23b987}{C}}\textcolor{keyword}{>}(r[i]),\ al);}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ val;}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ AddRefsVector(\mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\&\ obj,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ fieldId,\ std::vector<\ \mbox{\hyperlink{classgl_t_f_common_1_1_ref}{Ref<T>}}\ >\&\ v,\ MemoryPoolAllocator<>\&\ al)\ \{}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (v.empty())\ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\ lst;}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ lst.SetArray();}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ lst.Reserve(\textcolor{keywordtype}{unsigned}(v.size()),\ al);}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ v.size();\ ++i)\ \{}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lst.PushBack(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(v[i]-\/>\textcolor{keywordtype}{id}),\ al);}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(fieldId),\ lst,\ al);}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \ \ \ \ \}}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ \mbox{\hyperlink{structgl_t_f_1_1_accessor}{Accessor}}\&\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00111\ \ \ \ \ \{}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}bufferView"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.bufferView-\/>id,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}byteOffset"{}},\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.byteOffset,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}byteStride"{}},\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.byteStride,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}componentType"{}},\ \textcolor{keywordtype}{int}(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.componentType),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}count"{}},\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.count,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}type"{}},\ \mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(\mbox{\hyperlink{classgl_t_f_1_1_attrib_type_ab78e9645f566d48b33089f403029aa27}{AttribType::ToString}}(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.type)),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ vTmpMax,\ vTmpMin;}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.componentType\ ==\ \mbox{\hyperlink{namespacegl_t_f_a3d7727ee56337f2fe4f8077699926f7fa3684a8cef5a23a0b7c1da8028ae4afa1}{ComponentType\_FLOAT}})\ \{}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}max"{}},\ MakeValue(vTmpMax,\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.max,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}min"{}},\ MakeValue(vTmpMin,\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.min,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}max"{}},\ MakeValueCast<int64\_t>(vTmpMax,\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.max,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}min"{}},\ MakeValueCast<int64\_t>(vTmpMin,\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.min,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00127\ \ \ \ \ \}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ \mbox{\hyperlink{structgl_t_f_1_1_animation}{Animation}}\&\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}},\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00130\ \ \ \ \ \{}
+\DoxyCodeLine{00131\ \textcolor{comment}{\ \ \ \ \ \ \ \ /******************\ Channels\ *******************/}}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ channels;}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ channels.SetArray();}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ channels.Reserve(\textcolor{keywordtype}{unsigned}(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Channels.size()),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ unsigned(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Channels.size());\ ++i)\ \{}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgl_t_f_1_1_animation_1_1_anim_channel}{Animation::AnimChannel}}\&\ c\ =\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Channels[i];}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ valChannel;}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \ \ valChannel.SetObject();}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valChannel.AddMember(\textcolor{stringliteral}{"{}sampler"{}},\ c.\mbox{\hyperlink{structgl_t_f_1_1_animation_1_1_anim_channel_a8978a38d1c941e3a924655a827323b39}{sampler}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ valTarget;}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valTarget.SetObject();}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valTarget.AddMember(\textcolor{stringliteral}{"{}id"{}},\ \mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(c.\mbox{\hyperlink{structgl_t_f_1_1_animation_1_1_anim_channel_a467393ac5be583de79584522c002b5a4}{target}}.\mbox{\hyperlink{structgl_t_f_1_1_animation_1_1_anim_channel_1_1_anim_target_a77a3a96f8f2df3ad9565dc9a3c66574e}{id}}-\/>id),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valTarget.AddMember(\textcolor{stringliteral}{"{}path"{}},\ c.\mbox{\hyperlink{structgl_t_f_1_1_animation_1_1_anim_channel_a467393ac5be583de79584522c002b5a4}{target}}.\mbox{\hyperlink{structgl_t_f_1_1_animation_1_1_anim_channel_1_1_anim_target_a150bc4b045f29d6a61502d2e3c4beed9}{path}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valChannel.AddMember(\textcolor{stringliteral}{"{}target"{}},\ valTarget,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \ \ \ \ channels.PushBack(valChannel,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}channels"{}},\ channels,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00154\ }
+\DoxyCodeLine{00155\ \textcolor{comment}{\ \ \ \ \ \ \ \ /******************\ Parameters\ *******************/}}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ valParameters;}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ valParameters.SetObject();}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Parameters.TIME)\ \{}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valParameters.AddMember(\textcolor{stringliteral}{"{}TIME"{}},\ \mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Parameters.TIME-\/>id),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Parameters.rotation)\ \{}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valParameters.AddMember(\textcolor{stringliteral}{"{}rotation"{}},\ \mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Parameters.rotation-\/>id),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Parameters.scale)\ \{}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valParameters.AddMember(\textcolor{stringliteral}{"{}scale"{}},\ \mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Parameters.scale-\/>id),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Parameters.translation)\ \{}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valParameters.AddMember(\textcolor{stringliteral}{"{}translation"{}},\ \mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Parameters.translation-\/>id),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}parameters"{}},\ valParameters,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \textcolor{comment}{\ \ \ \ \ \ \ \ /******************\ Samplers\ *******************/}}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ valSamplers;}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ valSamplers.SetObject();}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ unsigned(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Samplers.size());\ ++i)\ \{}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgl_t_f_1_1_animation_1_1_anim_sampler}{Animation::AnimSampler}}\&\ s\ =\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.Samplers[i];}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ valSampler;}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ valSampler.SetObject();}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valSampler.AddMember(\textcolor{stringliteral}{"{}input"{}},\ s.\mbox{\hyperlink{structgl_t_f_1_1_animation_1_1_anim_sampler_a187a25edabd8fdba3b0f3ad60a261a8c}{input}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valSampler.AddMember(\textcolor{stringliteral}{"{}interpolation"{}},\ s.\mbox{\hyperlink{structgl_t_f_1_1_animation_1_1_anim_sampler_aac803f8d9901d94349468f051d1b0f84}{interpolation}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valSampler.AddMember(\textcolor{stringliteral}{"{}output"{}},\ s.\mbox{\hyperlink{structgl_t_f_1_1_animation_1_1_anim_sampler_ac77325e87b0b420354fc26ea7dfdcb51}{output}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ valSamplers.AddMember(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(s.\mbox{\hyperlink{structgl_t_f_1_1_animation_1_1_anim_sampler_a2f6965f0b7d6dfff89d45c995faedae4}{id}}),\ valSampler,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}samplers"{}},\ valSamplers,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00190\ \ \ \ \ \}}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ \mbox{\hyperlink{structgl_t_f_1_1_buffer}{Buffer}}\&\ b,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00193\ \ \ \ \ \{}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ type;}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (b.\mbox{\hyperlink{structgl_t_f_1_1_buffer_aba2d27ee80e0d674a04ea3b38550f8fd}{type}})\ \{}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{structgl_t_f_1_1_buffer_a294d86ef77bb6838cc2053510a0b4994aad7ca726406978177f0645cd2e375a88}{Buffer::Type\_text}}:}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ type\ =\ \textcolor{stringliteral}{"{}text"{}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ type\ =\ \textcolor{stringliteral}{"{}arraybuffer"{}};}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}byteLength"{}},\ \textcolor{keyword}{static\_cast<}uint64\_t\textcolor{keyword}{>}(b.\mbox{\hyperlink{structgl_t_f_1_1_buffer_a491dff71580a41528282acd5915bb4bc}{byteLength}}),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}type"{}},\ \mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(type),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}uri"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(b.\mbox{\hyperlink{structgl_t_f_1_1_buffer_a779f713a892da090da067db214eaf093}{GetURI}}(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00205\ \ \ \ \ \}}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ \mbox{\hyperlink{structgl_t_f_1_1_buffer_view}{BufferView}}\&\ bv,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00208\ \ \ \ \ \{}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}buffer"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(bv.\mbox{\hyperlink{structgl_t_f_1_1_buffer_view_a8d9baa2dd9344fa33ead3cd78778cfe7}{buffer}}-\/>id,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}byteOffset"{}},\ \textcolor{keyword}{static\_cast<}uint64\_t\textcolor{keyword}{>}(bv.\mbox{\hyperlink{structgl_t_f_1_1_buffer_view_a18dd6a8b2964b875e18419fc553a6d3e}{byteOffset}}),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}byteLength"{}},\ \textcolor{keyword}{static\_cast<}uint64\_t\textcolor{keyword}{>}(bv.\mbox{\hyperlink{structgl_t_f_1_1_buffer_view_aaaa0f0072f3ba9c4efda7b1b9c824e7d}{byteLength}}),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (bv.\mbox{\hyperlink{structgl_t_f_1_1_buffer_view_a6a594967f79f0051424b14b50d313ed9}{target}}\ !=\ \mbox{\hyperlink{namespacegl_t_f_a56c53ed510743dbc84fc254d7f17da94ac965906125a88efbae0d68b620a725b2}{BufferViewTarget\_NONE}})\ \{}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}target"{}},\ \textcolor{keywordtype}{int}(bv.\mbox{\hyperlink{structgl_t_f_1_1_buffer_view_a6a594967f79f0051424b14b50d313ed9}{target}}),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00215\ \ \ \ \ \}}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ \textcolor{comment}{/*obj*/},\ \mbox{\hyperlink{structgl_t_f_1_1_camera}{Camera}}\&\ \textcolor{comment}{/*c*/},\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ \textcolor{comment}{/*w*/})}
+\DoxyCodeLine{00218\ \ \ \ \ \{}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00220\ \ \ \ \ \}}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ \mbox{\hyperlink{structgl_t_f_1_1_image}{Image}}\&\ img,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00223\ \ \ \ \ \{}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ std::string\ uri;}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.\mbox{\hyperlink{classgl_t_f_1_1_asset_ab385a6da8f78f702e5bfcfc92018f0af}{extensionsUsed}}.\mbox{\hyperlink{structgl_t_f_1_1_asset_1_1_extensions_a74b600a242e07662326fa1e8b2a29917}{KHR\_binary\_glTF}}\ \&\&\ img.\mbox{\hyperlink{structgl_t_f_1_1_image_a1fcd1c7c5458fdeed4a8462aca586629}{bufferView}})\ \{}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ exts,\ ext;}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \ \ \ \ exts.SetObject();}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \ \ \ \ ext.SetObject();}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ \ \ \ \ ext.AddMember(\textcolor{stringliteral}{"{}bufferView"{}},\ \mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(img.\mbox{\hyperlink{structgl_t_f_1_1_image_a1fcd1c7c5458fdeed4a8462aca586629}{bufferView}}-\/>id),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!img.\mbox{\hyperlink{structgl_t_f_1_1_image_a4fcee760fab7e0094312a98f5df86523}{mimeType}}.empty())}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ext.AddMember(\textcolor{stringliteral}{"{}mimeType"{}},\ \mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(img.\mbox{\hyperlink{structgl_t_f_1_1_image_a4fcee760fab7e0094312a98f5df86523}{mimeType}}),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \ \ \ \ exts.AddMember(\textcolor{stringliteral}{"{}KHR\_binary\_glTF"{}},\ ext,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}extensions"{}},\ exts,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (img.\mbox{\hyperlink{structgl_t_f_1_1_image_a23e00d989bf24fedf75b1dbe725fcc68}{HasData}}())\ \{}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \ \ \ \ uri\ =\ \textcolor{stringliteral}{"{}data:"{}}\ +\ (img.\mbox{\hyperlink{structgl_t_f_1_1_image_a4fcee760fab7e0094312a98f5df86523}{mimeType}}.empty()\ ?\ \textcolor{stringliteral}{"{}application/octet-\/stream"{}}\ :\ img.\mbox{\hyperlink{structgl_t_f_1_1_image_a4fcee760fab7e0094312a98f5df86523}{mimeType}});}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \ \ \ \ uri\ +=\ \textcolor{stringliteral}{"{};base64,"{}};}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \ \ \ \ Base64::Encode(img.\mbox{\hyperlink{structgl_t_f_1_1_image_af4baebcb50219dfbe7bc8ac007ea7c96}{GetData}}(),\ img.\mbox{\hyperlink{structgl_t_f_1_1_image_af5f42a184e4fb7ce3a85ce071e800d26}{GetDataLength}}(),\ uri);}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \ \ \ \ uri\ =\ img.\mbox{\hyperlink{structgl_t_f_1_1_image_a9bc345407d50da61d0efc7f5aa82dec5}{uri}};}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}uri"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(uri,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00249\ \ \ \ \ \}}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00251\ \ \ \ \ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ WriteColorOrTex(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ TexProperty\&\ prop,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ propName,\ \mbox{\hyperlink{class_memory_pool_allocator}{MemoryPoolAllocator<>}}\&\ al)}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (prop.texture)}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(propName),\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(prop.texture-\/>id,\ al).Move(),\ al);}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ col;}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(propName),\ MakeValue(col,\ prop.color,\ al),\ al);}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00261\ \ \ \ \ \}}
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ \mbox{\hyperlink{structgl_t_f_1_1_material}{Material}}\&\ m,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00264\ \ \ \ \ \{}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ v;}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ v.SetObject();}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \ \ \ \ WriteColorOrTex(v,\ m.\mbox{\hyperlink{structgl_t_f_1_1_material_ad3c1a4181a22c29c82d647f35ad67c01}{ambient}},\ \textcolor{stringliteral}{"{}ambient"{}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \ \ \ \ \ \ WriteColorOrTex(v,\ m.\mbox{\hyperlink{structgl_t_f_1_1_material_a9e5dc9f6629ef18bebe9614f44de2276}{diffuse}},\ \textcolor{stringliteral}{"{}diffuse"{}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ \ \ WriteColorOrTex(v,\ m.\mbox{\hyperlink{structgl_t_f_1_1_material_a2ad6ac68faf75322d2fbc3d314c32828}{specular}},\ \textcolor{stringliteral}{"{}specular"{}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ \ \ \ \ WriteColorOrTex(v,\ m.\mbox{\hyperlink{structgl_t_f_1_1_material_a9b1e0cbce262ae67c856359c5a2f29ef}{emission}},\ \textcolor{stringliteral}{"{}emission"{}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (m.\mbox{\hyperlink{structgl_t_f_1_1_material_a7509d242e6eb992a6c33c91e74277da0}{transparent}})}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ v.AddMember(\textcolor{stringliteral}{"{}transparency"{}},\ m.\mbox{\hyperlink{structgl_t_f_1_1_material_ac937976c7221dbcea25eb3f816096ca3}{transparency}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00275\ }
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \ \ \ \ \ \ v.AddMember(\textcolor{stringliteral}{"{}shininess"{}},\ m.\mbox{\hyperlink{structgl_t_f_1_1_material_a30b848041602d7559c178b673445b7e4}{shininess}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}values"{}},\ v,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00279\ \ \ \ \ \}}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00281\ \ \ \ \ \textcolor{keyword}{namespace\ }\{}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ WriteAttrs(AssetWriter\&\ w,\ \mbox{\hyperlink{class_value}{Value}}\&\ attrs,\ \mbox{\hyperlink{structgl_t_f_1_1_mesh_a0ca55a58f52f70b303313c49614f5323}{Mesh::AccessorList}}\&\ lst,}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ semantic,\ \textcolor{keywordtype}{bool}\ forceNumber\ =\ \textcolor{keyword}{false})}
+\DoxyCodeLine{00284\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00285\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (lst.empty())\ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (lst.size()\ ==\ 1\ \&\&\ !forceNumber)\ \{}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attrs.AddMember(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(semantic),\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(lst[0]-\/>\textcolor{keywordtype}{id},\ w.mAl).Move(),\ w.mAl);}
+\DoxyCodeLine{00288\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ lst.size();\ ++i)\ \{}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ buffer[32];}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2_string_utils_8h_a15ab1a7a316884426fdd86b1c9706ce2}{ai\_snprintf}}(buffer,\ 32,\ \textcolor{stringliteral}{"{}\%s\_\%d"{}},\ semantic,\ \textcolor{keywordtype}{int}(i));}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attrs.AddMember(\mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(buffer,\ w.mAl).Move(),\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(lst[i]-\/>\textcolor{keywordtype}{id},\ w.mAl).Move(),\ w.mAl);}
+\DoxyCodeLine{00294\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00296\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00297\ \ \ \ \ \}}
+\DoxyCodeLine{00298\ }
+\DoxyCodeLine{00299\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ \mbox{\hyperlink{structgl_t_f_1_1_mesh}{Mesh}}\&\ m,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00300\ \ \ \ \ \{}
+\DoxyCodeLine{00301\ \textcolor{comment}{\ \ \ \ \ \ \ \ /*********************\ Name\ **********************/}}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}name"{}},\ m.\mbox{\hyperlink{structgl_t_f_1_1_object_ac925b2729ad536d76197eceb331d4980}{name}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00303\ }
+\DoxyCodeLine{00304\ \textcolor{comment}{\ \ \ \ \ \ \ \ /****************\ Mesh\ extensions\ ****************/}}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(m.\mbox{\hyperlink{structgl_t_f_1_1_mesh_aa871934d6037af2574969fdd03aa8e9e}{Extension}}.size()\ >\ 0)}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ json\_extensions;}
+\DoxyCodeLine{00308\ }
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \ \ \ \ json\_extensions.SetObject();}
+\DoxyCodeLine{00310\ \textcolor{preprocessor}{\#ifdef\ ASSIMP\_IMPORTER\_GLTF\_USE\_OPEN3DGC}}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_s_extension}{Mesh::SExtension}}*\ ptr\_ext\ :\ m.\mbox{\hyperlink{structgl_t_f_1_1_mesh_aa871934d6037af2574969fdd03aa8e9e}{Extension}})}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}(ptr\_ext-\/>\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_s_extension_a12c224ad4fd46cd77279a82b3bce90c5}{Type}})}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ Mesh::SExtension::EType::Compression\_Open3DGC:}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ json\_comp\_data;}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Mesh::SCompression\_Open3DGC*\ ptr\_ext\_comp\ =\ (Mesh::SCompression\_Open3DGC*)ptr\_ext;}
+\DoxyCodeLine{00319\ }
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ filling\ object\ "{}compressedData"{}}}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_comp\_data.SetObject();}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_comp\_data.AddMember(\textcolor{stringliteral}{"{}buffer"{}},\ ptr\_ext\_comp-\/>Buffer,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_comp\_data.AddMember(\textcolor{stringliteral}{"{}byteOffset"{}},\ \textcolor{keyword}{static\_cast<}uint64\_t\textcolor{keyword}{>}(ptr\_ext\_comp-\/>Offset),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_comp\_data.AddMember(\textcolor{stringliteral}{"{}componentType"{}},\ 5121,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_comp\_data.AddMember(\textcolor{stringliteral}{"{}type"{}},\ \textcolor{stringliteral}{"{}SCALAR"{}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_comp\_data.AddMember(\textcolor{stringliteral}{"{}count"{}},\ \textcolor{keyword}{static\_cast<}uint64\_t\textcolor{keyword}{>}(ptr\_ext\_comp-\/>Count),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(ptr\_ext\_comp-\/>Binary)}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_comp\_data.AddMember(\textcolor{stringliteral}{"{}mode"{}},\ \textcolor{stringliteral}{"{}binary"{}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_comp\_data.AddMember(\textcolor{stringliteral}{"{}mode"{}},\ \textcolor{stringliteral}{"{}ascii"{}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_comp\_data.AddMember(\textcolor{stringliteral}{"{}indicesCount"{}},\ \textcolor{keyword}{static\_cast<}uint64\_t\textcolor{keyword}{>}(ptr\_ext\_comp-\/>IndicesCount),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_comp\_data.AddMember(\textcolor{stringliteral}{"{}verticesCount"{}},\ \textcolor{keyword}{static\_cast<}uint64\_t\textcolor{keyword}{>}(ptr\_ext\_comp-\/>VerticesCount),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ filling\ object\ "{}Open3DGC-\/compression"{}}}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ json\_o3dgc;}
+\DoxyCodeLine{00336\ }
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_o3dgc.SetObject();}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_o3dgc.AddMember(\textcolor{stringliteral}{"{}compressedData"{}},\ json\_comp\_data,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ add\ member\ to\ object\ "{}extensions"{}}}
+\DoxyCodeLine{00340\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_extensions.AddMember(\textcolor{stringliteral}{"{}Open3DGC-\/compression"{}},\ json\_o3dgc,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00342\ }
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_ac943b667539fee11ae1316e512d49ddc}{DeadlyImportError}}(\textcolor{stringliteral}{"{}GLTF:\ Can\ not\ write\ mesh:\ unknown\ mesh\ extension,\ only\ Open3DGC\ is\ supported."{}});}
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}\textcolor{comment}{//\ switch(ptr\_ext-\/>Type)}}
+\DoxyCodeLine{00347\ \ \ \ \ \ \ \ \ \ \ \ \ \}\textcolor{comment}{//\ for(Mesh::SExtension*\ ptr\_ext\ :\ m.Extension)}}
+\DoxyCodeLine{00348\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00349\ }
+\DoxyCodeLine{00350\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Add\ extensions\ to\ mesh}}
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}extensions"{}},\ json\_extensions,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ \ \ \}\textcolor{comment}{//\ if(m.Extension.size()\ >\ 0)}}
+\DoxyCodeLine{00353\ }
+\DoxyCodeLine{00354\ \textcolor{comment}{\ \ \ \ \ \ \ \ /******************\ Primitives\ *******************/}}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ primitives;}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \ \ primitives.SetArray();}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ \ \ primitives.Reserve(\textcolor{keywordtype}{unsigned}(m.\mbox{\hyperlink{structgl_t_f_1_1_mesh_aea9f6aa045b2dd6522ebb3f271015e64}{primitives}}.size()),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00358\ }
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ m.\mbox{\hyperlink{structgl_t_f_1_1_mesh_aea9f6aa045b2dd6522ebb3f271015e64}{primitives}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive}{Mesh::Primitive}}\&\ p\ =\ m.\mbox{\hyperlink{structgl_t_f_1_1_mesh_aea9f6aa045b2dd6522ebb3f271015e64}{primitives}}[i];}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ prim;}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \ \ \ \ \ \ prim.SetObject();}
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ prim.AddMember(\textcolor{stringliteral}{"{}mode"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(\textcolor{keywordtype}{int}(p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_aaac5240ab14c9f8591205e007625cb47}{mode}})).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00365\ }
+\DoxyCodeLine{00366\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_ada2d4f3763fc09c13c61910de0c1546e}{material}})}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ prim.AddMember(\textcolor{stringliteral}{"{}material"{}},\ p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_ada2d4f3763fc09c13c61910de0c1546e}{material}}-\/>id,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00368\ }
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_a4f61c3c2006ea47ab16898b384b7eddc}{indices}})}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ prim.AddMember(\textcolor{stringliteral}{"{}indices"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_a4f61c3c2006ea47ab16898b384b7eddc}{indices}}-\/>id,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ attrs;}
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attrs.SetObject();}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ WriteAttrs(w,\ attrs,\ p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_a3d10e55a29e2c640cef49bd1a3c2d81f}{attributes}}.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_1_1_attributes_a235b912b514f95f24b20e8860ef6e73c}{position}},\ \textcolor{stringliteral}{"{}POSITION"{}});}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ WriteAttrs(w,\ attrs,\ p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_a3d10e55a29e2c640cef49bd1a3c2d81f}{attributes}}.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_1_1_attributes_a7c75a13e63c3e534063cb8c3055e6af2}{normal}},\ \textcolor{stringliteral}{"{}NORMAL"{}});}
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ WriteAttrs(w,\ attrs,\ p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_a3d10e55a29e2c640cef49bd1a3c2d81f}{attributes}}.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_1_1_attributes_a2ff528297fcf5666104eaa402eca0bb3}{texcoord}},\ \textcolor{stringliteral}{"{}TEXCOORD"{}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ WriteAttrs(w,\ attrs,\ p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_a3d10e55a29e2c640cef49bd1a3c2d81f}{attributes}}.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_1_1_attributes_a1f567371162aec661b403d5c929d9fa0}{color}},\ \textcolor{stringliteral}{"{}COLOR"{}});}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ WriteAttrs(w,\ attrs,\ p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_a3d10e55a29e2c640cef49bd1a3c2d81f}{attributes}}.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_1_1_attributes_a0cae3c3cf8f3f7de94e1dc29ce1a17a5}{joint}},\ \textcolor{stringliteral}{"{}JOINT"{}});}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ WriteAttrs(w,\ attrs,\ p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_a3d10e55a29e2c640cef49bd1a3c2d81f}{attributes}}.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_1_1_attributes_a9307947d02709e988f7426f91c519db8}{jointmatrix}},\ \textcolor{stringliteral}{"{}JOINTMATRIX"{}});}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ WriteAttrs(w,\ attrs,\ p.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_a3d10e55a29e2c640cef49bd1a3c2d81f}{attributes}}.\mbox{\hyperlink{structgl_t_f_1_1_mesh_1_1_primitive_1_1_attributes_af7991b191ed5735c360eeeee2f85aa44}{weight}},\ \textcolor{stringliteral}{"{}WEIGHT"{}});}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00383\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ prim.AddMember(\textcolor{stringliteral}{"{}attributes"{}},\ attrs,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00385\ \ \ \ \ \ \ \ \ \ \ \ \ primitives.PushBack(prim,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00386\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00387\ }
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}primitives"{}},\ primitives,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00389\ \ \ \ \ \}}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ \mbox{\hyperlink{structgl_t_f_1_1_node}{Node}}\&\ n,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00392\ \ \ \ \ \{}
+\DoxyCodeLine{00393\ }
+\DoxyCodeLine{00394\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n.\mbox{\hyperlink{structgl_t_f_1_1_node_a7df27be0835136348b5653349a52f926}{matrix}}.\mbox{\hyperlink{structgl_t_f_1_1_nullable_a3c330b51149e37f9586784d307d84304}{isPresent}})\ \{}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ val;}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}matrix"{}},\ MakeValue(val,\ n.\mbox{\hyperlink{structgl_t_f_1_1_node_a7df27be0835136348b5653349a52f926}{matrix}}.\mbox{\hyperlink{structgl_t_f_1_1_nullable_a6e9c8c8e8aa1b602786e2bcb4c2c7008}{value}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00397\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00398\ }
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n.\mbox{\hyperlink{structgl_t_f_1_1_node_a889866d927dbb35954a46ec06ed85632}{translation}}.\mbox{\hyperlink{structgl_t_f_1_1_nullable_a3c330b51149e37f9586784d307d84304}{isPresent}})\ \{}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ val;}
+\DoxyCodeLine{00401\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}translation"{}},\ MakeValue(val,\ n.\mbox{\hyperlink{structgl_t_f_1_1_node_a889866d927dbb35954a46ec06ed85632}{translation}}.\mbox{\hyperlink{structgl_t_f_1_1_nullable_a6e9c8c8e8aa1b602786e2bcb4c2c7008}{value}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00403\ }
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n.\mbox{\hyperlink{structgl_t_f_1_1_node_a89d9e0221136e5be8bd5dbc071391a49}{scale}}.\mbox{\hyperlink{structgl_t_f_1_1_nullable_a3c330b51149e37f9586784d307d84304}{isPresent}})\ \{}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ val;}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}scale"{}},\ MakeValue(val,\ n.\mbox{\hyperlink{structgl_t_f_1_1_node_a89d9e0221136e5be8bd5dbc071391a49}{scale}}.\mbox{\hyperlink{structgl_t_f_1_1_nullable_a6e9c8c8e8aa1b602786e2bcb4c2c7008}{value}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n.\mbox{\hyperlink{structgl_t_f_1_1_node_ab37f24fa10068a4809dc6c6d564ccf88}{rotation}}.\mbox{\hyperlink{structgl_t_f_1_1_nullable_a3c330b51149e37f9586784d307d84304}{isPresent}})\ \{}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ val;}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}rotation"{}},\ MakeValue(val,\ n.\mbox{\hyperlink{structgl_t_f_1_1_node_ab37f24fa10068a4809dc6c6d564ccf88}{rotation}}.\mbox{\hyperlink{structgl_t_f_1_1_nullable_a6e9c8c8e8aa1b602786e2bcb4c2c7008}{value}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00412\ }
+\DoxyCodeLine{00413\ \ \ \ \ \ \ \ \ AddRefsVector(obj,\ \textcolor{stringliteral}{"{}children"{}},\ n.\mbox{\hyperlink{structgl_t_f_1_1_node_a4d54638d4e46172c18077e2d5d79f63e}{children}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00414\ }
+\DoxyCodeLine{00415\ \ \ \ \ \ \ \ \ AddRefsVector(obj,\ \textcolor{stringliteral}{"{}meshes"{}},\ n.\mbox{\hyperlink{structgl_t_f_1_1_node_a63ecaf0433d40d14afd510b82690fad7}{meshes}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00416\ }
+\DoxyCodeLine{00417\ \ \ \ \ \ \ \ \ AddRefsVector(obj,\ \textcolor{stringliteral}{"{}skeletons"{}},\ n.\mbox{\hyperlink{structgl_t_f_1_1_node_ace831477688b82b6b6e3376b1bfb35f7}{skeletons}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00418\ }
+\DoxyCodeLine{00419\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n.\mbox{\hyperlink{structgl_t_f_1_1_node_ac7e2a11ae268d5dbb27cf8786f0dcc05}{skin}})\ \{}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}skin"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(n.\mbox{\hyperlink{structgl_t_f_1_1_node_ac7e2a11ae268d5dbb27cf8786f0dcc05}{skin}}-\/>id,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00421\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00422\ }
+\DoxyCodeLine{00423\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!n.\mbox{\hyperlink{structgl_t_f_1_1_node_ac711bde91acb70187e990fb8c0b37ca9}{jointName}}.empty())\ \{}
+\DoxyCodeLine{00424\ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}jointName"{}},\ n.\mbox{\hyperlink{structgl_t_f_1_1_node_ac711bde91acb70187e990fb8c0b37ca9}{jointName}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00426\ \ \ \ \ \}}
+\DoxyCodeLine{00427\ }
+\DoxyCodeLine{00428\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ \textcolor{comment}{/*obj*/},\ \mbox{\hyperlink{structgl_t_f_1_1_program}{Program}}\&\ \textcolor{comment}{/*b*/},\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ \textcolor{comment}{/*w*/})}
+\DoxyCodeLine{00429\ \ \ \ \ \{}
+\DoxyCodeLine{00430\ }
+\DoxyCodeLine{00431\ \ \ \ \ \}}
+\DoxyCodeLine{00432\ }
+\DoxyCodeLine{00433\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ \mbox{\hyperlink{structgl_t_f_1_1_sampler}{Sampler}}\&\ b,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00434\ \ \ \ \ \{}
+\DoxyCodeLine{00435\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (b.\mbox{\hyperlink{structgl_t_f_1_1_sampler_a42f92a59d55fba32c0aab1be4202a773}{wrapS}})\ \{}
+\DoxyCodeLine{00436\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}wrapS"{}},\ b.\mbox{\hyperlink{structgl_t_f_1_1_sampler_a42f92a59d55fba32c0aab1be4202a773}{wrapS}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00437\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00438\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (b.\mbox{\hyperlink{structgl_t_f_1_1_sampler_afd91d79c91b958f37426a2e88c27708c}{wrapT}})\ \{}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}wrapT"{}},\ b.\mbox{\hyperlink{structgl_t_f_1_1_sampler_afd91d79c91b958f37426a2e88c27708c}{wrapT}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (b.\mbox{\hyperlink{structgl_t_f_1_1_sampler_aa3a3f72cab1f8310b4345c709cc28461}{magFilter}})\ \{}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}magFilter"{}},\ b.\mbox{\hyperlink{structgl_t_f_1_1_sampler_aa3a3f72cab1f8310b4345c709cc28461}{magFilter}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00443\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (b.\mbox{\hyperlink{structgl_t_f_1_1_sampler_ac52d7aedef3087e44d5bcb96202149b6}{minFilter}})\ \{}
+\DoxyCodeLine{00445\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}minFilter"{}},\ b.\mbox{\hyperlink{structgl_t_f_1_1_sampler_ac52d7aedef3087e44d5bcb96202149b6}{minFilter}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00446\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00447\ \ \ \ \ \}}
+\DoxyCodeLine{00448\ }
+\DoxyCodeLine{00449\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ \mbox{\hyperlink{_sample___simple_open_g_l_8c_a619ab59111512ab3962ba200beed7cf9}{scene}},\ \mbox{\hyperlink{structgl_t_f_1_1_scene}{Scene}}\&\ s,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00450\ \ \ \ \ \{}
+\DoxyCodeLine{00451\ \ \ \ \ \ \ \ \ AddRefsVector(\mbox{\hyperlink{_sample___simple_open_g_l_8c_a619ab59111512ab3962ba200beed7cf9}{scene}},\ \textcolor{stringliteral}{"{}nodes"{}},\ s.\mbox{\hyperlink{structgl_t_f_1_1_scene_ac1273693200c5cc506e4d5da7bb4037f}{nodes}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00452\ \ \ \ \ \}}
+\DoxyCodeLine{00453\ }
+\DoxyCodeLine{00454\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ \textcolor{comment}{/*obj*/},\ \mbox{\hyperlink{structgl_t_f_1_1_shader}{Shader}}\&\ \textcolor{comment}{/*b*/},\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ \textcolor{comment}{/*w*/})}
+\DoxyCodeLine{00455\ \ \ \ \ \{}
+\DoxyCodeLine{00456\ }
+\DoxyCodeLine{00457\ \ \ \ \ \}}
+\DoxyCodeLine{00458\ }
+\DoxyCodeLine{00459\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ \mbox{\hyperlink{structgl_t_f_1_1_skin}{Skin}}\&\ b,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00460\ \ \ \ \ \{}
+\DoxyCodeLine{00461\ \textcolor{comment}{\ \ \ \ \ \ \ \ /******************\ jointNames\ *******************/}}
+\DoxyCodeLine{00462\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ vJointNames;}
+\DoxyCodeLine{00463\ \ \ \ \ \ \ \ \ vJointNames.SetArray();}
+\DoxyCodeLine{00464\ \ \ \ \ \ \ \ \ vJointNames.Reserve(\textcolor{keywordtype}{unsigned}(b.\mbox{\hyperlink{structgl_t_f_1_1_skin_ae9905ee054a4429010b8850d2ccacaec}{jointNames}}.size()),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00465\ }
+\DoxyCodeLine{00466\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ unsigned(b.\mbox{\hyperlink{structgl_t_f_1_1_skin_ae9905ee054a4429010b8850d2ccacaec}{jointNames}}.size());\ ++i)\ \{}
+\DoxyCodeLine{00467\ \ \ \ \ \ \ \ \ \ \ \ \ vJointNames.PushBack(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(b.\mbox{\hyperlink{structgl_t_f_1_1_skin_ae9905ee054a4429010b8850d2ccacaec}{jointNames}}[i]-\/>jointName),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00468\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00469\ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}jointNames"{}},\ vJointNames,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00470\ }
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (b.\mbox{\hyperlink{structgl_t_f_1_1_skin_a84e11af01a298424e713fcc08e2a2ac2}{bindShapeMatrix}}.\mbox{\hyperlink{structgl_t_f_1_1_nullable_a3c330b51149e37f9586784d307d84304}{isPresent}})\ \{}
+\DoxyCodeLine{00472\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_value}{Value}}\ val;}
+\DoxyCodeLine{00473\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}bindShapeMatrix"{}},\ MakeValue(val,\ b.\mbox{\hyperlink{structgl_t_f_1_1_skin_a84e11af01a298424e713fcc08e2a2ac2}{bindShapeMatrix}}.\mbox{\hyperlink{structgl_t_f_1_1_nullable_a6e9c8c8e8aa1b602786e2bcb4c2c7008}{value}},\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00474\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00475\ }
+\DoxyCodeLine{00476\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (b.\mbox{\hyperlink{structgl_t_f_1_1_skin_a9c81adbe3ad25acce6b9168901a68139}{inverseBindMatrices}})\ \{}
+\DoxyCodeLine{00477\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}inverseBindMatrices"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(b.\mbox{\hyperlink{structgl_t_f_1_1_skin_a9c81adbe3ad25acce6b9168901a68139}{inverseBindMatrices}}-\/>id,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00478\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00479\ }
+\DoxyCodeLine{00480\ \ \ \ \ \}}
+\DoxyCodeLine{00481\ }
+\DoxyCodeLine{00482\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ \textcolor{comment}{/*obj*/},\ \mbox{\hyperlink{structgl_t_f_1_1_technique}{Technique}}\&\ \textcolor{comment}{/*b*/},\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ \textcolor{comment}{/*w*/})}
+\DoxyCodeLine{00483\ \ \ \ \ \{}
+\DoxyCodeLine{00484\ }
+\DoxyCodeLine{00485\ \ \ \ \ \}}
+\DoxyCodeLine{00486\ }
+\DoxyCodeLine{00487\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ obj,\ \mbox{\hyperlink{structgl_t_f_1_1_texture}{Texture}}\&\ tex,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00488\ \ \ \ \ \{}
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (tex.\mbox{\hyperlink{structgl_t_f_1_1_texture_af333ed58e7affdb3d279d3a671f46282}{source}})\ \{}
+\DoxyCodeLine{00490\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}source"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(tex.\mbox{\hyperlink{structgl_t_f_1_1_texture_af333ed58e7affdb3d279d3a671f46282}{source}}-\/>id,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00492\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (tex.\mbox{\hyperlink{structgl_t_f_1_1_texture_af4c75c6df6dce518b74fae7e9ae772dc}{sampler}})\ \{}
+\DoxyCodeLine{00493\ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}sampler"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(tex.\mbox{\hyperlink{structgl_t_f_1_1_texture_af4c75c6df6dce518b74fae7e9ae772dc}{sampler}}-\/>id,\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ w.\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00494\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00495\ \ \ \ \ \}}
+\DoxyCodeLine{00496\ }
+\DoxyCodeLine{00497\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(\mbox{\hyperlink{class_value}{Value}}\&\ \textcolor{comment}{/*obj*/},\ \mbox{\hyperlink{structgl_t_f_1_1_light}{Light}}\&\ \textcolor{comment}{/*b*/},\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer}{AssetWriter}}\&\ \textcolor{comment}{/*w*/})}
+\DoxyCodeLine{00498\ \ \ \ \ \{}
+\DoxyCodeLine{00499\ }
+\DoxyCodeLine{00500\ \ \ \ \ \}}
+\DoxyCodeLine{00501\ }
+\DoxyCodeLine{00502\ }
+\DoxyCodeLine{00503\ \ \ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_add86bc43d99c6c8a7545b19ae5d5f50a}{AssetWriter::AssetWriter}}(\mbox{\hyperlink{classgl_t_f_1_1_asset}{Asset}}\&\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}})}
+\DoxyCodeLine{00504\ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}()}
+\DoxyCodeLine{00505\ \ \ \ \ \ \ \ \ ,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}(\mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}})}
+\DoxyCodeLine{00506\ \ \ \ \ \ \ \ \ ,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}(\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}.GetAllocator())}
+\DoxyCodeLine{00507\ \ \ \ \ \{}
+\DoxyCodeLine{00508\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}.SetObject();}
+\DoxyCodeLine{00509\ }
+\DoxyCodeLine{00510\ \ \ \ \ \ \ \ \ WriteMetadata();}
+\DoxyCodeLine{00511\ \ \ \ \ \ \ \ \ WriteExtensionsUsed();}
+\DoxyCodeLine{00512\ }
+\DoxyCodeLine{00513\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Dump\ the\ contents\ of\ the\ dictionaries}}
+\DoxyCodeLine{00514\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.mDicts.size();\ ++i)\ \{}
+\DoxyCodeLine{00515\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{pointer_8h_aeeddce917cf130d62c370b8f216026dd}{a}}.mDicts[i]-\/>WriteObjects(*\textcolor{keyword}{this});}
+\DoxyCodeLine{00516\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00517\ }
+\DoxyCodeLine{00518\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Add\ the\ target\ scene\ field}}
+\DoxyCodeLine{00519\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.scene)\ \{}
+\DoxyCodeLine{00520\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}.AddMember(\textcolor{stringliteral}{"{}scene"{}},\ \mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.scene-\/>id),\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00521\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00522\ \ \ \ \ \}}
+\DoxyCodeLine{00523\ }
+\DoxyCodeLine{00524\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aa284fa13abf66466dca547b5475d2333}{AssetWriter::WriteFile}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ path)}
+\DoxyCodeLine{00525\ \ \ \ \ \{}
+\DoxyCodeLine{00526\ \ \ \ \ \ \ \ \ std::unique\_ptr<IOStream>\ jsonOutFile(\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.OpenFile(path,\ \textcolor{stringliteral}{"{}wt"{}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00527\ }
+\DoxyCodeLine{00528\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (jsonOutFile\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00529\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_a4ed10009c877ac37deb88ce40d81c208}{DeadlyExportError}}(\textcolor{stringliteral}{"{}Could\ not\ open\ output\ file:\ "{}}\ +\ std::string(path));}
+\DoxyCodeLine{00530\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00531\ }
+\DoxyCodeLine{00532\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{fwd_8h_ab956b6537825abf8aac4112e81cfad7e}{StringBuffer}}\ docBuffer;}
+\DoxyCodeLine{00533\ }
+\DoxyCodeLine{00534\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_pretty_writer}{PrettyWriter<StringBuffer>}}\ \mbox{\hyperlink{structwchar__selector}{writer}}(docBuffer);}
+\DoxyCodeLine{00535\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}.Accept(\mbox{\hyperlink{structwchar__selector}{writer}}))\ \{}
+\DoxyCodeLine{00536\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_a4ed10009c877ac37deb88ce40d81c208}{DeadlyExportError}}(\textcolor{stringliteral}{"{}Failed\ to\ write\ scene\ data!"{}});}
+\DoxyCodeLine{00537\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00538\ }
+\DoxyCodeLine{00539\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (jsonOutFile-\/>Write(docBuffer.\mbox{\hyperlink{class_generic_string_buffer_a42079865bab1deb930c6cff7d491c719}{GetString}}(),\ docBuffer.\mbox{\hyperlink{class_generic_string_buffer_a725e862b9a78375f5363b0b61ad789f3}{GetSize}}(),\ 1)\ !=\ 1)\ \{}
+\DoxyCodeLine{00540\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_a4ed10009c877ac37deb88ce40d81c208}{DeadlyExportError}}(\textcolor{stringliteral}{"{}Failed\ to\ write\ scene\ data!"{}});}
+\DoxyCodeLine{00541\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00542\ }
+\DoxyCodeLine{00543\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Write\ buffer\ data\ to\ separate\ .bin\ files}}
+\DoxyCodeLine{00544\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.buffers.Size();\ ++i)\ \{}
+\DoxyCodeLine{00545\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classgl_t_f_common_1_1_ref}{Ref<Buffer>}}\ b\ =\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.buffers.Get(i);}
+\DoxyCodeLine{00546\ }
+\DoxyCodeLine{00547\ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ binPath\ =\ b-\/>GetURI();}
+\DoxyCodeLine{00548\ }
+\DoxyCodeLine{00549\ \ \ \ \ \ \ \ \ \ \ \ \ std::unique\_ptr<IOStream>\ binOutFile(\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.OpenFile(binPath,\ \textcolor{stringliteral}{"{}wb"{}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00550\ }
+\DoxyCodeLine{00551\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (binOutFile\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00552\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_a4ed10009c877ac37deb88ce40d81c208}{DeadlyExportError}}(\textcolor{stringliteral}{"{}Could\ not\ open\ output\ file:\ "{}}\ +\ binPath);}
+\DoxyCodeLine{00553\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00554\ }
+\DoxyCodeLine{00555\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (b-\/>byteLength\ >\ 0)\ \{}
+\DoxyCodeLine{00556\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (binOutFile-\/>Write(b-\/>GetPointer(),\ b-\/>byteLength,\ 1)\ !=\ 1)\ \{}
+\DoxyCodeLine{00557\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_a4ed10009c877ac37deb88ce40d81c208}{DeadlyExportError}}(\textcolor{stringliteral}{"{}Failed\ to\ write\ binary\ file:\ "{}}\ +\ binPath);}
+\DoxyCodeLine{00558\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00559\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00560\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00561\ \ \ \ \ \}}
+\DoxyCodeLine{00562\ }
+\DoxyCodeLine{00563\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a9bf1090ec699eec6322badc5c6d067f2}{AssetWriter::WriteGLBFile}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ path)}
+\DoxyCodeLine{00564\ \ \ \ \ \{}
+\DoxyCodeLine{00565\ \ \ \ \ \ \ \ \ std::unique\_ptr<IOStream>\ outfile(\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.OpenFile(path,\ \textcolor{stringliteral}{"{}wb"{}},\ \textcolor{keyword}{true}));}
+\DoxyCodeLine{00566\ }
+\DoxyCodeLine{00567\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (outfile\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00568\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_a4ed10009c877ac37deb88ce40d81c208}{DeadlyExportError}}(\textcolor{stringliteral}{"{}Could\ not\ open\ output\ file:\ "{}}\ +\ std::string(path));}
+\DoxyCodeLine{00569\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00570\ }
+\DoxyCodeLine{00571\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ we\ will\ write\ the\ header\ later,\ skip\ its\ size}}
+\DoxyCodeLine{00572\ \ \ \ \ \ \ \ \ outfile-\/>Seek(\textcolor{keyword}{sizeof}(\mbox{\hyperlink{structgl_t_f_1_1_g_l_b___header}{GLB\_Header}}),\ \mbox{\hyperlink{namespacegl_t_f_common_a9885d778fc7155909baffe556f75eba5a022ac805c7fdc087ef4c831ef45082ae}{aiOrigin\_SET}});}
+\DoxyCodeLine{00573\ }
+\DoxyCodeLine{00574\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{fwd_8h_ab956b6537825abf8aac4112e81cfad7e}{StringBuffer}}\ docBuffer;}
+\DoxyCodeLine{00575\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_writer}{Writer<StringBuffer>}}\ \mbox{\hyperlink{structwchar__selector}{writer}}(docBuffer);}
+\DoxyCodeLine{00576\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}.Accept(\mbox{\hyperlink{structwchar__selector}{writer}}))\ \{}
+\DoxyCodeLine{00577\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_a4ed10009c877ac37deb88ce40d81c208}{DeadlyExportError}}(\textcolor{stringliteral}{"{}Failed\ to\ write\ scene\ data!"{}});}
+\DoxyCodeLine{00578\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00579\ }
+\DoxyCodeLine{00580\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (outfile-\/>Write(docBuffer.\mbox{\hyperlink{class_generic_string_buffer_a42079865bab1deb930c6cff7d491c719}{GetString}}(),\ docBuffer.\mbox{\hyperlink{class_generic_string_buffer_a725e862b9a78375f5363b0b61ad789f3}{GetSize}}(),\ 1)\ !=\ 1)\ \{}
+\DoxyCodeLine{00581\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_a4ed10009c877ac37deb88ce40d81c208}{DeadlyExportError}}(\textcolor{stringliteral}{"{}Failed\ to\ write\ scene\ data!"{}});}
+\DoxyCodeLine{00582\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00583\ }
+\DoxyCodeLine{00584\ \ \ \ \ \ \ \ \ WriteBinaryData(outfile.get(),\ docBuffer.\mbox{\hyperlink{class_generic_string_buffer_a725e862b9a78375f5363b0b61ad789f3}{GetSize}}());}
+\DoxyCodeLine{00585\ \ \ \ \ \}}
+\DoxyCodeLine{00586\ }
+\DoxyCodeLine{00587\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ AssetWriter::WriteBinaryData(\mbox{\hyperlink{classgl_t_f_common_1_1_i_o_stream}{IOStream}}*\ outfile,\ \textcolor{keywordtype}{size\_t}\ sceneLength)}
+\DoxyCodeLine{00588\ \ \ \ \ \{}
+\DoxyCodeLine{00589\ \ \ \ \ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00590\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ write\ the\ body\ data}}
+\DoxyCodeLine{00591\ \ \ \ \ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00592\ }
+\DoxyCodeLine{00593\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bodyLength\ =\ 0;}
+\DoxyCodeLine{00594\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classgl_t_f_common_1_1_ref}{Ref<Buffer>}}\ b\ =\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.\mbox{\hyperlink{classgl_t_f_1_1_asset_a4f9a1522bcc8e4dd3736531d4e761002}{GetBodyBuffer}}())\ \{}
+\DoxyCodeLine{00595\ \ \ \ \ \ \ \ \ \ \ \ \ bodyLength\ =\ b-\/>byteLength;}
+\DoxyCodeLine{00596\ }
+\DoxyCodeLine{00597\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (bodyLength\ >\ 0)\ \{}
+\DoxyCodeLine{00598\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bodyOffset\ =\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{structgl_t_f_1_1_g_l_b___header}{GLB\_Header}})\ +\ sceneLength;}
+\DoxyCodeLine{00599\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bodyOffset\ =\ (bodyOffset\ +\ 3)\ \&\ \string~3;\ \textcolor{comment}{//\ Round\ up\ to\ next\ multiple\ of\ 4}}
+\DoxyCodeLine{00600\ }
+\DoxyCodeLine{00601\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ outfile-\/>Seek(bodyOffset,\ \mbox{\hyperlink{namespacegl_t_f_common_a9885d778fc7155909baffe556f75eba5a022ac805c7fdc087ef4c831ef45082ae}{aiOrigin\_SET}});}
+\DoxyCodeLine{00602\ }
+\DoxyCodeLine{00603\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (outfile-\/>Write(b-\/>GetPointer(),\ b-\/>byteLength,\ 1)\ !=\ 1)\ \{}
+\DoxyCodeLine{00604\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_a4ed10009c877ac37deb88ce40d81c208}{DeadlyExportError}}(\textcolor{stringliteral}{"{}Failed\ to\ write\ body\ data!"{}});}
+\DoxyCodeLine{00605\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00606\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00607\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00608\ }
+\DoxyCodeLine{00609\ \ \ \ \ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00610\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ write\ the\ header}}
+\DoxyCodeLine{00611\ \ \ \ \ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00612\ }
+\DoxyCodeLine{00613\ \ \ \ \ \ \ \ \ GLB\_Header\ header;}
+\DoxyCodeLine{00614\ \ \ \ \ \ \ \ \ memcpy(header.magic,\ \mbox{\hyperlink{gl_t_f_asset_8h_ae55dacb1b4d65083f47e59fc66cd5499}{AI\_GLB\_MAGIC\_NUMBER}},\ \textcolor{keyword}{sizeof}(header.magic));}
+\DoxyCodeLine{00615\ }
+\DoxyCodeLine{00616\ \ \ \ \ \ \ \ \ header.version\ =\ 1;}
+\DoxyCodeLine{00617\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2_byte_swapper_8h_a079ff42aa49346c815cf6f4aaa1128ee}{AI\_SWAP4}}(header.version);}
+\DoxyCodeLine{00618\ }
+\DoxyCodeLine{00619\ \ \ \ \ \ \ \ \ header.length\ =\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}(\textcolor{keyword}{sizeof}(header)\ +\ sceneLength\ +\ bodyLength);}
+\DoxyCodeLine{00620\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2_byte_swapper_8h_a079ff42aa49346c815cf6f4aaa1128ee}{AI\_SWAP4}}(header.length);}
+\DoxyCodeLine{00621\ }
+\DoxyCodeLine{00622\ \ \ \ \ \ \ \ \ header.sceneLength\ =\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}(sceneLength);}
+\DoxyCodeLine{00623\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2_byte_swapper_8h_a079ff42aa49346c815cf6f4aaa1128ee}{AI\_SWAP4}}(header.sceneLength);}
+\DoxyCodeLine{00624\ }
+\DoxyCodeLine{00625\ \ \ \ \ \ \ \ \ header.sceneFormat\ =\ \mbox{\hyperlink{namespacegl_t_f_ad4a88d64fe1943f54ddf98d87e9abb43a2a215d9a9cd430206ba4a60719002cd4}{SceneFormat\_JSON}};}
+\DoxyCodeLine{00626\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{assimp-install_2include_2assimp_2_byte_swapper_8h_a079ff42aa49346c815cf6f4aaa1128ee}{AI\_SWAP4}}(header.sceneFormat);}
+\DoxyCodeLine{00627\ }
+\DoxyCodeLine{00628\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacegen__db_abc4253ebd65ceb096b115822752b3d12}{outfile}}-\/>Seek(0,\ \mbox{\hyperlink{namespacegl_t_f_common_a9885d778fc7155909baffe556f75eba5a022ac805c7fdc087ef4c831ef45082ae}{aiOrigin\_SET}});}
+\DoxyCodeLine{00629\ }
+\DoxyCodeLine{00630\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespacegen__db_abc4253ebd65ceb096b115822752b3d12}{outfile}}-\/>Write(\&header,\ 1,\ \textcolor{keyword}{sizeof}(header))\ !=\ \textcolor{keyword}{sizeof}(header))\ \{}
+\DoxyCodeLine{00631\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ \mbox{\hyperlink{namespacegl_t_f_common_a4ed10009c877ac37deb88ce40d81c208}{DeadlyExportError}}(\textcolor{stringliteral}{"{}Failed\ to\ write\ the\ header!"{}});}
+\DoxyCodeLine{00632\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00633\ \ \ \ \ \}}
+\DoxyCodeLine{00634\ }
+\DoxyCodeLine{00635\ }
+\DoxyCodeLine{00636\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ AssetWriter::WriteMetadata()}
+\DoxyCodeLine{00637\ \ \ \ \ \{}
+\DoxyCodeLine{00638\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\ asset;}
+\DoxyCodeLine{00639\ \ \ \ \ \ \ \ \ asset.SetObject();}
+\DoxyCodeLine{00640\ \ \ \ \ \ \ \ \ asset.AddMember(\textcolor{stringliteral}{"{}version"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.asset.version,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00641\ \ \ \ \ \ \ \ \ asset.AddMember(\textcolor{stringliteral}{"{}generator"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.asset.generator,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00642\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.asset.copyright.empty())}
+\DoxyCodeLine{00643\ \ \ \ \ \ \ \ \ \ \ \ \ asset.AddMember(\textcolor{stringliteral}{"{}copyright"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}(\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a118b917432089dd53848c21304e50989}{mAsset}}.asset.copyright,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}}).Move(),\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00644\ }
+\DoxyCodeLine{00645\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}.AddMember(\textcolor{stringliteral}{"{}asset"{}},\ asset,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00646\ \ \ \ \ \}}
+\DoxyCodeLine{00647\ }
+\DoxyCodeLine{00648\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ AssetWriter::WriteExtensionsUsed()}
+\DoxyCodeLine{00649\ \ \ \ \ \{}
+\DoxyCodeLine{00650\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\ exts;}
+\DoxyCodeLine{00651\ \ \ \ \ \ \ \ \ exts.SetArray();}
+\DoxyCodeLine{00652\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00653\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{false})}
+\DoxyCodeLine{00654\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ exts.PushBack(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(\textcolor{stringliteral}{"{}KHR\_binary\_glTF"{}}),\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00655\ }
+\DoxyCodeLine{00656\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{false})}
+\DoxyCodeLine{00657\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ exts.PushBack(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(\textcolor{stringliteral}{"{}KHR\_materials\_common"{}}),\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00658\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00659\ }
+\DoxyCodeLine{00660\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!exts.Empty())}
+\DoxyCodeLine{00661\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}.AddMember(\textcolor{stringliteral}{"{}extensionsUsed"{}},\ exts,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00662\ \ \ \ \ \}}
+\DoxyCodeLine{00663\ }
+\DoxyCodeLine{00664\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00665\ \ \ \ \ \textcolor{keywordtype}{void}\ AssetWriter::WriteObjects(\mbox{\hyperlink{classgl_t_f_1_1_lazy_dict}{LazyDict<T>}}\&\ d)}
+\DoxyCodeLine{00666\ \ \ \ \ \{}
+\DoxyCodeLine{00667\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (d.mObjs.empty())\ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00668\ }
+\DoxyCodeLine{00669\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}*\ container\ =\ \&\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}};}
+\DoxyCodeLine{00670\ }
+\DoxyCodeLine{00671\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (d.mExtId)\ \{}
+\DoxyCodeLine{00672\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}*\ exts\ =\ \mbox{\hyperlink{namespacegl_t_f_common_a3af2e37e2f400f1a9c4e0489a68e7f65}{FindObject}}(\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}},\ \textcolor{stringliteral}{"{}extensions"{}});}
+\DoxyCodeLine{00673\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!exts)\ \{}
+\DoxyCodeLine{00674\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}.AddMember(\textcolor{stringliteral}{"{}extensions"{}},\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}().SetObject().Move(),\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}.GetAllocator());}
+\DoxyCodeLine{00675\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ exts\ =\ \mbox{\hyperlink{namespacegl_t_f_common_a3af2e37e2f400f1a9c4e0489a68e7f65}{FindObject}}(\mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}},\ \textcolor{stringliteral}{"{}extensions"{}});}
+\DoxyCodeLine{00676\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00677\ }
+\DoxyCodeLine{00678\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!(container\ =\ \mbox{\hyperlink{namespacegl_t_f_common_a3af2e37e2f400f1a9c4e0489a68e7f65}{FindObject}}(*exts,\ d.mExtId)))\ \{}
+\DoxyCodeLine{00679\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ exts-\/>AddMember(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(d.mExtId),\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}().SetObject().Move(),\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}.GetAllocator());}
+\DoxyCodeLine{00680\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ container\ =\ \mbox{\hyperlink{namespacegl_t_f_common_a3af2e37e2f400f1a9c4e0489a68e7f65}{FindObject}}(*exts,\ d.mExtId);}
+\DoxyCodeLine{00681\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00682\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00683\ }
+\DoxyCodeLine{00684\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}*\ dict;}
+\DoxyCodeLine{00685\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!(dict\ =\ \mbox{\hyperlink{namespacegl_t_f_common_a3af2e37e2f400f1a9c4e0489a68e7f65}{FindObject}}(*container,\ d.mDictId)))\ \{}
+\DoxyCodeLine{00686\ \ \ \ \ \ \ \ \ \ \ \ \ container-\/>AddMember(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(d.mDictId),\ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}().SetObject().Move(),\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_a4332ceed38541f81d5954845df681aad}{mDoc}}.GetAllocator());}
+\DoxyCodeLine{00687\ \ \ \ \ \ \ \ \ \ \ \ \ dict\ =\ \mbox{\hyperlink{namespacegl_t_f_common_a3af2e37e2f400f1a9c4e0489a68e7f65}{FindObject}}(*container,\ d.mDictId);}
+\DoxyCodeLine{00688\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00689\ }
+\DoxyCodeLine{00690\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ d.mObjs.size();\ ++i)\ \{}
+\DoxyCodeLine{00691\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (d.mObjs[i]-\/>IsSpecial())\ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00692\ }
+\DoxyCodeLine{00693\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{document_8h_a071cf97155ba72ac9a1fc4ad7e63d481}{Value}}\ obj;}
+\DoxyCodeLine{00694\ \ \ \ \ \ \ \ \ \ \ \ \ obj.SetObject();}
+\DoxyCodeLine{00695\ }
+\DoxyCodeLine{00696\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!d.mObjs[i]-\/>name.empty())\ \{}
+\DoxyCodeLine{00697\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ obj.AddMember(\textcolor{stringliteral}{"{}name"{}},\ \mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(d.mObjs[i]-\/>name.c\_str()),\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00698\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00699\ }
+\DoxyCodeLine{00700\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacegl_t_f_af744fc4d735339b9d077931c1a6d0812}{Write}}(obj,\ *d.mObjs[i],\ *\textcolor{keyword}{this});}
+\DoxyCodeLine{00701\ }
+\DoxyCodeLine{00702\ \ \ \ \ \ \ \ \ \ \ \ \ dict-\/>AddMember(\mbox{\hyperlink{document_8h_aa6b9fd9f6aa49405a574c362ba9af6b5}{StringRef}}(d.mObjs[i]-\/>id),\ obj,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_aee9cd3a2093bebe993dddd1d14b533d8}{mAl}});}
+\DoxyCodeLine{00703\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00704\ \ \ \ \ \}}
+\DoxyCodeLine{00705\ }
+\DoxyCodeLine{00706\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00707\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacegl_t_f_a3768e9bb9268c3b3f5d3dca11363b7f7}{WriteLazyDict}}(\mbox{\hyperlink{classgl_t_f_1_1_lazy_dict}{LazyDict<T>}}\&\ d,\ \mbox{\hyperlink{classgl_t_f_1_1_asset_writer_add86bc43d99c6c8a7545b19ae5d5f50a}{AssetWriter}}\&\ w)}
+\DoxyCodeLine{00708\ \ \ \ \ \{}
+\DoxyCodeLine{00709\ \ \ \ \ \ \ \ \ w.WriteObjects(d);}
+\DoxyCodeLine{00710\ \ \ \ \ \}}
+\DoxyCodeLine{00711\ }
+\DoxyCodeLine{00712\ \textcolor{preprocessor}{\#if\ \_MSC\_VER}}
+\DoxyCodeLine{00713\ \textcolor{preprocessor}{\#\ \ \ \ pragma\ warning(pop)}}
+\DoxyCodeLine{00714\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ \_WIN32}}
+\DoxyCodeLine{00715\ }
+\DoxyCodeLine{00716\ \}}
+
+\end{DoxyCode}

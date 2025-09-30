@@ -1,0 +1,97 @@
+\doxysection{Robot\+Lib/libraries/assimp/code/\+Asset\+Lib/\+FBX/\+FBXParser.cpp File Reference}
+\hypertarget{_f_b_x_parser_8cpp}{}\label{_f_b_x_parser_8cpp}\index{RobotLib/libraries/assimp/code/AssetLib/FBX/FBXParser.cpp@{RobotLib/libraries/assimp/code/AssetLib/FBX/FBXParser.cpp}}
+
+
+Implementation of the \doxylink{namespace_assimp_1_1_f_b_x}{FBX} parser and the rudimentary \doxylink{class_assimp_1_1_p_l_y_1_1_d_o_m}{DOM} that we use.  
+
+
+{\ttfamily \#include "{}Common/\+Compression.\+h"{}}\newline
+{\ttfamily \#include "{}FBXTokenizer.\+h"{}}\newline
+{\ttfamily \#include "{}FBXParser.\+h"{}}\newline
+{\ttfamily \#include "{}FBXUtil.\+h"{}}\newline
+{\ttfamily \#include $<$assimp/\+Parsing\+Utils.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/fast\+\_\+atof.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/\+Byte\+Swapper.\+h$>$}\newline
+{\ttfamily \#include $<$assimp/\+Default\+Logger.\+hpp$>$}\newline
+{\ttfamily \#include $<$iostream$>$}\newline
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespace_assimp}{Assimp}}
+\item 
+namespace \mbox{\hyperlink{namespace_assimp_1_1_f_b_x}{Assimp\+::\+FBX}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{_f_b_x_parser_8cpp_ab959e54988578572caa93398781b9800}{MAX\+\_\+\+FLOAT\+\_\+\+LENGTH}}~31
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\+\_\+t}} \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a4a5c88516cfe0e72178cf8c648eeb954}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+ID}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\&err\+\_\+out)
+\item 
+size\+\_\+t \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_aae7f3d622261aec86845ccad5ec50971}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+Dim}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\&err\+\_\+out)
+\item 
+float \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_af269def8f16ff84b5cfc89bbb0b7680a}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+Float}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\&err\+\_\+out)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a82a329f7c9c37a4767bad973de06eb69}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+Int}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\&err\+\_\+out)
+\item 
+\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a5e15c9ea42a30ad76cc1bb573b807e0e}{int64\+\_\+t}} \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a862afb31d7855585e54cc115255a95fb}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+Int64}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\&err\+\_\+out)
+\item 
+std\+::string \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a1afc7835fef948aacf4a9f1b16fc8e02}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+String}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} char \texorpdfstring{$\ast$}{*}\&err\+\_\+out)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a7fa66be15d8979f6f69773b4b2c220fc}{Assimp\+::\+FBX\+::\+Parse\+Vector\+Data\+Array}} (std\+::vector$<$ \mbox{\hyperlink{structai_vector3_d}{ai\+Vector3D}} $>$ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \&el)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_af40b4ccbbd985b6fb89e81d7d0f1d952}{Assimp\+::\+FBX\+::\+Parse\+Vector\+Data\+Array}} (std\+::vector$<$ \mbox{\hyperlink{structai_color4_d}{ai\+Color4D}} $>$ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \&el)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a350f19413a387cfc98b6adfdac3624b7}{Assimp\+::\+FBX\+::\+Parse\+Vector\+Data\+Array}} (std\+::vector$<$ \mbox{\hyperlink{structai_vector2_d}{ai\+Vector2D}} $>$ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \&el)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a04cacc2160ba55b50fdc4e57dcbea30a}{Assimp\+::\+FBX\+::\+Parse\+Vector\+Data\+Array}} (std\+::vector$<$ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} $>$ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \&el)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a5fa01507221e33951c268ec81c3b8ec6}{Assimp\+::\+FBX\+::\+Parse\+Vector\+Data\+Array}} (std\+::vector$<$ float $>$ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \&el)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a6c98c3c892d6eb6dc0aaa925b175af51}{Assimp\+::\+FBX\+::\+Parse\+Vector\+Data\+Array}} (std\+::vector$<$ unsigned \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} $>$ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \&el)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a1024e45e3f437d43d147b8f31595d1b6}{Assimp\+::\+FBX\+::\+Parse\+Vector\+Data\+Array}} (std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\+\_\+t}} $>$ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \&el)
+\item 
+void \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a19c175408133f76bc17cf540996979be}{Assimp\+::\+FBX\+::\+Parse\+Vector\+Data\+Array}} (std\+::vector$<$ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a5e15c9ea42a30ad76cc1bb573b807e0e}{int64\+\_\+t}} $>$ \&\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \&el)
+\item 
+\mbox{\hyperlink{structai_matrix4x4}{ai\+Matrix4x4}} \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a57012cb5a255e40438a1b2acd9d568ac}{Assimp\+::\+FBX\+::\+Read\+Matrix}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \&element)
+\item 
+std\+::string \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_accd0f60243c566aef1f6867674d5c1dd}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+String}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t)
+\item 
+bool \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a16c112a7191b8ec075c027ec9b137195}{Assimp\+::\+FBX\+::\+Has\+Element}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_scope}{Scope}} \&sc, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::string \&index)
+\item 
+\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \& \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a0a5c9fd6de1ce8e4018119f1e64a2433}{Assimp\+::\+FBX\+::\+Get\+Required\+Element}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_scope}{Scope}} \&sc, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} std\+::string \&index, \mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \texorpdfstring{$\ast$}{*}element)
+\item 
+\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_scope}{Scope}} \& \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_af01ac5f167a1d6567b22d4aa41374477}{Assimp\+::\+FBX\+::\+Get\+Required\+Scope}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \&el)
+\item 
+\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \& \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a457236a67fb5ab1c06cae8976c0d296c}{Assimp\+::\+FBX\+::\+Get\+Required\+Token}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_element}{Element}} \&el, unsigned \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} index)
+\item 
+\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\+\_\+t}} \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_ac9f837c42223514ae0dfd23b462d743e}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+ID}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t)
+\item 
+size\+\_\+t \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a93dc213e19cdf7b113d86ae07a69e7ae}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+Dim}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t)
+\item 
+float \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_af30c9bcc386d61e16fa4823a21d99ebe}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+Float}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t)
+\item 
+\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a787fa3cf048117ba7123753c1e74fcd6}{int}} \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_ab74bf642dcc9ffd0d1901f33200036d7}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+Int}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t)
+\item 
+\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a5e15c9ea42a30ad76cc1bb573b807e0e}{int64\+\_\+t}} \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a2da6e61339fffa607473146fa2abbe58}{Assimp\+::\+FBX\+::\+Parse\+Token\+As\+Int64}} (\mbox{\hyperlink{build_2_desktop___qt__6__8__3___min_g_w__64__bit-_debug_2_robot_lib_2libraries_2assimp-5_84_82_2contrib_2zlib_2zconf_8h_a2c212835823e3c54a8ab6d95c652660e}{const}} \mbox{\hyperlink{class_assimp_1_1_f_b_x_1_1_token}{Token}} \&t)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implementation of the \doxylink{namespace_assimp_1_1_f_b_x}{FBX} parser and the rudimentary \doxylink{class_assimp_1_1_p_l_y_1_1_d_o_m}{DOM} that we use. 
+
+
+
+\label{doc-define-members}
+\Hypertarget{_f_b_x_parser_8cpp_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{_f_b_x_parser_8cpp_ab959e54988578572caa93398781b9800}\index{FBXParser.cpp@{FBXParser.cpp}!MAX\_FLOAT\_LENGTH@{MAX\_FLOAT\_LENGTH}}
+\index{MAX\_FLOAT\_LENGTH@{MAX\_FLOAT\_LENGTH}!FBXParser.cpp@{FBXParser.cpp}}
+\doxysubsubsection{\texorpdfstring{MAX\_FLOAT\_LENGTH}{MAX\_FLOAT\_LENGTH}}
+{\footnotesize\ttfamily \label{_f_b_x_parser_8cpp_ab959e54988578572caa93398781b9800} 
+\#define MAX\+\_\+\+FLOAT\+\_\+\+LENGTH~31}
+

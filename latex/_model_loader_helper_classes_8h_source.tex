@@ -1,0 +1,104 @@
+\doxysection{Model\+Loader\+Helper\+Classes.\+h}
+\hypertarget{_model_loader_helper_classes_8h_source}{}\label{_model_loader_helper_classes_8h_source}\index{RobotLib/libraries/assimp/samples/SimpleAssimpViewX/ModelLoaderHelperClasses.h@{RobotLib/libraries/assimp/samples/SimpleAssimpViewX/ModelLoaderHelperClasses.h}}
+\mbox{\hyperlink{_model_loader_helper_classes_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ \ v002MeshHelper.h}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ \ v002\ Model\ Importer}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ \ Created\ by\ vade\ on\ 9/26/10.}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//\ \ Copyright\ 2010\ \_\_MyCompanyName\_\_.\ All\ rights\ reserved.}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#import\ <Cocoa/Cocoa.h>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#import\ <OpenGL/OpenGL.h>}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#import\ "{}color4.h"{}}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#import\ "{}vector3.h"{}}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#import\ "{}vector2.h"{}}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#import\ "{}matrix4x4.h"{}}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{comment}{/*\ workflow:}}
+\DoxyCodeLine{00017\ \textcolor{comment}{}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ 1)\ create\ a\ new\ scene\ wrapper}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ 2)\ populate\ an\ array\ of\ of\ meshHelpers\ for\ each\ mesh\ in\ the\ original\ scene}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ 3)\ (eventually)\ create\ an\ animator\ instance}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ 4)\ scale\ the\ asset\ (needed?)}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ 5)\ create\ the\ asset\ data\ (GL\ resources,\ textures\ etc)}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ \ \ \ 5a)\ for\ each\ mesh\ create\ a\ material\ instance}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ \ \ \ 5b)\ create\ a\ static\ vertex\ buffer}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ \ \ \ 5c)\ create\ index\ buffer}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ \ \ \ 5d)\ populate\ the\ index\ buffer}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ \ \ \ 5e)\ (eventually)\ gather\ weights}}
+\DoxyCodeLine{00028\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#define\ BUFFER\_OFFSET(i)\ ((char\ *)NULL\ +\ (i))}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_vertex}{Vertex}}}
+\DoxyCodeLine{00033\ \{}
+\DoxyCodeLine{00034\ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_vertex_aa6a3bad5366a0a765ac5f7c28ec730be}{vPosition}};}
+\DoxyCodeLine{00035\ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_vertex_ae9362ad264165d65245efb427a8e14ac}{vNormal}};}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \ \ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}\ \ \mbox{\hyperlink{struct_vertex_a9cee02c48453a236edab6772093b1136}{dColorDiffuse}};}
+\DoxyCodeLine{00038\ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_vertex_aae6c2ce139bf94d12a4068c51bde0499}{vTangent}};}
+\DoxyCodeLine{00039\ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_vertex_a24e5fff162990695043d1b110ded9c08}{vBitangent}};}
+\DoxyCodeLine{00040\ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_vertex_a329a10af01da2c3eaf71555fb5695f28}{vTextureUV}};}
+\DoxyCodeLine{00041\ \ \ \ \ \mbox{\hyperlink{structai_vector3_d}{aiVector3D}}\ \mbox{\hyperlink{struct_vertex_a9f4aaa7ee47a1faeceb3fdce518690c1}{vTextureUV2}};}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{struct_vertex_a58b07cc5aa51658cfb8162728e66492a}{mBoneIndices}}[4];}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{struct_vertex_a2131babcee6861f0e9990e51bd4dfe5d}{mBoneWeights}}[4];\ \textcolor{comment}{//\ last\ Weight\ not\ used,\ calculated\ inside\ the\ vertex\ shader}}
+\DoxyCodeLine{00044\ \};}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{comment}{//\ Helper\ Class\ to\ store\ GPU\ related\ resources\ from\ a\ given\ aiMesh}}
+\DoxyCodeLine{00048\ \textcolor{comment}{//\ Modeled\ after\ AssimpView\ asset\ helper}}
+\DoxyCodeLine{00049\ \textcolor{keyword}{@interface\ }\mbox{\hyperlink{interface_mesh_helper}{MeshHelper}}\ :\ NSObject}
+\DoxyCodeLine{00050\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ Display\ list\ ID,\ this\ one\ shots\ *all\ drawing*\ of\ the\ mesh.\ Only\ ever\ use\ this\ to\ draw.\ Booya.}}
+\DoxyCodeLine{00052\ \ \ \ \ GLuint\ \mbox{\hyperlink{interface_mesh_helper_ae2db0d81d1d99cb76040056be5bd7d67}{displayList}};}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//\ VAO\ that\ encapsulates\ all\ VBO\ drawing\ state}}
+\DoxyCodeLine{00055\ \ \ \ \ GLuint\ \mbox{\hyperlink{interface_mesh_helper_ac5dd05597763717769168e0471fc2337}{vao}};}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ VBOs}}
+\DoxyCodeLine{00058\ \ \ \ \ GLuint\ \mbox{\hyperlink{interface_mesh_helper_a8e9cafa58e124a3fe2ee0102c2dce697}{vertexBuffer}};}
+\DoxyCodeLine{00059\ \ \ \ \ GLuint\ \mbox{\hyperlink{interface_mesh_helper_a11adaab2ee9325d59fd89417f484f276}{indexBuffer}};}
+\DoxyCodeLine{00060\ \ \ \ \ GLuint\ \mbox{\hyperlink{interface_mesh_helper_ad2cb28cf445cd52b0f9756412c5ef496}{normalBuffer}};}
+\DoxyCodeLine{00061\ \ \ \ \ GLuint\ \mbox{\hyperlink{interface_mesh_helper_a0f9e38792f6eaa2d3d6ec60921b0c919}{numIndices}};}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{comment}{//\ texture}}
+\DoxyCodeLine{00064\ \ \ \ \ GLuint\ \mbox{\hyperlink{interface_mesh_helper_ad4367b9026fcb089834bafa96fcc7c6e}{textureID}};}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ Material}}
+\DoxyCodeLine{00067\ \ \ \ \ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}\ \mbox{\hyperlink{interface_mesh_helper_ab32c60ae0e2a18832648d431b2cb512e}{diffuseColor}};}
+\DoxyCodeLine{00068\ \ \ \ \ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}\ \mbox{\hyperlink{interface_mesh_helper_a5ae7306b0bd44d12c2cbaa10372ba92c}{specularColor}};}
+\DoxyCodeLine{00069\ \ \ \ \ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}\ \mbox{\hyperlink{interface_mesh_helper_a780464b870d76e939887c44ab344caf6}{ambientColor}};}
+\DoxyCodeLine{00070\ \ \ \ \ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}\ \mbox{\hyperlink{interface_mesh_helper_a99171702723062aa4e45e68664759af4}{emissiveColor}};}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ GLfloat\ \mbox{\hyperlink{interface_mesh_helper_a6b410c548a3e78cc3742a0b3b02d88a2}{opacity}};}
+\DoxyCodeLine{00073\ \ \ \ \ GLfloat\ \mbox{\hyperlink{interface_mesh_helper_ac6e5cdc9d17f33e67846addf3e9c51f0}{shininess}};}
+\DoxyCodeLine{00074\ \ \ \ \ GLfloat\ \mbox{\hyperlink{interface_mesh_helper_affce5e077e23e24e752b586ccab80dba}{specularStrength}};}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ BOOL\ \mbox{\hyperlink{interface_mesh_helper_a1f4065a5b7454ea9204bc3de7d828bf3}{twoSided}};}
+\DoxyCodeLine{00077\ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ GLuint\ vao;}
+\DoxyCodeLine{00080\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ GLuint\ displayList;}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ GLuint\ vertexBuffer;}
+\DoxyCodeLine{00083\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ GLuint\ indexBuffer;}
+\DoxyCodeLine{00084\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ GLuint\ normalBuffer;}
+\DoxyCodeLine{00085\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ GLuint\ numIndices;}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ GLuint\ textureID;}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}*\ \mbox{\hyperlink{interface_mesh_helper_ab32c60ae0e2a18832648d431b2cb512e}{diffuseColor}};}
+\DoxyCodeLine{00090\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}*\ \mbox{\hyperlink{interface_mesh_helper_a5ae7306b0bd44d12c2cbaa10372ba92c}{specularColor}};}
+\DoxyCodeLine{00091\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}*\ \mbox{\hyperlink{interface_mesh_helper_a780464b870d76e939887c44ab344caf6}{ambientColor}};}
+\DoxyCodeLine{00092\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ \mbox{\hyperlink{structai_color4_d}{aiColor4D}}*\ \mbox{\hyperlink{interface_mesh_helper_a99171702723062aa4e45e68664759af4}{emissiveColor}};}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ GLfloat\ \mbox{\hyperlink{interface_mesh_helper_a6b410c548a3e78cc3742a0b3b02d88a2}{opacity}};}
+\DoxyCodeLine{00095\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ GLfloat\ \mbox{\hyperlink{interface_mesh_helper_ac6e5cdc9d17f33e67846addf3e9c51f0}{shininess}};}
+\DoxyCodeLine{00096\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ GLfloat\ \mbox{\hyperlink{interface_mesh_helper_affce5e077e23e24e752b586ccab80dba}{specularStrength}};}
+\DoxyCodeLine{00097\ \textcolor{keyword}{@property}\ (readwrite,\ assign)\ BOOL\ \mbox{\hyperlink{interface_mesh_helper_a1f4065a5b7454ea9204bc3de7d828bf3}{twoSided}};}
+\DoxyCodeLine{00098\ \textcolor{keyword}{@end}}
+
+\end{DoxyCode}

@@ -1,0 +1,296 @@
+\doxysection{rans\+\_\+symbol\+\_\+encoder.\+h}
+\hypertarget{rans__symbol__encoder_8h_source}{}\label{rans__symbol__encoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/entropy/rans\_symbol\_encoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/entropy/rans\_symbol\_encoder.h}}
+\mbox{\hyperlink{rans__symbol__encoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ENTROPY\_RANS\_SYMBOL\_ENCODER\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ENTROPY\_RANS\_SYMBOL\_ENCODER\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ <cstring>}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{ans_8h}{draco/compression/entropy/ans.h}}"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{rans__symbol__coding_8h}{draco/compression/entropy/rans\_symbol\_coding.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{encoder__buffer_8h}{draco/core/encoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{varint__encoding_8h}{draco/core/varint\_encoding.h}}"{}}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ A\ helper\ class\ for\ encoding\ symbols\ using\ the\ rANS\ algorithm\ (see\ ans.h).}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ The\ class\ can\ be\ used\ to\ initialize\ and\ encode\ probability\ table\ needed\ by}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ rANS,\ and\ to\ perform\ encoding\ of\ symbols\ into\ the\ provided\ EncoderBuffer.}}
+\DoxyCodeLine{00032\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ unique\_symbols\_bit\_length\_t>}
+\DoxyCodeLine{00033\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_r_ans_symbol_encoder_a7fe703c22a433c8e283445d29c64c888}{RAnsSymbolEncoder}}\ \{}
+\DoxyCodeLine{00034\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{classdraco_1_1_r_ans_symbol_encoder_a7fe703c22a433c8e283445d29c64c888}{RAnsSymbolEncoder}}()}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ :\ num\_symbols\_(0),\ num\_expected\_bits\_(0),\ buffer\_offset\_(0)\ \{\}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \textcolor{comment}{//\ Creates\ a\ probability\ table\ needed\ by\ the\ rANS\ library\ and\ encode\ it\ into}}
+\DoxyCodeLine{00039\ \ \ \textcolor{comment}{//\ the\ provided\ buffer.}}
+\DoxyCodeLine{00040\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_r_ans_symbol_encoder_aa1465ed17db358bb4974925fd586b394}{Create}}(\textcolor{keyword}{const}\ uint64\_t\ *frequencies,\ \textcolor{keywordtype}{int}\ num\_symbols,}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *buffer);}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_r_ans_symbol_encoder_a814419d20c11e73005a6e0f47da65278}{StartEncoding}}(\mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *buffer);}
+\DoxyCodeLine{00044\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_r_ans_symbol_encoder_a7fe83a8df142a1927547492e2065aabd}{EncodeSymbol}}(uint32\_t\ symbol)\ \{}
+\DoxyCodeLine{00045\ \ \ \ \ ans\_.rans\_write(\&probability\_table\_[symbol]);}
+\DoxyCodeLine{00046\ \ \ \}}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_r_ans_symbol_encoder_a6479149541d92a309315ab51d1b16f63}{EndEncoding}}(\mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *buffer);}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \textcolor{comment}{//\ rANS\ requires\ to\ encode\ the\ input\ symbols\ in\ the\ reverse\ order.}}
+\DoxyCodeLine{00050\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_r_ans_symbol_encoder_a78ffe5d59b034f385568211d9ddbff28}{needs\_reverse\_encoding}}()\ \{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};\ \}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00053\ \ \ \textcolor{comment}{//\ Functor\ used\ for\ sorting\ symbol\ ids\ according\ to\ their\ probabilities.}}
+\DoxyCodeLine{00054\ \ \ \textcolor{comment}{//\ The\ functor\ sorts\ symbol\ indices\ that\ index\ an\ underlying\ map\ between}}
+\DoxyCodeLine{00055\ \ \ \textcolor{comment}{//\ symbol\ ids\ and\ their\ probabilities.\ We\ don't\ sort\ the\ probability\ table}}
+\DoxyCodeLine{00056\ \ \ \textcolor{comment}{//\ directly,\ because\ that\ would\ require\ an\ additional\ indirection\ during\ the}}
+\DoxyCodeLine{00057\ \ \ \textcolor{comment}{//\ EncodeSymbol()\ function.}}
+\DoxyCodeLine{00058\ \ \ \textcolor{keyword}{struct\ }ProbabilityLess\ \{}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keyword}{explicit}\ ProbabilityLess(\textcolor{keyword}{const}\ std::vector<rans\_sym>\ *probs)}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ :\ probabilities(probs)\ \{\}}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{bool}\ operator()(\textcolor{keywordtype}{int}\ i,\ \textcolor{keywordtype}{int}\ j)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ probabilities-\/>at(i).prob\ <\ probabilities-\/>at(j).prob;}
+\DoxyCodeLine{00063\ \ \ \ \ \}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keyword}{const}\ std::vector<rans\_sym>\ *probabilities;}
+\DoxyCodeLine{00065\ \ \ \};}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \textcolor{comment}{//\ Encodes\ the\ probability\ table\ into\ the\ output\ buffer.}}
+\DoxyCodeLine{00068\ \ \ \textcolor{keywordtype}{bool}\ EncodeTable(EncoderBuffer\ *buffer);}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ rans\_precision\_bits\_\ =}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_a9bc895806e9c827059b1eebf5731c11b}{ComputeRAnsPrecisionFromUniqueSymbolsBitLength}}(}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ unique\_symbols\_bit\_length\_t);}
+\DoxyCodeLine{00073\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ rans\_precision\_\ =\ 1\ <<\ rans\_precision\_bits\_;}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ std::vector<rans\_sym>\ probability\_table\_;}
+\DoxyCodeLine{00076\ \ \ \textcolor{comment}{//\ The\ number\ of\ symbols\ in\ the\ input\ alphabet.}}
+\DoxyCodeLine{00077\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ num\_symbols\_;}
+\DoxyCodeLine{00078\ \ \ \textcolor{comment}{//\ Expected\ number\ of\ bits\ that\ is\ needed\ to\ encode\ the\ input.}}
+\DoxyCodeLine{00079\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\_t}}\ num\_expected\_bits\_;}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ RAnsEncoder<rans\_precision\_bits\_>\ ans\_;}
+\DoxyCodeLine{00082\ \ \ \textcolor{comment}{//\ Initial\ offset\ of\ the\ encoder\ buffer\ before\ any\ ans\ data\ was\ encoded.}}
+\DoxyCodeLine{00083\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_af43ba723543d6a1127ef65a686ece1c9}{uint64\_t}}\ buffer\_offset\_;}
+\DoxyCodeLine{00084\ \};}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ unique\_symbols\_bit\_length\_t>}
+\DoxyCodeLine{00087\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_r_ans_symbol_encoder_aa1465ed17db358bb4974925fd586b394}{RAnsSymbolEncoder<unique\_symbols\_bit\_length\_t>::Create}}(}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keyword}{const}\ uint64\_t\ *frequencies,\ \textcolor{keywordtype}{int}\ num\_symbols,\ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *buffer)\ \{}
+\DoxyCodeLine{00089\ \ \ \textcolor{comment}{//\ Compute\ the\ total\ of\ the\ input\ frequencies.}}
+\DoxyCodeLine{00090\ \ \ uint64\_t\ total\_freq\ =\ 0;}
+\DoxyCodeLine{00091\ \ \ \textcolor{keywordtype}{int}\ max\_valid\_symbol\ =\ 0;}
+\DoxyCodeLine{00092\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_symbols;\ ++i)\ \{}
+\DoxyCodeLine{00093\ \ \ \ \ total\_freq\ +=\ frequencies[i];}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordflow}{if}\ (frequencies[i]\ >\ 0)\ \{}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ max\_valid\_symbol\ =\ i;}
+\DoxyCodeLine{00096\ \ \ \ \ \}}
+\DoxyCodeLine{00097\ \ \ \}}
+\DoxyCodeLine{00098\ \ \ num\_symbols\ =\ max\_valid\_symbol\ +\ 1;}
+\DoxyCodeLine{00099\ \ \ num\_symbols\_\ =\ num\_symbols;}
+\DoxyCodeLine{00100\ \ \ probability\_table\_.resize(num\_symbols);}
+\DoxyCodeLine{00101\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ total\_freq\_d\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(total\_freq);}
+\DoxyCodeLine{00102\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ rans\_precision\_d\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(rans\_precision\_);}
+\DoxyCodeLine{00103\ \ \ \textcolor{comment}{//\ Compute\ probabilities\ by\ rescaling\ the\ normalized\ frequencies\ into\ interval}}
+\DoxyCodeLine{00104\ \ \ \textcolor{comment}{//\ [1,\ rans\_precision\ -\/\ 1].\ The\ total\ probability\ needs\ to\ be\ equal\ to}}
+\DoxyCodeLine{00105\ \ \ \textcolor{comment}{//\ rans\_precision.}}
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordtype}{int}\ total\_rans\_prob\ =\ 0;}
+\DoxyCodeLine{00107\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_symbols;\ ++i)\ \{}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keyword}{const}\ uint64\_t\ freq\ =\ frequencies[i];}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{comment}{//\ Normalized\ probability.}}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ prob\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(freq)\ /\ total\_freq\_d;}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{comment}{//\ RAns\ probability\ in\ range\ of\ [1,\ rans\_precision\ -\/\ 1].}}
+\DoxyCodeLine{00114\ \ \ \ \ uint32\_t\ rans\_prob\ =\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(prob\ *\ rans\_precision\_d\ +\ 0.5f);}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keywordflow}{if}\ (rans\_prob\ ==\ 0\ \&\&\ freq\ >\ 0)\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ rans\_prob\ =\ 1;}
+\DoxyCodeLine{00117\ \ \ \ \ \}}
+\DoxyCodeLine{00118\ \ \ \ \ probability\_table\_[i].prob\ =\ rans\_prob;}
+\DoxyCodeLine{00119\ \ \ \ \ total\_rans\_prob\ +=\ rans\_prob;}
+\DoxyCodeLine{00120\ \ \ \}}
+\DoxyCodeLine{00121\ \ \ \textcolor{comment}{//\ Because\ of\ rounding\ errors,\ the\ total\ precision\ may\ not\ be\ exactly\ accurate}}
+\DoxyCodeLine{00122\ \ \ \textcolor{comment}{//\ and\ we\ may\ need\ to\ adjust\ the\ entries\ a\ little\ bit.}}
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordflow}{if}\ (total\_rans\_prob\ !=\ rans\_precision\_)\ \{}
+\DoxyCodeLine{00124\ \ \ \ \ std::vector<int>\ sorted\_probabilities(num\_symbols);}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_symbols;\ ++i)\ \{}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ sorted\_probabilities[i]\ =\ i;}
+\DoxyCodeLine{00127\ \ \ \ \ \}}
+\DoxyCodeLine{00128\ \ \ \ \ std::stable\_sort(sorted\_probabilities.begin(),\ sorted\_probabilities.end(),}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ProbabilityLess(\&probability\_table\_));}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordflow}{if}\ (total\_rans\_prob\ <\ rans\_precision\_)\ \{}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \textcolor{comment}{//\ This\ happens\ rather\ infrequently,\ just\ add\ the\ extra\ needed\ precision}}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \textcolor{comment}{//\ to\ the\ most\ frequent\ symbol.}}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ probability\_table\_[sorted\_probabilities.back()].prob\ +=}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \ \ rans\_precision\_\ -\/\ total\_rans\_prob;}
+\DoxyCodeLine{00135\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \textcolor{comment}{//\ We\ have\ over-\/allocated\ the\ precision,\ which\ is\ quite\ common.}}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \textcolor{comment}{//\ Rescale\ the\ probabilities\ of\ all\ symbols.}}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ int32\_t\ \mbox{\hyperlink{untgz_8c_a4866b2d37ffc80c5ba705d3fcd1e0ecf}{error}}\ =\ total\_rans\_prob\ -\/\ rans\_precision\_;}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (\mbox{\hyperlink{untgz_8c_a4866b2d37ffc80c5ba705d3fcd1e0ecf}{error}}\ >\ 0)\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ act\_total\_prob\_d\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(total\_rans\_prob);}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ act\_rel\_error\_d\ =\ rans\_precision\_d\ /\ act\_total\_prob\_d;}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ j\ =\ num\_symbols\ -\/\ 1;\ j\ >\ 0;\ -\/-\/j)\ \{}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ symbol\_id\ =\ sorted\_probabilities[j];}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (probability\_table\_[symbol\_id].prob\ <=\ 1)\ \{}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (j\ ==\ num\_symbols\ -\/\ 1)\ \{}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};\ \ \textcolor{comment}{//\ Most\ frequent\ symbol\ would\ be\ empty.}}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ int32\_t\ new\_prob\ =\ \textcolor{keyword}{static\_cast<}int32\_t\textcolor{keyword}{>}(}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ floor(act\_rel\_error\_d\ *}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(probability\_table\_[symbol\_id].prob)));}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \ \ int32\_t\ fix\ =\ probability\_table\_[symbol\_id].prob\ -\/\ new\_prob;}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (fix\ ==\ 0u)\ \{}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ fix\ =\ 1;}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (fix\ >=\ \textcolor{keyword}{static\_cast<}int32\_t\textcolor{keyword}{>}(probability\_table\_[symbol\_id].prob))\ \{}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ fix\ =\ probability\_table\_[symbol\_id].prob\ -\/\ 1;}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (fix\ >\ \mbox{\hyperlink{untgz_8c_a4866b2d37ffc80c5ba705d3fcd1e0ecf}{error}})\ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \ \ \ \ fix\ =\ \mbox{\hyperlink{untgz_8c_a4866b2d37ffc80c5ba705d3fcd1e0ecf}{error}};}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ probability\_table\_[symbol\_id].prob\ -\/=\ fix;}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ total\_rans\_prob\ -\/=\ fix;}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{untgz_8c_a4866b2d37ffc80c5ba705d3fcd1e0ecf}{error}}\ -\/=\ fix;}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (total\_rans\_prob\ ==\ rans\_precision\_)\ \{}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00171\ \ \ \ \ \}}
+\DoxyCodeLine{00172\ \ \ \}}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \textcolor{comment}{//\ Compute\ the\ cumulative\ probability\ (cdf).}}
+\DoxyCodeLine{00175\ \ \ uint32\_t\ total\_prob\ =\ 0;}
+\DoxyCodeLine{00176\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_symbols;\ ++i)\ \{}
+\DoxyCodeLine{00177\ \ \ \ \ probability\_table\_[i].cum\_prob\ =\ total\_prob;}
+\DoxyCodeLine{00178\ \ \ \ \ total\_prob\ +=\ probability\_table\_[i].prob;}
+\DoxyCodeLine{00179\ \ \ \}}
+\DoxyCodeLine{00180\ \ \ \textcolor{keywordflow}{if}\ (total\_prob\ !=\ rans\_precision\_)\ \{}
+\DoxyCodeLine{00181\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00182\ \ \ \}}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \textcolor{comment}{//\ Estimate\ the\ number\ of\ bits\ needed\ to\ encode\ the\ input.}}
+\DoxyCodeLine{00185\ \ \ \textcolor{comment}{//\ From\ Shannon\ entropy\ the\ total\ number\ of\ bits\ N\ is:}}
+\DoxyCodeLine{00186\ \ \ \textcolor{comment}{//\ \ \ N\ =\ -\/sum\{i\ :\ all\_symbols\}(F(i)\ *\ log2(P(i)))}}
+\DoxyCodeLine{00187\ \ \ \textcolor{comment}{//\ where\ P(i)\ is\ the\ normalized\ probability\ of\ symbol\ i\ and\ F(i)\ is\ the}}
+\DoxyCodeLine{00188\ \ \ \textcolor{comment}{//\ symbol's\ frequency\ in\ the\ input\ data.}}
+\DoxyCodeLine{00189\ \ \ \textcolor{keywordtype}{double}\ num\_bits\ =\ 0;}
+\DoxyCodeLine{00190\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ num\_symbols;\ ++i)\ \{}
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{keywordflow}{if}\ (probability\_table\_[i].prob\ ==\ 0)\ \{}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00193\ \ \ \ \ \}}
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ norm\_prob\ =}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(probability\_table\_[i].prob)\ /\ rans\_precision\_d;}
+\DoxyCodeLine{00196\ \ \ \ \ num\_bits\ +=\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{double}\textcolor{keyword}{>}(frequencies[i])\ *\ log2(norm\_prob);}
+\DoxyCodeLine{00197\ \ \ \}}
+\DoxyCodeLine{00198\ \ \ num\_expected\_bits\_\ =\ \textcolor{keyword}{static\_cast<}uint64\_t\textcolor{keyword}{>}(ceil(-\/num\_bits));}
+\DoxyCodeLine{00199\ \ \ \textcolor{keywordflow}{if}\ (!EncodeTable(buffer))\ \{}
+\DoxyCodeLine{00200\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00201\ \ \ \}}
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00203\ \}}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ unique\_symbols\_bit\_length\_t>}
+\DoxyCodeLine{00206\ \textcolor{keywordtype}{bool}\ RAnsSymbolEncoder<unique\_symbols\_bit\_length\_t>::EncodeTable(}
+\DoxyCodeLine{00207\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *buffer)\ \{}
+\DoxyCodeLine{00208\ \ \ \mbox{\hyperlink{namespacedraco_ad135bf1d60a87d3249b924ea416efec7}{EncodeVarint}}(num\_symbols\_,\ buffer);}
+\DoxyCodeLine{00209\ \ \ \textcolor{comment}{//\ Use\ varint\ encoding\ for\ the\ probabilities\ (first\ two\ bits\ represent\ the}}
+\DoxyCodeLine{00210\ \ \ \textcolor{comment}{//\ number\ of\ bytes\ used\ -\/\ 1).}}
+\DoxyCodeLine{00211\ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 0;\ i\ <\ num\_symbols\_;\ ++i)\ \{}
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ prob\ =\ probability\_table\_[i].prob;}
+\DoxyCodeLine{00213\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_extra\_bytes\ =\ 0;}
+\DoxyCodeLine{00214\ \ \ \ \ \textcolor{keywordflow}{if}\ (prob\ >=\ (1\ <<\ 6))\ \{}
+\DoxyCodeLine{00215\ \ \ \ \ \ \ num\_extra\_bytes++;}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (prob\ >=\ (1\ <<\ 14))\ \{}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ num\_extra\_bytes++;}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (prob\ >=\ (1\ <<\ 22))\ \{}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ The\ maximum\ number\ of\ precision\ bits\ is\ 20\ so\ we\ should\ not\ really}}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ get\ to\ this\ point.}}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00224\ \ \ \ \ \}}
+\DoxyCodeLine{00225\ \ \ \ \ \textcolor{keywordflow}{if}\ (prob\ ==\ 0)\ \{}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \textcolor{comment}{//\ When\ the\ probability\ of\ the\ symbol\ is\ 0,\ set\ the\ first\ two\ bits\ to\ 1}}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \textcolor{comment}{//\ (unique\ identifier)\ and\ use\ the\ remaining\ 6\ bits\ to\ store\ the\ offset}}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \textcolor{comment}{//\ to\ the\ next\ symbol\ with\ non-\/zero\ probability.}}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ =\ 0;}
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (;\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ <\ (1\ <<\ 6)\ -\/\ 1;\ ++\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}})\ \{}
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Note:\ we\ don't\ have\ to\ check\ whether\ the\ next\ symbol\ id\ is\ larger}}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ than\ num\_symbols\_\ because\ we\ know\ that\ the\ last\ symbol\ always\ has}}
+\DoxyCodeLine{00233\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ non-\/zero\ probability.}}
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ next\_prob\ =\ probability\_table\_[i\ +\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ +\ 1].prob;}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (next\_prob\ >\ 0)\ \{}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ buffer-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\textcolor{keyword}{>}((\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ <<\ 2)\ |\ 3));}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ i\ +=\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}};}
+\DoxyCodeLine{00241\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \textcolor{comment}{//\ Encode\ the\ first\ byte\ (including\ the\ number\ of\ extra\ bytes).}}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ buffer-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\textcolor{keyword}{>}((prob\ <<\ 2)\ |\ (num\_extra\_bytes\ \&\ 3)));}
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \textcolor{comment}{//\ Encode\ the\ extra\ bytes.}}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ b\ =\ 0;\ b\ <\ num\_extra\_bytes;\ ++b)\ \{}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ buffer-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\textcolor{keyword}{>}(prob\ >>\ (8\ *\ (b\ +\ 1)\ -\/\ 2)));}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00248\ \ \ \ \ \}}
+\DoxyCodeLine{00249\ \ \ \}}
+\DoxyCodeLine{00250\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00251\ \}}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00253\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ unique\_symbols\_bit\_length\_t>}
+\DoxyCodeLine{00254\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_r_ans_symbol_encoder_a814419d20c11e73005a6e0f47da65278}{RAnsSymbolEncoder<unique\_symbols\_bit\_length\_t>::StartEncoding}}(}
+\DoxyCodeLine{00255\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *buffer)\ \{}
+\DoxyCodeLine{00256\ \ \ \textcolor{comment}{//\ Allocate\ extra\ storage\ just\ in\ case.}}
+\DoxyCodeLine{00257\ \ \ \textcolor{keyword}{const}\ uint64\_t\ required\_bits\ =\ 2\ *\ num\_expected\_bits\_\ +\ 32;}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00259\ \ \ buffer\_offset\_\ =\ buffer-\/>size();}
+\DoxyCodeLine{00260\ \ \ \textcolor{keyword}{const}\ int64\_t\ required\_bytes\ =\ (required\_bits\ +\ 7)\ /\ 8;}
+\DoxyCodeLine{00261\ \ \ buffer-\/>Resize(buffer\_offset\_\ +\ required\_bytes\ +\ \textcolor{keyword}{sizeof}(buffer\_offset\_));}
+\DoxyCodeLine{00262\ \ \ uint8\_t\ *\textcolor{keyword}{const}\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}\ =}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \textcolor{keyword}{reinterpret\_cast<}uint8\_t\ *\textcolor{keyword}{>}(\textcolor{keyword}{const\_cast<}\textcolor{keywordtype}{char}\ *\textcolor{keyword}{>}(buffer-\/>data()));}
+\DoxyCodeLine{00264\ \ \ ans\_.write\_init(\mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}\ +\ buffer\_offset\_);}
+\DoxyCodeLine{00265\ \}}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ unique\_symbols\_bit\_length\_t>}
+\DoxyCodeLine{00268\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_r_ans_symbol_encoder_a6479149541d92a309315ab51d1b16f63}{RAnsSymbolEncoder<unique\_symbols\_bit\_length\_t>::EndEncoding}}(}
+\DoxyCodeLine{00269\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *buffer)\ \{}
+\DoxyCodeLine{00270\ \ \ \textcolor{keywordtype}{char}\ *\textcolor{keyword}{const}\ src\ =\ \textcolor{keyword}{const\_cast<}\textcolor{keywordtype}{char}\ *\textcolor{keyword}{>}(buffer-\/>data())\ +\ buffer\_offset\_;}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00272\ \ \ \textcolor{comment}{//\ TODO(fgalligan):\ Look\ into\ changing\ this\ to\ uint32\_t\ as\ write\_end()}}
+\DoxyCodeLine{00273\ \ \ \textcolor{comment}{//\ returns\ an\ int.}}
+\DoxyCodeLine{00274\ \ \ \textcolor{keyword}{const}\ uint64\_t\ bytes\_written\ =\ \textcolor{keyword}{static\_cast<}uint64\_t\textcolor{keyword}{>}(ans\_.write\_end());}
+\DoxyCodeLine{00275\ \ \ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ var\_size\_buffer;}
+\DoxyCodeLine{00276\ \ \ \mbox{\hyperlink{namespacedraco_ad135bf1d60a87d3249b924ea416efec7}{EncodeVarint}}(bytes\_written,\ \&var\_size\_buffer);}
+\DoxyCodeLine{00277\ \ \ \textcolor{keyword}{const}\ uint32\_t\ size\_len\ =\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(var\_size\_buffer.\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a4e95dd6905a504655d7e82e06aa7e90f}{size}}());}
+\DoxyCodeLine{00278\ \ \ \textcolor{keywordtype}{char}\ *\textcolor{keyword}{const}\ dst\ =\ src\ +\ size\_len;}
+\DoxyCodeLine{00279\ \ \ memmove(dst,\ src,\ bytes\_written);}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00281\ \ \ \textcolor{comment}{//\ Store\ the\ size\ of\ the\ encoded\ data.}}
+\DoxyCodeLine{00282\ \ \ memcpy(src,\ var\_size\_buffer.\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a7e2c9c76c5ea20ae1c5012f2749e85af}{data}}(),\ size\_len);}
+\DoxyCodeLine{00283\ }
+\DoxyCodeLine{00284\ \ \ \textcolor{comment}{//\ Resize\ the\ buffer\ to\ match\ the\ number\ of\ encoded\ bytes.}}
+\DoxyCodeLine{00285\ \ \ buffer-\/>Resize(buffer\_offset\_\ +\ bytes\_written\ +\ size\_len);}
+\DoxyCodeLine{00286\ \}}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00289\ }
+\DoxyCodeLine{00290\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ENTROPY\_RANS\_SYMBOL\_ENCODER\_H\_}}
+
+\end{DoxyCode}

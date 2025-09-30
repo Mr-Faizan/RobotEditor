@@ -1,0 +1,224 @@
+\doxysection{TPool\+Allocator.\+h}
+\hypertarget{_t_pool_allocator_8h_source}{}\label{_t_pool_allocator_8h_source}\index{RobotLib/libraries/assimp/contrib/openddlparser/include/openddlparser/TPoolAllocator.h@{RobotLib/libraries/assimp/contrib/openddlparser/include/openddlparser/TPoolAllocator.h}}
+\mbox{\hyperlink{_t_pool_allocator_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00002\ \textcolor{comment}{The\ MIT\ License\ (MIT)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{}}
+\DoxyCodeLine{00004\ \textcolor{comment}{Copyright\ (c)\ 2014-\/2019\ Kim\ Kulling}}
+\DoxyCodeLine{00005\ \textcolor{comment}{}}
+\DoxyCodeLine{00006\ \textcolor{comment}{Permission\ is\ hereby\ granted,\ free\ of\ charge,\ to\ any\ person\ obtaining\ a\ copy\ of}}
+\DoxyCodeLine{00007\ \textcolor{comment}{this\ software\ and\ associated\ documentation\ files\ (the\ "{}Software"{}),\ to\ deal\ in}}
+\DoxyCodeLine{00008\ \textcolor{comment}{the\ Software\ without\ restriction,\ including\ without\ limitation\ the\ rights\ to}}
+\DoxyCodeLine{00009\ \textcolor{comment}{use,\ copy,\ modify,\ merge,\ publish,\ distribute,\ sublicense,\ and/or\ sell\ copies\ of}}
+\DoxyCodeLine{00010\ \textcolor{comment}{the\ Software,\ and\ to\ permit\ persons\ to\ whom\ the\ Software\ is\ furnished\ to\ do\ so,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{subject\ to\ the\ following\ conditions:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{}}
+\DoxyCodeLine{00013\ \textcolor{comment}{The\ above\ copyright\ notice\ and\ this\ permission\ notice\ shall\ be\ included\ in\ all}}
+\DoxyCodeLine{00014\ \textcolor{comment}{copies\ or\ substantial\ portions\ of\ the\ Software.}}
+\DoxyCodeLine{00015\ \textcolor{comment}{}}
+\DoxyCodeLine{00016\ \textcolor{comment}{THE\ SOFTWARE\ IS\ PROVIDED\ "{}AS\ IS"{},\ WITHOUT\ WARRANTY\ OF\ ANY\ KIND,\ EXPRESS\ OR}}
+\DoxyCodeLine{00017\ \textcolor{comment}{IMPLIED,\ INCLUDING\ BUT\ NOT\ LIMITED\ TO\ THE\ WARRANTIES\ OF\ MERCHANTABILITY,\ FITNESS}}
+\DoxyCodeLine{00018\ \textcolor{comment}{FOR\ A\ PARTICULAR\ PURPOSE\ AND\ NONINFRINGEMENT.\ IN\ NO\ EVENT\ SHALL\ THE\ AUTHORS\ OR}}
+\DoxyCodeLine{00019\ \textcolor{comment}{COPYRIGHT\ HOLDERS\ BE\ LIABLE\ FOR\ ANY\ CLAIM,\ DAMAGES\ OR\ OTHER\ LIABILITY,\ WHETHER}}
+\DoxyCodeLine{00020\ \textcolor{comment}{IN\ AN\ ACTION\ OF\ CONTRACT,\ TORT\ OR\ OTHERWISE,\ ARISING\ FROM,\ OUT\ OF\ OR\ IN}}
+\DoxyCodeLine{00021\ \textcolor{comment}{CONNECTION\ WITH\ THE\ SOFTWARE\ OR\ THE\ USE\ OR\ OTHER\ DEALINGS\ IN\ THE\ SOFTWARE.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{_open_d_d_l_common_8h}{openddlparser/OpenDDLCommon.h}}>}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \mbox{\hyperlink{_open_d_d_l_common_8h_aa17971bb7e1b83f16f40ce42703ef5a3}{BEGIN\_ODDLPARSER\_NS}}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00040\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00041\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_t_pool_allocator_adcee9ee4b544c926be1134a1625e5e39}{TPoolAllocator}}\ \{}
+\DoxyCodeLine{00042\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00043\ \ \ \ \ \mbox{\hyperlink{class_t_pool_allocator_adcee9ee4b544c926be1134a1625e5e39}{TPoolAllocator}}();}
+\DoxyCodeLine{00044\ \ \ \ \ \mbox{\hyperlink{class_t_pool_allocator_adcee9ee4b544c926be1134a1625e5e39}{TPoolAllocator}}(\textcolor{keywordtype}{size\_t}\ numItems);}
+\DoxyCodeLine{00045\ \ \ \ \ \mbox{\hyperlink{class_t_pool_allocator_a191d7384310f64afd2874f588a1d34cf}{\string~TPoolAllocator}}();}
+\DoxyCodeLine{00046\ \ \ \ \ T\ *\mbox{\hyperlink{class_t_pool_allocator_a052af99b115f76f58fad0ef1bfbddb46}{alloc}}();}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_t_pool_allocator_a66b41123af43e4695a28ba4279d8fb83}{release}}();}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_t_pool_allocator_a09e85cddb3cdcc3c5a6576a3e245395c}{reserve}}(\textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}});}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_t_pool_allocator_a9fef6776265b9c0600925d09a7f360d7}{clear}}();}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_t_pool_allocator_aaeeb98c66d0f71a9403feffb460e0621}{capacity}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_t_pool_allocator_a1b193aeb2c38f384f00339757eb5eb23}{reservedMem}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_t_pool_allocator_a4ca4e7cbff2f2350e73a37a4b1ae0480}{freeMem}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_t_pool_allocator_a84c86702cbb4a6a07878c78498101cff}{dumpAllocations}}(std::string\ \&allocs);}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_t_pool_allocator_a8f23b41c1180cb5c6e63177a5ff18706}{resize}}(\textcolor{keywordtype}{size\_t}\ growSize);}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \ \ CPPCORE\_NONE\_COPYING(\mbox{\hyperlink{class_t_pool_allocator_adcee9ee4b544c926be1134a1625e5e39}{TPoolAllocator}})}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keyword}{struct\ }Pool\ \{}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ m\_poolsize;}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ T\ *m\_pool;}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ m\_currentIdx;}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ Pool\ *m\_next;}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ Pool()\ :}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_poolsize(0u),\ m\_pool(\textcolor{keyword}{nullptr}),\ m\_currentIdx(0u),\ m\_next(\textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ Pool(\textcolor{keywordtype}{size\_t}\ numItems,\ Pool\ *prev)\ :}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ m\_poolsize(numItems),\ m\_pool(\textcolor{keyword}{nullptr}),\ m\_currentIdx(0u),\ m\_next(prev)\ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ m\_pool\ =\ \textcolor{keyword}{new}\ T[m\_poolsize];}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \string~Pool()\ \{}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}[]\ m\_pool;}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ m\_pool\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ CPPCORE\_NONE\_COPYING(Pool)}
+\DoxyCodeLine{00081\ \ \ \ \ \};}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ Pool\ *getFreePool()\ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ Pool\ *current(m\_freeList);}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{nullptr}\ !=\ m\_freeList)\ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ m\_freeList\ =\ m\_freeList-\/>m\_next;}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ current;}
+\DoxyCodeLine{00089\ \ \ \ \ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \ \ Pool\ *m\_first;}
+\DoxyCodeLine{00092\ \ \ \ \ Pool\ *m\_current;}
+\DoxyCodeLine{00093\ \ \ \ \ Pool\ *m\_freeList;}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ m\_capacity;}
+\DoxyCodeLine{00095\ \};}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00098\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_t_pool_allocator_adcee9ee4b544c926be1134a1625e5e39}{TPoolAllocator<T>::TPoolAllocator}}()\ :}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ m\_first(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),\ m\_current(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),\ m\_freeList(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),\ m\_capacity(0L)\ \{}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{comment}{//\ empty}}
+\DoxyCodeLine{00101\ \}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00104\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_t_pool_allocator_adcee9ee4b544c926be1134a1625e5e39}{TPoolAllocator<T>::TPoolAllocator}}(\textcolor{keywordtype}{size\_t}\ numItems)\ :}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ m\_first(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),\ m\_current(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),\ m\_freeList(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),\ m\_capacity(0L)\ \{}
+\DoxyCodeLine{00106\ \ \ \ \ m\_first\ =\ \textcolor{keyword}{new}\ Pool(numItems);}
+\DoxyCodeLine{00107\ \ \ \ \ m\_capacity\ +=\ numItems;}
+\DoxyCodeLine{00108\ \ \ \ \ m\_current\ =\ m\_first;}
+\DoxyCodeLine{00109\ \}}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00112\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_t_pool_allocator_a191d7384310f64afd2874f588a1d34cf}{TPoolAllocator<T>::\string~TPoolAllocator}}()\ \{}
+\DoxyCodeLine{00113\ \ \ \ \ \mbox{\hyperlink{class_t_pool_allocator_a9fef6776265b9c0600925d09a7f360d7}{clear}}();}
+\DoxyCodeLine{00114\ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00117\ \textcolor{keyword}{inline}\ T\ *\mbox{\hyperlink{class_t_pool_allocator_a052af99b115f76f58fad0ef1bfbddb46}{TPoolAllocator<T>::alloc}}()\ \{}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{nullptr}\ ==\ m\_current)\ \{}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00120\ \ \ \ \ \}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_current-\/>m\_currentIdx\ ==\ m\_current-\/>m\_poolsize)\ \{}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_t_pool_allocator_a8f23b41c1180cb5c6e63177a5ff18706}{resize}}(m\_current-\/>m\_poolsize);}
+\DoxyCodeLine{00124\ \ \ \ \ \}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \ \ T\ *ptr(\&m\_current-\/>m\_pool[m\_current-\/>m\_currentIdx]);}
+\DoxyCodeLine{00127\ \ \ \ \ m\_current-\/>m\_currentIdx++;}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordflow}{return}\ ptr;}
+\DoxyCodeLine{00130\ \}}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00133\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_t_pool_allocator_a66b41123af43e4695a28ba4279d8fb83}{TPoolAllocator<T>::release}}()\ \{}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{nullptr}\ ==\ m\_current)\ \{}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00136\ \ \ \ \ \}}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \ \ Pool\ *current(m\_first);}
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keywordflow}{while}\ (\textcolor{keyword}{nullptr}\ !=\ current)\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ current-\/>m\_currentIdx\ =\ 0;}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ current\ =\ current-\/>m\_next;}
+\DoxyCodeLine{00142\ \ \ \ \ \}}
+\DoxyCodeLine{00143\ \ \ \ \ m\_freeList\ =\ m\_first-\/>m\_next;}
+\DoxyCodeLine{00144\ \ \ \ \ m\_current\ =\ m\_first;}
+\DoxyCodeLine{00145\ \}}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00148\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_t_pool_allocator_a09e85cddb3cdcc3c5a6576a3e245395c}{TPoolAllocator<T>::reserve}}(\textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}})\ \{}
+\DoxyCodeLine{00149\ \ \ \ \ \mbox{\hyperlink{class_t_pool_allocator_a9fef6776265b9c0600925d09a7f360d7}{clear}}();}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ \ \ m\_first\ =\ \textcolor{keyword}{new}\ Pool(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}},\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00152\ \ \ \ \ m\_current\ =\ m\_first;}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ \ \ m\_current-\/>m\_pool\ =\ \textcolor{keyword}{new}\ T[\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}}];}
+\DoxyCodeLine{00155\ \ \ \ \ m\_current-\/>m\_poolsize\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}};}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \ \ \ \ m\_capacity\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a014d89bd76f74ef3a29c8f04b473eb76}{size}};}
+\DoxyCodeLine{00158\ \}}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00161\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_t_pool_allocator_a9fef6776265b9c0600925d09a7f360d7}{TPoolAllocator<T>::clear}}()\ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{nullptr}\ ==\ m\_current)\ \{}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00164\ \ \ \ \ \}}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \ \ Pool\ *next(m\_first);}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keywordflow}{while}\ (\textcolor{keyword}{nullptr}\ !=\ next)\ \{}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ Pool\ *current\ =\ next;}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ next\ =\ current-\/>m\_next;}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ current;}
+\DoxyCodeLine{00171\ \ \ \ \ \}}
+\DoxyCodeLine{00172\ \ \ \ \ m\_current\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00173\ \ \ \ \ m\_freeList\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00174\ \}}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00177\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_t_pool_allocator_aaeeb98c66d0f71a9403feffb460e0621}{TPoolAllocator<T>::capacity}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{keywordflow}{return}\ m\_capacity;}
+\DoxyCodeLine{00179\ \}}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00182\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_t_pool_allocator_a1b193aeb2c38f384f00339757eb5eb23}{TPoolAllocator<T>::reservedMem}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{keywordflow}{return}\ m\_capacity\ *\ \textcolor{keyword}{sizeof}(T);}
+\DoxyCodeLine{00184\ \}}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00187\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{class_t_pool_allocator_a4ca4e7cbff2f2350e73a37a4b1ae0480}{TPoolAllocator<T>::freeMem}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{nullptr}\ ==\ m\_current)\ \{}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 0L;}
+\DoxyCodeLine{00190\ \ \ \ \ \}}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{keywordflow}{return}\ (m\_current-\/>m\_poolsize\ -\/\ m\_current-\/>m\_currentIdx);}
+\DoxyCodeLine{00193\ \}}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00196\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_t_pool_allocator_a84c86702cbb4a6a07878c78498101cff}{TPoolAllocator<T>::dumpAllocations}}(std::string\ \&allocs)\ \{}
+\DoxyCodeLine{00197\ \ \ \ \ allocs.clear();}
+\DoxyCodeLine{00198\ \ \ \ \ allocs\ +=\ \textcolor{stringliteral}{"{}Number\ allocations\ =\ "{}};}
+\DoxyCodeLine{00199\ \ \ \ \ allocs\ +=\ std::to\_string(m\_current-\/>m\_currentIdx);}
+\DoxyCodeLine{00200\ \ \ \ \ allocs\ +=\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{00201\ \}}
+\DoxyCodeLine{00202\ }
+\DoxyCodeLine{00203\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ T>}
+\DoxyCodeLine{00204\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_t_pool_allocator_a8f23b41c1180cb5c6e63177a5ff18706}{TPoolAllocator<T>::resize}}(\textcolor{keywordtype}{size\_t}\ growSize)\ \{}
+\DoxyCodeLine{00205\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{nullptr}\ !=\ m\_current)\ \{}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (growSize\ <\ m\_current-\/>m\_poolsize)\ \{}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00209\ \ \ \ \ \}}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{nullptr}\ ==\ m\_first)\ \{}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ m\_first\ =\ \textcolor{keyword}{new}\ Pool(growSize,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ m\_current\ =\ m\_first;}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ m\_capacity\ +=\ m\_current-\/>m\_poolsize;}
+\DoxyCodeLine{00215\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ Pool\ *pool\ =\ getFreePool();}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{nullptr}\ ==\ pool)\ \{}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \ \ \ \ pool\ =\ \textcolor{keyword}{new}\ Pool(growSize,\ \textcolor{keyword}{nullptr});}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \ \ \ \ m\_capacity\ +=\ growSize;}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ m\_current-\/>m\_next\ =\ pool;}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ m\_current\ =\ m\_current-\/>m\_next;}
+\DoxyCodeLine{00223\ \ \ \ \ \}}
+\DoxyCodeLine{00224\ \}}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \mbox{\hyperlink{_open_d_d_l_common_8h_a3bf53a4e9486041754ed89a39a471abc}{END\_ODDLPARSER\_NS}}}
+
+\end{DoxyCode}

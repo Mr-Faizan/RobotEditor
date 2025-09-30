@@ -1,0 +1,532 @@
+\doxysection{ans.\+h}
+\hypertarget{ans_8h_source}{}\label{ans_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/entropy/ans.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/entropy/ans.h}}
+\mbox{\hyperlink{ans_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ENTROPY\_ANS\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ENTROPY\_ANS\_H\_}}
+\DoxyCodeLine{00017\ \textcolor{comment}{//\ An\ implementation\ of\ Asymmetric\ Numeral\ Systems\ (rANS).}}
+\DoxyCodeLine{00018\ \textcolor{comment}{//\ See\ http://arxiv.org/abs/1311.2540v2\ for\ more\ information\ on\ rANS.}}
+\DoxyCodeLine{00019\ \textcolor{comment}{//\ This\ file\ is\ based\ off\ libvpx's\ ans.h.}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#define\ DRACO\_ANS\_DIVIDE\_BY\_MULTIPLY\ 1}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#if\ DRACO\_ANS\_DIVIDE\_BY\_MULTIPLY}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{divide_8h}{draco/core/divide.h}}"{}}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#if\ DRACO\_ANS\_DIVIDE\_BY\_MULTIPLY}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\#define\ DRACO\_ANS\_DIVREM(quotient,\ remainder,\ dividend,\ divisor)\ \(\backslash\)}}
+\DoxyCodeLine{00034\ \textcolor{preprocessor}{\ \ do\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00035\ \textcolor{preprocessor}{\ \ \ \ quotient\ =\ fastdiv(dividend,\ divisor);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00036\ \textcolor{preprocessor}{\ \ \ \ remainder\ =\ dividend\ -\/\ quotient\ *\ divisor;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00037\ \textcolor{preprocessor}{\ \ \}\ while\ (0)}}
+\DoxyCodeLine{00038\ \textcolor{preprocessor}{\#define\ DRACO\_ANS\_DIV(dividend,\ divisor)\ fastdiv(dividend,\ divisor)}}
+\DoxyCodeLine{00039\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00040\ \textcolor{preprocessor}{\#define\ DRACO\_ANS\_DIVREM(quotient,\ remainder,\ dividend,\ divisor)\ \(\backslash\)}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\ \ do\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\ \ \ \ quotient\ =\ dividend\ /\ divisor;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\ \ \ \ remainder\ =\ dividend\ \%\ divisor;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\ \ \}\ while\ (0)}}
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#define\ DRACO\_ANS\_DIV(dividend,\ divisor)\ ((dividend)\ /\ (divisor))}}
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_ans_coder_ae674e667833472181ee96bd2a21559eb}{AnsCoder}}\ \{}
+\DoxyCodeLine{00049\ \ \ \mbox{\hyperlink{structdraco_1_1_ans_coder_ae674e667833472181ee96bd2a21559eb}{AnsCoder}}()\ :\ \mbox{\hyperlink{structdraco_1_1_ans_coder_af83c3cb8f1f6365825cb09c962c2bd10}{buf}}(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),\ \mbox{\hyperlink{structdraco_1_1_ans_coder_a2652627a2551c9bf01c0b044dff3029c}{buf\_offset}}(0),\ \mbox{\hyperlink{structdraco_1_1_ans_coder_a6f271b9807e80c86c6bf4eacf5fcb96a}{state}}(0)\ \{\}}
+\DoxyCodeLine{00050\ \ \ uint8\_t\ *\mbox{\hyperlink{structdraco_1_1_ans_coder_af83c3cb8f1f6365825cb09c962c2bd10}{buf}};}
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structdraco_1_1_ans_coder_a2652627a2551c9bf01c0b044dff3029c}{buf\_offset}};}
+\DoxyCodeLine{00052\ \ \ uint32\_t\ \mbox{\hyperlink{structdraco_1_1_ans_coder_a6f271b9807e80c86c6bf4eacf5fcb96a}{state}};}
+\DoxyCodeLine{00053\ \};}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_ans_decoder_afd58e5dcb044346c202e444cfb295b54}{AnsDecoder}}\ \{}
+\DoxyCodeLine{00056\ \ \ \mbox{\hyperlink{structdraco_1_1_ans_decoder_afd58e5dcb044346c202e444cfb295b54}{AnsDecoder}}()\ :\ \mbox{\hyperlink{structdraco_1_1_ans_decoder_a812da86ab7a7c8fac58a0281f1656f2c}{buf}}(\mbox{\hyperlink{_open_d_d_l_common_8h_ab979d9d4b4923f7c54d6caa6e1a61936}{nullptr}}),\ \mbox{\hyperlink{structdraco_1_1_ans_decoder_abfce7184e9a491766597019d925ab836}{buf\_offset}}(0),\ \mbox{\hyperlink{structdraco_1_1_ans_decoder_a1fcd0b3c42f22be791df2a5f364725f3}{state}}(0)\ \{\}}
+\DoxyCodeLine{00057\ \ \ \textcolor{keyword}{const}\ uint8\_t\ *\mbox{\hyperlink{structdraco_1_1_ans_decoder_a812da86ab7a7c8fac58a0281f1656f2c}{buf}};}
+\DoxyCodeLine{00058\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structdraco_1_1_ans_decoder_abfce7184e9a491766597019d925ab836}{buf\_offset}};}
+\DoxyCodeLine{00059\ \ \ uint32\_t\ \mbox{\hyperlink{structdraco_1_1_ans_decoder_a1fcd0b3c42f22be791df2a5f364725f3}{state}};}
+\DoxyCodeLine{00060\ \};}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \textcolor{keyword}{typedef}\ uint8\_t\ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}};}
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{\#define\ DRACO\_ANS\_P8\_PRECISION\ 256u}}
+\DoxyCodeLine{00064\ \textcolor{preprocessor}{\#define\ DRACO\_ANS\_L\_BASE\ (4096u)}}
+\DoxyCodeLine{00065\ \textcolor{preprocessor}{\#define\ DRACO\_ANS\_IO\_BASE\ 256}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \textcolor{keyword}{static}\ uint32\_t\ mem\_get\_le16(\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *vmem)\ \{}
+\DoxyCodeLine{00068\ \ \ uint32\_t\ val;}
+\DoxyCodeLine{00069\ \ \ \textcolor{keyword}{const}\ uint8\_t\ *mem\ =\ (\textcolor{keyword}{const}\ uint8\_t\ *)vmem;}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \ val\ =\ mem[1]\ <<\ 8;}
+\DoxyCodeLine{00072\ \ \ val\ |=\ mem[0];}
+\DoxyCodeLine{00073\ \ \ \textcolor{keywordflow}{return}\ val;}
+\DoxyCodeLine{00074\ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \textcolor{keyword}{static}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ mem\_get\_le24(\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *vmem)\ \{}
+\DoxyCodeLine{00077\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ val;}
+\DoxyCodeLine{00078\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *mem\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *)vmem;}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ val\ =\ mem[2]\ <<\ 16;}
+\DoxyCodeLine{00081\ \ \ val\ |=\ mem[1]\ <<\ 8;}
+\DoxyCodeLine{00082\ \ \ val\ |=\ mem[0];}
+\DoxyCodeLine{00083\ \ \ \textcolor{keywordflow}{return}\ val;}
+\DoxyCodeLine{00084\ \}}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ mem\_get\_le32(\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *vmem)\ \{}
+\DoxyCodeLine{00087\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ val;}
+\DoxyCodeLine{00088\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *mem\ =\ (\textcolor{keyword}{const}\ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *)vmem;}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ val\ =\ mem[3]\ <<\ 24;}
+\DoxyCodeLine{00091\ \ \ val\ |=\ mem[2]\ <<\ 16;}
+\DoxyCodeLine{00092\ \ \ val\ |=\ mem[1]\ <<\ 8;}
+\DoxyCodeLine{00093\ \ \ val\ |=\ mem[0];}
+\DoxyCodeLine{00094\ \ \ \textcolor{keywordflow}{return}\ val;}
+\DoxyCodeLine{00095\ \}}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ mem\_put\_le16(\textcolor{keywordtype}{void}\ *vmem,\ uint32\_t\ val)\ \{}
+\DoxyCodeLine{00098\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *mem\ =\ \textcolor{keyword}{reinterpret\_cast<}\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *\textcolor{keyword}{>}(vmem);}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ mem[0]\ =\ (val\ >>\ 0)\ \&\ 0xff;}
+\DoxyCodeLine{00101\ \ \ mem[1]\ =\ (val\ >>\ 8)\ \&\ 0xff;}
+\DoxyCodeLine{00102\ \}}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ mem\_put\_le24(\textcolor{keywordtype}{void}\ *vmem,\ uint32\_t\ val)\ \{}
+\DoxyCodeLine{00105\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *mem\ =\ \textcolor{keyword}{reinterpret\_cast<}\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *\textcolor{keyword}{>}(vmem);}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ mem[0]\ =\ (val\ >>\ 0)\ \&\ 0xff;}
+\DoxyCodeLine{00108\ \ \ mem[1]\ =\ (val\ >>\ 8)\ \&\ 0xff;}
+\DoxyCodeLine{00109\ \ \ mem[2]\ =\ (val\ >>\ 16)\ \&\ 0xff;}
+\DoxyCodeLine{00110\ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ mem\_put\_le32(\textcolor{keywordtype}{void}\ *vmem,\ uint32\_t\ val)\ \{}
+\DoxyCodeLine{00113\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *mem\ =\ \textcolor{keyword}{reinterpret\_cast<}\mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a3b92b71d545861a454609c69bc062261}{uint8\_t}}\ *\textcolor{keyword}{>}(vmem);}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ mem[0]\ =\ (val\ >>\ 0)\ \&\ 0xff;}
+\DoxyCodeLine{00116\ \ \ mem[1]\ =\ (val\ >>\ 8)\ \&\ 0xff;}
+\DoxyCodeLine{00117\ \ \ mem[2]\ =\ (val\ >>\ 16)\ \&\ 0xff;}
+\DoxyCodeLine{00118\ \ \ mem[3]\ =\ (val\ >>\ 24)\ \&\ 0xff;}
+\DoxyCodeLine{00119\ \}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ ans\_write\_init(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1_ans_coder}{AnsCoder}}\ *\textcolor{keyword}{const}\ ans,}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ *\textcolor{keyword}{const}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}})\ \{}
+\DoxyCodeLine{00123\ \ \ ans-\/>buf\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}};}
+\DoxyCodeLine{00124\ \ \ ans-\/>buf\_offset\ =\ 0;}
+\DoxyCodeLine{00125\ \ \ ans-\/>state\ =\ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}};}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ ans\_write\_end(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1_ans_coder}{AnsCoder}}\ *\textcolor{keyword}{const}\ ans)\ \{}
+\DoxyCodeLine{00129\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_h_m_p_a277b5ab88d2a332428ac5d80338e90b5}{uint32\_t}}\ state;}
+\DoxyCodeLine{00130\ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(ans-\/>state,\ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}});}
+\DoxyCodeLine{00131\ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(ans-\/>state,\ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}}\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}});}
+\DoxyCodeLine{00132\ \ \ state\ =\ ans-\/>state\ -\/\ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}};}
+\DoxyCodeLine{00133\ \ \ \textcolor{keywordflow}{if}\ (state\ <\ (1\ <<\ 6))\ \{}
+\DoxyCodeLine{00134\ \ \ \ \ ans-\/>buf[ans-\/>buf\_offset]\ =\ (0x00\ <<\ 6)\ +\ state;}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordflow}{return}\ ans-\/>buf\_offset\ +\ 1;}
+\DoxyCodeLine{00136\ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (state\ <\ (1\ <<\ 14))\ \{}
+\DoxyCodeLine{00137\ \ \ \ \ mem\_put\_le16(ans-\/>buf\ +\ ans-\/>buf\_offset,\ (0x01\ <<\ 14)\ +\ state);}
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{keywordflow}{return}\ ans-\/>buf\_offset\ +\ 2;}
+\DoxyCodeLine{00139\ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (state\ <\ (1\ <<\ 22))\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ mem\_put\_le24(ans-\/>buf\ +\ ans-\/>buf\_offset,\ (0x02\ <<\ 22)\ +\ state);}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keywordflow}{return}\ ans-\/>buf\_offset\ +\ 3;}
+\DoxyCodeLine{00142\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00143\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(0\ \&\&\ \textcolor{stringliteral}{"{}State\ is\ too\ large\ to\ be\ serialized"{}});}
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keywordflow}{return}\ ans-\/>buf\_offset;}
+\DoxyCodeLine{00145\ \ \ \}}
+\DoxyCodeLine{00146\ \}}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \textcolor{comment}{//\ rABS\ with\ descending\ spread.}}
+\DoxyCodeLine{00149\ \textcolor{comment}{//\ p\ or\ p0\ takes\ the\ place\ of\ l\_s\ from\ the\ paper.}}
+\DoxyCodeLine{00150\ \textcolor{comment}{//\ DRACO\_ANS\_P8\_PRECISION\ is\ m.}}
+\DoxyCodeLine{00151\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ rabs\_desc\_write(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1_ans_coder}{AnsCoder}}\ *ans,\ \textcolor{keywordtype}{int}\ val,\ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p0)\ \{}
+\DoxyCodeLine{00152\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p\ =\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ -\/\ p0;}
+\DoxyCodeLine{00153\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ l\_s\ =\ val\ ?\ p\ :\ p0;}
+\DoxyCodeLine{00154\ \ \ \textcolor{keywordtype}{unsigned}\ quot,\ rem;}
+\DoxyCodeLine{00155\ \ \ \textcolor{keywordflow}{if}\ (ans-\/>state\ >=}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}}\ /\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}}\ *\ l\_s)\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ ans-\/>buf[ans-\/>buf\_offset++]\ =\ ans-\/>state\ \%\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}};}
+\DoxyCodeLine{00158\ \ \ \ \ ans-\/>state\ /=\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}};}
+\DoxyCodeLine{00159\ \ \ \}}
+\DoxyCodeLine{00160\ \ \ \mbox{\hyperlink{ans_8h_a45b9543a716c0b4215503eb40cecbb72}{DRACO\_ANS\_DIVREM}}(quot,\ rem,\ ans-\/>state,\ l\_s);}
+\DoxyCodeLine{00161\ \ \ ans-\/>state\ =\ quot\ *\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ +\ rem\ +\ (val\ ?\ 0\ :\ p);}
+\DoxyCodeLine{00162\ \}}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \textcolor{preprocessor}{\#define\ DRACO\_ANS\_IMPL1\ 0}}
+\DoxyCodeLine{00165\ \textcolor{preprocessor}{\#define\ UNPREDICTABLE(x)\ x}}
+\DoxyCodeLine{00166\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ rabs\_desc\_read(\textcolor{keyword}{struct}\ AnsDecoder\ *ans,\ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p0)\ \{}
+\DoxyCodeLine{00167\ \ \ \textcolor{keywordtype}{int}\ val;}
+\DoxyCodeLine{00168\ \textcolor{preprocessor}{\#if\ DRACO\_ANS\_IMPL1}}
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordtype}{unsigned}\ l\_s;}
+\DoxyCodeLine{00170\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00171\ \ \ \textcolor{keywordtype}{unsigned}\ quot,\ rem,\ x,\ xn;}
+\DoxyCodeLine{00172\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00173\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p\ =\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ -\/\ p0;}
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordflow}{if}\ (ans-\/>state\ <\ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}}\ \&\&\ ans-\/>buf\_offset\ >\ 0)\ \{}
+\DoxyCodeLine{00175\ \ \ \ \ ans-\/>state\ =\ ans-\/>state\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}}\ +\ ans-\/>buf[-\/-\/ans-\/>buf\_offset];}
+\DoxyCodeLine{00176\ \ \ \}}
+\DoxyCodeLine{00177\ \textcolor{preprocessor}{\#if\ DRACO\_ANS\_IMPL1}}
+\DoxyCodeLine{00178\ \ \ val\ =\ ans-\/>state\ \%\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ <\ p;}
+\DoxyCodeLine{00179\ \ \ l\_s\ =\ val\ ?\ p\ :\ p0;}
+\DoxyCodeLine{00180\ \ \ ans-\/>state\ =\ (ans-\/>state\ /\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}})\ *\ l\_s\ +}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ans-\/>state\ \%\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ -\/\ (!val\ *\ p);}
+\DoxyCodeLine{00182\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00183\ \ \ x\ =\ ans-\/>state;}
+\DoxyCodeLine{00184\ \ \ quot\ =\ x\ /\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}};}
+\DoxyCodeLine{00185\ \ \ rem\ =\ x\ \%\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}};}
+\DoxyCodeLine{00186\ \ \ xn\ =\ quot\ *\ p;}
+\DoxyCodeLine{00187\ \ \ val\ =\ rem\ <\ p;}
+\DoxyCodeLine{00188\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ans_8h_a1378adf9e16e9aa82bea8d89deaee669}{UNPREDICTABLE}}(val))\ \{}
+\DoxyCodeLine{00189\ \ \ \ \ ans-\/>state\ =\ xn\ +\ rem;}
+\DoxyCodeLine{00190\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{comment}{//\ ans-\/>state\ =\ quot\ *\ p0\ +\ rem\ -\/\ p;}}
+\DoxyCodeLine{00192\ \ \ \ \ ans-\/>state\ =\ x\ -\/\ xn\ -\/\ p;}
+\DoxyCodeLine{00193\ \ \ \}}
+\DoxyCodeLine{00194\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00195\ \ \ \textcolor{keywordflow}{return}\ val;}
+\DoxyCodeLine{00196\ \}}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \textcolor{comment}{//\ rABS\ with\ ascending\ spread.}}
+\DoxyCodeLine{00199\ \textcolor{comment}{//\ p\ or\ p0\ takes\ the\ place\ of\ l\_s\ from\ the\ paper.}}
+\DoxyCodeLine{00200\ \textcolor{comment}{//\ DRACO\_ANS\_P8\_PRECISION\ is\ m.}}
+\DoxyCodeLine{00201\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ rabs\_asc\_write(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1_ans_coder}{AnsCoder}}\ *ans,\ \textcolor{keywordtype}{int}\ val,\ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p0)\ \{}
+\DoxyCodeLine{00202\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p\ =\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ -\/\ p0;}
+\DoxyCodeLine{00203\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ l\_s\ =\ val\ ?\ p\ :\ p0;}
+\DoxyCodeLine{00204\ \ \ \textcolor{keywordtype}{unsigned}\ quot,\ rem;}
+\DoxyCodeLine{00205\ \ \ \textcolor{keywordflow}{if}\ (ans-\/>state\ >=}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}}\ /\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}}\ *\ l\_s)\ \{}
+\DoxyCodeLine{00207\ \ \ \ \ ans-\/>buf[ans-\/>buf\_offset++]\ =\ ans-\/>state\ \%\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}};}
+\DoxyCodeLine{00208\ \ \ \ \ ans-\/>state\ /=\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}};}
+\DoxyCodeLine{00209\ \ \ \}}
+\DoxyCodeLine{00210\ \ \ \mbox{\hyperlink{ans_8h_a45b9543a716c0b4215503eb40cecbb72}{DRACO\_ANS\_DIVREM}}(quot,\ rem,\ ans-\/>state,\ l\_s);}
+\DoxyCodeLine{00211\ \ \ ans-\/>state\ =\ quot\ *\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ +\ rem\ +\ (val\ ?\ p0\ :\ 0);}
+\DoxyCodeLine{00212\ \}}
+\DoxyCodeLine{00213\ }
+\DoxyCodeLine{00214\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ rabs\_asc\_read(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1_ans_decoder}{AnsDecoder}}\ *ans,\ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p0)\ \{}
+\DoxyCodeLine{00215\ \ \ \textcolor{keywordtype}{int}\ val;}
+\DoxyCodeLine{00216\ \textcolor{preprocessor}{\#if\ DRACO\_ANS\_IMPL1}}
+\DoxyCodeLine{00217\ \ \ \textcolor{keywordtype}{unsigned}\ l\_s;}
+\DoxyCodeLine{00218\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00219\ \ \ \textcolor{keywordtype}{unsigned}\ quot,\ rem,\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_ae4259d8527288b5ab77aa84a65670a71}{x}},\ xn;}
+\DoxyCodeLine{00220\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00221\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p\ =\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ -\/\ p0;}
+\DoxyCodeLine{00222\ \ \ \textcolor{keywordflow}{if}\ (ans-\/>state\ <\ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}})\ \{}
+\DoxyCodeLine{00223\ \ \ \ \ ans-\/>state\ =\ ans-\/>state\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}}\ +\ ans-\/>buf[-\/-\/ans-\/>buf\_offset];}
+\DoxyCodeLine{00224\ \ \ \}}
+\DoxyCodeLine{00225\ \textcolor{preprocessor}{\#if\ DRACO\_ANS\_IMPL1}}
+\DoxyCodeLine{00226\ \ \ val\ =\ ans-\/>state\ \%\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ <\ p;}
+\DoxyCodeLine{00227\ \ \ l\_s\ =\ val\ ?\ p\ :\ p0;}
+\DoxyCodeLine{00228\ \ \ ans-\/>state\ =\ (ans-\/>state\ /\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}})\ *\ l\_s\ +}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ans-\/>state\ \%\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ -\/\ (!val\ *\ p);}
+\DoxyCodeLine{00230\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00231\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_ae4259d8527288b5ab77aa84a65670a71}{x}}\ =\ ans-\/>state;}
+\DoxyCodeLine{00232\ \ \ quot\ =\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_ae4259d8527288b5ab77aa84a65670a71}{x}}\ /\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}};}
+\DoxyCodeLine{00233\ \ \ rem\ =\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_ae4259d8527288b5ab77aa84a65670a71}{x}}\ \%\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}};}
+\DoxyCodeLine{00234\ \ \ xn\ =\ quot\ *\ p;}
+\DoxyCodeLine{00235\ \ \ val\ =\ rem\ >=\ p0;}
+\DoxyCodeLine{00236\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ans_8h_a1378adf9e16e9aa82bea8d89deaee669}{UNPREDICTABLE}}(val))\ \{}
+\DoxyCodeLine{00237\ \ \ \ \ ans-\/>state\ =\ xn\ +\ rem\ -\/\ p0;}
+\DoxyCodeLine{00238\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{comment}{//\ ans-\/>state\ =\ quot\ *\ p0\ +\ rem\ -\/\ p0;}}
+\DoxyCodeLine{00240\ \ \ \ \ ans-\/>state\ =\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_ae4259d8527288b5ab77aa84a65670a71}{x}}\ -\/\ xn;}
+\DoxyCodeLine{00241\ \ \ \}}
+\DoxyCodeLine{00242\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00243\ \ \ \textcolor{keywordflow}{return}\ val;}
+\DoxyCodeLine{00244\ \}}
+\DoxyCodeLine{00245\ }
+\DoxyCodeLine{00246\ \textcolor{preprocessor}{\#define\ rabs\_read\ rabs\_desc\_read}}
+\DoxyCodeLine{00247\ \textcolor{preprocessor}{\#define\ rabs\_write\ rabs\_desc\_write}}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00249\ \textcolor{comment}{//\ uABS\ with\ normalization.}}
+\DoxyCodeLine{00250\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ uabs\_write(\textcolor{keyword}{struct}\ AnsCoder\ *ans,\ \textcolor{keywordtype}{int}\ val,\ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p0)\ \{}
+\DoxyCodeLine{00251\ \ \ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p\ =\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ -\/\ p0;}
+\DoxyCodeLine{00252\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ l\_s\ =\ val\ ?\ p\ :\ p0;}
+\DoxyCodeLine{00253\ \ \ \textcolor{keywordflow}{while}\ (ans-\/>state\ >=}
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}}\ /\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}}\ *\ l\_s)\ \{}
+\DoxyCodeLine{00255\ \ \ \ \ ans-\/>buf[ans-\/>buf\_offset++]\ =\ ans-\/>state\ \%\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}};}
+\DoxyCodeLine{00256\ \ \ \ \ ans-\/>state\ /=\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}};}
+\DoxyCodeLine{00257\ \ \ \}}
+\DoxyCodeLine{00258\ \ \ \textcolor{keywordflow}{if}\ (!val)\ \{}
+\DoxyCodeLine{00259\ \ \ \ \ ans-\/>state\ =\ \mbox{\hyperlink{ans_8h_a6107004047c3a8d7544625fda285c405}{DRACO\_ANS\_DIV}}(ans-\/>state\ *\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}},\ p0);}
+\DoxyCodeLine{00260\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00261\ \ \ \ \ ans-\/>state\ =}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ans_8h_a6107004047c3a8d7544625fda285c405}{DRACO\_ANS\_DIV}}((ans-\/>state\ +\ 1)\ *\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ +\ p\ -\/\ 1,\ p)\ -\/\ 1;}
+\DoxyCodeLine{00263\ \ \ \}}
+\DoxyCodeLine{00264\ \}}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00266\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ uabs\_read(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1_ans_decoder}{AnsDecoder}}\ *ans,\ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p0)\ \{}
+\DoxyCodeLine{00267\ \ \ \mbox{\hyperlink{namespacedraco_aa00b5e8f4361af9560af27c519e6d965}{AnsP8}}\ p\ =\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}}\ -\/\ p0;}
+\DoxyCodeLine{00268\ \ \ \textcolor{keywordtype}{int}\ s;}
+\DoxyCodeLine{00269\ \ \ \textcolor{comment}{//\ unsigned\ int\ xp1;}}
+\DoxyCodeLine{00270\ \ \ \textcolor{keywordtype}{unsigned}\ xp,\ sp;}
+\DoxyCodeLine{00271\ \ \ \textcolor{keywordtype}{unsigned}\ state\ =\ ans-\/>state;}
+\DoxyCodeLine{00272\ \ \ \textcolor{keywordflow}{while}\ (state\ <\ DRACO\_ANS\_L\_BASE\ \&\&\ ans-\/>buf\_offset\ >\ 0)\ \{}
+\DoxyCodeLine{00273\ \ \ \ \ state\ =\ state\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}}\ +\ ans-\/>buf[-\/-\/ans-\/>buf\_offset];}
+\DoxyCodeLine{00274\ \ \ \}}
+\DoxyCodeLine{00275\ \ \ sp\ =\ state\ *\ p;}
+\DoxyCodeLine{00276\ \ \ \textcolor{comment}{//\ xp1\ =\ (sp\ +\ p)\ /\ DRACO\_ANS\_P8\_PRECISION;}}
+\DoxyCodeLine{00277\ \ \ xp\ =\ sp\ /\ \mbox{\hyperlink{ans_8h_acec4f4c87d1d681d43ea1c97667120d6}{DRACO\_ANS\_P8\_PRECISION}};}
+\DoxyCodeLine{00278\ \ \ \textcolor{comment}{//\ s\ =\ xp1\ -\/\ xp;}}
+\DoxyCodeLine{00279\ \ \ s\ =\ (sp\ \&\ 0xFF)\ >=\ p0;}
+\DoxyCodeLine{00280\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ans_8h_a1378adf9e16e9aa82bea8d89deaee669}{UNPREDICTABLE}}(s))\ \{}
+\DoxyCodeLine{00281\ \ \ \ \ ans-\/>state\ =\ xp;}
+\DoxyCodeLine{00282\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00283\ \ \ \ \ ans-\/>state\ =\ state\ -\/\ xp;}
+\DoxyCodeLine{00284\ \ \ \}}
+\DoxyCodeLine{00285\ \ \ \textcolor{keywordflow}{return}\ s;}
+\DoxyCodeLine{00286\ \}}
+\DoxyCodeLine{00287\ }
+\DoxyCodeLine{00288\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ uabs\_read\_bit(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1_ans_decoder}{AnsDecoder}}\ *ans)\ \{}
+\DoxyCodeLine{00289\ \ \ \textcolor{keywordtype}{int}\ s;}
+\DoxyCodeLine{00290\ \ \ \textcolor{keywordtype}{unsigned}\ state\ =\ ans-\/>state;}
+\DoxyCodeLine{00291\ \ \ \textcolor{keywordflow}{while}\ (state\ <\ DRACO\_ANS\_L\_BASE\ \&\&\ ans-\/>buf\_offset\ >\ 0)\ \{}
+\DoxyCodeLine{00292\ \ \ \ \ state\ =\ state\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}}\ +\ ans-\/>buf[-\/-\/ans-\/>buf\_offset];}
+\DoxyCodeLine{00293\ \ \ \}}
+\DoxyCodeLine{00294\ \ \ s\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(state\ \&\ 1);}
+\DoxyCodeLine{00295\ \ \ ans-\/>state\ =\ state\ >>\ 1;}
+\DoxyCodeLine{00296\ \ \ \textcolor{keywordflow}{return}\ s;}
+\DoxyCodeLine{00297\ \}}
+\DoxyCodeLine{00298\ }
+\DoxyCodeLine{00299\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ ans\_read\_init(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1_ans_decoder}{AnsDecoder}}\ *\textcolor{keyword}{const}\ ans,}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint8\_t\ *\textcolor{keyword}{const}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}})\ \{}
+\DoxyCodeLine{00301\ \ \ \textcolor{keywordtype}{unsigned}\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_ae4259d8527288b5ab77aa84a65670a71}{x}};}
+\DoxyCodeLine{00302\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ <\ 1)\ \{}
+\DoxyCodeLine{00303\ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00304\ \ \ \}}
+\DoxyCodeLine{00305\ \ \ ans-\/>buf\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}};}
+\DoxyCodeLine{00306\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_ae4259d8527288b5ab77aa84a65670a71}{x}}\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}[\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 1]\ >>\ 6;}
+\DoxyCodeLine{00307\ \ \ \textcolor{keywordflow}{if}\ (x\ ==\ 0)\ \{}
+\DoxyCodeLine{00308\ \ \ \ \ ans-\/>buf\_offset\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 1;}
+\DoxyCodeLine{00309\ \ \ \ \ ans-\/>state\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}[\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 1]\ \&\ 0x3F;}
+\DoxyCodeLine{00310\ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (x\ ==\ 1)\ \{}
+\DoxyCodeLine{00311\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ <\ 2)\ \{}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00313\ \ \ \ \ \}}
+\DoxyCodeLine{00314\ \ \ \ \ ans-\/>buf\_offset\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 2;}
+\DoxyCodeLine{00315\ \ \ \ \ ans-\/>state\ =\ mem\_get\_le16(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}\ +\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 2)\ \&\ 0x3FFF;}
+\DoxyCodeLine{00316\ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (x\ ==\ 2)\ \{}
+\DoxyCodeLine{00317\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ <\ 3)\ \{}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00319\ \ \ \ \ \}}
+\DoxyCodeLine{00320\ \ \ \ \ ans-\/>buf\_offset\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 3;}
+\DoxyCodeLine{00321\ \ \ \ \ ans-\/>state\ =\ mem\_get\_le24(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}\ +\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 3)\ \&\ 0x3FFFFF;}
+\DoxyCodeLine{00322\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00323\ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00324\ \ \ \}}
+\DoxyCodeLine{00325\ \ \ ans-\/>state\ +=\ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}};}
+\DoxyCodeLine{00326\ \ \ \textcolor{keywordflow}{if}\ (ans-\/>state\ >=\ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}}\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}})\ \{}
+\DoxyCodeLine{00327\ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00328\ \ \ \}}
+\DoxyCodeLine{00329\ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00330\ \}}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00332\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ ans\_read\_end(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1_ans_decoder}{AnsDecoder}}\ *\textcolor{keyword}{const}\ ans)\ \{}
+\DoxyCodeLine{00333\ \ \ \textcolor{keywordflow}{return}\ ans-\/>state\ ==\ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}};}
+\DoxyCodeLine{00334\ \}}
+\DoxyCodeLine{00335\ }
+\DoxyCodeLine{00336\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ ans\_reader\_has\_error(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1_ans_decoder}{AnsDecoder}}\ *\textcolor{keyword}{const}\ ans)\ \{}
+\DoxyCodeLine{00337\ \ \ \textcolor{keywordflow}{return}\ ans-\/>state\ <\ \mbox{\hyperlink{ans_8h_ad2b357d854a81225f732b944639bddfe}{DRACO\_ANS\_L\_BASE}}\ \&\&\ ans-\/>buf\_offset\ ==\ 0;}
+\DoxyCodeLine{00338\ \}}
+\DoxyCodeLine{00339\ }
+\DoxyCodeLine{00340\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1rans__sym}{rans\_sym}}\ \{}
+\DoxyCodeLine{00341\ \ \ uint32\_t\ \mbox{\hyperlink{structdraco_1_1rans__sym_aaee501802bfc1ac1f1df119ba8d4994d}{prob}};}
+\DoxyCodeLine{00342\ \ \ uint32\_t\ \mbox{\hyperlink{structdraco_1_1rans__sym_a671945708c49d9a35282e1590bfec04b}{cum\_prob}};\ \ \textcolor{comment}{//\ not-\/inclusive.}}
+\DoxyCodeLine{00343\ \};}
+\DoxyCodeLine{00344\ }
+\DoxyCodeLine{00345\ \textcolor{comment}{//\ Class\ for\ performing\ rANS\ encoding\ using\ a\ desired\ number\ of\ precision\ bits.}}
+\DoxyCodeLine{00346\ \textcolor{comment}{//\ The\ max\ number\ of\ precision\ bits\ is\ currently\ 19.\ The\ actual\ number\ of}}
+\DoxyCodeLine{00347\ \textcolor{comment}{//\ symbols\ in\ the\ input\ alphabet\ should\ be\ (much)\ smaller\ than\ that,\ otherwise}}
+\DoxyCodeLine{00348\ \textcolor{comment}{//\ the\ compression\ rate\ may\ suffer.}}
+\DoxyCodeLine{00349\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ rans\_precision\_bits\_t>}
+\DoxyCodeLine{00350\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_r_ans_encoder_ade6097db3ac2e550c69b8420c9915cad}{RAnsEncoder}}\ \{}
+\DoxyCodeLine{00351\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00352\ \ \ \mbox{\hyperlink{classdraco_1_1_r_ans_encoder_ade6097db3ac2e550c69b8420c9915cad}{RAnsEncoder}}()\ \{\}}
+\DoxyCodeLine{00353\ }
+\DoxyCodeLine{00354\ \ \ \textcolor{comment}{//\ Provides\ the\ input\ buffer\ where\ the\ data\ is\ going\ to\ be\ stored.}}
+\DoxyCodeLine{00355\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_r_ans_encoder_aeec32206f7438b0ec8ff442325878149}{write\_init}}(uint8\_t\ *\textcolor{keyword}{const}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}})\ \{}
+\DoxyCodeLine{00356\ \ \ \ \ ans\_.buf\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}};}
+\DoxyCodeLine{00357\ \ \ \ \ ans\_.buf\_offset\ =\ 0;}
+\DoxyCodeLine{00358\ \ \ \ \ ans\_.state\ =\ l\_rans\_base;}
+\DoxyCodeLine{00359\ \ \ \}}
+\DoxyCodeLine{00360\ }
+\DoxyCodeLine{00361\ \ \ \textcolor{comment}{//\ Needs\ to\ be\ called\ after\ all\ symbols\ are\ encoded.}}
+\DoxyCodeLine{00362\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_r_ans_encoder_af656bf1ab6654107f91239f6bf41b672}{write\_end}}()\ \{}
+\DoxyCodeLine{00363\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structstate}{state}};}
+\DoxyCodeLine{00364\ \ \ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(ans\_.state,\ l\_rans\_base);}
+\DoxyCodeLine{00365\ \ \ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(ans\_.state,\ l\_rans\_base\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}});}
+\DoxyCodeLine{00366\ \ \ \ \ \mbox{\hyperlink{structstate}{state}}\ =\ ans\_.state\ -\/\ l\_rans\_base;}
+\DoxyCodeLine{00367\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{structstate}{state}}\ <\ (1\ <<\ 6))\ \{}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ ans\_.buf[ans\_.buf\_offset]\ =\ (0x00\ <<\ 6)\ +\ \mbox{\hyperlink{structstate}{state}};}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ans\_.buf\_offset\ +\ 1;}
+\DoxyCodeLine{00370\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{structstate}{state}}\ <\ (1\ <<\ 14))\ \{}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ mem\_put\_le16(ans\_.buf\ +\ ans\_.buf\_offset,\ (0x01\ <<\ 14)\ +\ \mbox{\hyperlink{structstate}{state}});}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ans\_.buf\_offset\ +\ 2;}
+\DoxyCodeLine{00373\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{structstate}{state}}\ <\ (1\ <<\ 22))\ \{}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ mem\_put\_le24(ans\_.buf\ +\ ans\_.buf\_offset,\ (0x02\ <<\ 22)\ +\ \mbox{\hyperlink{structstate}{state}});}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ans\_.buf\_offset\ +\ 3;}
+\DoxyCodeLine{00376\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{structstate}{state}}\ <\ (1\ <<\ 30))\ \{}
+\DoxyCodeLine{00377\ \ \ \ \ \ \ mem\_put\_le32(ans\_.buf\ +\ ans\_.buf\_offset,\ (0x03u\ <<\ 30u)\ +\ \mbox{\hyperlink{structstate}{state}});}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ans\_.buf\_offset\ +\ 4;}
+\DoxyCodeLine{00379\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(0\ \&\&\ \textcolor{stringliteral}{"{}State\ is\ too\ large\ to\ be\ serialized"{}});}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ans\_.buf\_offset;}
+\DoxyCodeLine{00382\ \ \ \ \ \}}
+\DoxyCodeLine{00383\ \ \ \}}
+\DoxyCodeLine{00384\ }
+\DoxyCodeLine{00385\ \ \ \textcolor{comment}{//\ rANS\ with\ normalization.}}
+\DoxyCodeLine{00386\ \ \ \textcolor{comment}{//\ sym-\/>prob\ takes\ the\ place\ of\ l\_s\ from\ the\ paper.}}
+\DoxyCodeLine{00387\ \ \ \textcolor{comment}{//\ rans\_precision\ is\ m.}}
+\DoxyCodeLine{00388\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_r_ans_encoder_a6aca89ba63164483ad9defc0fccb269e}{rans\_write}}(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1rans__sym}{rans\_sym}}\ *\textcolor{keyword}{const}\ sym)\ \{}
+\DoxyCodeLine{00389\ \ \ \ \ \textcolor{keyword}{const}\ uint32\_t\ p\ =\ sym-\/>\mbox{\hyperlink{structdraco_1_1rans__sym_aaee501802bfc1ac1f1df119ba8d4994d}{prob}};}
+\DoxyCodeLine{00390\ \ \ \ \ \textcolor{keywordflow}{while}\ (ans\_.state\ >=\ l\_rans\_base\ /\ rans\_precision\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}}\ *\ p)\ \{}
+\DoxyCodeLine{00391\ \ \ \ \ \ \ ans\_.buf[ans\_.buf\_offset++]\ =\ ans\_.state\ \%\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}};}
+\DoxyCodeLine{00392\ \ \ \ \ \ \ ans\_.state\ /=\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}};}
+\DoxyCodeLine{00393\ \ \ \ \ \}}
+\DoxyCodeLine{00394\ \ \ \ \ ans\_.state\ =}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \ \ (ans\_.state\ /\ p)\ *\ rans\_precision\ +\ ans\_.state\ \%\ p\ +\ sym-\/>\mbox{\hyperlink{structdraco_1_1rans__sym_a671945708c49d9a35282e1590bfec04b}{cum\_prob}};}
+\DoxyCodeLine{00396\ \ \ \}}
+\DoxyCodeLine{00397\ }
+\DoxyCodeLine{00398\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00399\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ rans\_precision\ =\ 1\ <<\ rans\_precision\_bits\_t;}
+\DoxyCodeLine{00400\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ l\_rans\_base\ =\ rans\_precision\ *\ 4;}
+\DoxyCodeLine{00401\ \ \ \mbox{\hyperlink{structdraco_1_1_ans_coder}{AnsCoder}}\ ans\_;}
+\DoxyCodeLine{00402\ \};}
+\DoxyCodeLine{00403\ }
+\DoxyCodeLine{00404\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1rans__dec__sym}{rans\_dec\_sym}}\ \{}
+\DoxyCodeLine{00405\ \ \ uint32\_t\ \mbox{\hyperlink{structdraco_1_1rans__dec__sym_addfc76a2e07c713c4c08e70ec65c9f45}{val}};}
+\DoxyCodeLine{00406\ \ \ uint32\_t\ \mbox{\hyperlink{structdraco_1_1rans__dec__sym_aa305d7dce44372bf86f25c58fde512fd}{prob}};}
+\DoxyCodeLine{00407\ \ \ uint32\_t\ \mbox{\hyperlink{structdraco_1_1rans__dec__sym_ae1eb5e4b2250e434eb535727ad738544}{cum\_prob}};\ \ \textcolor{comment}{//\ not-\/inclusive.}}
+\DoxyCodeLine{00408\ \};}
+\DoxyCodeLine{00409\ }
+\DoxyCodeLine{00410\ \textcolor{comment}{//\ Class\ for\ performing\ rANS\ decoding\ using\ a\ desired\ number\ of\ precision\ bits.}}
+\DoxyCodeLine{00411\ \textcolor{comment}{//\ The\ number\ of\ precision\ bits\ needs\ to\ be\ the\ same\ as\ with\ the\ RAnsEncoder}}
+\DoxyCodeLine{00412\ \textcolor{comment}{//\ that\ was\ used\ to\ encode\ the\ input\ data.}}
+\DoxyCodeLine{00413\ \textcolor{keyword}{template}\ <\textcolor{keywordtype}{int}\ rans\_precision\_bits\_t>}
+\DoxyCodeLine{00414\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_r_ans_decoder_adc4b6dc190f475b8433ead81fcdc70fa}{RAnsDecoder}}\ \{}
+\DoxyCodeLine{00415\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00416\ \ \ \mbox{\hyperlink{classdraco_1_1_r_ans_decoder_adc4b6dc190f475b8433ead81fcdc70fa}{RAnsDecoder}}()\ \{\}}
+\DoxyCodeLine{00417\ }
+\DoxyCodeLine{00418\ \ \ \textcolor{comment}{//\ Initializes\ the\ decoder\ from\ the\ input\ buffer.\ The\ |offset|\ specifies\ the}}
+\DoxyCodeLine{00419\ \ \ \textcolor{comment}{//\ number\ of\ bytes\ encoded\ by\ the\ encoder.\ A\ non\ zero\ return\ value\ is\ an}}
+\DoxyCodeLine{00420\ \ \ \textcolor{comment}{//\ error.}}
+\DoxyCodeLine{00421\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_r_ans_decoder_a92f956e4bb69b16b4f055432cce8dc66}{read\_init}}(\textcolor{keyword}{const}\ uint8\_t\ *\textcolor{keyword}{const}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}})\ \{}
+\DoxyCodeLine{00422\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ x;}
+\DoxyCodeLine{00423\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ <\ 1)\ \{}
+\DoxyCodeLine{00424\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00425\ \ \ \ \ \}}
+\DoxyCodeLine{00426\ \ \ \ \ ans\_.buf\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}};}
+\DoxyCodeLine{00427\ \ \ \ \ x\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}[\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 1]\ >>\ 6;}
+\DoxyCodeLine{00428\ \ \ \ \ \textcolor{keywordflow}{if}\ (x\ ==\ 0)\ \{}
+\DoxyCodeLine{00429\ \ \ \ \ \ \ ans\_.buf\_offset\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 1;}
+\DoxyCodeLine{00430\ \ \ \ \ \ \ ans\_.state\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}[\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 1]\ \&\ 0x3F;}
+\DoxyCodeLine{00431\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (x\ ==\ 1)\ \{}
+\DoxyCodeLine{00432\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ <\ 2)\ \{}
+\DoxyCodeLine{00433\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00434\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00435\ \ \ \ \ \ \ ans\_.buf\_offset\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 2;}
+\DoxyCodeLine{00436\ \ \ \ \ \ \ ans\_.state\ =\ mem\_get\_le16(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}\ +\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 2)\ \&\ 0x3FFF;}
+\DoxyCodeLine{00437\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (x\ ==\ 2)\ \{}
+\DoxyCodeLine{00438\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ <\ 3)\ \{}
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ ans\_.buf\_offset\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 3;}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ ans\_.state\ =\ mem\_get\_le24(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}\ +\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 3)\ \&\ 0x3FFFFF;}
+\DoxyCodeLine{00443\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (x\ ==\ 3)\ \{}
+\DoxyCodeLine{00444\ \ \ \ \ \ \ ans\_.buf\_offset\ =\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 4;}
+\DoxyCodeLine{00445\ \ \ \ \ \ \ ans\_.state\ =\ mem\_get\_le32(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a8ad8a13c88886b9f623034ff88570adb}{buf}}\ +\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a601c4660e8a1a14a1b87fe387e934d19}{offset}}\ -\/\ 4)\ \&\ 0x3FFFFFFF;}
+\DoxyCodeLine{00446\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00447\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00448\ \ \ \ \ \}}
+\DoxyCodeLine{00449\ \ \ \ \ ans\_.state\ +=\ l\_rans\_base;}
+\DoxyCodeLine{00450\ \ \ \ \ \textcolor{keywordflow}{if}\ (ans\_.state\ >=\ l\_rans\_base\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}})\ \{}
+\DoxyCodeLine{00451\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00452\ \ \ \ \ \}}
+\DoxyCodeLine{00453\ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00454\ \ \ \}}
+\DoxyCodeLine{00455\ }
+\DoxyCodeLine{00456\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_r_ans_decoder_a95c3d49b52faa287395e5c5fa4d56bb8}{read\_end}}()\ \{\ \textcolor{keywordflow}{return}\ ans\_.state\ ==\ l\_rans\_base;\ \}}
+\DoxyCodeLine{00457\ }
+\DoxyCodeLine{00458\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_r_ans_decoder_ae20cf70e32ca4a994dd32607d5517d3f}{reader\_has\_error}}()\ \{}
+\DoxyCodeLine{00459\ \ \ \ \ \textcolor{keywordflow}{return}\ ans\_.state\ <\ l\_rans\_base\ \&\&\ ans\_.buf\_offset\ ==\ 0;}
+\DoxyCodeLine{00460\ \ \ \}}
+\DoxyCodeLine{00461\ }
+\DoxyCodeLine{00462\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_r_ans_decoder_add96e4e9c66073f36003f5778930ea65}{rans\_read}}()\ \{}
+\DoxyCodeLine{00463\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ rem;}
+\DoxyCodeLine{00464\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ quo;}
+\DoxyCodeLine{00465\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1rans__dec__sym}{rans\_dec\_sym}}\ sym;}
+\DoxyCodeLine{00466\ \ \ \ \ \textcolor{keywordflow}{while}\ (ans\_.state\ <\ l\_rans\_base\ \&\&\ ans\_.buf\_offset\ >\ 0)\ \{}
+\DoxyCodeLine{00467\ \ \ \ \ \ \ ans\_.state\ =\ ans\_.state\ *\ \mbox{\hyperlink{ans_8h_ac3703bbb86a8896b5be439db0484f380}{DRACO\_ANS\_IO\_BASE}}\ +\ ans\_.buf[-\/-\/ans\_.buf\_offset];}
+\DoxyCodeLine{00468\ \ \ \ \ \}}
+\DoxyCodeLine{00469\ \ \ \ \ \textcolor{comment}{//\ |rans\_precision|\ is\ a\ power\ of\ two\ compile\ time\ constant,\ and\ the\ below}}
+\DoxyCodeLine{00470\ \ \ \ \ \textcolor{comment}{//\ division\ and\ modulo\ are\ going\ to\ be\ optimized\ by\ the\ compiler.}}
+\DoxyCodeLine{00471\ \ \ \ \ quo\ =\ ans\_.state\ /\ rans\_precision;}
+\DoxyCodeLine{00472\ \ \ \ \ rem\ =\ ans\_.state\ \%\ rans\_precision;}
+\DoxyCodeLine{00473\ \ \ \ \ fetch\_sym(\&sym,\ rem);}
+\DoxyCodeLine{00474\ \ \ \ \ ans\_.state\ =\ quo\ *\ sym.\mbox{\hyperlink{structdraco_1_1rans__dec__sym_aa305d7dce44372bf86f25c58fde512fd}{prob}}\ +\ rem\ -\/\ sym.\mbox{\hyperlink{structdraco_1_1rans__dec__sym_ae1eb5e4b2250e434eb535727ad738544}{cum\_prob}};}
+\DoxyCodeLine{00475\ \ \ \ \ \textcolor{keywordflow}{return}\ sym.\mbox{\hyperlink{structdraco_1_1rans__dec__sym_addfc76a2e07c713c4c08e70ec65c9f45}{val}};}
+\DoxyCodeLine{00476\ \ \ \}}
+\DoxyCodeLine{00477\ }
+\DoxyCodeLine{00478\ \ \ \textcolor{comment}{//\ Construct\ a\ lookup\ table\ with\ |rans\_precision|\ number\ of\ entries.}}
+\DoxyCodeLine{00479\ \ \ \textcolor{comment}{//\ Returns\ false\ if\ the\ table\ couldn't\ be\ built\ (because\ of\ wrong\ input\ data).}}
+\DoxyCodeLine{00480\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_r_ans_decoder_a8d8409cca127a1576f23dd618664826a}{rans\_build\_look\_up\_table}}(\textcolor{keyword}{const}\ uint32\_t\ token\_probs[],}
+\DoxyCodeLine{00481\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ num\_symbols)\ \{}
+\DoxyCodeLine{00482\ \ \ \ \ lut\_table\_.resize(rans\_precision);}
+\DoxyCodeLine{00483\ \ \ \ \ probability\_table\_.resize(num\_symbols);}
+\DoxyCodeLine{00484\ \ \ \ \ uint32\_t\ cum\_prob\ =\ 0;}
+\DoxyCodeLine{00485\ \ \ \ \ uint32\_t\ act\_prob\ =\ 0;}
+\DoxyCodeLine{00486\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ i\ =\ 0;\ i\ <\ num\_symbols;\ ++i)\ \{}
+\DoxyCodeLine{00487\ \ \ \ \ \ \ probability\_table\_[i].prob\ =\ token\_probs[i];}
+\DoxyCodeLine{00488\ \ \ \ \ \ \ probability\_table\_[i].cum\_prob\ =\ cum\_prob;}
+\DoxyCodeLine{00489\ \ \ \ \ \ \ cum\_prob\ +=\ token\_probs[i];}
+\DoxyCodeLine{00490\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (cum\_prob\ >\ rans\_precision)\ \{}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00492\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00493\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint32\_t\ j\ =\ act\_prob;\ j\ <\ cum\_prob;\ ++j)\ \{}
+\DoxyCodeLine{00494\ \ \ \ \ \ \ \ \ lut\_table\_[j]\ =\ i;}
+\DoxyCodeLine{00495\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00496\ \ \ \ \ \ \ act\_prob\ =\ cum\_prob;}
+\DoxyCodeLine{00497\ \ \ \ \ \}}
+\DoxyCodeLine{00498\ \ \ \ \ \textcolor{keywordflow}{if}\ (cum\_prob\ !=\ rans\_precision)\ \{}
+\DoxyCodeLine{00499\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00500\ \ \ \ \ \}}
+\DoxyCodeLine{00501\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00502\ \ \ \}}
+\DoxyCodeLine{00503\ }
+\DoxyCodeLine{00504\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00505\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ fetch\_sym(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structdraco_1_1rans__dec__sym}{rans\_dec\_sym}}\ *\mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}},\ uint32\_t\ rem)\ \{}
+\DoxyCodeLine{00506\ \ \ \ \ uint32\_t\ symbol\ =\ lut\_table\_[rem];}
+\DoxyCodeLine{00507\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}-\/>val\ =\ symbol;}
+\DoxyCodeLine{00508\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}-\/>prob\ =\ probability\_table\_[symbol].prob;}
+\DoxyCodeLine{00509\ \ \ \ \ \mbox{\hyperlink{_write_dump_8cpp_a1277960b5f2b37137fe9b0b5a1ea0beb}{out}}-\/>cum\_prob\ =\ probability\_table\_[symbol].cum\_prob;}
+\DoxyCodeLine{00510\ \ \ \}}
+\DoxyCodeLine{00511\ }
+\DoxyCodeLine{00512\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ rans\_precision\ =\ 1\ <<\ rans\_precision\_bits\_t;}
+\DoxyCodeLine{00513\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ l\_rans\_base\ =\ rans\_precision\ *\ 4;}
+\DoxyCodeLine{00514\ \ \ std::vector<uint32\_t>\ lut\_table\_;}
+\DoxyCodeLine{00515\ \ \ std::vector<rans\_sym>\ probability\_table\_;}
+\DoxyCodeLine{00516\ \ \ AnsDecoder\ ans\_;}
+\DoxyCodeLine{00517\ \};}
+\DoxyCodeLine{00518\ }
+\DoxyCodeLine{00519\ \textcolor{preprocessor}{\#undef\ DRACO\_ANS\_DIVREM}}
+\DoxyCodeLine{00520\ \textcolor{preprocessor}{\#undef\ DRACO\_ANS\_P8\_PRECISION}}
+\DoxyCodeLine{00521\ \textcolor{preprocessor}{\#undef\ DRACO\_ANS\_L\_BASE}}
+\DoxyCodeLine{00522\ \textcolor{preprocessor}{\#undef\ DRACO\_ANS\_IO\_BASE}}
+\DoxyCodeLine{00523\ }
+\DoxyCodeLine{00524\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00525\ }
+\DoxyCodeLine{00526\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ENTROPY\_ANS\_H\_}}
+
+\end{DoxyCode}

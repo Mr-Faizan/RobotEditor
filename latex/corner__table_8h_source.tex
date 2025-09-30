@@ -1,0 +1,403 @@
+\doxysection{corner\+\_\+table.\+h}
+\hypertarget{corner__table_8h_source}{}\label{corner__table_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/mesh/corner\_table.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/mesh/corner\_table.h}}
+\mbox{\hyperlink{corner__table_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_MESH\_CORNER\_TABLE\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_MESH\_CORNER\_TABLE\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <array>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{geometry__indices_8h}{draco/attributes/geometry\_indices.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{draco__index__type__vector_8h}{draco/core/draco\_index\_type\_vector.h}}"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{macros_8h}{draco/core/macros.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{valence__cache_8h}{draco/mesh/valence\_cache.h}}"{}}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ CornerTable\ is\ used\ to\ represent\ connectivity\ of\ triangular\ meshes.}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ For\ every\ corner\ of\ all\ faces,\ the\ corner\ table\ stores\ the\ index\ of\ the}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ opposite\ corner\ in\ the\ neighboring\ face\ (if\ it\ exists)\ as\ illustrated\ in\ the}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ figure\ below\ (see\ corner\ |c|\ and\ it's\ opposite\ corner\ |o|).}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ \ \ \ \ *}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ \ \ \ /c\(\backslash\)}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ \ \ /\ \ \ \(\backslash\)}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ \ /n\ \ \ p\(\backslash\)}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ *-\/-\/-\/-\/-\/-\/-\/*}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ \ \(\backslash\)\ \ \ \ \ /}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ \ \ \(\backslash\)\ \ \ /}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ \ \ \ \(\backslash\)o/}}
+\DoxyCodeLine{00042\ \textcolor{comment}{//\ \ \ \ \ *}}
+\DoxyCodeLine{00043\ \textcolor{comment}{//}}
+\DoxyCodeLine{00044\ \textcolor{comment}{//\ All\ corners\ are\ defined\ by\ unique\ CornerIndex\ and\ each\ triplet\ of\ corners}}
+\DoxyCodeLine{00045\ \textcolor{comment}{//\ that\ define\ a\ single\ face\ id\ always\ ordered\ consecutively\ as:}}
+\DoxyCodeLine{00046\ \textcolor{comment}{//\ \ \ \ \ \{\ 3\ *\ FaceIndex,\ 3\ *\ FaceIndex\ +\ 1,\ 3\ *\ FaceIndex\ +2\ \}.}}
+\DoxyCodeLine{00047\ \textcolor{comment}{//\ This\ representation\ of\ corners\ allows\ CornerTable\ to\ easily\ retrieve\ Next\ and}}
+\DoxyCodeLine{00048\ \textcolor{comment}{//\ Previous\ corners\ on\ any\ face\ (see\ corners\ |n|\ and\ |p|\ in\ the\ figure\ above).}}
+\DoxyCodeLine{00049\ \textcolor{comment}{//\ Using\ the\ Next,\ Previous,\ and\ Opposite\ corners\ then\ enables\ traversal\ of\ any}}
+\DoxyCodeLine{00050\ \textcolor{comment}{//\ 2-\/manifold\ surface.}}
+\DoxyCodeLine{00051\ \textcolor{comment}{//\ If\ the\ CornerTable\ is\ constructed\ from\ a\ non-\/manifold\ surface,\ the\ input}}
+\DoxyCodeLine{00052\ \textcolor{comment}{//\ non-\/manifold\ edges\ and\ vertices\ are\ automatically\ split.}}
+\DoxyCodeLine{00053\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_corner_table_a379cf25cf871c763874ed3f6d2988fe1}{CornerTable}}\ \{}
+\DoxyCodeLine{00054\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00055\ \ \ \textcolor{comment}{//\ Corner\ table\ face\ type.}}
+\DoxyCodeLine{00056\ \ \ \textcolor{keyword}{typedef}\ std::array<VertexIndex,\ 3>\ \mbox{\hyperlink{classdraco_1_1_corner_table_a479efb3d4b74451332a99e68c0ede116}{FaceType}};}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \mbox{\hyperlink{classdraco_1_1_corner_table_a379cf25cf871c763874ed3f6d2988fe1}{CornerTable}}();}
+\DoxyCodeLine{00059\ \ \ \textcolor{keyword}{static}\ std::unique\_ptr<CornerTable>\ \mbox{\hyperlink{classdraco_1_1_corner_table_a5e96fc480f97dd0422f3d415e128c5e1}{Create}}(}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<FaceIndex,\ FaceType>}}\ \&faces);}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \ \ \textcolor{comment}{//\ Initializes\ the\ CornerTable\ from\ provides\ set\ of\ indexed\ faces.}}
+\DoxyCodeLine{00063\ \ \ \textcolor{comment}{//\ The\ input\ faces\ can\ represent\ a\ non-\/manifold\ topology,\ in\ which\ case\ the}}
+\DoxyCodeLine{00064\ \ \ \textcolor{comment}{//\ non-\/manifold\ edges\ and\ vertices\ are\ going\ to\ be\ split.}}
+\DoxyCodeLine{00065\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_corner_table_ab9fa26dadf46f1bbbcdf4bd8b86166fb}{Init}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<FaceIndex,\ FaceType>}}\ \&faces);}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \textcolor{comment}{//\ Resets\ the\ corner\ table\ to\ the\ given\ number\ of\ invalid\ faces.}}
+\DoxyCodeLine{00068\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a08d06dbb533da71f558b5683a73032e0}{Reset}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a10c560403a436e31e309bde5933b0f63}{num\_faces}});}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \textcolor{comment}{//\ Resets\ the\ corner\ table\ to\ the\ given\ number\ of\ invalid\ faces\ and\ vertices.}}
+\DoxyCodeLine{00071\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a08d06dbb533da71f558b5683a73032e0}{Reset}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a10c560403a436e31e309bde5933b0f63}{num\_faces}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a3039980abd4d9619e1dbd032b427eb34}{num\_vertices}});}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a3039980abd4d9619e1dbd032b427eb34}{num\_vertices}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(vertex\_corners\_.size());}
+\DoxyCodeLine{00075\ \ \ \}}
+\DoxyCodeLine{00076\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a4b4331f37ce0be3f82f55c6ffc064bd8}{num\_corners}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(corner\_to\_vertex\_map\_.size());}
+\DoxyCodeLine{00078\ \ \ \}}
+\DoxyCodeLine{00079\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a10c560403a436e31e309bde5933b0f63}{num\_faces}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(corner\_to\_vertex\_map\_.size()\ /\ 3);}
+\DoxyCodeLine{00081\ \ \ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a27382c3977968274753fba8e9c771e5f}{Opposite}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ corner;}
+\DoxyCodeLine{00086\ \ \ \ \ \}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{return}\ opposite\_corners\_[corner];}
+\DoxyCodeLine{00088\ \ \ \}}
+\DoxyCodeLine{00089\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a7f74f0c95835512cbe779a023fa1a339}{Next}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ corner;}
+\DoxyCodeLine{00092\ \ \ \ \ \}}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_abbbc595b8c7b8e5f5fc15e0a4c7f5f50}{LocalIndex}}(++corner)\ ?\ corner\ :\ corner\ -\/\ 3;}
+\DoxyCodeLine{00094\ \ \ \}}
+\DoxyCodeLine{00095\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_aadbabeb3aeba27cc3bcffb342afb5638}{Previous}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ corner;}
+\DoxyCodeLine{00098\ \ \ \ \ \}}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_abbbc595b8c7b8e5f5fc15e0a4c7f5f50}{LocalIndex}}(corner)\ ?\ corner\ -\/\ 1\ :\ corner\ +\ 2;}
+\DoxyCodeLine{00100\ \ \ \}}
+\DoxyCodeLine{00101\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_ab374833ea96b06bdef53f3a8318b3544}{Vertex}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kInvalidVertexIndex;}
+\DoxyCodeLine{00104\ \ \ \ \ \}}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_afe324e2bada5ea3063a835c837439fec}{ConfidentVertex}}(corner);}
+\DoxyCodeLine{00106\ \ \ \}}
+\DoxyCodeLine{00107\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_afe324e2bada5ea3063a835c837439fec}{ConfidentVertex}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00108\ \ \ \ \ \mbox{\hyperlink{macros_8h_ac0f808e4bca630839a16105b0f061d1a}{DRACO\_DCHECK\_GE}}(corner.value(),\ 0);}
+\DoxyCodeLine{00109\ \ \ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(corner.value(),\ \mbox{\hyperlink{classdraco_1_1_corner_table_a4b4331f37ce0be3f82f55c6ffc064bd8}{num\_corners}}());}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{keywordflow}{return}\ corner\_to\_vertex\_map\_[corner];}
+\DoxyCodeLine{00111\ \ \ \}}
+\DoxyCodeLine{00112\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a4886e41e942c5b184be10b22b1309aa4}{Face}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kInvalidFaceIndex;}
+\DoxyCodeLine{00115\ \ \ \ \ \}}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}(corner.value()\ /\ 3);}
+\DoxyCodeLine{00117\ \ \ \}}
+\DoxyCodeLine{00118\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_ac4badf879151e92f5cdec28968144f8c}{FirstCorner}}(\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ face)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordflow}{if}\ (face\ ==\ kInvalidFaceIndex)\ \{}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kInvalidCornerIndex;}
+\DoxyCodeLine{00121\ \ \ \ \ \}}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}(face.value()\ *\ 3);}
+\DoxyCodeLine{00123\ \ \ \}}
+\DoxyCodeLine{00124\ \ \ \textcolor{keyword}{inline}\ std::array<CornerIndex,\ 3>\ \mbox{\hyperlink{classdraco_1_1_corner_table_ae0dd339a022e816c70c213141d7b3da6}{AllCorners}}(\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ face)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ ci\ =\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}(face.value()\ *\ 3);}
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keywordflow}{return}\ \{\{ci,\ ci\ +\ 1,\ ci\ +\ 2\}\};}
+\DoxyCodeLine{00127\ \ \ \}}
+\DoxyCodeLine{00128\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_abbbc595b8c7b8e5f5fc15e0a4c7f5f50}{LocalIndex}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ corner.value()\ \%\ 3;\ \}}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a479efb3d4b74451332a99e68c0ede116}{FaceType}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a6aa61a1b849f65bb524c1b0088ce5ef6}{FaceData}}(\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ face)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ first\_corner\ =\ \mbox{\hyperlink{classdraco_1_1_corner_table_ac4badf879151e92f5cdec28968144f8c}{FirstCorner}}(face);}
+\DoxyCodeLine{00132\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_corner_table_a479efb3d4b74451332a99e68c0ede116}{FaceType}}\ face\_data;}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ \{}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ face\_data[i]\ =\ corner\_to\_vertex\_map\_[first\_corner\ +\ i];}
+\DoxyCodeLine{00135\ \ \ \ \ \}}
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{keywordflow}{return}\ face\_data;}
+\DoxyCodeLine{00137\ \ \ \}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_corner_table_aaf8ec1085ed7f939692d15f841a3351d}{SetFaceData}}(\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ face,\ \mbox{\hyperlink{classdraco_1_1_corner_table_a479efb3d4b74451332a99e68c0ede116}{FaceType}}\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}})\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a5d4f860772c9e302df15e1009ccf5ff3}{GetValenceCache}}().IsCacheEmpty());}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ first\_corner\ =\ \mbox{\hyperlink{classdraco_1_1_corner_table_ac4badf879151e92f5cdec28968144f8c}{FirstCorner}}(face);}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ \{}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ corner\_to\_vertex\_map\_[first\_corner\ +\ i]\ =\ \mbox{\hyperlink{ut_default_i_o_stream_8cpp_ac89b5786f65419c30c7a97e2d5c40fe9}{data}}[i];}
+\DoxyCodeLine{00144\ \ \ \ \ \}}
+\DoxyCodeLine{00145\ \ \ \}}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \ \ \textcolor{comment}{//\ Returns\ the\ left-\/most\ corner\ of\ a\ single\ vertex\ 1-\/ring.\ If\ a\ vertex\ is\ not}}
+\DoxyCodeLine{00148\ \ \ \textcolor{comment}{//\ on\ a\ boundary\ (in\ which\ case\ it\ has\ a\ full\ 1-\/ring),\ this\ function\ returns}}
+\DoxyCodeLine{00149\ \ \ \textcolor{comment}{//\ any\ of\ the\ corners\ mapped\ to\ the\ given\ vertex.}}
+\DoxyCodeLine{00150\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_aeb96c1b9a1d2ae307d10e9aa56d677f4}{LeftMostCorner}}(\mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ v)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{keywordflow}{return}\ vertex\_corners\_[v];}
+\DoxyCodeLine{00152\ \ \ \}}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ \textcolor{comment}{//\ Returns\ the\ parent\ vertex\ index\ of\ a\ given\ corner\ table\ vertex.}}
+\DoxyCodeLine{00155\ \ \ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a0e1f3dc554e19b14a03465d03c1761d0}{VertexParent}}(\mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ vertex)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordflow}{if}\ (vertex.value()\ <\ \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(num\_original\_vertices\_))\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vertex;}
+\DoxyCodeLine{00158\ \ \ \ \ \}}
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{keywordflow}{return}\ non\_manifold\_vertex\_parents\_[vertex\ -\/\ num\_original\_vertices\_];}
+\DoxyCodeLine{00160\ \ \ \}}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ \ \ \textcolor{comment}{//\ Returns\ true\ if\ the\ corner\ is\ valid.}}
+\DoxyCodeLine{00163\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a41b1da024baf90f0859ee263395822fa}{IsValid}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ c)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_ab374833ea96b06bdef53f3a8318b3544}{Vertex}}(c)\ !=\ kInvalidVertexIndex;}
+\DoxyCodeLine{00165\ \ \ \}}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \textcolor{comment}{//\ Returns\ the\ valence\ (or\ degree)\ of\ a\ vertex.}}
+\DoxyCodeLine{00168\ \ \ \textcolor{comment}{//\ Returns\ -\/1\ if\ the\ given\ vertex\ index\ is\ not\ valid.}}
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_ac0fd7e39152d19c8084aef9489af3bd9}{Valence}}(\mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ v)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00170\ \ \ \textcolor{comment}{//\ Same\ as\ above\ but\ does\ not\ check\ for\ validity\ and\ does\ not\ return\ -\/1}}
+\DoxyCodeLine{00171\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a06c4a6d0f3a130bba030d3a02ba7e11c}{ConfidentValence}}(\mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ v)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00172\ \ \ \textcolor{comment}{//\ Returns\ the\ valence\ of\ the\ vertex\ at\ the\ given\ corner.}}
+\DoxyCodeLine{00173\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a2185dff90585e7b53ef8cb140c4ca04b}{Valence}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ c)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00174\ \ \ \ \ \textcolor{keywordflow}{if}\ (c\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{00176\ \ \ \ \ \}}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a06c4a6d0f3a130bba030d3a02ba7e11c}{ConfidentValence}}(c);}
+\DoxyCodeLine{00178\ \ \ \}}
+\DoxyCodeLine{00179\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_aefa3069a05494561475bae5edce410d6}{ConfidentValence}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ c)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00180\ \ \ \ \ \mbox{\hyperlink{macros_8h_a0e3e573e4d68b6bd9fd6306f7948978d}{DRACO\_DCHECK\_LT}}(c.value(),\ \mbox{\hyperlink{classdraco_1_1_corner_table_a4b4331f37ce0be3f82f55c6ffc064bd8}{num\_corners}}());}
+\DoxyCodeLine{00181\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a06c4a6d0f3a130bba030d3a02ba7e11c}{ConfidentValence}}(\mbox{\hyperlink{classdraco_1_1_corner_table_afe324e2bada5ea3063a835c837439fec}{ConfidentVertex}}(c));}
+\DoxyCodeLine{00182\ \ \ \}}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \textcolor{comment}{//\ Returns\ true\ if\ the\ specified\ vertex\ is\ on\ a\ boundary.}}
+\DoxyCodeLine{00185\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_corner_table_adc4ae8a93642ec2de06b20cfafc8c25e}{IsOnBoundary}}(\mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ vert)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00186\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\ =\ \mbox{\hyperlink{classdraco_1_1_corner_table_aeb96c1b9a1d2ae307d10e9aa56d677f4}{LeftMostCorner}}(vert);}
+\DoxyCodeLine{00187\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classdraco_1_1_corner_table_a0a74cf441e1bfd339196740438e23e61}{SwingLeft}}(corner)\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00189\ \ \ \ \ \}}
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00191\ \ \ \}}
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00193\ \ \ \textcolor{comment}{//\ \ \ \ \ *-\/-\/-\/-\/-\/-\/-\/*}}
+\DoxyCodeLine{00194\ \ \ \textcolor{comment}{//\ \ \ \ /\ \(\backslash\)\ \ \ \ \ /\ \(\backslash\)}}
+\DoxyCodeLine{00195\ \textcolor{comment}{\ \ //\ \ \ /\ \ \ \(\backslash\)\ \ \ /\ \ \ \(\backslash\)}}
+\DoxyCodeLine{00196\ \textcolor{comment}{\ \ //\ \ /\ \ \ sl\(\backslash\)c/sr\ \ \ \(\backslash\)}}
+\DoxyCodeLine{00197\ \textcolor{comment}{\ \ //\ *-\/-\/-\/-\/-\/-\/-\/v-\/-\/-\/-\/-\/-\/-\/*}}
+\DoxyCodeLine{00198\ \ \ \textcolor{comment}{//\ Returns\ the\ corner\ on\ the\ adjacent\ face\ on\ the\ right\ that\ maps\ to}}
+\DoxyCodeLine{00199\ \ \ \textcolor{comment}{//\ the\ same\ vertex\ as\ the\ given\ corner\ (sr\ in\ the\ above\ diagram).}}
+\DoxyCodeLine{00200\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_ad49cdf19f744e41977213d2d1dda1bf7}{SwingRight}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00201\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_aadbabeb3aeba27cc3bcffb342afb5638}{Previous}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a27382c3977968274753fba8e9c771e5f}{Opposite}}(\mbox{\hyperlink{classdraco_1_1_corner_table_aadbabeb3aeba27cc3bcffb342afb5638}{Previous}}(corner)));}
+\DoxyCodeLine{00202\ \ \ \}}
+\DoxyCodeLine{00203\ \ \ \textcolor{comment}{//\ Returns\ the\ corner\ on\ the\ left\ face\ that\ maps\ to\ the\ same\ vertex\ as\ the}}
+\DoxyCodeLine{00204\ \ \ \textcolor{comment}{//\ given\ corner\ (sl\ in\ the\ above\ diagram).}}
+\DoxyCodeLine{00205\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a0a74cf441e1bfd339196740438e23e61}{SwingLeft}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a7f74f0c95835512cbe779a023fa1a339}{Next}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a27382c3977968274753fba8e9c771e5f}{Opposite}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a7f74f0c95835512cbe779a023fa1a339}{Next}}(corner)));}
+\DoxyCodeLine{00207\ \ \ \}}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \ \ \textcolor{comment}{//\ Get\ opposite\ corners\ on\ the\ left\ and\ right\ faces\ respectively\ (see\ image}}
+\DoxyCodeLine{00210\ \ \ \textcolor{comment}{//\ below,\ where\ L\ and\ R\ are\ the\ left\ and\ right\ corners\ of\ a\ corner\ X.}}
+\DoxyCodeLine{00211\ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00212\ \ \ \textcolor{comment}{//\ *-\/-\/-\/-\/-\/-\/-\/*-\/-\/-\/-\/-\/-\/-\/*}}
+\DoxyCodeLine{00213\ \ \ \textcolor{comment}{//\ \ \(\backslash\)L\ \ \ \ /X\(\backslash\)\ \ \ \ R/}}
+\DoxyCodeLine{00214\ \ \ \textcolor{comment}{//\ \ \ \(\backslash\)\ \ \ /\ \ \ \(\backslash\)\ \ \ /}}
+\DoxyCodeLine{00215\ \ \ \textcolor{comment}{//\ \ \ \ \(\backslash\)\ /\ \ \ \ \ \(\backslash\)\ /}}
+\DoxyCodeLine{00216\ \ \ \textcolor{comment}{//\ \ \ \ \ *-\/-\/-\/-\/-\/-\/-\/*}}
+\DoxyCodeLine{00217\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a7b86ef953d723863eca70d581c6e5c6d}{GetLeftCorner}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00218\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_id\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kInvalidCornerIndex;}
+\DoxyCodeLine{00220\ \ \ \ \ \}}
+\DoxyCodeLine{00221\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a27382c3977968274753fba8e9c771e5f}{Opposite}}(\mbox{\hyperlink{classdraco_1_1_corner_table_aadbabeb3aeba27cc3bcffb342afb5638}{Previous}}(corner\_id));}
+\DoxyCodeLine{00222\ \ \ \}}
+\DoxyCodeLine{00223\ \ \ \textcolor{keyword}{inline}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_aaf0607cc76383b8e4f94c5ac393fa4cf}{GetRightCorner}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_id)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00224\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_id\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00225\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ kInvalidCornerIndex;}
+\DoxyCodeLine{00226\ \ \ \ \ \}}
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a27382c3977968274753fba8e9c771e5f}{Opposite}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a7f74f0c95835512cbe779a023fa1a339}{Next}}(corner\_id));}
+\DoxyCodeLine{00228\ \ \ \}}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00230\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ new\ vertices\ that\ were\ created\ as\ a\ result\ of}}
+\DoxyCodeLine{00231\ \ \ \textcolor{comment}{//\ splitting\ of\ non-\/manifold\ vertices\ of\ the\ input\ geometry.}}
+\DoxyCodeLine{00232\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_aafa15d3c4e566fda9571ccca2ca4f34c}{NumNewVertices}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a3039980abd4d9619e1dbd032b427eb34}{num\_vertices}}()\ -\/\ num\_original\_vertices\_;\ \}}
+\DoxyCodeLine{00233\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a6fc893a0c15214cbe120f881dd2a47d2}{NumOriginalVertices}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ num\_original\_vertices\_;\ \}}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00235\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ faces\ with\ duplicated\ vertex\ indices.}}
+\DoxyCodeLine{00236\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_aa6d2efd276d5d79b0e4aff2bdd9ad443}{NumDegeneratedFaces}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ num\_degenerated\_faces\_;\ \}}
+\DoxyCodeLine{00237\ }
+\DoxyCodeLine{00238\ \ \ \textcolor{comment}{//\ Returns\ the\ number\ of\ isolated\ vertices\ (vertices\ that\ have}}
+\DoxyCodeLine{00239\ \ \ \textcolor{comment}{//\ vertex\_corners\_\ mapping\ set\ to\ kInvalidCornerIndex.}}
+\DoxyCodeLine{00240\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a38f3a278c5ac9f1dcd8c30d79a3af5a4}{NumIsolatedVertices}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ num\_isolated\_vertices\_;\ \}}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a51b8559ca9910b773300a23d4d84776b}{IsDegenerated}}(\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ face)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00243\ }
+\DoxyCodeLine{00244\ \ \ \textcolor{comment}{//\ Methods\ that\ modify\ an\ existing\ corner\ table.}}
+\DoxyCodeLine{00245\ \ \ \textcolor{comment}{//\ Sets\ the\ opposite\ corner\ mapping\ between\ two\ corners.\ Caller\ must\ ensure}}
+\DoxyCodeLine{00246\ \ \ \textcolor{comment}{//\ that\ the\ indices\ are\ valid.}}
+\DoxyCodeLine{00247\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_corner_table_af71ce395e89c3b34159b5b6c29a804bf}{SetOppositeCorner}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_id,}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ opp\_corner\_id)\ \{}
+\DoxyCodeLine{00249\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a5d4f860772c9e302df15e1009ccf5ff3}{GetValenceCache}}().IsCacheEmpty());}
+\DoxyCodeLine{00250\ \ \ \ \ opposite\_corners\_[corner\_id]\ =\ opp\_corner\_id;}
+\DoxyCodeLine{00251\ \ \ \}}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00253\ \ \ \textcolor{comment}{//\ Sets\ opposite\ corners\ for\ both\ input\ corners.}}
+\DoxyCodeLine{00254\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a1ab8ac6f5f29969de10e4b2390444b48}{SetOppositeCorners}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_0,\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_1)\ \{}
+\DoxyCodeLine{00255\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a5d4f860772c9e302df15e1009ccf5ff3}{GetValenceCache}}().IsCacheEmpty());}
+\DoxyCodeLine{00256\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_0\ !=\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_corner_table_af71ce395e89c3b34159b5b6c29a804bf}{SetOppositeCorner}}(corner\_0,\ corner\_1);}
+\DoxyCodeLine{00258\ \ \ \ \ \}}
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{keywordflow}{if}\ (corner\_1\ !=\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_corner_table_af71ce395e89c3b34159b5b6c29a804bf}{SetOppositeCorner}}(corner\_1,\ corner\_0);}
+\DoxyCodeLine{00261\ \ \ \ \ \}}
+\DoxyCodeLine{00262\ \ \ \}}
+\DoxyCodeLine{00263\ }
+\DoxyCodeLine{00264\ \ \ \textcolor{comment}{//\ Updates\ mapping\ between\ a\ corner\ and\ a\ vertex.}}
+\DoxyCodeLine{00265\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a4dc6a5a30173bebab97a7191f3c37e5f}{MapCornerToVertex}}(\mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner\_id,\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ vert\_id)\ \{}
+\DoxyCodeLine{00266\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a5d4f860772c9e302df15e1009ccf5ff3}{GetValenceCache}}().IsCacheEmpty());}
+\DoxyCodeLine{00267\ \ \ \ \ corner\_to\_vertex\_map\_[corner\_id]\ =\ vert\_id;}
+\DoxyCodeLine{00268\ \ \ \}}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00270\ \ \ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a92ddaeee80948da72c306497e3008eaf}{AddNewVertex}}()\ \{}
+\DoxyCodeLine{00271\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a5d4f860772c9e302df15e1009ccf5ff3}{GetValenceCache}}().IsCacheEmpty());}
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{comment}{//\ Add\ a\ new\ invalid\ vertex.}}
+\DoxyCodeLine{00273\ \ \ \ \ vertex\_corners\_.push\_back(kInvalidCornerIndex);}
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}(\textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(vertex\_corners\_.size()\ -\/\ 1));}
+\DoxyCodeLine{00275\ \ \ \}}
+\DoxyCodeLine{00276\ }
+\DoxyCodeLine{00277\ \ \ \textcolor{comment}{//\ Adds\ a\ new\ face\ connected\ to\ three\ vertices.\ Note\ that\ connectivity\ is\ not}}
+\DoxyCodeLine{00278\ \ \ \textcolor{comment}{//\ automatically\ updated\ and\ all\ opposite\ corners\ need\ to\ be\ set\ explicitly.}}
+\DoxyCodeLine{00279\ \ \ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a11046a3f18ba6f88da5d494156e7d418}{AddNewFace}}(\textcolor{keyword}{const}\ std::array<VertexIndex,\ 3>\ \&vertices)\ \{}
+\DoxyCodeLine{00280\ \ \ \ \ \textcolor{comment}{//\ Add\ a\ new\ invalid\ face.}}
+\DoxyCodeLine{00281\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ new\_face\_index(\mbox{\hyperlink{classdraco_1_1_corner_table_a10c560403a436e31e309bde5933b0f63}{num\_faces}}());}
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ \{}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ corner\_to\_vertex\_map\_.push\_back(vertices[i]);}
+\DoxyCodeLine{00284\ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_corner_table_a3724a1b19b93fb4ab7d22351295253e5}{SetLeftMostCorner}}(vertices[i],}
+\DoxyCodeLine{00285\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}(corner\_to\_vertex\_map\_.size()\ -\/\ 1));}
+\DoxyCodeLine{00286\ \ \ \ \ \}}
+\DoxyCodeLine{00287\ \ \ \ \ opposite\_corners\_.resize(corner\_to\_vertex\_map\_.size(),\ kInvalidCornerIndex);}
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{keywordflow}{return}\ new\_face\_index;}
+\DoxyCodeLine{00289\ \ \ \}}
+\DoxyCodeLine{00290\ }
+\DoxyCodeLine{00291\ \ \ \textcolor{comment}{//\ Sets\ a\ new\ left\ most\ corner\ for\ a\ given\ vertex.}}
+\DoxyCodeLine{00292\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a3724a1b19b93fb4ab7d22351295253e5}{SetLeftMostCorner}}(\mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ vert,\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ corner)\ \{}
+\DoxyCodeLine{00293\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a5d4f860772c9e302df15e1009ccf5ff3}{GetValenceCache}}().IsCacheEmpty());}
+\DoxyCodeLine{00294\ \ \ \ \ \textcolor{keywordflow}{if}\ (vert\ !=\ kInvalidVertexIndex)\ \{}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ vertex\_corners\_[vert]\ =\ corner;}
+\DoxyCodeLine{00296\ \ \ \ \ \}}
+\DoxyCodeLine{00297\ \ \ \}}
+\DoxyCodeLine{00298\ }
+\DoxyCodeLine{00299\ \ \ \textcolor{comment}{//\ Updates\ the\ vertex\ to\ corner\ map\ on\ a\ specified\ vertex.\ This\ should\ be}}
+\DoxyCodeLine{00300\ \ \ \textcolor{comment}{//\ called\ in\ cases\ where\ the\ mapping\ may\ be\ invalid\ (e.g.\ when\ the\ corner}}
+\DoxyCodeLine{00301\ \ \ \textcolor{comment}{//\ table\ was\ constructed\ manually).}}
+\DoxyCodeLine{00302\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a7e2d5e87212c38219befaebdeedbef53}{UpdateVertexToCornerMap}}(\mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ vert)\ \{}
+\DoxyCodeLine{00303\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a5d4f860772c9e302df15e1009ccf5ff3}{GetValenceCache}}().IsCacheEmpty());}
+\DoxyCodeLine{00304\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ first\_c\ =\ vertex\_corners\_[vert];}
+\DoxyCodeLine{00305\ \ \ \ \ \textcolor{keywordflow}{if}\ (first\_c\ ==\ kInvalidCornerIndex)\ \{}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \textcolor{keywordflow}{return};\ \ \textcolor{comment}{//\ Isolated\ vertex.}}
+\DoxyCodeLine{00307\ \ \ \ \ \}}
+\DoxyCodeLine{00308\ \ \ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ act\_c\ =\ \mbox{\hyperlink{classdraco_1_1_corner_table_a0a74cf441e1bfd339196740438e23e61}{SwingLeft}}(first\_c);}
+\DoxyCodeLine{00309\ \ \ \ \ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ c\ =\ first\_c;}
+\DoxyCodeLine{00310\ \ \ \ \ \textcolor{keywordflow}{while}\ (act\_c\ !=\ kInvalidCornerIndex\ \&\&\ act\_c\ !=\ first\_c)\ \{}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ c\ =\ act\_c;}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ act\_c\ =\ \mbox{\hyperlink{classdraco_1_1_corner_table_a0a74cf441e1bfd339196740438e23e61}{SwingLeft}}(act\_c);}
+\DoxyCodeLine{00313\ \ \ \ \ \}}
+\DoxyCodeLine{00314\ \ \ \ \ \textcolor{keywordflow}{if}\ (act\_c\ !=\ first\_c)\ \{}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ vertex\_corners\_[vert]\ =\ c;}
+\DoxyCodeLine{00316\ \ \ \ \ \}}
+\DoxyCodeLine{00317\ \ \ \}}
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00319\ \ \ \textcolor{comment}{//\ Sets\ the\ new\ number\ of\ vertices.\ It's\ a\ responsibility\ of\ the\ caller\ to}}
+\DoxyCodeLine{00320\ \ \ \textcolor{comment}{//\ ensure\ that\ no\ corner\ is\ mapped\ beyond\ the\ range\ of\ the\ new\ number\ of}}
+\DoxyCodeLine{00321\ \ \ \textcolor{comment}{//\ vertices.}}
+\DoxyCodeLine{00322\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_corner_table_ab9bf2d4ead98a75deb0ceb563fb452ed}{SetNumVertices}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a3039980abd4d9619e1dbd032b427eb34}{num\_vertices}})\ \{}
+\DoxyCodeLine{00323\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a5d4f860772c9e302df15e1009ccf5ff3}{GetValenceCache}}().IsCacheEmpty());}
+\DoxyCodeLine{00324\ \ \ \ \ vertex\_corners\_.resize(\mbox{\hyperlink{classdraco_1_1_corner_table_a3039980abd4d9619e1dbd032b427eb34}{num\_vertices}},\ kInvalidCornerIndex);}
+\DoxyCodeLine{00325\ \ \ \}}
+\DoxyCodeLine{00326\ }
+\DoxyCodeLine{00327\ \ \ \textcolor{comment}{//\ Makes\ a\ vertex\ isolated\ (not\ attached\ to\ any\ corner).}}
+\DoxyCodeLine{00328\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a36f1a0cccf4adf8b996e2b82e94d0886}{MakeVertexIsolated}}(\mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ vert)\ \{}
+\DoxyCodeLine{00329\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a5d4f860772c9e302df15e1009ccf5ff3}{GetValenceCache}}().IsCacheEmpty());}
+\DoxyCodeLine{00330\ \ \ \ \ vertex\_corners\_[vert]\ =\ kInvalidCornerIndex;}
+\DoxyCodeLine{00331\ \ \ \}}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00333\ \ \ \textcolor{comment}{//\ Returns\ true\ if\ a\ vertex\ is\ not\ attached\ to\ any\ face.}}
+\DoxyCodeLine{00334\ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a0ff24a468b810fea1e22a1c272cab9e2}{IsVertexIsolated}}(\mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ v)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00335\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdraco_1_1_corner_table_aeb96c1b9a1d2ae307d10e9aa56d677f4}{LeftMostCorner}}(v)\ ==\ kInvalidCornerIndex;}
+\DoxyCodeLine{00336\ \ \ \}}
+\DoxyCodeLine{00337\ }
+\DoxyCodeLine{00338\ \ \ \textcolor{comment}{//\ Makes\ a\ given\ face\ invalid\ (all\ corners\ are\ marked\ as\ invalid).}}
+\DoxyCodeLine{00339\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a3e12951ceeb74c280bfcd6b7c3a0a816}{MakeFaceInvalid}}(\mbox{\hyperlink{namespacedraco_ae8d73eb8b85a102ee0f4928acf80f3cf}{FaceIndex}}\ face)\ \{}
+\DoxyCodeLine{00340\ \ \ \ \ \mbox{\hyperlink{macros_8h_a5d71fb70fa6ea879c5d01269ee12201a}{DRACO\_DCHECK}}(\mbox{\hyperlink{classdraco_1_1_corner_table_a5d4f860772c9e302df15e1009ccf5ff3}{GetValenceCache}}().IsCacheEmpty());}
+\DoxyCodeLine{00341\ \ \ \ \ \textcolor{keywordflow}{if}\ (face\ !=\ kInvalidFaceIndex)\ \{}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_aac30b704609fccad3db268f914c2ffc0}{CornerIndex}}\ first\_corner\ =\ \mbox{\hyperlink{classdraco_1_1_corner_table_ac4badf879151e92f5cdec28968144f8c}{FirstCorner}}(face);}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ \{}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \ \ corner\_to\_vertex\_map\_[first\_corner\ +\ i]\ =\ kInvalidVertexIndex;}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00346\ \ \ \ \ \}}
+\DoxyCodeLine{00347\ \ \ \}}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \ \ \textcolor{comment}{//\ Updates\ mapping\ between\ faces\ and\ a\ vertex\ using\ the\ corners\ mapped\ to}}
+\DoxyCodeLine{00350\ \ \ \textcolor{comment}{//\ the\ provided\ vertex.}}
+\DoxyCodeLine{00351\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a868529b8a687fe079d0030cd6df66edd}{UpdateFaceToVertexMap}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacedraco_a13b5fd03eadf2358cd1f4c66d2746a70}{VertexIndex}}\ vertex);}
+\DoxyCodeLine{00352\ }
+\DoxyCodeLine{00353\ \ \ \textcolor{comment}{//\ Allows\ access\ to\ an\ internal\ object\ for\ caching\ valences.\ \ The\ object\ can}}
+\DoxyCodeLine{00354\ \ \ \textcolor{comment}{//\ be\ instructed\ to\ cache\ or\ uncache\ all\ valences\ and\ then\ its\ interfaces}}
+\DoxyCodeLine{00355\ \ \ \textcolor{comment}{//\ queried\ directly\ for\ valences\ with\ differing\ performance/confidence}}
+\DoxyCodeLine{00356\ \ \ \textcolor{comment}{//\ qualities.\ \ If\ the\ mesh\ or\ table\ is\ modified\ the\ cache\ should\ be\ discarded}}
+\DoxyCodeLine{00357\ \ \ \textcolor{comment}{//\ and\ not\ relied\ on\ as\ it\ does\ not\ automatically\ update\ or\ invalidate\ for}}
+\DoxyCodeLine{00358\ \ \ \textcolor{comment}{//\ performance\ reasons.}}
+\DoxyCodeLine{00359\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_valence_cache}{draco::ValenceCache<CornerTable>}}\ \&\mbox{\hyperlink{classdraco_1_1_corner_table_a5d4f860772c9e302df15e1009ccf5ff3}{GetValenceCache}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00360\ \ \ \ \ \textcolor{keywordflow}{return}\ valence\_cache\_;}
+\DoxyCodeLine{00361\ \ \ \}}
+\DoxyCodeLine{00362\ }
+\DoxyCodeLine{00363\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00364\ \ \ \textcolor{comment}{//\ Computes\ opposite\ corners\ mapping\ from\ the\ data\ stored\ in}}
+\DoxyCodeLine{00365\ \ \ \textcolor{comment}{//\ |corner\_to\_vertex\_map\_|.}}
+\DoxyCodeLine{00366\ \ \ \textcolor{keywordtype}{bool}\ ComputeOppositeCorners(\textcolor{keywordtype}{int}\ *\mbox{\hyperlink{classdraco_1_1_corner_table_a3039980abd4d9619e1dbd032b427eb34}{num\_vertices}});}
+\DoxyCodeLine{00367\ }
+\DoxyCodeLine{00368\ \ \ \textcolor{comment}{//\ Finds\ and\ breaks\ non-\/manifold\ edges\ in\ the\ 1-\/ring\ neighborhood\ around}}
+\DoxyCodeLine{00369\ \ \ \textcolor{comment}{//\ vertices\ (vertices\ themselves\ will\ be\ split\ in\ the\ ComputeVertexCorners()}}
+\DoxyCodeLine{00370\ \ \ \textcolor{comment}{//\ function\ if\ necessary).}}
+\DoxyCodeLine{00371\ \ \ \textcolor{keywordtype}{bool}\ BreakNonManifoldEdges();}
+\DoxyCodeLine{00372\ }
+\DoxyCodeLine{00373\ \ \ \textcolor{comment}{//\ Computes\ the\ lookup\ map\ for\ going\ from\ a\ vertex\ to\ a\ corner.\ This\ method}}
+\DoxyCodeLine{00374\ \ \ \textcolor{comment}{//\ can\ handle\ non-\/manifold\ vertices\ by\ splitting\ them\ into\ multiple\ manifold}}
+\DoxyCodeLine{00375\ \ \ \textcolor{comment}{//\ vertices.}}
+\DoxyCodeLine{00376\ \ \ \textcolor{keywordtype}{bool}\ ComputeVertexCorners(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a3039980abd4d9619e1dbd032b427eb34}{num\_vertices}});}
+\DoxyCodeLine{00377\ }
+\DoxyCodeLine{00378\ \ \ \textcolor{comment}{//\ Each\ three\ consecutive\ corners\ represent\ one\ face.}}
+\DoxyCodeLine{00379\ \ \ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<CornerIndex,\ VertexIndex>}}\ corner\_to\_vertex\_map\_;}
+\DoxyCodeLine{00380\ \ \ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<CornerIndex,\ CornerIndex>}}\ opposite\_corners\_;}
+\DoxyCodeLine{00381\ \ \ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<VertexIndex,\ CornerIndex>}}\ vertex\_corners\_;}
+\DoxyCodeLine{00382\ }
+\DoxyCodeLine{00383\ \ \ \textcolor{keywordtype}{int}\ num\_original\_vertices\_;}
+\DoxyCodeLine{00384\ \ \ \textcolor{keywordtype}{int}\ num\_degenerated\_faces\_;}
+\DoxyCodeLine{00385\ \ \ \textcolor{keywordtype}{int}\ num\_isolated\_vertices\_;}
+\DoxyCodeLine{00386\ \ \ \mbox{\hyperlink{classdraco_1_1_index_type_vector}{IndexTypeVector<VertexIndex,\ VertexIndex>}}\ non\_manifold\_vertex\_parents\_;}
+\DoxyCodeLine{00387\ }
+\DoxyCodeLine{00388\ \ \ \mbox{\hyperlink{classdraco_1_1_valence_cache}{draco::ValenceCache<CornerTable>}}\ valence\_cache\_;}
+\DoxyCodeLine{00389\ \};}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \textcolor{comment}{//\ A\ special\ case\ to\ denote\ an\ invalid\ corner\ table\ triangle.}}
+\DoxyCodeLine{00392\ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{classdraco_1_1_corner_table_a479efb3d4b74451332a99e68c0ede116}{CornerTable::FaceType}}\ kInvalidFace(}
+\DoxyCodeLine{00393\ \ \ \ \ \{\{kInvalidVertexIndex,\ kInvalidVertexIndex,\ kInvalidVertexIndex\}\});}
+\DoxyCodeLine{00394\ }
+\DoxyCodeLine{00395\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00396\ }
+\DoxyCodeLine{00397\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_MESH\_CORNER\_TABLE\_H\_}}
+
+\end{DoxyCode}

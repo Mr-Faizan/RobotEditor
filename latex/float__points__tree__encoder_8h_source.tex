@@ -1,0 +1,132 @@
+\doxysection{float\+\_\+points\+\_\+tree\+\_\+encoder.\+h}
+\hypertarget{float__points__tree__encoder_8h_source}{}\label{float__points__tree__encoder_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/point\_cloud/algorithms/float\_points\_tree\_encoder.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/point\_cloud/algorithms/float\_points\_tree\_encoder.h}}
+\mbox{\hyperlink{float__points__tree__encoder_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_POINT\_CLOUD\_ALGORITHMS\_FLOAT\_POINTS\_TREE\_ENCODER\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_POINT\_CLOUD\_ALGORITHMS\_FLOAT\_POINTS\_TREE\_ENCODER\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{point__cloud__compression__method_8h}{draco/compression/point\_cloud/algorithms/point\_cloud\_compression\_method.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{point__cloud__types_8h}{draco/compression/point\_cloud/algorithms/point\_cloud\_types.h}}"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{quantize__points__3_8h}{draco/compression/point\_cloud/algorithms/quantize\_points\_3.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{encoder__buffer_8h}{draco/core/encoder\_buffer.h}}"{}}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ This\ class\ encodes\ a\ given\ point\ cloud\ based\ on\ the\ point\ cloud\ compression}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ algorithm\ in:}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ Olivier\ Devillers\ and\ Pierre-\/Marie\ Gandoin}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ "{}Geometric\ compression\ for\ interactive\ transmission"{}}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ In\ principle\ the\ algorithm\ keeps\ on\ splitting\ the\ point\ cloud\ in\ the\ middle}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ while\ alternating\ the\ axes.\ For\ 3D\ this\ results\ in\ an\ Octree\ like\ structure.}}
+\DoxyCodeLine{00035\ \textcolor{comment}{//\ In\ each\ step\ we\ encode\ the\ number\ of\ points\ in\ the\ first\ half.}}
+\DoxyCodeLine{00036\ \textcolor{comment}{//\ The\ algorithm\ uses\ quantization\ and\ does\ not\ preserve\ the\ order\ of\ points.}}
+\DoxyCodeLine{00037\ \textcolor{comment}{//}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ However,\ the\ algorithm\ here\ differs\ from\ the\ original\ as\ follows:}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ The\ algorithm\ keeps\ on\ splitting\ the\ point\ cloud\ in\ the\ middle\ of\ the\ axis}}
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ that\ keeps\ the\ point\ cloud\ as\ clustered\ as\ possible,\ which\ gives\ a\ better}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ compression\ rate.}}
+\DoxyCodeLine{00042\ \textcolor{comment}{//\ The\ number\ of\ points\ is\ encode\ by\ the\ deviation\ from\ the\ half\ of\ the\ points}}
+\DoxyCodeLine{00043\ \textcolor{comment}{//\ in\ the\ smaller\ half\ of\ the\ two.\ This\ results\ in\ a\ better\ compression\ rate\ as}}
+\DoxyCodeLine{00044\ \textcolor{comment}{//\ there\ are\ more\ leading\ zeros,\ which\ is\ then\ compressed\ better\ by\ the}}
+\DoxyCodeLine{00045\ \textcolor{comment}{//\ arithmetic\ encoding.}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{comment}{//\ TODO(b/199760123):\ Remove\ class\ because\ it\ duplicates\ quantization\ code.}}
+\DoxyCodeLine{00048\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a72a49ddcdb54c1e22ce6df62cde19f6d}{FloatPointsTreeEncoder}}\ \{}
+\DoxyCodeLine{00049\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00050\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a72a49ddcdb54c1e22ce6df62cde19f6d}{FloatPointsTreeEncoder}}(\mbox{\hyperlink{namespacedraco_a7415eaf2dd195c4bdeea0acca81d8da1}{PointCloudCompressionMethod}}\ method);}
+\DoxyCodeLine{00051\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a72a49ddcdb54c1e22ce6df62cde19f6d}{FloatPointsTreeEncoder}}(\mbox{\hyperlink{namespacedraco_a7415eaf2dd195c4bdeea0acca81d8da1}{PointCloudCompressionMethod}}\ method,}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a84ddd369f129764a93bf3507fc403155}{quantization\_bits}},}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a2890b55870f0c0f3d917a288e0da7cd4}{compression\_level}});}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ InputIteratorT>}
+\DoxyCodeLine{00056\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_ac347a2a174686c4d420ab92a32e155b5}{EncodePointCloud}}(InputIteratorT\ points\_begin,\ InputIteratorT\ points\_end);}
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{classdraco_1_1_encoder_buffer}{EncoderBuffer}}\ *\mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a055c97d164f544db734acc5206a3ce89}{buffer}}()\ \{\ \textcolor{keywordflow}{return}\ \&buffer\_;\ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ uint32\_t\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a164347da562c642d699529d51916e128}{version}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ version\_;\ \}}
+\DoxyCodeLine{00060\ \ \ uint32\_t\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a84ddd369f129764a93bf3507fc403155}{quantization\_bits}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ qinfo\_.quantization\_bits;\ \}}
+\DoxyCodeLine{00061\ \ \ uint32\_t\ \&\mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a701bb54b7961499a925a9b5cb9837a3d}{quantization\_bits}}()\ \{\ \textcolor{keywordflow}{return}\ qinfo\_.quantization\_bits;\ \}}
+\DoxyCodeLine{00062\ \ \ uint32\_t\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a2890b55870f0c0f3d917a288e0da7cd4}{compression\_level}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ compression\_level\_;\ \}}
+\DoxyCodeLine{00063\ \ \ uint32\_t\ \&\mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_adc9ddefd4d288fd5f87817f110f79672}{compression\_level}}()\ \{\ \textcolor{keywordflow}{return}\ compression\_level\_;\ \}}
+\DoxyCodeLine{00064\ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a6a97f13da0c1ed4349eedd173f034078}{range}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ qinfo\_.range;\ \}}
+\DoxyCodeLine{00065\ \ \ uint32\_t\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a527e2831a35f81b250f60952263a2725}{num\_points}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ num\_points\_;\ \}}
+\DoxyCodeLine{00066\ \ \ std::string\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a45ff3d6f513900fbabdab135a604191b}{identification\_string}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordflow}{if}\ (method\_\ ==\ \mbox{\hyperlink{namespacedraco_a7415eaf2dd195c4bdeea0acca81d8da1a63817652690383b56e00e0d22da555a8}{KDTREE}})\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}FloatPointsTreeEncoder:\ IntegerPointsKDTreeEncoder"{}};}
+\DoxyCodeLine{00069\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}FloatPointsTreeEncoder:\ Unsupported\ Method"{}};}
+\DoxyCodeLine{00071\ \ \ \ \ \}}
+\DoxyCodeLine{00072\ \ \ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordtype}{void}\ Clear()\ \{\ buffer\_.\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3abbd3a61fc8c05f789b03b50ec17581}{Clear}}();\ \}}
+\DoxyCodeLine{00076\ \ \ \textcolor{keywordtype}{bool}\ EncodePointCloudKdTreeInternal(std::vector<Point3ui>\ *qpoints);}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ uint32\_t\ version\_;}
+\DoxyCodeLine{00079\ \ \ QuantizationInfo\ qinfo\_;}
+\DoxyCodeLine{00080\ \ \ \mbox{\hyperlink{namespacedraco_a7415eaf2dd195c4bdeea0acca81d8da1}{PointCloudCompressionMethod}}\ method\_;}
+\DoxyCodeLine{00081\ \ \ uint32\_t\ num\_points\_;}
+\DoxyCodeLine{00082\ \ \ EncoderBuffer\ buffer\_;}
+\DoxyCodeLine{00083\ \ \ uint32\_t\ compression\_level\_;}
+\DoxyCodeLine{00084\ \};}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ InputIteratorT>}
+\DoxyCodeLine{00087\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_ac347a2a174686c4d420ab92a32e155b5}{FloatPointsTreeEncoder::EncodePointCloud}}(InputIteratorT\ points\_begin,}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ InputIteratorT\ points\_end)\ \{}
+\DoxyCodeLine{00089\ \ \ Clear();}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \textcolor{comment}{//\ Collect\ necessary\ data\ for\ encoding.}}
+\DoxyCodeLine{00092\ \ \ num\_points\_\ =\ std::distance(points\_begin,\ points\_end);}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ \textcolor{comment}{//\ TODO(b/199760123):\ Extend\ quantization\ tools\ to\ make\ this\ more\ automatic.}}
+\DoxyCodeLine{00095\ \ \ \textcolor{comment}{//\ Compute\ range\ of\ points\ for\ quantization}}
+\DoxyCodeLine{00096\ \ \ std::vector<Point3ui>\ qpoints;}
+\DoxyCodeLine{00097\ \ \ qpoints.reserve(num\_points\_);}
+\DoxyCodeLine{00098\ \ \ \mbox{\hyperlink{namespacedraco_a9ee8db63fa237f66439958c01e15a5d8}{QuantizePoints3}}(points\_begin,\ points\_end,\ \&qinfo\_,}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::back\_inserter(qpoints));}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \ \ \textcolor{comment}{//\ Encode\ header.}}
+\DoxyCodeLine{00102\ \ \ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a055c97d164f544db734acc5206a3ce89}{buffer}}()-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(version\_);}
+\DoxyCodeLine{00103\ \ \ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a055c97d164f544db734acc5206a3ce89}{buffer}}()-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(\textcolor{keyword}{static\_cast<}int8\_t\textcolor{keyword}{>}(method\_));}
+\DoxyCodeLine{00104\ \ \ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a055c97d164f544db734acc5206a3ce89}{buffer}}()-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(qinfo\_.quantization\_bits);}
+\DoxyCodeLine{00105\ \ \ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a055c97d164f544db734acc5206a3ce89}{buffer}}()-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(qinfo\_.range);}
+\DoxyCodeLine{00106\ \ \ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a055c97d164f544db734acc5206a3ce89}{buffer}}()-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(num\_points\_);}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \ \ \textcolor{keywordflow}{if}\ (method\_\ ==\ \mbox{\hyperlink{namespacedraco_a7415eaf2dd195c4bdeea0acca81d8da1a63817652690383b56e00e0d22da555a8}{KDTREE}})\ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_float_points_tree_encoder_a055c97d164f544db734acc5206a3ce89}{buffer}}()-\/>\mbox{\hyperlink{classdraco_1_1_encoder_buffer_a3e23543c96d69021db64a76ae02f7245}{Encode}}(compression\_level\_);}
+\DoxyCodeLine{00110\ \ \ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \textcolor{keywordflow}{if}\ (num\_points\_\ ==\ 0)\ \{}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00114\ \ \ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordflow}{if}\ (method\_\ ==\ \mbox{\hyperlink{namespacedraco_a7415eaf2dd195c4bdeea0acca81d8da1a63817652690383b56e00e0d22da555a8}{KDTREE}})\ \{}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{keywordflow}{return}\ EncodePointCloudKdTreeInternal(\&qpoints);}
+\DoxyCodeLine{00118\ \ \ \}\ \textcolor{keywordflow}{else}\ \{\ \ \textcolor{comment}{//\ Unsupported\ method.}}
+\DoxyCodeLine{00119\ \ \ \ \ fprintf(stderr,\ \textcolor{stringliteral}{"{}Method\ not\ supported.\ \(\backslash\)n"{}});}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00121\ \ \ \}}
+\DoxyCodeLine{00122\ \}}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_POINT\_CLOUD\_ALGORITHMS\_FLOAT\_POINTS\_TREE\_ENCODER\_H\_}}
+
+\end{DoxyCode}

@@ -1,0 +1,59 @@
+\doxysection{rans\+\_\+symbol\+\_\+coding.\+h}
+\hypertarget{rans__symbol__coding_8h_source}{}\label{rans__symbol__coding_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/entropy/rans\_symbol\_coding.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/entropy/rans\_symbol\_coding.h}}
+\mbox{\hyperlink{rans__symbol__coding_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ File\ providing\ shared\ functionality\ for\ RAnsSymbolEncoder\ and}}
+\DoxyCodeLine{00016\ \textcolor{comment}{//\ RAnsSymbolDecoder\ (see\ rans\_symbol\_encoder.h\ /\ rans\_symbol\_decoder.h).}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ENTROPY\_RANS\_SYMBOL\_CODING\_H\_}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ENTROPY\_RANS\_SYMBOL\_CODING\_H\_}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{ans_8h}{draco/compression/entropy/ans.h}}"{}}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{comment}{//\ Computes\ the\ desired\ precision\ of\ the\ rANS\ method\ for\ the\ specified\ number\ of}}
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ unique\ symbols\ the\ input\ data\ (defined\ by\ their\ bit\_length).}}
+\DoxyCodeLine{00026\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{namespacedraco_a8a764c68b7558a04eb6df1cd63c7c68a}{ComputeRAnsUnclampedPrecision}}(\textcolor{keywordtype}{int}\ symbols\_bit\_length)\ \{}
+\DoxyCodeLine{00027\ \ \ \textcolor{keywordflow}{return}\ (3\ *\ symbols\_bit\_length)\ /\ 2;}
+\DoxyCodeLine{00028\ \}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ Computes\ the\ desired\ precision\ clamped\ to\ guarantee\ a\ valid\ functionality\ of}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ our\ rANS\ library\ (which\ is\ between\ 12\ to\ 20\ bits).}}
+\DoxyCodeLine{00032\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{namespacedraco_a9bc895806e9c827059b1eebf5731c11b}{ComputeRAnsPrecisionFromUniqueSymbolsBitLength}}(}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{keywordtype}{int}\ symbols\_bit\_length)\ \{}
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_a8a764c68b7558a04eb6df1cd63c7c68a}{ComputeRAnsUnclampedPrecision}}(symbols\_bit\_length)\ <\ 12\ ?\ 12}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{namespacedraco_a8a764c68b7558a04eb6df1cd63c7c68a}{ComputeRAnsUnclampedPrecision}}(symbols\_bit\_length)\ >\ 20}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \ \ \ \ \ ?\ 20}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ \mbox{\hyperlink{namespacedraco_a8a764c68b7558a04eb6df1cd63c7c68a}{ComputeRAnsUnclampedPrecision}}(symbols\_bit\_length);}
+\DoxyCodeLine{00038\ \}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ Compute\ approximate\ frequency\ table\ size\ needed\ for\ storing\ the\ provided}}
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ symbols.}}
+\DoxyCodeLine{00042\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ int64\_t\ ApproximateRAnsFrequencyTableBits(}
+\DoxyCodeLine{00043\ \ \ \ \ int32\_t\ max\_value,\ \textcolor{keywordtype}{int}\ num\_unique\_symbols)\ \{}
+\DoxyCodeLine{00044\ \ \ \textcolor{comment}{//\ Approximate\ number\ of\ bits\ for\ storing\ zero\ frequency\ entries\ using\ the}}
+\DoxyCodeLine{00045\ \ \ \textcolor{comment}{//\ run\ length\ encoding\ (with\ max\ length\ of\ 64).}}
+\DoxyCodeLine{00046\ \ \ \textcolor{keyword}{const}\ int64\_t\ table\_zero\_frequency\_bits\ =}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ 8\ *\ (num\_unique\_symbols\ +\ (max\_value\ -\/\ num\_unique\_symbols)\ /\ 64);}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordflow}{return}\ 8\ *\ num\_unique\_symbols\ +\ table\_zero\_frequency\_bits;}
+\DoxyCodeLine{00049\ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ENTROPY\_RANS\_SYMBOL\_CODING\_H\_}}
+
+\end{DoxyCode}

@@ -1,0 +1,200 @@
+\doxysection{prediction\+\_\+scheme\+\_\+decoder\+\_\+factory.\+h}
+\hypertarget{prediction__scheme__decoder__factory_8h_source}{}\label{prediction__scheme__decoder__factory_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/prediction\_scheme\_decoder\_factory.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/compression/attributes/prediction\_schemes/prediction\_scheme\_decoder\_factory.h}}
+\mbox{\hyperlink{prediction__scheme__decoder__factory_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2016\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ Functions\ for\ creating\ prediction\ schemes\ for\ decoders\ using\ the\ provided}}
+\DoxyCodeLine{00016\ \textcolor{comment}{//\ prediction\ method\ id.}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#ifndef\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_DECODER\_FACTORY\_H\_}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#define\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_DECODER\_FACTORY\_H\_}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__prediction__scheme__constrained__multi__parallelogram__decoder_8h}{draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_constrained\_multi\_parallelogram\_decoder.h}}"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#ifdef\ DRACO\_NORMAL\_ENCODING\_SUPPORTED}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__prediction__scheme__geometric__normal__decoder_8h}{draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_geometric\_normal\_decoder.h}}"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__prediction__scheme__multi__parallelogram__decoder_8h}{draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_multi\_parallelogram\_decoder.h}}"{}}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__prediction__scheme__parallelogram__decoder_8h}{draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_parallelogram\_decoder.h}}"{}}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__prediction__scheme__tex__coords__decoder_8h}{draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_tex\_coords\_decoder.h}}"{}}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__prediction__scheme__tex__coords__portable__decoder_8h}{draco/compression/attributes/prediction\_schemes/mesh\_prediction\_scheme\_tex\_coords\_portable\_decoder.h}}"{}}}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{prediction__scheme__decoder_8h}{draco/compression/attributes/prediction\_schemes/prediction\_scheme\_decoder.h}}"{}}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{prediction__scheme__delta__decoder_8h}{draco/compression/attributes/prediction\_schemes/prediction\_scheme\_delta\_decoder.h}}"{}}}
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{prediction__scheme__factory_8h}{draco/compression/attributes/prediction\_schemes/prediction\_scheme\_factory.h}}"{}}}
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mesh__decoder_8h}{draco/compression/mesh/mesh\_decoder.h}}"{}}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{comment}{//\ Factory\ class\ for\ creating\ mesh\ prediction\ schemes.\ The\ factory\ implements}}
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ operator()\ that\ is\ used\ to\ create\ an\ appropriate\ mesh\ prediction\ scheme\ in}}
+\DoxyCodeLine{00039\ \textcolor{comment}{//\ CreateMeshPredictionScheme()\ function\ in\ prediction\_scheme\_factory.h}}
+\DoxyCodeLine{00040\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT>}
+\DoxyCodeLine{00041\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_mesh_prediction_scheme_decoder_factory}{MeshPredictionSchemeDecoderFactory}}\ \{}
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ Operator\ ()\ specialized\ for\ the\ wrap\ transform.\ Wrap\ transform\ can\ be\ used}}
+\DoxyCodeLine{00043\ \ \ \textcolor{comment}{//\ for\ all\ mesh\ prediction\ schemes.\ The\ specialization\ is\ done\ in\ compile\ time}}
+\DoxyCodeLine{00044\ \ \ \textcolor{comment}{//\ to\ prevent\ instantiations\ of\ unneeded\ combinations\ of\ prediction\ schemes\ +}}
+\DoxyCodeLine{00045\ \ \ \textcolor{comment}{//\ prediction\ transforms.}}
+\DoxyCodeLine{00046\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class\ }TransformT,\ \textcolor{keyword}{class\ }MeshDataT,}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_a97f6eb795ad70e03e96cb38a944c8f96}{PredictionSchemeTransformType}}\ \mbox{\hyperlink{gmock-spec-builders__test_8cc_a95606368148f3e5aab5db46c32466afd}{Method}}>}
+\DoxyCodeLine{00048\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_mesh_prediction_scheme_decoder_factory_1_1_dispatch_functor}{DispatchFunctor}}\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>\ \mbox{\hyperlink{structdraco_1_1_mesh_prediction_scheme_decoder_factory_1_1_dispatch_functor_aed65e86635cdb6626b9050418b4dfa21}{operator()}}(}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91b}{PredictionSchemeMethod}}\ method,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_attribute}{PointAttribute}}\ *attribute,}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ TransformT\ \&transform,\ \textcolor{keyword}{const}\ MeshDataT\ \&mesh\_data,}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ uint16\_t\ bitstream\_version)\ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (method\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba07807a9c3416a9ff0f9746b30de081b5}{MESH\_PREDICTION\_PARALLELOGRAM}})\ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>(}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{new}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_parallelogram_decoder}{MeshPredictionSchemeParallelogramDecoder}}<DataTypeT,\ TransformT,}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MeshDataT>(}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attribute,\ transform,\ mesh\_data));}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#ifdef\ DRACO\_BACKWARDS\_COMPATIBILITY\_SUPPORTED}}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (method\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba98c6d95a8483740f9436687f1cd48b79}{MESH\_PREDICTION\_MULTI\_PARALLELOGRAM}})\ \{}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>(}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{new}\ MeshPredictionSchemeMultiParallelogramDecoder<}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ DataTypeT,\ TransformT,\ MeshDataT>(attribute,\ transform,}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mesh\_data));}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (method\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba5f87ba5934377c3e8562664827dce710}{MESH\_PREDICTION\_CONSTRAINED\_MULTI\_PARALLELOGRAM}})\ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>(}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{new}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_constrained_multi_parallelogram_decoder}{MeshPredictionSchemeConstrainedMultiParallelogramDecoder}}<}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ DataTypeT,\ TransformT,\ MeshDataT>(attribute,\ transform,}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mesh\_data));}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00073\ \textcolor{preprocessor}{\#ifdef\ DRACO\_BACKWARDS\_COMPATIBILITY\_SUPPORTED}}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (method\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba3cc6d7ebd3afcfd6e2a96bc1cf99e324}{MESH\_PREDICTION\_TEX\_COORDS\_DEPRECATED}})\ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>(}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{new}\ MeshPredictionSchemeTexCoordsDecoder<DataTypeT,\ TransformT,}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MeshDataT>(}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attribute,\ transform,\ mesh\_data,\ bitstream\_version));}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (method\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba9286fe6ab38ccaeb798c6d6c7386188a}{MESH\_PREDICTION\_TEX\_COORDS\_PORTABLE}})\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>(}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{new}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_tex_coords_portable_decoder}{MeshPredictionSchemeTexCoordsPortableDecoder}}<}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ DataTypeT,\ TransformT,\ MeshDataT>(attribute,\ transform,}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mesh\_data));}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00087\ \textcolor{preprocessor}{\#ifdef\ DRACO\_NORMAL\_ENCODING\_SUPPORTED}}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (method\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba62392c35d5c9fb6ab8c9cf4385e426a8}{MESH\_PREDICTION\_GEOMETRIC\_NORMAL}})\ \{}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>(}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{new}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_decoder}{MeshPredictionSchemeGeometricNormalDecoder}}<}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ DataTypeT,\ TransformT,\ MeshDataT>(attribute,\ transform,}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mesh\_data));}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00094\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00096\ \ \ \ \ \}}
+\DoxyCodeLine{00097\ \ \ \};}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \textcolor{preprocessor}{\#ifdef\ DRACO\_NORMAL\_ENCODING\_SUPPORTED}}
+\DoxyCodeLine{00100\ \ \ \textcolor{comment}{//\ Operator\ ()\ specialized\ for\ normal\ octahedron\ transforms.\ These\ transforms}}
+\DoxyCodeLine{00101\ \ \ \textcolor{comment}{//\ are\ currently\ used\ only\ by\ the\ geometric\ normal\ prediction\ scheme\ (the}}
+\DoxyCodeLine{00102\ \ \ \textcolor{comment}{//\ transform\ is\ also\ used\ by\ delta\ coding,\ but\ delta\ predictor\ is\ not}}
+\DoxyCodeLine{00103\ \ \ \textcolor{comment}{//\ constructed\ in\ this\ function).}}
+\DoxyCodeLine{00104\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ TransformT,\ \textcolor{keyword}{class}\ MeshDataT>}
+\DoxyCodeLine{00105\ \ \ \textcolor{keyword}{struct\ }DispatchFunctor<TransformT,\ MeshDataT,}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_a97f6eb795ad70e03e96cb38a944c8f96a563db38dfa0e40f3a956fc6acc3142ef}{PREDICTION\_TRANSFORM\_NORMAL\_OCTAHEDRON\_CANONICALIZED}}>\ \{}
+\DoxyCodeLine{00107\ \ \ \ \ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>\ \mbox{\hyperlink{structdraco_1_1_mesh_prediction_scheme_decoder_factory_1_1_dispatch_functor_aed65e86635cdb6626b9050418b4dfa21}{operator()}}(}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91b}{PredictionSchemeMethod}}\ method,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_attribute}{PointAttribute}}\ *attribute,}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ TransformT\ \&transform,\ \textcolor{keyword}{const}\ MeshDataT\ \&mesh\_data,}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ uint16\_t\ bitstream\_version)\ \{}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (method\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba62392c35d5c9fb6ab8c9cf4385e426a8}{MESH\_PREDICTION\_GEOMETRIC\_NORMAL}})\ \{}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>(}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{new}\ \mbox{\hyperlink{classdraco_1_1_mesh_prediction_scheme_geometric_normal_decoder}{MeshPredictionSchemeGeometricNormalDecoder}}<}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ DataTypeT,\ TransformT,\ MeshDataT>(attribute,\ transform,}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mesh\_data));}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00118\ \ \ \ \ \}}
+\DoxyCodeLine{00119\ \ \ \};}
+\DoxyCodeLine{00120\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ TransformT,\ \textcolor{keyword}{class}\ MeshDataT>}
+\DoxyCodeLine{00121\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structdraco_1_1_mesh_prediction_scheme_decoder_factory_1_1_dispatch_functor}{DispatchFunctor}}<TransformT,\ MeshDataT,}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_a97f6eb795ad70e03e96cb38a944c8f96ab8bd6ca48469e48d9cc8a360e6f4bd86}{PREDICTION\_TRANSFORM\_NORMAL\_OCTAHEDRON}}>\ \{}
+\DoxyCodeLine{00123\ \ \ \ \ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>\ \mbox{\hyperlink{structdraco_1_1_mesh_prediction_scheme_decoder_factory_1_1_dispatch_functor_aed65e86635cdb6626b9050418b4dfa21}{operator()}}(}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91b}{PredictionSchemeMethod}}\ method,\ \textcolor{keyword}{const}\ PointAttribute\ *attribute,}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ TransformT\ \&transform,\ \textcolor{keyword}{const}\ MeshDataT\ \&mesh\_data,}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ uint16\_t\ bitstream\_version)\ \{}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (method\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba62392c35d5c9fb6ab8c9cf4385e426a8}{MESH\_PREDICTION\_GEOMETRIC\_NORMAL}})\ \{}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>(}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{new}\ MeshPredictionSchemeGeometricNormalDecoder<}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ DataTypeT,\ TransformT,\ MeshDataT>(attribute,\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a154943ef2b12b495a5323509a4ffab1b}{transform}},}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mesh\_data));}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00134\ \ \ \ \ \}}
+\DoxyCodeLine{00135\ \ \ \};}
+\DoxyCodeLine{00136\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}\ TransformT,\ \textcolor{keyword}{class}\ MeshDataT>}
+\DoxyCodeLine{00139\ \ \ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>\ \mbox{\hyperlink{structdraco_1_1_mesh_prediction_scheme_decoder_factory_a93cf9d41a966290c2ecddc6f88ebd762}{operator()}}(}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91b}{PredictionSchemeMethod}}\ method,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_attribute}{PointAttribute}}\ *attribute,}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \textcolor{keyword}{const}\ TransformT\ \&transform,\ \textcolor{keyword}{const}\ MeshDataT\ \&mesh\_data,}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ uint16\_t\ bitstream\_version)\ \{}
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structdraco_1_1_mesh_prediction_scheme_decoder_factory_1_1_dispatch_functor}{DispatchFunctor<TransformT,\ MeshDataT,\ TransformT::GetType()>}}()(}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ method,\ attribute,\ transform,\ mesh\_data,\ bitstream\_version);}
+\DoxyCodeLine{00145\ \ \ \}}
+\DoxyCodeLine{00146\ \};}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \textcolor{comment}{//\ Creates\ a\ prediction\ scheme\ for\ a\ given\ decoder\ and\ given\ prediction\ method.}}
+\DoxyCodeLine{00149\ \textcolor{comment}{//\ The\ prediction\ schemes\ are\ automatically\ initialized\ with\ decoder\ specific}}
+\DoxyCodeLine{00150\ \textcolor{comment}{//\ data\ if\ needed.}}
+\DoxyCodeLine{00151\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT,\ \textcolor{keyword}{class}\ TransformT>}
+\DoxyCodeLine{00152\ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>}
+\DoxyCodeLine{00153\ \mbox{\hyperlink{namespacedraco_aaa6759408e9feb21c5b0a33bdc618905}{CreatePredictionSchemeForDecoder}}(\mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91b}{PredictionSchemeMethod}}\ method,\ \textcolor{keywordtype}{int}\ att\_id,}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_cloud_decoder}{PointCloudDecoder}}\ *decoder,}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ TransformT\ \&transform)\ \{}
+\DoxyCodeLine{00156\ \ \ \textcolor{keywordflow}{if}\ (method\ ==\ \mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91ba24b333a24b2d166880d3290b7f377509}{PREDICTION\_NONE}})\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00158\ \ \ \}}
+\DoxyCodeLine{00159\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_attribute}{PointAttribute}}\ *\textcolor{keyword}{const}\ att\ =\ decoder-\/>\mbox{\hyperlink{classdraco_1_1_point_cloud_decoder_a114ca8c5698adde62c133a4da9d08dee}{point\_cloud}}()-\/>\mbox{\hyperlink{classdraco_1_1_point_cloud_a8efdc537e4fd3f010ccbd9940f2c5d19}{attribute}}(att\_id);}
+\DoxyCodeLine{00160\ \ \ \textcolor{keywordflow}{if}\ (decoder-\/>\mbox{\hyperlink{classdraco_1_1_point_cloud_decoder_a82c7b2077ea7f329f0e9f536723c211d}{GetGeometryType}}()\ ==\ \mbox{\hyperlink{namespacedraco_a4838aae0aeb6b2aa8b79d480018e5904a197f5c4e0de56dd1aafe1e8b323261ec}{TRIANGULAR\_MESH}})\ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{comment}{//\ Cast\ the\ decoder\ to\ mesh\ decoder.\ This\ is\ not\ necessarily\ safe\ if\ there}}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{comment}{//\ is\ some\ other\ decoder\ decides\ to\ use\ TRIANGULAR\_MESH\ as\ the\ return\ type,}}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{comment}{//\ but\ unfortunately\ there\ is\ not\ nice\ work\ around\ for\ this\ without\ using}}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{comment}{//\ RTTI\ (double\ dispatch\ and\ similar\ concepts\ will\ not\ work\ because\ of\ the}}
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{comment}{//\ template\ nature\ of\ the\ prediction\ schemes).}}
+\DoxyCodeLine{00166\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_mesh_decoder}{MeshDecoder}}\ *\textcolor{keyword}{const}\ mesh\_decoder\ =}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}\textcolor{keyword}{const\ }\mbox{\hyperlink{classdraco_1_1_mesh_decoder}{MeshDecoder}}\ *\textcolor{keyword}{>}(decoder);}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{keyword}{auto}\ ret\ =\ \mbox{\hyperlink{namespacedraco_a94e806834bb886a492af52bdd5d7ba74}{CreateMeshPredictionScheme}}<}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classdraco_1_1_mesh_decoder}{MeshDecoder}},\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_decoder}{PredictionSchemeDecoder<DataTypeT,\ TransformT>}},}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structdraco_1_1_mesh_prediction_scheme_decoder_factory}{MeshPredictionSchemeDecoderFactory<DataTypeT>}}>(}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ mesh\_decoder,\ method,\ att\_id,\ transform,\ decoder-\/>\mbox{\hyperlink{classdraco_1_1_point_cloud_decoder_ab69d05b92e2d85811c5223733a5e549b}{bitstream\_version}}());}
+\DoxyCodeLine{00173\ \ \ \ \ \textcolor{keywordflow}{if}\ (ret)\ \{}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{00175\ \ \ \ \ \}}
+\DoxyCodeLine{00176\ \ \ \ \ \textcolor{comment}{//\ Otherwise\ try\ to\ create\ another\ prediction\ scheme.}}
+\DoxyCodeLine{00177\ \ \ \}}
+\DoxyCodeLine{00178\ \ \ \textcolor{comment}{//\ Create\ delta\ decoder.}}
+\DoxyCodeLine{00179\ \ \ \textcolor{keywordflow}{return}\ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>(}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \textcolor{keyword}{new}\ \mbox{\hyperlink{classdraco_1_1_prediction_scheme_delta_decoder}{PredictionSchemeDeltaDecoder<DataTypeT,\ TransformT>}}(att,\ transform));}
+\DoxyCodeLine{00181\ \}}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00183\ \textcolor{comment}{//\ Create\ a\ prediction\ scheme\ using\ a\ default\ transform\ constructor.}}
+\DoxyCodeLine{00184\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ DataTypeT,\ \textcolor{keyword}{class}\ TransformT>}
+\DoxyCodeLine{00185\ std::unique\_ptr<PredictionSchemeDecoder<DataTypeT,\ TransformT>>}
+\DoxyCodeLine{00186\ \mbox{\hyperlink{namespacedraco_aaa6759408e9feb21c5b0a33bdc618905}{CreatePredictionSchemeForDecoder}}(\mbox{\hyperlink{namespacedraco_ad6347fc34fd6c996d29eaef85c87e91b}{PredictionSchemeMethod}}\ method,\ \textcolor{keywordtype}{int}\ att\_id,}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classdraco_1_1_point_cloud_decoder}{PointCloudDecoder}}\ *decoder)\ \{}
+\DoxyCodeLine{00188\ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{namespacedraco_aaa6759408e9feb21c5b0a33bdc618905}{CreatePredictionSchemeForDecoder<DataTypeT,\ TransformT>}}(}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ method,\ att\_id,\ decoder,\ TransformT());}
+\DoxyCodeLine{00190\ \}}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_COMPRESSION\_ATTRIBUTES\_PREDICTION\_SCHEMES\_PREDICTION\_SCHEME\_DECODER\_FACTORY\_H\_}}
+
+\end{DoxyCode}

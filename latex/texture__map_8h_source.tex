@@ -1,0 +1,181 @@
+\doxysection{texture\+\_\+map.\+h}
+\hypertarget{texture__map_8h_source}{}\label{texture__map_8h_source}\index{RobotLib/libraries/assimp/contrib/draco/src/draco/texture/texture\_map.h@{RobotLib/libraries/assimp/contrib/draco/src/draco/texture/texture\_map.h}}
+\mbox{\hyperlink{texture__map_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//\ Copyright\ 2021\ The\ Draco\ Authors.}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//\ Licensed\ under\ the\ Apache\ License,\ Version\ 2.0\ (the\ "{}License"{});}}
+\DoxyCodeLine{00004\ \textcolor{comment}{//\ you\ may\ not\ use\ this\ file\ except\ in\ compliance\ with\ the\ License.}}
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ You\ may\ obtain\ a\ copy\ of\ the\ License\ at}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ \ \ http://www.apache.org/licenses/LICENSE-\/2.0}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ Unless\ required\ by\ applicable\ law\ or\ agreed\ to\ in\ writing,\ software}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ distributed\ under\ the\ License\ is\ distributed\ on\ an\ "{}AS\ IS"{}\ BASIS,}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ WITHOUT\ WARRANTIES\ OR\ CONDITIONS\ OF\ ANY\ KIND,\ either\ express\ or\ implied.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ See\ the\ License\ for\ the\ specific\ language\ governing\ permissions\ and}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ limitations\ under\ the\ License.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#ifndef\ DRACO\_TEXTURE\_TEXTURE\_MAP\_H\_}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ DRACO\_TEXTURE\_TEXTURE\_MAP\_H\_}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}draco/draco\_features.h"{}}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#ifdef\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{assimp_2contrib_2draco_2src_2draco_2texture_2texture_8h}{draco/texture/texture.h}}"{}}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{texture__transform_8h}{draco/texture/texture\_transform.h}}"{}}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacedraco}{draco}}\ \{}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ Class\ representing\ mapping\ of\ one\ texture\ to\ a\ mesh.\ A\ texture\ map}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ specifies\ the\ mesh\ attribute\ that\ contains\ texture\ coordinates\ used\ by\ the}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ texture.\ The\ class\ also\ defines\ an\ intended\ use\ of\ the\ texture\ as\ a\ so\ called}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ mapping\ type\ (COLOR,\ NORMAL\_TANGENT\_SPACE,\ etc..).\ Mapping\ types\ are\ roughly}}
+\DoxyCodeLine{00032\ \textcolor{comment}{//\ based\ on\ GLTF\ 2.0\ material\ spec\ that\ describes\ a\ metallic-\/roughness\ PBR}}
+\DoxyCodeLine{00033\ \textcolor{comment}{//\ material\ model.\ More\ details\ can\ be\ found\ here:}}
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ https://github.com/KhronosGroup/glTF/tree/master/specification/2.0\#materials}}
+\DoxyCodeLine{00035\ \textcolor{keyword}{class\ }\mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a776b5c2635470928687151b414293839}{TextureMap}}\ \{}
+\DoxyCodeLine{00036\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00037\ \ \ \textcolor{keyword}{enum}\ \mbox{\hyperlink{rapidjson_8h_a1d1cfd8ffb84e947f82999c682b666a7}{Type}}\ \{}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{comment}{//\ Generic\ purpose\ texture\ (not\ GLTF\ compliant).}}
+\DoxyCodeLine{00039\ \ \ \ \ \mbox{\hyperlink{draco__web__decoder_8idl_af4dfb3ed0c0cac84c3b9c002ecebd11ba9e022e6380da28dd73210ed34b137c36}{GENERIC}}\ =\ 0,}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//\ Color\ data\ with\ optional\ alpha\ channel\ for\ transparency\ (GLTF\ compliant).}}
+\DoxyCodeLine{00041\ \ \ \ \ \mbox{\hyperlink{draco__web__decoder_8idl_af4dfb3ed0c0cac84c3b9c002ecebd11ba7a5ecb5193db2d5f258ae1abd33714b9}{COLOR}}\ =\ 1,}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{comment}{//\ Dedicated\ texture\ for\ storing\ transparency\ (not\ GLTF\ compliant).}}
+\DoxyCodeLine{00043\ \ \ \ \ \mbox{\hyperlink{namespaceassimp_1_1material_a034b83e48ea4f51696e276d3d5403f1ba2789759c7845fda949a3ae0a48457669}{OPACITY}}\ =\ 2,}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//\ Dedicated\ texture\ for\ storing\ metallic\ property\ (not\ GLTF\ compliant).}}
+\DoxyCodeLine{00045\ \ \ \ \ METALLIC\ =\ 3,}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//\ Dedicated\ texture\ for\ storing\ roughness\ property\ (not\ GLTF\ compliant).}}
+\DoxyCodeLine{00047\ \ \ \ \ ROUGHNESS\ =\ 4,}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{comment}{//\ Combined\ texture\ for\ storing\ metallic\ and\ roughness\ properties.}}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{comment}{//\ B\ ==\ metallic,\ G\ ==\ roughness\ (GLTF\ compliant).}}
+\DoxyCodeLine{00050\ \ \ \ \ METALLIC\_ROUGHNESS\ =\ 5,}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ Normal\ map\ defined\ in\ the\ object\ space\ of\ the\ mesh\ (not\ GLTF\ compliant).}}
+\DoxyCodeLine{00052\ \ \ \ \ NORMAL\_OBJECT\_SPACE\ =\ 6,}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{comment}{//\ Normal\ map\ defined\ in\ the\ tangent\ space\ of\ the\ mesh\ (GLTF\ compliant).}}
+\DoxyCodeLine{00054\ \ \ \ \ NORMAL\_TANGENT\_SPACE\ =\ 7,}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{comment}{//\ Precomputed\ ambient\ occlusion\ on\ the\ surface\ (GLTF\ compliant).}}
+\DoxyCodeLine{00056\ \ \ \ \ AMBIENT\_OCCLUSION\ =\ 8,}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ Emissive\ color\ (GLTF\ compliant).}}
+\DoxyCodeLine{00058\ \ \ \ \ \mbox{\hyperlink{namespaceassimp_1_1material_a034b83e48ea4f51696e276d3d5403f1bab790f63a2ce3ddf214dc549567c72479}{EMISSIVE}}\ =\ 9,}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{comment}{//\ Texture\ types\ of\ glTF\ material\ extension\ KHR\_materials\_sheen.}}
+\DoxyCodeLine{00060\ \ \ \ \ SHEEN\_COLOR\ =\ 10,}
+\DoxyCodeLine{00061\ \ \ \ \ SHEEN\_ROUGHNESS\ =\ 11,}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{comment}{//\ Texture\ types\ of\ glTF\ material\ extension\ KHR\_materials\_transmission.}}
+\DoxyCodeLine{00063\ \ \ \ \ TRANSMISSION\ =\ 12,}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{comment}{//\ Texture\ types\ of\ glTF\ material\ extension\ KHR\_materials\_clearcoat.}}
+\DoxyCodeLine{00065\ \ \ \ \ CLEARCOAT\ =\ 13,}
+\DoxyCodeLine{00066\ \ \ \ \ CLEARCOAT\_ROUGHNESS\ =\ 14,}
+\DoxyCodeLine{00067\ \ \ \ \ CLEARCOAT\_NORMAL\ =\ 15,}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{comment}{//\ Texture\ types\ of\ glTF\ material\ extension\ KHR\_materials\_volume.}}
+\DoxyCodeLine{00069\ \ \ \ \ THICKNESS\ =\ 16,}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{comment}{//\ Texture\ types\ of\ glTF\ material\ extension\ KHR\_materials\_specular.}}
+\DoxyCodeLine{00071\ \ \ \ \ \mbox{\hyperlink{namespaceassimp_1_1material_a034b83e48ea4f51696e276d3d5403f1ba29903343224ae0b876810161accce75c}{SPECULAR}}\ =\ 17,}
+\DoxyCodeLine{00072\ \ \ \ \ SPECULAR\_COLOR\ =\ 18,}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{comment}{//\ The\ number\ of\ texture\ types.}}
+\DoxyCodeLine{00074\ \ \ \ \ TEXTURE\_TYPES\_COUNT}
+\DoxyCodeLine{00075\ \ \ \};}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \textcolor{keyword}{enum}\ AxisWrappingMode\ \{}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{comment}{//\ Out\ of\ bounds\ access\ along\ a\ texture\ axis\ should\ be\ clamped\ to\ the}}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//\ nearest\ edge\ (default).}}
+\DoxyCodeLine{00080\ \ \ \ \ CLAMP\_TO\_EDGE\ =\ 0,}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{comment}{//\ Texture\ is\ repeated\ along\ a\ texture\ axis\ in\ a\ mirrored\ pattern.}}
+\DoxyCodeLine{00082\ \ \ \ \ MIRRORED\_REPEAT,}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{comment}{//\ Texture\ is\ repeated\ along\ a\ texture\ axis\ (tiled\ textures).}}
+\DoxyCodeLine{00084\ \ \ \ \ REPEAT}
+\DoxyCodeLine{00085\ \ \ \};}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \textcolor{keyword}{struct\ }WrappingMode\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keyword}{explicit}\ WrappingMode(AxisWrappingMode\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}})\ :\ WrappingMode(\mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}},\ \mbox{\hyperlink{zlib_2contrib_2minizip_2ioapi_8h_a7e43d41c2fe013a373b540cba02505cf}{mode}})\ \{\}}
+\DoxyCodeLine{00089\ \ \ \ \ WrappingMode(AxisWrappingMode\ s,\ AxisWrappingMode\ t)\ :\ s(s),\ t(t)\ \{\}}
+\DoxyCodeLine{00090\ \ \ \ \ AxisWrappingMode\ s;}
+\DoxyCodeLine{00091\ \ \ \ \ AxisWrappingMode\ t;}
+\DoxyCodeLine{00092\ \ \ \};}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ \textcolor{comment}{//\ Filter\ types\ are\ roughly\ based\ on\ glTF\ 2.0\ samplers\ spec.}}
+\DoxyCodeLine{00095\ \ \ \textcolor{comment}{//\ https://github.com/KhronosGroup/glTF/tree/master/specification/2.0\#samplers}}
+\DoxyCodeLine{00096\ \ \ \textcolor{keyword}{enum}\ FilterType\ \{}
+\DoxyCodeLine{00097\ \ \ \ \ UNSPECIFIED\ =\ 0,}
+\DoxyCodeLine{00098\ \ \ \ \ NEAREST,}
+\DoxyCodeLine{00099\ \ \ \ \ LINEAR,}
+\DoxyCodeLine{00100\ \ \ \ \ NEAREST\_MIPMAP\_NEAREST,}
+\DoxyCodeLine{00101\ \ \ \ \ LINEAR\_MIPMAP\_NEAREST,}
+\DoxyCodeLine{00102\ \ \ \ \ NEAREST\_MIPMAP\_LINEAR,}
+\DoxyCodeLine{00103\ \ \ \ \ LINEAR\_MIPMAP\_LINEAR}
+\DoxyCodeLine{00104\ \ \ \};}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a776b5c2635470928687151b414293839}{TextureMap}}();}
+\DoxyCodeLine{00107\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a776b5c2635470928687151b414293839}{TextureMap}}(TextureMap\ \&\&)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \textcolor{comment}{//\ Copies\ texture\ map\ data\ from\ the\ |src|\ texture\ map\ to\ this\ texture\ map.}}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespace_assimp_a36c6bee907ea7cf3070444e1f3db3413}{Copy}}(\textcolor{keyword}{const}\ TextureMap\ \&src);}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \textcolor{comment}{//\ Sets\ the\ mapping\ information\ between\ the\ texture\ and\ the\ target\ mesh.}}
+\DoxyCodeLine{00113\ \ \ \textcolor{comment}{//\ |tex\_coord\_index|\ is\ the\ local\ index\ of\ the\ texture\ coordinates\ that\ is}}
+\DoxyCodeLine{00114\ \ \ \textcolor{comment}{//\ used\ to\ map\ the\ texture\ on\ the\ mesh.}}
+\DoxyCodeLine{00115\ \ \ \textcolor{keywordtype}{void}\ SetProperties(\mbox{\hyperlink{rapidjson_8h_a1d1cfd8ffb84e947f82999c682b666a7}{Type}}\ type);}
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordtype}{void}\ SetProperties(\mbox{\hyperlink{rapidjson_8h_a1d1cfd8ffb84e947f82999c682b666a7}{Type}}\ type,\ \textcolor{keywordtype}{int}\ tex\_coord\_index);}
+\DoxyCodeLine{00117\ \ \ \textcolor{keywordtype}{void}\ SetProperties(\mbox{\hyperlink{rapidjson_8h_a1d1cfd8ffb84e947f82999c682b666a7}{Type}}\ type,\ WrappingMode\ wrapping\_mode,}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ tex\_coord\_index);}
+\DoxyCodeLine{00119\ \ \ \textcolor{keywordtype}{void}\ SetProperties(\mbox{\hyperlink{rapidjson_8h_a1d1cfd8ffb84e947f82999c682b666a7}{Type}}\ type,\ WrappingMode\ wrapping\_mode,\ \textcolor{keywordtype}{int}\ tex\_coord\_index,}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ FilterType\ min\_filter,\ FilterType\ mag\_filter);}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \textcolor{comment}{//\ Set\ texture\ and\ transfer\ its\ ownership\ to\ the\ TextureMap\ object.}}
+\DoxyCodeLine{00123\ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00124\ \ \ \textcolor{comment}{//\ Note\ that\ this\ should\ not\ be\ used\ if\ this\ TextureMap\ is\ part\ of\ a}}
+\DoxyCodeLine{00125\ \ \ \textcolor{comment}{//\ MaterialLibrary.\ For\ such\ cases,\ the\ TextureMap's\ texture\ should\ refer\ to}}
+\DoxyCodeLine{00126\ \ \ \textcolor{comment}{//\ an\ entry\ in\ the\ MaterialLibrary's\ TextureLibrary.}}
+\DoxyCodeLine{00127\ \ \ \textcolor{keywordtype}{void}\ SetTexture(std::unique\_ptr<Texture>\ texture);}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \textcolor{comment}{//\ Set\ texture\ and\ without\ transferring\ the\ ownership.\ The\ caller\ needs\ to}}
+\DoxyCodeLine{00130\ \ \ \textcolor{comment}{//\ ensure\ the\ texture\ is\ valid\ during\ the\ lifetime\ of\ the\ TextureMap\ object.}}
+\DoxyCodeLine{00131\ \ \ \textcolor{keywordtype}{void}\ SetTexture(Texture\ *texture);}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \ \textcolor{keywordtype}{void}\ SetTransform(\textcolor{keyword}{const}\ TextureTransform\ \&transform);}
+\DoxyCodeLine{00134\ \ \ \textcolor{keyword}{const}\ TextureTransform\ \&texture\_transform()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordflow}{return}\ texture\_transform\_;}
+\DoxyCodeLine{00136\ \ \ \}}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \ \ \textcolor{keyword}{const}\ Texture\ *texture()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ texture\_;\ \}}
+\DoxyCodeLine{00139\ \ \ Texture\ *texture()\ \{\ \textcolor{keywordflow}{return}\ texture\_;\ \}}
+\DoxyCodeLine{00140\ \ \ \mbox{\hyperlink{rapidjson_8h_a1d1cfd8ffb84e947f82999c682b666a7}{Type}}\ \mbox{\hyperlink{namespace_assimp_1_1_d3_m_f_1_1_xml_tag_a0b934232cabd06f3c163d3ee2413edf5}{type}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ type\_;\ \}}
+\DoxyCodeLine{00141\ \ \ WrappingMode\ wrapping\_mode()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ wrapping\_mode\_;\ \}}
+\DoxyCodeLine{00142\ \ \ \textcolor{keywordtype}{int}\ tex\_coord\_index()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ tex\_coord\_index\_;\ \}}
+\DoxyCodeLine{00143\ \ \ FilterType\ min\_filter()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ min\_filter\_;\ \}}
+\DoxyCodeLine{00144\ \ \ FilterType\ mag\_filter()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mag\_filter\_;\ \}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \ \ \mbox{\hyperlink{namespace_assimp_1_1_f_b_x_a776b5c2635470928687151b414293839}{TextureMap}}\ \&operator=(TextureMap\ \&\&)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00149\ \ \ \mbox{\hyperlink{rapidjson_8h_a1d1cfd8ffb84e947f82999c682b666a7}{Type}}\ type\_;}
+\DoxyCodeLine{00150\ \ \ WrappingMode\ wrapping\_mode\_;}
+\DoxyCodeLine{00151\ }
+\DoxyCodeLine{00152\ \ \ \textcolor{comment}{//\ Local\ index\ of\ the\ texture\ coordinates\ that\ is\ used\ to\ map\ the\ texture\ on}}
+\DoxyCodeLine{00153\ \ \ \textcolor{comment}{//\ the\ mesh.\ For\ example,\ |tex\_coord\_index\_\ ==\ 0|\ would\ correspond\ to\ the}}
+\DoxyCodeLine{00154\ \ \ \textcolor{comment}{//\ first\ TEX\_COORD\ attribute\ of\ the\ mesh.}}
+\DoxyCodeLine{00155\ \ \ \textcolor{keywordtype}{int}\ tex\_coord\_index\_;}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \ \ FilterType\ min\_filter\_;}
+\DoxyCodeLine{00158\ \ \ FilterType\ mag\_filter\_;}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \ \ \textcolor{comment}{//\ Used\ when\ the\ texture\ object\ is\ owned\ by\ TextureMap,\ otherwise\ set\ to}}
+\DoxyCodeLine{00161\ \ \ \textcolor{comment}{//\ nullptr.}}
+\DoxyCodeLine{00162\ \ \ std::unique\_ptr<Texture>\ owned\_texture\_;}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \ \ \textcolor{comment}{//\ Either\ raw\ pointer\ owned\ by\ |owned\_texture\_|\ or\ a\ pointer\ to\ a\ user}}
+\DoxyCodeLine{00165\ \ \ \textcolor{comment}{//\ specified\ texture\ in\ case\ |owned\_texture\_|\ is\ nullptr.}}
+\DoxyCodeLine{00166\ \ \ Texture\ *texture\_;}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ \textcolor{comment}{//\ Transformation\ values\ of\ the\ texture\ map.}}
+\DoxyCodeLine{00169\ \ \ TextureTransform\ texture\_transform\_;}
+\DoxyCodeLine{00170\ \};}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \}\ \ \textcolor{comment}{//\ namespace\ draco}}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TRANSCODER\_SUPPORTED}}
+\DoxyCodeLine{00175\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ DRACO\_TEXTURE\_TEXTURE\_MAP\_H\_}}
+
+\end{DoxyCode}
